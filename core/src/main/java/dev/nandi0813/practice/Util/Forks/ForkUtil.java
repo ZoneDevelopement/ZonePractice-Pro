@@ -1,26 +1,43 @@
 package dev.nandi0813.practice.Util.Forks;
 
 import org.bukkit.Bukkit;
-import pt.foxspigot.jar.knockback.KnockbackModule;
-import xyz.refinedev.spigot.api.knockback.KnockbackAPI;
 
 public enum ForkUtil {
     ;
+    private static final boolean IS_FOX_SPIGOT;
+    private static final boolean IS_CARBON;
 
-    public static boolean isCarbon() throws NoClassDefFoundError {
+    static {
+        IS_FOX_SPIGOT = detectFoxSpigot();
+        IS_CARBON = detectCarbon();
+    }
+
+    private static boolean detectFoxSpigot() {
         try {
-            return Bukkit.getServer().getVersion().contains("Carbon") && KnockbackAPI.getInstance() != null;
-        } catch (Exception e) {
-            throw new NoClassDefFoundError();
+            Class.forName("pt.foxspigot.jar.knockback.KnockbackModule");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
 
-    public static boolean isFoxSpigot() throws NoClassDefFoundError {
+    private static boolean detectCarbon() {
         try {
-            return KnockbackModule.INSTANCE != null;
-        } catch (Exception e) {
-            throw new NoClassDefFoundError();
+            if (!Bukkit.getServer().getVersion().contains("Carbon")) {
+                return false;
+            }
+            Class.forName("xyz.refinedev.spigot.api.knockback.KnockbackAPI");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
 
+    public static boolean isFoxSpigot() {
+        return IS_FOX_SPIGOT;
+    }
+
+    public static boolean isCarbon() {
+        return IS_CARBON;
+    }
 }
