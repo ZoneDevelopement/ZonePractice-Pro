@@ -69,21 +69,21 @@
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
-            <version>4.18.0</version>
+            <version>4.25.0</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-platform-bukkit</artifactId>
-            <version>4.3.4</version>
+            <version>4.4.1</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-minimessage</artifactId>
-            <version>4.18.0</version>
+            <version>4.25.0</version>
             <scope>compile</scope>
         </dependency>
 
@@ -91,25 +91,25 @@
         <dependency>
             <groupId>net.megavex</groupId>
             <artifactId>scoreboard-library-api</artifactId>
-            <version>2.3.1</version>
+            <version>2.4.4</version>
         </dependency>
         <dependency>
             <groupId>net.megavex</groupId>
             <artifactId>scoreboard-library-implementation</artifactId>
-            <version>2.3.1</version>
+            <version>2.4.4</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>net.megavex</groupId>
             <artifactId>scoreboard-library-modern</artifactId>
-            <version>2.3.1</version>
+            <version>2.4.4</version>
             <scope>runtime</scope>
             <!-- <classifier>mojmap</classifier> -->
         </dependency>
         <dependency>
             <groupId>net.megavex</groupId>
             <artifactId>scoreboard-library-v1_8_R3</artifactId>
-            <version>2.3.1</version>
+            <version>2.4.4</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -117,7 +117,7 @@
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
-            <version>2.11.6</version>
+            <version>2.11.7</version>
             <scope>provided</scope>
         </dependency>
 
