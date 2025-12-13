@@ -37,11 +37,6 @@ public enum PlayerUtil {
         player.setNoDamageTicks(20);
     }
 
-    public static void setMatchPlayer(Player player) {
-        setFightPlayer(player);
-        player.setNoDamageTicks(20);
-    }
-
     public static void setFightPlayer(Player player) {
         Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
         {
