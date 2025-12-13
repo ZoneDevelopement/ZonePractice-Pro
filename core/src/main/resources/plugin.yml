@@ -2,7 +2,7 @@ name: ZonePracticePro
 version: '${project.version}'
 main: dev.nandi0813.practice.ZonePractice
 authors: [ Nandi0813 ]
-softdepend: [ PlaceholderAPI, Multiverse-Core, FastAsyncWorldEdit, LiteBans ]
+softdepend: [ PlaceholderAPI, Multiverse-Core, FastAsyncWorldEdit, LiteBans, My_Worlds ]
 loadbefore: [ CMI, CMILib ]
 api-version: 1.13
 commands:
