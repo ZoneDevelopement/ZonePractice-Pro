@@ -162,7 +162,6 @@ public class EventListener implements Listener {
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
-        // One of the possible reasons is that the player is NPC
         if (profile == null) {
             return;
         }
@@ -187,7 +186,6 @@ public class EventListener implements Listener {
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
-        // One of the possible reasons is that the player is NPC
         if (profile == null) {
             return;
         }
