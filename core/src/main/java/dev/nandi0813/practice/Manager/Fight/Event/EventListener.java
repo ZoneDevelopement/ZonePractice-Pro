@@ -161,6 +161,11 @@ public class EventListener implements Listener {
         }
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        if (profile == null) {
+            return;
+        }
+
         if (!profile.getStatus().equals(ProfileStatus.EVENT)) {
             return;
         }
@@ -180,6 +185,11 @@ public class EventListener implements Listener {
         }
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        if (profile == null) {
+            return;
+        }
+
         if (!profile.getStatus().equals(ProfileStatus.EVENT)) {
             return;
         }

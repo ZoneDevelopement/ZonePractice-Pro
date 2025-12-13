@@ -96,6 +96,8 @@ public class MatchListener extends LadderTypeListener implements Listener {
         Profile attackerProfile = ProfileManager.getInstance().getProfile(attacker);
         Profile targetProfile = ProfileManager.getInstance().getProfile(target);
 
+        if (attackerProfile == null) return;
+        if (targetProfile == null) return;
         if (!attackerProfile.getStatus().equals(ProfileStatus.MATCH)) return;
         if (!targetProfile.getStatus().equals(ProfileStatus.MATCH)) return;
 
