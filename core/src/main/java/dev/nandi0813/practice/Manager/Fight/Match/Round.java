@@ -77,6 +77,8 @@ public abstract class Round extends BukkitRunnable {
             MatchFightPlayer matchFightPlayer = match.getMatchPlayers().get(player);
             matchFightPlayer.setKitChooserOrKit(match instanceof Team ? ((Team) match).getTeam(player) : TeamEnum.TEAM1);
 
+            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setMaximumNoDamageTicks(match.ladder.getHitDelay()), 2L);
+
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                     player.addPotionEffects(match.getLadder().getKitData().getEffects()), 2L);
         }

@@ -117,7 +117,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
                 this.allowSpectators = false;
             }
 
-            PlayerUtil.setMatchPlayer(player);
+            PlayerUtil.setFightPlayer(player);
 
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!this.players.contains(online)) {
