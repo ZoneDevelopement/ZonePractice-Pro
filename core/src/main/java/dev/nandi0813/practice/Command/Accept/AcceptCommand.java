@@ -117,14 +117,22 @@ public class AcceptCommand implements CommandExecutor, TabCompleter {
 
         if (args.length == 1) {
             if (profile.isParty()) {
-                for (PartyRequest partyRequest : PartyManager.getInstance().getRequestManager().getRequests().get(PartyManager.getInstance().getParty(player))) {
-                    if (!arguments.contains(partyRequest.getSender().getLeader().getName()))
-                        arguments.add(partyRequest.getSender().getLeader().getName());
+                List<PartyRequest> requests = PartyManager.getInstance().getRequestManager().getRequests().get(PartyManager.getInstance().getParty(player));
+
+                if (requests != null) {
+                    for (PartyRequest partyRequest : requests) {
+                        if (!arguments.contains(partyRequest.getSender().getLeader().getName()))
+                            arguments.add(partyRequest.getSender().getLeader().getName());
+                    }
                 }
             } else {
-                for (DuelRequest duelRequest : DuelManager.getInstance().getRequests().get(player)) {
-                    if (!arguments.contains(duelRequest.getSender().getName()))
-                        arguments.add(duelRequest.getSender().getName());
+                List<DuelRequest> requests = DuelManager.getInstance().getRequests().get(player);
+
+                if (requests != null) {
+                    for (DuelRequest duelRequest : DuelManager.getInstance().getRequests().get(player)) {
+                        if (!arguments.contains(duelRequest.getSender().getName()))
+                            arguments.add(duelRequest.getSender().getName());
+                    }
                 }
             }
 
