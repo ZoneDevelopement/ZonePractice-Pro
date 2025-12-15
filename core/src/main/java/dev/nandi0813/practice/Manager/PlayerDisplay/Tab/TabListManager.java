@@ -52,7 +52,9 @@ public class TabListManager implements Listener {
     @EventHandler
     public synchronized void onPlayerJoin(PlayerJoinEvent e) {
         if (ENABLED) {
-            tabLists.put(e.getPlayer(), new TabList(e.getPlayer()));
+            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
+                            tabLists.put(e.getPlayer(), new TabList(e.getPlayer())),
+                    2L);
         }
     }
 

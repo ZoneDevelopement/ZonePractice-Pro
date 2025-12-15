@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.Manager.PlayerDisplay.Tab;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerListHeaderAndFooter;
 import dev.nandi0813.practice.Util.PAPIUtil;
 import org.bukkit.entity.Player;
@@ -21,7 +22,10 @@ public class TabList {
                 PAPIUtil.runThroughFormat(player, TabListManager.FOOTER_TEXT)
         );
 
-        PacketEvents.getAPI().getPlayerManager().getUser(player).sendPacket(packet);
+        User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
+        if (user != null) {
+            user.sendPacket(packet);
+        }
     }
 
 }
