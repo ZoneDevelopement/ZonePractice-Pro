@@ -14,7 +14,7 @@ major server forks commonly used by competitive PvP networks.
 
 ## Supported Versions
 
-- Primary targets: **1.8.8**, **1.8.9** (legacy), and **modern 1.20.6 / 1.21.4**
+- Primary targets: **1.8.8**, **1.8.9** (legacy), and **modern 1.20.6 / 1.21.X**
 - Actual supported versions are detected at runtime via the `VersionChecker`
 - The plugin automatically disables itself on unsupported versions
 
@@ -45,6 +45,26 @@ shaded into ZonePractice.
 - **spigot_modern/** – modern 1.20.x / 1.21.x builds
 - **distribution/** – release packaging (`ZonePractice Pro v*.jar`)
 - **libs/** – helper jars and forked server builds for development
+
+---
+
+## Cloning & Git LFS
+
+This repository uses **Git LFS (Large File Storage)** to manage heavy binary assets, such as the server builds and
+dependencies located in the `libs/` folder.
+
+To ensure that you download the actual files instead of small text pointers, you **must** have Git LFS installed on your
+system before cloning or pulling updates:
+
+1. **Install Git LFS:** Run `git lfs install` (only needs to be done once per machine).
+2. **Clone the Repo:** Use your standard `git clone` command.
+3. **Troubleshooting:** If the files in `libs/` appear as 1KB text files, run:
+   ```bash
+   git lfs pull
+   ```
+   This will manually sync the large binary assets to your local workspace.
+
+---
 
 ## Building
 
