@@ -21,7 +21,7 @@ public enum Common {
     public static void send(CommandSender sender, Component component) {
         if (sender == null) return;
 
-        // 1) Paper / modern: CommandSender has sendMessage(Component) because it is an Audience. [web:40][web:41]
+        // 1) Paper / modern: CommandSender has sendMessage(Component) because it is an Audience.
         try {
             sender.getClass().getMethod("sendMessage", Component.class).invoke(sender, component);
             return;
