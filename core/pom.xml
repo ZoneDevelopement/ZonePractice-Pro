@@ -49,26 +49,6 @@
             <systemPath>${basedir}/../libs/PaperSpigot-1.8.8-R0.1-SNAPSHOT.jar</systemPath>
         </dependency>
 
-        <!-- Adventure -->
-        <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-api</artifactId>
-            <version>4.25.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-text-minimessage</artifactId>
-            <version>4.25.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-platform-bukkit</artifactId>
-            <version>4.4.1</version>
-            <scope>compile</scope>
-        </dependency>
-
         <!-- Scoreboard API -->
         <dependency>
             <groupId>net.megavex</groupId>
