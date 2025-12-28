@@ -7,4 +7,4 @@ projectJDK: "17"
 
 linter: jetbrains/qodana-jvm-community:2025.3
 
-bootstrap: "mvn install:install-file -Dfile=libs/PaperSpigot-1.8.8-R0.1-SNAPSHOT.jar -DgroupId=org.github.paperspigot -DartifactId=paperspigot-api -Dversion=1.8.8-R0.1-SNAPSHOT -Dpackaging=jar -DgeneratePom=true"
+bootstrap: "./mvnw install:install-file -Dfile=libs/PaperSpigot-1.8.8-R0.1-SNAPSHOT.jar -DgroupId=org.github.paperspigot -DartifactId=paperspigot-api -Dversion=1.8.8-R0.1-SNAPSHOT -Dpackaging=jar -DgeneratePom=true"
