@@ -65,17 +65,17 @@ public class ArenaSetupManager implements Listener {
         {
             GUIManager.getInstance().addGUI(new ArenaSummaryGui());
 
-            for (DisplayArena arena : ArenaManager.getInstance().getArenaList())
+            for (DisplayArena arena : ArenaManager.getInstance().getArenaList()) {
                 buildArenaSetupGUIs(arena);
+            }
         });
     }
 
     public void removeArenaGUIs(DisplayArena arena) {
         for (GUI gui : arenaSetupGUIs.get(arena).values()) {
-            for (Player player : gui.getInGuiPlayers().keySet())
+            for (Player player : gui.getInGuiPlayers().keySet()) {
                 GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).open(player);
-
-            GUIManager.getInstance().getGuis().remove(gui);
+            }
         }
 
         arenaSetupGUIs.remove(arena);

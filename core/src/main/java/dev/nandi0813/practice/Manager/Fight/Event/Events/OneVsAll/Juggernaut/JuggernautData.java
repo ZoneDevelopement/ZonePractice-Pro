@@ -20,21 +20,33 @@ public class JuggernautData extends EventData {
 
     @Override
     protected void setCustomData() {
-        juggernautKitData.saveData(this.config, "juggernaut-kit");
-        playerKitData.saveData(this.config, "player-kit");
+        if (juggernautKitData != null) {
+            juggernautKitData.saveData(this.config, "juggernaut-kit");
+        }
+
+        if (playerKitData != null) {
+            playerKitData.saveData(this.config, "player-kit");
+        }
     }
 
     @Override
     protected void getCustomData() {
-        juggernautKitData.getData(this.config, "juggernaut-kit");
-        playerKitData.getData(this.config, "player-kit");
+        if (juggernautKitData != null) {
+            juggernautKitData.getData(this.config, "juggernaut-kit");
+        }
+
+        if (playerKitData != null) {
+            playerKitData.getData(this.config, "player-kit");
+        }
     }
 
     @Override
     protected void enable() throws IOException {
-        if (!juggernautKitData.isSet()) {
+        if (juggernautKitData == null || !juggernautKitData.isSet()) {
             throw new IOException("Juggernaut kit data is not set.");
-        } else if (!playerKitData.isSet()) {
+        }
+
+        if (playerKitData == null || !playerKitData.isSet()) {
             throw new IOException("Player kit data is not set.");
         }
     }

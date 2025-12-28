@@ -49,10 +49,9 @@ public class HologramSetupManager implements Listener {
 
     public void removeHologramGUIs(Hologram hologram) {
         for (GUI gui : hologramSetupGUIs.get(hologram).values()) {
-            for (Player player : gui.getInGuiPlayers().keySet())
+            for (Player player : gui.getInGuiPlayers().keySet()) {
                 GUIManager.getInstance().searchGUI(GUIType.Setup_Hub).open(player);
-
-            GUIManager.getInstance().getGuis().remove(gui);
+            }
         }
 
         hologramSetupGUIs.remove(hologram);

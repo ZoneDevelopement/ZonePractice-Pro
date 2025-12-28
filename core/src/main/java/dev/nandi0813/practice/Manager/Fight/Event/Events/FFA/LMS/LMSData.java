@@ -19,17 +19,21 @@ public class LMSData extends EventData {
 
     @Override
     protected void setCustomData() {
-        kitData.saveData(config, "kit");
+        if (kitData != null) {
+            kitData.saveData(config, "kit");
+        }
     }
 
     @Override
     protected void getCustomData() {
-        kitData.getData(config, "kit");
+        if (kitData != null) {
+            kitData.getData(config, "kit");
+        }
     }
 
     @Override
     protected void enable() throws NullPointerException, IOException {
-        if (!kitData.isSet()) {
+        if (kitData != null && !kitData.isSet()) {
             throw new IOException("Kit data is not set.");
         }
     }

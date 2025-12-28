@@ -29,14 +29,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class InventoryGui extends GUI {
 
-    private static final boolean secondHand = VersionChecker.getBukkitVersion().isSecondHand();
+    private static final boolean secondHand = Optional.ofNullable(VersionChecker.getBukkitVersion())
+            .map(VersionChecker.BukkitVersion::isSecondHand)
+            .orElse(false);
 
     @Getter
     private final NormalLadder ladder;

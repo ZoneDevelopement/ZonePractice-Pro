@@ -36,10 +36,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CustomLadderEditorGui extends GUI {
 
@@ -138,7 +135,7 @@ public class CustomLadderEditorGui extends GUI {
                 if (inventory.getItem(i) == null)
                     inventory.setItem(i, fillerItem);
 
-            if (VersionChecker.getBukkitVersion().isSecondHand()) {
+            if (Objects.requireNonNull(VersionChecker.getBukkitVersion()).isSecondHand()) {
                 if (customKit.getExtra() != null) {
                     if (customKit.getExtra().length > 0) {
                         inventory.setItem(14, customKit.getExtra()[0]);
@@ -212,7 +209,7 @@ public class CustomLadderEditorGui extends GUI {
         if (ladder.isEnabled() && ladder.isEditable() && !ladder.isFrozen()) {
             ItemStack[] inventoryStorageContent = ClassImport.getClasses().getPlayerUtil().getInventoryStorageContent(player);
             customKit.setInventory(inventoryStorageContent);
-            if (VersionChecker.getBukkitVersion().isSecondHand()) {
+            if (Objects.requireNonNull(VersionChecker.getBukkitVersion()).isSecondHand()) {
                 customKit.setExtra(new ItemStack[]{this.gui.get(1).getItem(14)});
             }
         }

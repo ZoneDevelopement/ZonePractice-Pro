@@ -11,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 public enum ClassImport {
     ;
@@ -101,7 +102,7 @@ public enum ClassImport {
 
     private static Class<?> getNamedClass() {
 
-        String version = VersionChecker.getBukkitVersion().getModuleVersionExtension();
+        String version = Objects.requireNonNull(VersionChecker.getBukkitVersion()).getModuleVersionExtension();
         if (version == null) {
             return null;
         }

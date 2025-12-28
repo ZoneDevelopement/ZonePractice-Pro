@@ -8,6 +8,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 public class FakeTeam {
@@ -33,7 +34,7 @@ public class FakeTeam {
         }
         this.name = generatedName;
 
-        if (VersionChecker.getBukkitVersion().equals(VersionChecker.BukkitVersion.v1_8_R3)) {
+        if (Objects.equals(VersionChecker.getBukkitVersion(), VersionChecker.BukkitVersion.v1_8_R3)) {
             this.name = this.name.length() > 16 ? this.name.substring(0, 16) : this.name;
         } else {
             this.name = this.name.length() > 256 ? this.name.substring(0, 256) : this.name;

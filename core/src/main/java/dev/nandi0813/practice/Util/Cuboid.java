@@ -117,7 +117,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 
     @Override
     public Map<String, Object> serialize() {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("worldName", this.worldName);
         map.put("x1", this.x1);
         map.put("y1", this.y1);
@@ -153,7 +153,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      */
     public List<Block> getBlocks() {
         Iterator<Block> blockI = this.iterator();
-        List<Block> copy = new ArrayList<Block>();
+        List<Block> copy = new ArrayList<>();
         while (blockI.hasNext())
             copy.add(blockI.next());
         return copy;
@@ -291,22 +291,15 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      * @return A new Cuboid expanded by the given direction and amount
      */
     public Cuboid expand(CuboidDirection dir, int amount) {
-        switch (dir) {
-            case North:
-                return new Cuboid(this.worldName, this.x1 - amount, this.y1, this.z1, this.x2, this.y2, this.z2);
-            case South:
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2 + amount, this.y2, this.z2);
-            case East:
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z1 - amount, this.x2, this.y2, this.z2);
-            case West:
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, this.y2, this.z2 + amount);
-            case Down:
-                return new Cuboid(this.worldName, this.x1, this.y1 - amount, this.z1, this.x2, this.y2, this.z2);
-            case Up:
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, this.y2 + amount, this.z2);
-            default:
-                throw new IllegalArgumentException("Invalid direction " + dir);
-        }
+        return switch (dir) {
+            case North -> new Cuboid(this.worldName, this.x1 - amount, this.y1, this.z1, this.x2, this.y2, this.z2);
+            case South -> new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2 + amount, this.y2, this.z2);
+            case East -> new Cuboid(this.worldName, this.x1, this.y1, this.z1 - amount, this.x2, this.y2, this.z2);
+            case West -> new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, this.y2, this.z2 + amount);
+            case Down -> new Cuboid(this.worldName, this.x1, this.y1 - amount, this.z1, this.x2, this.y2, this.z2);
+            case Up -> new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, this.y2 + amount, this.z2);
+            default -> throw new IllegalArgumentException("Invalid direction " + dir);
+        };
     }
 
     /**
@@ -328,20 +321,13 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      * @return A new Cuboid outset by the given direction and amount
      */
     public Cuboid outset(CuboidDirection dir, int amount) {
-        Cuboid c;
-        switch (dir) {
-            case Horizontal:
-                c = expand(CuboidDirection.North, amount).expand(CuboidDirection.South, amount).expand(CuboidDirection.East, amount).expand(CuboidDirection.West, amount);
-                break;
-            case Vertical:
-                c = expand(CuboidDirection.Down, amount).expand(CuboidDirection.Up, amount);
-                break;
-            case Both:
-                c = outset(CuboidDirection.Horizontal, amount).outset(CuboidDirection.Vertical, amount);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid direction " + dir);
-        }
+        Cuboid c = switch (dir) {
+            case Horizontal ->
+                    expand(CuboidDirection.North, amount).expand(CuboidDirection.South, amount).expand(CuboidDirection.East, amount).expand(CuboidDirection.West, amount);
+            case Vertical -> expand(CuboidDirection.Down, amount).expand(CuboidDirection.Up, amount);
+            case Both -> outset(CuboidDirection.Horizontal, amount).outset(CuboidDirection.Vertical, amount);
+            default -> throw new IllegalArgumentException("Invalid direction " + dir);
+        };
         return c;
     }
 
@@ -434,40 +420,45 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      */
     public Cuboid contract(CuboidDirection dir) {
         Cuboid face = getFace(dir.opposite());
-        switch (dir) {
-            case Down:
+        return switch (dir) {
+            case Down -> {
                 while (face.containsOnly(0) && face.getLowerY() > this.getLowerY()) {
                     face = face.shift(CuboidDirection.Down, 1);
                 }
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, face.getUpperY(), this.z2);
-            case Up:
+                yield new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, face.getUpperY(), this.z2);
+            }
+            case Up -> {
                 while (face.containsOnly(0) && face.getUpperY() < this.getUpperY()) {
                     face = face.shift(CuboidDirection.Up, 1);
                 }
-                return new Cuboid(this.worldName, this.x1, face.getLowerY(), this.z1, this.x2, this.y2, this.z2);
-            case North:
+                yield new Cuboid(this.worldName, this.x1, face.getLowerY(), this.z1, this.x2, this.y2, this.z2);
+            }
+            case North -> {
                 while (face.containsOnly(0) && face.getLowerX() > this.getLowerX()) {
                     face = face.shift(CuboidDirection.North, 1);
                 }
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z1, face.getUpperX(), this.y2, this.z2);
-            case South:
+                yield new Cuboid(this.worldName, this.x1, this.y1, this.z1, face.getUpperX(), this.y2, this.z2);
+            }
+            case South -> {
                 while (face.containsOnly(0) && face.getUpperX() < this.getUpperX()) {
                     face = face.shift(CuboidDirection.South, 1);
                 }
-                return new Cuboid(this.worldName, face.getLowerX(), this.y1, this.z1, this.x2, this.y2, this.z2);
-            case East:
+                yield new Cuboid(this.worldName, face.getLowerX(), this.y1, this.z1, this.x2, this.y2, this.z2);
+            }
+            case East -> {
                 while (face.containsOnly(0) && face.getLowerZ() > this.getLowerZ()) {
                     face = face.shift(CuboidDirection.East, 1);
                 }
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, this.y2, face.getUpperZ());
-            case West:
+                yield new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, this.y2, face.getUpperZ());
+            }
+            case West -> {
                 while (face.containsOnly(0) && face.getUpperZ() < this.getUpperZ()) {
                     face = face.shift(CuboidDirection.West, 1);
                 }
-                return new Cuboid(this.worldName, this.x1, this.y1, face.getLowerZ(), this.x2, this.y2, this.z2);
-            default:
-                throw new IllegalArgumentException("Invalid direction " + dir);
-        }
+                yield new Cuboid(this.worldName, this.x1, this.y1, face.getLowerZ(), this.x2, this.y2, this.z2);
+            }
+            default -> throw new IllegalArgumentException("Invalid direction " + dir);
+        };
     }
 
     /**
@@ -477,22 +468,15 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      * @return The Cuboid representing this Cuboid's requested face
      */
     public Cuboid getFace(CuboidDirection dir) {
-        switch (dir) {
-            case Down:
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, this.y1, this.z2);
-            case Up:
-                return new Cuboid(this.worldName, this.x1, this.y2, this.z1, this.x2, this.y2, this.z2);
-            case North:
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x1, this.y2, this.z2);
-            case South:
-                return new Cuboid(this.worldName, this.x2, this.y1, this.z1, this.x2, this.y2, this.z2);
-            case East:
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, this.y2, this.z1);
-            case West:
-                return new Cuboid(this.worldName, this.x1, this.y1, this.z2, this.x2, this.y2, this.z2);
-            default:
-                throw new IllegalArgumentException("Invalid direction " + dir);
-        }
+        return switch (dir) {
+            case Down -> new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, this.y1, this.z2);
+            case Up -> new Cuboid(this.worldName, this.x1, this.y2, this.z1, this.x2, this.y2, this.z2);
+            case North -> new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x1, this.y2, this.z2);
+            case South -> new Cuboid(this.worldName, this.x2, this.y1, this.z1, this.x2, this.y2, this.z2);
+            case East -> new Cuboid(this.worldName, this.x1, this.y1, this.z1, this.x2, this.y2, this.z1);
+            case West -> new Cuboid(this.worldName, this.x1, this.y1, this.z2, this.x2, this.y2, this.z2);
+            default -> throw new IllegalArgumentException("Invalid direction " + dir);
+        };
     }
 
     /**
@@ -611,7 +595,11 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 
     @Override
     public Cuboid clone() {
-        return new Cuboid(this);
+        try {
+            return (Cuboid) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 
     @Override

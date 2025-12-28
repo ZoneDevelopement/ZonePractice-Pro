@@ -6,15 +6,12 @@ import dev.nandi0813.practice.Module.Util.VersionChecker;
 import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class KitItems {
 
-    private static final boolean SECOND_HAND = VersionChecker.getBukkitVersion().isSecondHand();
+    private static final boolean SECOND_HAND = Objects.requireNonNull(VersionChecker.getBukkitVersion()).isSecondHand();
 
     private final KitData kitData;
 

@@ -121,10 +121,6 @@ public class EntityHiderListener implements PacketListener, Listener {
     public void onPacketSend(PacketSendEvent e) {
         Player player = e.getPlayer();
 
-        if (player == null) {
-            return;
-        }
-
         if (!this.checkPlayer(player)) {
             effectTo.remove(player);
             entityLocations.remove(player.getEntityId());

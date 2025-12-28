@@ -23,9 +23,7 @@ public class TabList {
         );
 
         User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
-        if (user != null) {
-            user.sendPacket(packet);
-        }
+        user.sendPacket(packet);
     }
 
 }

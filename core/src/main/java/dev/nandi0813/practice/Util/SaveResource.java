@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 public class SaveResource {
 
@@ -95,7 +96,7 @@ public class SaveResource {
     }
 
     private String getVersionPath() {
-        return VersionChecker.getBukkitVersion().getFilePath();
+        return Objects.requireNonNull(VersionChecker.getBukkitVersion()).getFilePath();
     }
 
     private static void saveLadder(ZonePractice practice, String path, String fileName) {

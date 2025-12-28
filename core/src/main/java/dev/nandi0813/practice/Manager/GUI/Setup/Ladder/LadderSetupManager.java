@@ -64,10 +64,9 @@ public class LadderSetupManager implements Listener {
 
     public void removeLadderGUIs(Ladder ladder) {
         for (GUI gui : ladderSetupGUIs.get(ladder).values()) {
-            for (Player player : gui.getInGuiPlayers().keySet())
+            for (Player player : gui.getInGuiPlayers().keySet()) {
                 GUIManager.getInstance().searchGUI(GUIType.Setup_Hub).open(player);
-
-            GUIManager.getInstance().getGuis().remove(gui);
+            }
         }
 
         ladderSetupGUIs.remove(ladder);

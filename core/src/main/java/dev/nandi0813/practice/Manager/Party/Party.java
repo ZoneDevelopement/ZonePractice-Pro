@@ -11,6 +11,7 @@ import dev.nandi0813.practice.Manager.Profile.Enum.ProfileStatus;
 import dev.nandi0813.practice.Manager.Profile.Profile;
 import dev.nandi0813.practice.Manager.Profile.ProfileManager;
 import dev.nandi0813.practice.Util.Common;
+import dev.nandi0813.practice.Util.PlayerUtil.PlayerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
@@ -132,8 +133,6 @@ public class Party implements dev.nandi0813.api.Interface.Party {
         }
 
         GUIManager.getInstance().searchGUI(GUIType.Party_OtherParties).update();
-        GUIManager.getInstance().getGuis().remove(partySettingsGui);
-
         PartyManager.getInstance().getParties().remove(this);
     }
 
@@ -143,10 +142,7 @@ public class Party implements dev.nandi0813.api.Interface.Party {
     }
 
     public List<String> getMemberNames() {
-        List<String> memberNames = new ArrayList<>();
-        for (Player player : members)
-            memberNames.add(player.getName());
-        return memberNames;
+        return PlayerUtil.getPlayerNames(members);
     }
 
 }

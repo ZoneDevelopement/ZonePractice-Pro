@@ -20,10 +20,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Getter
@@ -169,7 +166,7 @@ public class InventoryManager extends ConfigFile {
             if (inventory == null) continue;
 
             inventory.getInvArmor().setArmorContent(
-                    ItemSerializationUtil.itemStackArrayFromBase64(BackendManager.getConfig().getString("INV-ARMORS." + key))
+                    Objects.requireNonNull(ItemSerializationUtil.itemStackArrayFromBase64(BackendManager.getConfig().getString("INV-ARMORS." + key)))
             );
         }
     }
