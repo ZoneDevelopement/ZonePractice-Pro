@@ -73,8 +73,16 @@ system before cloning or pulling updates:
 
 ## Building
 
-1. Install JDK (Java 17+ recommended for modern builds) and Maven
-2. Run: `mvn clean package`
+1. **Prerequisites:** Install JDK (Java 17+ recommended for modern builds) and Maven.
+2. **Install Local Dependencies:**
+   Since the PaperSpigot API is not available in public repositories, install it manually from the `libs` folder:
+   ```bash
+   mvn install:install-file -Dfile=libs/PaperSpigot-1.8.8-R0.1-SNAPSHOT.jar -DgroupId=org.github.paperspigot -DartifactId=paperspigot-api -Dversion=1.8.8-R0.1-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+   ```
+3. **Build the Project:**
+   ```bash
+   mvn clean package
+   ```
 
 ## Installation (Server)
 
