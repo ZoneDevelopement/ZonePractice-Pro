@@ -25,7 +25,7 @@
         <defaultGoal>clean install</defaultGoal>
         <finalName>ZonePractice Pro v6.22-SNAPSHOT</finalName>
 
-        <plugins>
+<plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -37,9 +37,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <outputFile>${project.build.finalName}.jar</outputFile>
-
                             <createDependencyReducedPom>false</createDependencyReducedPom>
 
                             <artifactSet>
