@@ -69,5 +69,7 @@ jobs:
         with:
           tag_name: v${{ steps.check_version.outputs.version }}
           name: ZonePractice v${{ steps.check_version.outputs.version }}
-          files: distribution/target/*.jar
+          files: |
+            distribution/target/*.jar
+            !distribution/target/original-*.jar
           generate_release_notes: true

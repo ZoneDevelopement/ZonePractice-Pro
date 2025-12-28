@@ -40,5 +40,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ZonePractice-Plugin
-          path: distribution/target/*.jar
+          path: |
+            distribution/target/*.jar
+            !distribution/target/original-*.jar
           retention-days: 5
