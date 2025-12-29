@@ -1,0 +1,25 @@
+name: Sync Dev with Master
+
+on:
+  pull_request:
+    types: [ closed ]
+    branches: [ "master", "main" ]
+
+jobs:
+  sync-branch:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'dev'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Master/Main
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+
+      - name: Force Sync Dev
+        run: |
+          git push origin HEAD:dev --force
