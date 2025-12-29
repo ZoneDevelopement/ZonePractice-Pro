@@ -1,35 +1,35 @@
 package dev.nandi0813.practice_1_8_8;
 
-import dev.nandi0813.practice.Module.Interfaces.*;
 import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice_1_8_8.Interfaces.LadderUtil;
-import dev.nandi0813.practice_1_8_8.Interfaces.MatchTntListener;
-import dev.nandi0813.practice_1_8_8.Interfaces.PlayerHiderUtil;
-import dev.nandi0813.practice_1_8_8.Listener.ArenaListener;
-import dev.nandi0813.practice_1_8_8.Listener.FFAListener;
-import dev.nandi0813.practice_1_8_8.Listener.MatchListener;
+import dev.nandi0813.practice.module.interfaces.*;
+import dev.nandi0813.practice_1_8_8.interfaces.LadderUtil;
+import dev.nandi0813.practice_1_8_8.interfaces.MatchTntListener;
+import dev.nandi0813.practice_1_8_8.interfaces.PlayerHiderUtil;
+import dev.nandi0813.practice_1_8_8.listener.ArenaListener;
+import dev.nandi0813.practice_1_8_8.listener.FFAListener;
+import dev.nandi0813.practice_1_8_8.listener.MatchListener;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 
 @Getter
-public class Classes implements dev.nandi0813.practice.Module.Util.Classes {
+public class Classes implements dev.nandi0813.practice.module.util.Classes {
 
-    public WorldCreate worldCreate = new dev.nandi0813.practice_1_8_8.Interfaces.WorldCreate();
+    public WorldCreate worldCreate = new dev.nandi0813.practice_1_8_8.interfaces.WorldCreate();
     public PlayerHiderInterface playerHiderUtil = new PlayerHiderUtil();
-    public ItemMaterialUtil itemMaterialUtil = new dev.nandi0813.practice_1_8_8.Interfaces.ItemMaterialUtil();
+    public ItemMaterialUtil itemMaterialUtil = new dev.nandi0813.practice_1_8_8.interfaces.ItemMaterialUtil();
     public LadderUtil ladderUtil = new LadderUtil();
-    public ItemCreateUtil itemCreateUtil = new dev.nandi0813.practice_1_8_8.Interfaces.ItemCreateUtil();
-    public PlayerUtil playerUtil = new dev.nandi0813.practice_1_8_8.Interfaces.PlayerUtil();
-    public ArenaUtil arenaUtil = new dev.nandi0813.practice_1_8_8.Interfaces.ArenaUtil();
-    public ArenaCopyUtil arenaCopyUtil = new dev.nandi0813.practice_1_8_8.Interfaces.ArenaCopyUtil();
+    public ItemCreateUtil itemCreateUtil = new dev.nandi0813.practice_1_8_8.interfaces.ItemCreateUtil();
+    public PlayerUtil playerUtil = new dev.nandi0813.practice_1_8_8.interfaces.PlayerUtil();
+    public ArenaUtil arenaUtil = new dev.nandi0813.practice_1_8_8.interfaces.ArenaUtil();
+    public ArenaCopyUtil arenaCopyUtil = new dev.nandi0813.practice_1_8_8.interfaces.ArenaCopyUtil();
 
-    public BedUtil bedUtil = new dev.nandi0813.practice_1_8_8.Interfaces.BedUtil();
-    public EntityHider entityHider = new dev.nandi0813.practice_1_8_8.Interfaces.EntityHider(ZonePractice.getInstance(), EntityHider.Policy.BLACKLIST);
-    public StatisticListener statisticListener = new dev.nandi0813.practice_1_8_8.Interfaces.StatisticListener();
+    public BedUtil bedUtil = new dev.nandi0813.practice_1_8_8.interfaces.BedUtil();
+    public EntityHider entityHider = new dev.nandi0813.practice_1_8_8.interfaces.EntityHider(ZonePractice.getInstance(), EntityHider.Policy.BLACKLIST);
+    public StatisticListener statisticListener = new dev.nandi0813.practice_1_8_8.interfaces.StatisticListener();
 
-    public Class<?> changedBlockClass = dev.nandi0813.practice_1_8_8.Interfaces.ChangedBlock.class;
-    public Class<?> kitDataClass = dev.nandi0813.practice_1_8_8.Interfaces.KitData.class;
-    public Class<?> actionBarClass = dev.nandi0813.practice_1_8_8.Interfaces.ActionBar.class;
+    public Class<?> changedBlockClass = dev.nandi0813.practice_1_8_8.interfaces.ChangedBlock.class;
+    public Class<?> kitDataClass = dev.nandi0813.practice_1_8_8.interfaces.KitData.class;
+    public Class<?> actionBarClass = dev.nandi0813.practice_1_8_8.interfaces.ActionBar.class;
 
     public Classes() {
         Bukkit.getServer().getPluginManager().registerEvents(arenaCopyUtil, ZonePractice.getInstance());

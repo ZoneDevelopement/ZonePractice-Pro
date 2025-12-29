@@ -1,0 +1,68 @@
+package dev.nandi0813.practice.command.event.arguments;
+
+import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
+import dev.nandi0813.practice.util.Common;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+public enum SpawnPointArg {
+    ;
+
+    public static void spawnPointCommand(Player player, String label1, EventData eventData, String[] args) {
+        if (args.length == 3) {
+            try {
+                switch (args[2]) {
+                    case "add":
+                        eventData.addSpawn(player.getLocation());
+                        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.SPAWN-POSITION.SPAWN-ADDED")
+                                .replace("%event%", eventData.getType().getName())
+                                .replace("%posCount%", String.valueOf(eventData.getSpawns().size())));
+                        break;
+                    case "remove":
+                        eventData.removeSpawn(player.getLocation());
+                        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.SPAWN-POSITION.SPAWN-REMOVED")
+                                .replace("%event%", eventData.getType().getName())
+                                .replace("%posCount%", String.valueOf(eventData.getSpawns().size())));
+                        break;
+                    case "clear":
+                        eventData.clearSpawn();
+                        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.SPAWN-POSITION.SPAWN-CLEARED")
+                                .replace("%event%", eventData.getType().getName()));
+                        break;
+                    case "list":
+                        if (eventData.getSpawns().isEmpty()) {
+                            Common.sendMMMessage(player, "<red>No spawn points found.");
+                        } else {
+                            int i = 1;
+                            for (Location location : eventData.getSpawns()) {
+                                Common.sendMMMessage(player, "<gold>[" + i + "]: <gray>" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ());
+                                i++;
+
+                                Common.sendMMMessage(player,
+                                        " <red>» <click:run_command:'/tp " + player.getName() + " "
+                                                + location.getBlockX() + " "
+                                                + location.getBlockY() + " "
+                                                + location.getBlockZ() + "'><hover:show_text:'<gray>Teleport to this position.'>Click to teleport</hover></click>");
+                            }
+                        }
+                        break;
+                }
+            } catch (Exception e) {
+                Common.sendMMMessage(player, "<red>" + e.getMessage());
+            }
+        } else {
+            sendHelp(player, label1, eventData);
+        }
+    }
+
+    private static void sendHelp(Player player, String label, EventData eventData) {
+        for (String line : LanguageManager.getList("COMMAND.EVENT.ARGUMENTS.SPAWN-POSITION.COMMAND-HELP")) {
+            Common.sendMMMessage(player, line
+                    .replaceAll("%label%", label)
+                    .replaceAll("%event%", eventData.getType().getName().toLowerCase())
+            );
+        }
+    }
+
+}
