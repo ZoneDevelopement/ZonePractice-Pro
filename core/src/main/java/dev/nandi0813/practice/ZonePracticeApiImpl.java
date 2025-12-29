@@ -3,14 +3,14 @@ package dev.nandi0813.practice;
 import dev.nandi0813.api.Enum.DivisionName;
 import dev.nandi0813.api.Enum.WeightClass;
 import dev.nandi0813.api.ZonePracticeApi;
-import dev.nandi0813.practice.Manager.Fight.Match.Match;
-import dev.nandi0813.practice.Manager.Fight.Match.MatchManager;
-import dev.nandi0813.practice.Manager.Ladder.Abstraction.Normal.NormalLadder;
-import dev.nandi0813.practice.Manager.Ladder.LadderManager;
-import dev.nandi0813.practice.Manager.Profile.Group.Group;
-import dev.nandi0813.practice.Manager.Profile.Profile;
-import dev.nandi0813.practice.Manager.Profile.ProfileManager;
-import dev.nandi0813.practice.Util.StringUtil;
+import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.ladder.LadderManager;
+import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
+import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.group.Group;
+import dev.nandi0813.practice.util.StringUtil;
 import org.bukkit.entity.Player;
 
 public class ZonePracticeApiImpl extends ZonePracticeApi {

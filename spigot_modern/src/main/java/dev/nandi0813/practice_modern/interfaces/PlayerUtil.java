@@ -1,0 +1,152 @@
+package dev.nandi0813.practice_modern.interfaces;
+
+import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.util.StringUtil;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class PlayerUtil implements dev.nandi0813.practice.module.interfaces.PlayerUtil {
+
+    @Override
+    public ItemStack getPlayerMainHand(Player player) {
+        return player.getInventory().getItemInMainHand();
+    }
+
+    @Override
+    public boolean isItemInUse(Player player, Material material) {
+        ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
+        ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+
+        return itemInMainHand.getType().equals(material) || itemInOffHand.getType().equals(material);
+    }
+
+    @Override
+    public ItemStack getItemInUse(Player player, Material material) {
+        ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
+        ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+
+        if (itemInMainHand.getType().equals(material)) return itemInMainHand;
+        if (itemInOffHand.getType().equals(material)) return itemInOffHand;
+        return null;
+    }
+
+    @Override
+    public void setItemInUseIf(Player player, Material material, ItemStack itemStack) {
+        if (player.getInventory().getItemInMainHand().getType().equals(material)) {
+            player.getInventory().setItemInMainHand(itemStack);
+        }
+        if (player.getInventory().getItemInOffHand().getType().equals(material)) {
+            player.getInventory().setItemInOffHand(itemStack);
+        }
+    }
+
+    @Override
+    public List<Entity> dropPlayerInventory(Player player) {
+        List<Entity> entities = new ArrayList<>();
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item == null) continue;
+            if (item.getType().equals(Material.AIR)) continue;
+
+            entities.add(player.getWorld().dropItemNaturally(player.getLocation(), item));
+        }
+        this.clearInventory(player);
+
+        return entities;
+    }
+
+    public void clearInventory(Player player) {
+        player.getInventory().clear();
+    }
+
+    public void setCollidesWithEntities(Player player, boolean bool) {
+        player.setCollidable(bool);
+    }
+
+    @Override
+    public int getPing(Player player) {
+        return player.getPing();
+    }
+
+    @Override
+    public ItemStack[] getInventoryStorageContent(Player player) {
+        return player.getInventory().getStorageContents();
+    }
+
+    @Override
+    public double getPlayerHealth(Player player) {
+        return player.getHealth() + player.getAbsorptionAmount();
+    }
+
+    @Override
+    public void setActiveInventoryTitle(Player player, String title) {
+        player.getOpenInventory().setTitle(StringUtil.CC(title));
+    }
+
+    @Override
+    public void setPlayerListName(Player player, Component component) {
+        player.playerListName(component);
+    }
+
+    @Override
+    public Fireball shootFireball(Player player, double speed) {
+        final Fireball fireball = player.launchProjectile(Fireball.class);
+        fireball.setAcceleration(fireball.getAcceleration().normalize().multiply(speed));
+        return fireball;
+    }
+
+    @Override
+    public void applyFireballKnockback(final Player player, final Fireball fireball) {
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            Vector direction = player.getLocation().toVector()
+                    .subtract(fireball.getLocation().toVector());
+
+            if (direction.lengthSquared() == 0) {
+                direction = new Vector(0, 0.1, 0);
+            } else {
+                direction.normalize();
+            }
+
+            Vector velocity = new Vector(
+                    direction.getX() * FB_VELOCITY_HORIZONTAL_MULTIPLICATIVE,
+                    FB_VELOCITY_VERTICAL_MULTIPLICATIVE,
+                    direction.getZ() * FB_VELOCITY_HORIZONTAL_MULTIPLICATIVE
+            );
+
+            player.setVelocity(velocity);
+        }, 1L);
+    }
+
+    @Override
+    public void applyTntKnockback(Player player, TNTPrimed tnt) {
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            Vector direction = player.getLocation().toVector()
+                    .subtract(tnt.getLocation().toVector());
+
+            if (direction.lengthSquared() == 0) {
+                direction = new Vector(0, 0.1, 0);
+            } else {
+                direction.normalize();
+            }
+
+            Vector velocity = new Vector(
+                    direction.getX() * TNT_VELOCITY_HORIZONTAL_MULTIPLICATIVE,
+                    TNT_VELOCITY_VERTICAL_MULTIPLICATIVE,
+                    direction.getZ() * TNT_VELOCITY_HORIZONTAL_MULTIPLICATIVE
+            );
+
+            player.setVelocity(velocity);
+        }, 1L);
+    }
+
+}

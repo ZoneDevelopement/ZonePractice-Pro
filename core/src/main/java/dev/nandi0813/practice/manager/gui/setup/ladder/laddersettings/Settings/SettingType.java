@@ -1,0 +1,28 @@
+package dev.nandi0813.practice.manager.gui.setup.ladder.laddersettings.Settings;
+
+public enum SettingType {
+
+    REGENERATION,
+    HUNGER,
+    EDITABLE,
+    ENDER_PEARL_COOLDOWN,
+    GOLDEN_APPLE_COOLDOWN,
+    HIT_DELAY,
+    KNOCKBACK,
+    START_COUNTDOWN,
+    START_MOVING,
+    MULTI_ROUND_START_COUNTDOWN,
+    DROP_INVENTORY_TEAM,
+    WEIGHT_CLASS,
+    ROUNDS,
+    RESPAWN_TIME,
+    BOXING_HITS,
+    FIREBALL_COOLDOWN,
+    SKYWARS_LOOT,
+    TEMP_BUILD_DELAY,
+    BUILD,
+    MAX_DURATION,
+    TNT_FUSE_TIME,
+    HEALTH_BELOW_NAME,
+
+}
