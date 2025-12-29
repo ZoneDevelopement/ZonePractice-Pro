@@ -96,8 +96,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-target/
-
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -112,3 +110,6 @@ buildNumber.properties
 
 # Common working directory
 run/
+
+# Local scripts
+reset-dev.sh
