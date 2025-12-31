@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
@@ -165,9 +166,15 @@ public abstract class EntityHider implements Listener {
             public void onPacketSend(@NonNull PacketSendEvent event) {
                 PacketListener.super.onPacketSend(event);
 
+                @Nullable Player player = event.getPlayer();
+                //noinspection
+                if (player == null) {
+                    return;
+                }
+
                 int entityID = event.getPacketId();
 
-                if (!isVisible(event.getPlayer(), entityID)) {
+                if (!isVisible(player, entityID)) {
                     event.setCancelled(true);
                 }
             }
