@@ -30,18 +30,7 @@ public enum TeleportArg {
             return;
         }
 
-        int position = Integer.parseInt(args[2]);
-        if (position != 1 && position != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.TELEPORT.INVALID-NUMBER"));
-            return;
-        }
-
-        if (position == 1 && arena.getPosition1() != null) {
-            player.teleport(arena.getPosition1());
-        } else if (position == 2 && arena.getPosition2() != null) {
-            player.teleport(arena.getPosition2());
-        } else
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.TELEPORT.NO-POSITION"));
+        arena.teleport(player);
     }
 
     public static List<String> tabComplete(Player player, String[] args) {
