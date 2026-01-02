@@ -4,7 +4,7 @@ import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -64,12 +64,12 @@ public enum PositionArg {
         int positionNumber = Integer.parseInt(args[3]);
         if (positionNumber == 1) {
             arena.setPosition1(position);
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
 
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.POSITION.SAVED-POSITION").replace("%arena%", arena.getName()).replace("%position%", "1."));
         } else if (positionNumber == 2) {
             arena.setPosition2(position);
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
 
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.POSITION.SAVED-POSITION").replace("%arena%", arena.getName()).replace("%position%", "2."));
         } else

@@ -109,7 +109,6 @@ COMMAND:
         SET-COMMAND:
           - "<red><st>------------------------------------------"
           - " <red>» <click:suggest_command:'/%label% set icon '><hover:show_text:'<gray>Set the icon.'>/%label% set icon <arena>"
-          - " <red>» <click:suggest_command:'/%label% set corner '><hover:show_text:'<gray>Set the two corners.'>/%label% set corner <arena> <1/2>"
           - " <red>» <click:suggest_command:'/%label% set pos '><hover:show_text:'<gray>Set the teleport positions.'>/%label% set pos <arena> <1/2>"
           - " <red>» <click:suggest_command:'/%label% set ffapos '><hover:show_text:'<gray>Set the ffa positions.'>/%label% set ffapos <arena>"
           - " <red>» <click:suggest_command:'/%label% set bed '><hover:show_text:'<gray>Set the beds of a bedwars arena.'>/%label% set bed <arena> <1/2>"

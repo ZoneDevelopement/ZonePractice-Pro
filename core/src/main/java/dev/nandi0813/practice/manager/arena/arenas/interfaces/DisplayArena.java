@@ -13,7 +13,7 @@ import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
@@ -100,8 +100,8 @@ public abstract class DisplayArena extends NormalArena {
             }
         }
 
-        if (ArenaSetupManager.getInstance().getArenaSetupGUIs().containsKey(this)) {
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(this).get(GUIType.Arena_Main).update();
+        if (ArenaGUISetupManager.getInstance().getArenaSetupGUIs().containsKey(this)) {
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(this).get(GUIType.Arena_Main).update();
         }
 
         GUI arenaSummary = GUIManager.getInstance().searchGUI(GUIType.Arena_Summary);

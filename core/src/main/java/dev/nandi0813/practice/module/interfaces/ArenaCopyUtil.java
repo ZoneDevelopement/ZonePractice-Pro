@@ -10,7 +10,7 @@ import dev.nandi0813.practice.manager.arena.util.PortalLocation;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.module.interfaces.actionbar.ActionBar;
 import dev.nandi0813.practice.util.*;
@@ -215,8 +215,8 @@ public abstract class ArenaCopyUtil implements Listener {
                 cancelTask(this, arenaCopy, finalActionBar);
 
                 arenaCopy.getMainArena().getCopies().add(arenaCopy);
-                ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Copy).update();
-                ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Main).update();
+                ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Copy).update();
+                ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Main).update();
                 GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
 
                 for (Player player : Bukkit.getOnlinePlayers()) {

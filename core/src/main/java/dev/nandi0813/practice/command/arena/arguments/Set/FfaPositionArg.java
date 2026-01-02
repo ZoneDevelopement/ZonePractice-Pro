@@ -5,7 +5,7 @@ import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -63,12 +63,12 @@ public enum FfaPositionArg {
                 }
 
                 arena.getFfaPositions().add(position);
-                ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
+                ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.FFA-POSITIONS.SET-FFAPOS").replaceAll("%arena%", arena.getName()).replaceAll("%posCount%", String.valueOf(arena.getFfaPositions().size())));
                 break;
             case "reset":
                 arena.getFfaPositions().clear();
-                ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
+                ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.FFA-POSITIONS.RESET-FFAPOS").replaceAll("%arena%", arena.getName()));
                 break;
         }

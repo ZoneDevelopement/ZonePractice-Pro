@@ -5,7 +5,7 @@ import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
@@ -45,7 +45,7 @@ public enum FreezeArg {
 
         arena.setFrozen(!arena.isFrozen());
         GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
-        ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
+        ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
     }
 
     public static List<String> tabComplete(Player player, String[] args) {

@@ -10,8 +10,7 @@ import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.confirmgui.ConfirmGuiType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupUtil;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.entity.Player;
@@ -129,23 +128,7 @@ public class ArenaMainGui extends GUI {
                 this.ffaSettingsGui.open(player);
                 break;
             case 15:
-                ArenaSetupManager.getInstance().getArenaSetupGUIs().get(ffaArena).get(GUIType.Arena_Ladders_Single).open(player);
-                break;
-            case 16:
-                if (clickType.isLeftClick()) {
-                    if (ffaArena.isEnabled()) {
-                        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.ARENA.CANT-EDIT-ENABLED"));
-                        return;
-                    }
-
-                    ItemStack markerItem = ArenaSetupUtil.getMarkerItem((ffaArena));
-                    if (!ArenaSetupUtil.getArenaMarkerList().containsKey(markerItem))
-                        ArenaSetupUtil.getArenaMarkerList().put(markerItem, ffaArena);
-
-                    player.getInventory().addItem(markerItem);
-                } else if (clickType.isRightClick()) {
-                    ffaArena.teleport(player);
-                }
+                ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(ffaArena).get(GUIType.Arena_Ladders_Single).open(player);
                 break;
             case 27:
                 GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).open(player);

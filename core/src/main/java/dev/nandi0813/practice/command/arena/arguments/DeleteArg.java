@@ -3,7 +3,7 @@ package dev.nandi0813.practice.command.arena.arguments;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
@@ -38,7 +38,7 @@ public enum DeleteArg {
 
         if (arena.deleteData()) {
             ArenaManager.getInstance().getArenaList().remove(arena);
-            ArenaSetupManager.getInstance().removeArenaGUIs(arena);
+            ArenaGUISetupManager.getInstance().removeArenaGUIs(arena);
 
             Common.sendMMMessage(player, LanguageManager.getString("command.arena.arguments.delete.delete-success").replace("%arena%", arena.getName()));
         }

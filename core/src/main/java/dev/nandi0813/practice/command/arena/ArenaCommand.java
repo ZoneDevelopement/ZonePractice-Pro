@@ -85,35 +85,18 @@ public class ArenaCommand implements CommandExecutor, TabCompleter {
 
             StringUtil.copyPartialMatches(args[0], arguments, completion);
         } else {
-            switch (args[0]) {
-                case "bed":
-                    completion = BedArg.tabComplete(player, args);
-                    break;
-                case "delete":
-                    completion = DeleteArg.tabComplete(player, args);
-                    break;
-                case "freeze":
-                    completion = FreezeArg.tabComplete(player, args);
-                    break;
-                case "enable":
-                    completion = EnableArg.tabComplete(player, args);
-                    break;
-                case "disable":
-                    completion = DisableArg.tabComplete(player, args);
-                    break;
-                case "info":
-                    completion = InfoArg.tabComplete(player, args);
-                    break;
-                case "set":
-                    completion = SetArg.tabComplete(player, args);
-                    break;
-                case "stop":
-                    completion = StopArg.tabComplete(player, args);
-                    break;
-                case "teleport":
-                    completion = TeleportArg.tabComplete(player, args);
-                    break;
-            }
+            completion = switch (args[0]) {
+                case "bed" -> BedArg.tabComplete(player, args);
+                case "delete" -> DeleteArg.tabComplete(player, args);
+                case "freeze" -> FreezeArg.tabComplete(player, args);
+                case "enable" -> EnableArg.tabComplete(player, args);
+                case "disable" -> DisableArg.tabComplete(player, args);
+                case "info" -> InfoArg.tabComplete(player, args);
+                case "set" -> SetArg.tabComplete(player, args);
+                case "stop" -> StopArg.tabComplete(player, args);
+                case "teleport" -> TeleportArg.tabComplete(player, args);
+                default -> completion;
+            };
         }
 
         Collections.sort(completion);

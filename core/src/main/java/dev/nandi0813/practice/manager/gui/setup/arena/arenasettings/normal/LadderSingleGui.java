@@ -7,7 +7,7 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupUtil;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
@@ -94,7 +94,7 @@ public class LadderSingleGui extends GUI {
         if (item == null) return;
 
         if (slot == 45) {
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Type).open(player);
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Type).open(player);
         } else if (ladderSlots.containsKey(slot)) {
             NormalLadder ladder = LadderManager.getInstance().getLadder(ladderSlots.get(slot));
             if (ladder != null) {

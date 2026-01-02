@@ -142,8 +142,8 @@ public class ArenaSummaryGui extends GUI {
                     DisplayArena arena = slots.get(page).get(slot);
 
                     if (click.isLeftClick()) {
-                        if (ArenaSetupManager.getInstance().getArenaSetupGUIs().containsKey(arena)) {
-                            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).open(player);
+                        if (ArenaGUISetupManager.getInstance().getArenaSetupGUIs().containsKey(arena)) {
+                            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).open(player);
                             backToPage.put(player, page);
                         }
                     } else if (click.isRightClick())

@@ -7,7 +7,7 @@ import dev.nandi0813.practice.manager.arena.arenas.interfaces.NormalArena;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
@@ -138,8 +138,8 @@ public class Arena extends DisplayArena {
         ArenaManager.getInstance().getArenaCuboids().remove(cuboid);
 
         if (updateGUIs) {
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(this).get(GUIType.Arena_Copy).update();
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(this).get(GUIType.Arena_Main).update();
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(this).get(GUIType.Arena_Copy).update();
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(this).get(GUIType.Arena_Main).update();
             GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
         }
     }

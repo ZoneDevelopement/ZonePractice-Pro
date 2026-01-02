@@ -27,19 +27,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-public class ArenaSetupManager implements Listener {
+public class ArenaGUISetupManager implements Listener {
 
-    private static ArenaSetupManager instance;
+    private static ArenaGUISetupManager instance;
 
-    public static ArenaSetupManager getInstance() {
+    public static ArenaGUISetupManager getInstance() {
         if (instance == null)
-            instance = new ArenaSetupManager();
+            instance = new ArenaGUISetupManager();
         return instance;
     }
 
     private final Map<DisplayArena, Map<GUIType, GUI>> arenaSetupGUIs = new HashMap<>();
 
-    public ArenaSetupManager() {
+    public ArenaGUISetupManager() {
         Bukkit.getPluginManager().registerEvents(this, ZonePractice.getInstance());
     }
 

@@ -3,7 +3,7 @@ package dev.nandi0813.practice_modern.interfaces.ArenaCopy;
 import dev.nandi0813.practice.manager.arena.arenas.ArenaCopy;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.SoftDependUtil;
@@ -32,8 +32,8 @@ public class ArenaCopyUtil extends dev.nandi0813.practice.module.interfaces.Aren
             FaweUtil.copyFAWE(copyFrom, reference, newLocation);
 
             arenaCopy.getMainArena().getCopies().add(arenaCopy);
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Copy).update();
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Main).update();
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Copy).update();
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Main).update();
             GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
         } else {
             this.copyNormal(profile, arenaCopy, copyFrom, reference, newLocation);

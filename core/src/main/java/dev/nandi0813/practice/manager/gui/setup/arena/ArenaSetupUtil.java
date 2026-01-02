@@ -115,19 +115,6 @@ public enum ArenaSetupUtil {
         return guiItem.get();
     }
 
-    // Marker item
-    public static ItemStack getMarkerItem(DisplayArena arena) {
-        List<String> lore = new ArrayList<>();
-        lore.add("");
-        lore.add("&eArena: &b" + arena.getName());
-        lore.add("");
-        lore.add("&e&lLEFT-CLICK &7marks the first corner.");
-        lore.add("&6&lRIGHT-CLICK &7marks the second corner.");
-        lore.add("");
-        lore.add("&c&lNote: &7This can't be undone.");
-        return ClassImport.getClasses().getItemCreateUtil().createItem("&bCorner Marker", Material.STICK, lore);
-    }
-
     public static ItemStack getFreezeItem(Arena arena) {
         if (arena.isFrozen())
             return GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MAIN.ICONS.FREEZE.FROZEN").get();
