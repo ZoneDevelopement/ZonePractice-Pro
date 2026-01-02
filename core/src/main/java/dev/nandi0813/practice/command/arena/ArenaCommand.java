@@ -1,7 +1,6 @@
 package dev.nandi0813.practice.command.arena;
 
 import dev.nandi0813.practice.command.arena.arguments.*;
-import dev.nandi0813.practice.command.arena.arguments.Set.BedArg;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.command.Command;
@@ -86,7 +85,6 @@ public class ArenaCommand implements CommandExecutor, TabCompleter {
             StringUtil.copyPartialMatches(args[0], arguments, completion);
         } else {
             completion = switch (args[0]) {
-                case "bed" -> BedArg.tabComplete(player, args);
                 case "delete" -> DeleteArg.tabComplete(player, args);
                 case "freeze" -> FreezeArg.tabComplete(player, args);
                 case "enable" -> EnableArg.tabComplete(player, args);

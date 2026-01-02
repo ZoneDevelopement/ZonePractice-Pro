@@ -1,91 +1,140 @@
 package dev.nandi0813.practice.manager.arena.setup;
 
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
+import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
+import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
+import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ArenaSetupManager {
 
-    private final Map<UUID, SetupSession> setupSessions = new HashMap<>();
+    @Getter
+    private static ArenaSetupManager instance;
+    private final Map<Player, SetupSession> setupSessions = new HashMap<>();
+
+    public ArenaSetupManager() {
+        instance = this;
+    }
 
     @Getter
+    @Setter
     public static class SetupSession {
-        private final Arena arena;
-        @Setter
+        private final DisplayArena arena;
         private SetupMode currentMode;
 
-        public SetupSession(Arena arena) {
-            this.arena = arena;
+        public SetupSession(DisplayArena arenaName) {
+            this.arena = arenaName;
             this.currentMode = SetupMode.CORNERS;
         }
     }
 
-    public void startSetup(Player player, Arena arena) {
-        setupSessions.put(player.getUniqueId(), new SetupSession(arena));
-        player.getInventory().addItem(getSetupWand(setupSessions.get(player.getUniqueId())));
-        player.sendMessage(ChatColor.GREEN + "Setup mode started for arena: " + arena.getName());
+    public void startSetup(Player player, DisplayArena arena) {
+        setupSessions.put(player, new SetupSession(arena));
+        updateWand(player);
+        player.sendMessage(Common.colorize("&aSetup mode started for arena: " + arena));
     }
 
     public void stopSetup(Player player) {
-        setupSessions.remove(player.getUniqueId());
+        setupSessions.remove(player);
         player.getInventory().remove(Material.BLAZE_ROD);
-        player.sendMessage(ChatColor.RED + "Setup mode ended.");
+        player.sendMessage(Common.colorize("&cSetup mode ended."));
     }
 
     public SetupSession getSession(Player player) {
-        return setupSessions.get(player.getUniqueId());
+        return setupSessions.get(player);
     }
 
     public boolean isSettingUp(Player player) {
-        return setupSessions.containsKey(player.getUniqueId());
+        return setupSessions.containsKey(player);
+    }
+
+    public boolean isSetupWand(ItemStack item) {
+        return item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains("Arena Wand");
+    }
+
+    public SetupMode getNextMode(DisplayArena arena, SetupMode current) {
+        List<SetupMode> validModes = getValidModes(arena);
+        int currentIndex = validModes.indexOf(current);
+        if (currentIndex == -1) return validModes.get(0);
+
+        int nextIndex = (currentIndex + 1) % validModes.size();
+        return validModes.get(nextIndex);
+    }
+
+    public SetupMode getPreviousMode(DisplayArena arena, SetupMode current) {
+        List<SetupMode> validModes = getValidModes(arena);
+        int currentIndex = validModes.indexOf(current);
+        if (currentIndex == -1) return validModes.get(0);
+
+        int prevIndex = (currentIndex - 1 + validModes.size()) % validModes.size();
+        return validModes.get(prevIndex);
+    }
+
+    private List<SetupMode> getValidModes(DisplayArena arena) {
+        List<SetupMode> modes = new ArrayList<>();
+
+        modes.add(SetupMode.CORNERS);
+
+        if (arena instanceof FFAArena) {
+            modes.add(SetupMode.FFA_POSITIONS);
+        } else if (arena instanceof Arena a) {
+            modes.add(SetupMode.POSITIONS);
+
+            if (a.isBuild()) {
+                modes.add(SetupMode.BUILD_MAX);
+                modes.add(SetupMode.DEAD_ZONE);
+                modes.add(SetupMode.BED_LOCATIONS);
+                modes.add(SetupMode.PORTALS);
+            }
+        }
+
+        modes.add(SetupMode.TOGGLE_STATUS);
+
+        return modes;
     }
 
     public void updateWand(Player player) {
         SetupSession session = getSession(player);
         if (session == null) return;
 
-        ItemStack wand = getSetupWand(session);
+        DisplayArena arena = session.getArena();
+        if (arena == null) return;
 
-        // Find the wand in inventory and replace it (simplest approach is setting item in hand)
-        if (isSetupWand(player.getItemInHand())) {
-            player.setItemInHand(wand);
-        }
-    }
-
-    private ItemStack getSetupWand(SetupSession session) {
         ItemStack wand = new ItemStack(Material.BLAZE_ROD);
         ItemMeta meta = wand.getItemMeta();
-
         SetupMode mode = session.getCurrentMode();
 
-        meta.setDisplayName(ChatColor.GOLD + "Arena Wand " + ChatColor.GRAY + "(" + ChatColor.YELLOW + mode.getDisplayName() + ChatColor.GRAY + ")");
+        meta.setDisplayName(Common.colorize("&6Arena Wand &7(&e" + mode.getDisplayName() + "&7)"));
 
         List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY + "Editing: " + ChatColor.GREEN + session.getArena().getName());
+        lore.add(Common.colorize("&7Editing: &a" + arena.getName()));
+        lore.add(Common.colorize("&7Type: &b" + (arena instanceof FFAArena ? "FFA" : "Standard")));
         lore.add("");
-        lore.add(ChatColor.YELLOW + "Current Mode: " + ChatColor.WHITE + mode.getDisplayName());
+        lore.add(Common.colorize("&eCurrent Mode: &f" + mode.getDisplayName()));
         lore.add("");
-        lore.add(ChatColor.GRAY + "controls:");
-        for (String desc : mode.getDescription()) {
-            lore.add(ChatColor.AQUA + " * " + desc);
+        lore.add(Common.colorize("&7Controls:"));
+
+        for (String line : mode.getDescription()) {
+            lore.add(Common.colorize(line));
         }
+
         lore.add("");
-        lore.add(ChatColor.LIGHT_PURPLE + "Shift + Left Click: " + ChatColor.GRAY + "Next Mode");
-        lore.add(ChatColor.LIGHT_PURPLE + "Shift + Right Click: " + ChatColor.GRAY + "Previous Mode");
+        lore.add(Common.colorize("&dShift + Left: &7Next Mode"));
+        lore.add(Common.colorize("&dShift + Right: &7Prev Mode"));
 
         meta.setLore(lore);
         wand.setItemMeta(meta);
-        return wand;
-    }
 
-    public boolean isSetupWand(ItemStack item) {
-        return item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains("Arena Wand");
+        player.getInventory().setItemInHand(wand);
     }
 }

@@ -5,41 +5,50 @@ import lombok.Getter;
 @Getter
 public enum SetupMode {
 
-    CORNERS("Corner Selection",
-            "Left Click: Set Corner 1",
-            "Right Click: Set Corner 2"),
+    CORNERS("Corner Selection", new String[]{
+            "&b Left Click: &fSet Corner 1",
+            "&b Right Click: &fSet Corner 2"
+    }),
 
-    SPAWN_POINTS("Spawn Points",
-            "Right Click: Add Player Spawn",
-            "Left Click: Remove Last Spawn"),
+    POSITIONS("Spawn Points (Standard)", new String[]{
+            "&b Left Click: &fSet Position 1 (Blue)",
+            "&b Right Click: &fSet Position 2 (Red)"
+    }),
 
-    BED_LOCATIONS("Bed Locations",
-            "Right Click on Bed: Set Team Bed",
-            "Left Click: Remove Bed"),
+    FFA_POSITIONS("Spawn Points (FFA)", new String[]{
+            "&b Right Click: &fAdd Spawn Point",
+            "&b Left Click: &fRemove Last Spawn"
+    }),
 
-    PORTALS("Portal Setup",
-            "Right Click: Add Portal Center/Region",
-            "Left Click: Remove Portal"),
+    BUILD_MAX("Build Height Limit", new String[]{
+            "&b Right Click: &fSet to Current Y-Level",
+            "&b Left Click: &fDisable Build Limit"
+    }),
 
-    TOGGLE_STATUS("Arena Status",
-            "Right Click: Enable Arena",
-            "Left Click: Disable Arena");
+    DEAD_ZONE("Dead Zone (Void)", new String[]{
+            "&b Right Click: &fSet to Current Y-Level",
+            "&b Left Click: &fDisable Dead Zone"
+    }),
+
+    BED_LOCATIONS("Bed Locations", new String[]{
+            "&b Left Click: &fSet Blue Bed",
+            "&b Right Click: &fSet Red Bed"
+    }),
+
+    PORTALS("Portal Setup", new String[]{
+            "&b Right Click: &fAdd Portal Region",
+            "&b Left Click: &fRemove Portal Region"
+    }),
+
+    TOGGLE_STATUS("Arena Status", new String[]{
+            "&b Right Click: &fEnable Arena",
+    });
 
     private final String displayName;
     private final String[] description;
 
-    SetupMode(String displayName, String... description) {
+    SetupMode(String displayName, String[] description) {
         this.displayName = displayName;
         this.description = description;
-    }
-
-    public SetupMode next() {
-        int nextIndex = (this.ordinal() + 1) % values().length;
-        return values()[nextIndex];
-    }
-
-    public SetupMode previous() {
-        int prevIndex = (this.ordinal() - 1 + values().length) % values().length;
-        return values()[prevIndex];
     }
 }
