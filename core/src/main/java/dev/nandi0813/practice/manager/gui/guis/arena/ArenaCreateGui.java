@@ -6,6 +6,7 @@ import dev.nandi0813.practice.manager.arena.ArenaType;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
+import dev.nandi0813.practice.manager.arena.setup.ArenaSetupManager;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUI;
@@ -99,8 +100,10 @@ public class ArenaCreateGui extends GUI {
 
         Common.sendMMMessage(player, LanguageManager.getString("ARENA.CREATE.ARENA-CREATED").replaceAll("%arena%", arenaName));
 
-        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).open(player), 3L);
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).open(player);
+            ArenaSetupManager.getInstance().startSetup(player, arena);
+        }, 3L);
     }
 
 }

@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.arena.arenas.ArenaCopy;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
+import dev.nandi0813.practice.manager.arena.setup.ArenaSetupManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
@@ -122,6 +123,16 @@ public enum ArenaUtil {
 
         if (!returnVal) {
             return false;
+        }
+
+        if (!arena.isEnabled()) {
+            ArenaSetupManager setupManager = ArenaSetupManager.getInstance();
+
+            List<Player> editors = new ArrayList<>(setupManager.getPlayersSettingUpArena(arena));
+            for (Player editor : editors) {
+                setupManager.stopSetup(editor);
+                editor.sendMessage(Common.colorize("&cSetup mode force ended because the arena has been &aENABLED&c!"));
+            }
         }
 
         if (arena instanceof FFAArena) {

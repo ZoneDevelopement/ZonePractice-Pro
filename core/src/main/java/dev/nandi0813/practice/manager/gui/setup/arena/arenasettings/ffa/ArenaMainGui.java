@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.gui.setup.arena.arenasettings.ffa;
 
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
+import dev.nandi0813.practice.manager.arena.setup.ArenaSetupManager;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
@@ -106,10 +107,13 @@ public class ArenaMainGui extends GUI {
 
         switch (slot) {
             case 10:
-                if (clickType.isLeftClick())
+                if (clickType.isLeftClick()) {
                     player.performCommand("arena info " + ffaArena.getName());
-                else if (clickType.isRightClick())
-                    ffaArena.teleport(player);
+                } else if (clickType.isRightClick()) {
+                    if (!ArenaSetupManager.getInstance().startSetup(player, ffaArena)) {
+                        player.sendMessage(Common.colorize("&cYou can't edit an enabled arena."));
+                    }
+                }
                 break;
             case 11:
                 if (ffaArena.isEnabled()) {

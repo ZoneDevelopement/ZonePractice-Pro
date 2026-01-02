@@ -2,6 +2,7 @@ package dev.nandi0813.practice.command.arena.arguments;
 
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
+import dev.nandi0813.practice.manager.arena.setup.ArenaSetupManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
@@ -10,27 +11,32 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum TeleportArg {
+public enum SetupArg {
     ;
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.setup")) {
-            Common.sendMMMessage(player, LanguageManager.getString("command.arena.no-permission"));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.NO-PERMISSION"));
             return;
         }
 
         if (args.length != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.TELEPORT.COMMAND-HELP").replace("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.SETUP.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
         DisplayArena arena = ArenaManager.getInstance().getArena(args[1]);
         if (arena == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.TELEPORT.ARENA-NOT-EXISTS").replace("%arena%", args[1]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.SETUP.ARENA-NOT-EXISTS").replace("%arena%", args[1]));
             return;
         }
 
-        arena.teleport(player);
+        if (arena.isEnabled()) {
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.SETUP.CANT-EDIT"));
+            return;
+        }
+
+        ArenaSetupManager.getInstance().startSetup(player, arena);
     }
 
     public static List<String> tabComplete(Player player, String[] args) {
@@ -46,5 +52,4 @@ public enum TeleportArg {
 
         return arguments;
     }
-
 }

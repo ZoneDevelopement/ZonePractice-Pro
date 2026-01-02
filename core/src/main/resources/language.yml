@@ -1,4 +1,4 @@
-VERSION: 9
+VERSION: 10
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -101,6 +101,7 @@ COMMAND:
           - "<red><st>------------------------------------------"
           - " <red>» <click:suggest_command:'/%label% info '><hover:show_text:'<gray>Detailed information of the arena.'>/%label% info <arena>"
           - " <red>» <click:suggest_command:'/%label% create '><hover:show_text:'<gray>Create a new arena.'>/%label% create <name>"
+          - " <red>» <click:suggest_command:'/%label% setup '><hover:show_text:'<gray>Setup an arena.'>/%label% setup <name>"
           - " <red>» <click:suggest_command:'/%label% delete '><hover:show_text:'<gray>Delete an arena.'>/%label% delete <arena>"
           - " <red>» <click:suggest_command:'/%label% set '><hover:show_text:'<gray>Set up various details of the arena.'>/%label% set <sub_command>"
           - " <red>» <click:suggest_command:'/%label% freeze '><hover:show_text:'<gray>Freeze an arena.'>/%label% freeze <arena>"
@@ -157,6 +158,10 @@ COMMAND:
         NO-DISPLAYNAME: "<red>You should name the icon before set it for the arena."
         ICON-IN-HAND: "<red>You must hold the icon item in your hand."
         SAVED-ICON: "<green>You saved the <yellow>icon <green>for <gold>%arena% <green>arena."
+      SETUP:
+        COMMAND-HELP: "<red>/%label% setup <arena>"
+        ARENA-NOT-EXISTS: "<red>%arena% arena doesn't exists."
+        CANT-EDIT: "<red>You can't edit a enabled arena."
       CORNER:
         COMMAND-HELP: "<red>/%label% set corner <arena> <1/2>"
         ARENA-NOT-EXISTS: "<red>%arena% arena doesn't exists."
@@ -264,10 +269,9 @@ COMMAND:
         MATCH-END-MESSAGE: "<red>The match has been ended by %player%."
         PLAYER-ENDED: "<red>You successfully ended all the matches in the arena."
       TELEPORT:
-        COMMAND-HELP: "<red>/%label% teleport <name> <1/2>"
+        COMMAND-HELP: "<red>/%label% teleport <name>"
         ARENA-NOT-EXISTS: "<red>%arena% arena doesn't exists."
-        INVALID-NUMBER: "<red>Invalid number."
-        NO-POSITION: "<red>Arena position not available."
+        NO-POSITION: "<red>Arena does not have any available positions."
       SIDEBUILDLIMIT:
         COMMAND-HELP: "<red>/%label% set sidebuildlimit <arena> <number>"
         ARENA-NOT-EXISTS: "<red>%arena% arena doesn't exists."

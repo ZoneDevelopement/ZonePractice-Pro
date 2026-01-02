@@ -22,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -40,7 +41,9 @@ public class ArenaSetupListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if (!setupManager.isSettingUp(player) || !setupManager.isSetupWand(event.getItem())) return;
+        if (!setupManager.isSettingUp(player) || !setupManager.isSetupWand(event.getItem())) {
+            return;
+        }
 
         event.setCancelled(true);
 
@@ -55,23 +58,25 @@ public class ArenaSetupListener implements Listener {
 
         Action action = event.getAction();
 
-        // 1. Mode Switching
         if (player.isSneaking()) {
             handleModeSwitch(player, session, displayArena, action);
             return;
         }
 
-        // 2. Interaction Filtering (Air vs Block)
         SetupMode currentMode = session.getCurrentMode();
-        boolean isHeightMode = (currentMode == SetupMode.BUILD_MAX || currentMode == SetupMode.DEAD_ZONE);
 
-        if (!isHeightMode) {
+        boolean isAirAllowed = (
+                currentMode == SetupMode.BUILD_MAX ||
+                        currentMode == SetupMode.DEAD_ZONE ||
+                        currentMode == SetupMode.TOGGLE_STATUS
+        );
+
+        if (!isAirAllowed) {
             if (action != Action.LEFT_CLICK_BLOCK && action != Action.RIGHT_CLICK_BLOCK) return;
         } else {
             if (action == Action.PHYSICAL) return;
         }
 
-        // 3. Handle Logic
         switch (currentMode) {
             case CORNERS -> handleCornerSelection(player, displayArena, action, event);
             case POSITIONS -> handleStandardPositions(player, (Arena) displayArena, action, event);
@@ -86,7 +91,25 @@ public class ArenaSetupListener implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
-        // TODO: Handle quit logic
+        Player player = e.getPlayer();
+
+        if (setupManager.isSettingUp(player)) {
+            setupManager.stopSetup(player);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent e) {
+        Player player = e.getPlayer();
+
+        if (!setupManager.isSettingUp(player)) {
+            return;
+        }
+
+        if (setupManager.isSetupWand(e.getItemDrop().getItemStack())) {
+            e.getItemDrop().remove();
+            setupManager.stopSetup(player);
+        }
     }
 
     private void handleModeSwitch(Player player, ArenaSetupManager.SetupSession session, DisplayArena arena, Action action) {
@@ -318,7 +341,7 @@ public class ArenaSetupListener implements Listener {
     }
 
     private void handleToggleStatus(Player player, DisplayArena arena, Action action) {
-        if (action == Action.RIGHT_CLICK_BLOCK) {
+        if (action.name().contains("RIGHT")) {
             if (arena.isEnabled()) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.ENABLE.ALREADY-ENABLED").replace("%arena%", arena.getName()));
                 return;

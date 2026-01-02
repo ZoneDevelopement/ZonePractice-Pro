@@ -31,6 +31,9 @@ public class ArenaCommand implements CommandExecutor, TabCompleter {
                 case "create":
                     CreateArg.run(player, label, args);
                     break;
+                case "setup":
+                    SetupArg.run(player, label, args);
+                    break;
                 case "delete":
                     DeleteArg.run(player, label, args);
                     break;
@@ -71,6 +74,7 @@ public class ArenaCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             if (player.hasPermission("zpp.setup")) {
                 arguments.add("create");
+                arguments.add("setup");
                 arguments.add("delete");
                 arguments.add("info");
                 arguments.add("set");
@@ -88,6 +92,7 @@ public class ArenaCommand implements CommandExecutor, TabCompleter {
                 case "delete" -> DeleteArg.tabComplete(player, args);
                 case "freeze" -> FreezeArg.tabComplete(player, args);
                 case "enable" -> EnableArg.tabComplete(player, args);
+                case "setup" -> SetupArg.tabComplete(player, args);
                 case "disable" -> DisableArg.tabComplete(player, args);
                 case "info" -> InfoArg.tabComplete(player, args);
                 case "set" -> SetArg.tabComplete(player, args);

@@ -1,4 +1,4 @@
-VERSION: 8
+VERSION: 9
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1322,7 +1322,7 @@ GUIS:
               - "&eArena Type: &b%arenaType%"
               - ""
               - "&e&lLeft-Click here &7to get detailed information."
-              - "&6&lRight-Click here &7to teleport to the arena."
+              - "&6&lRight-Click here &7to get a setup item for the arena."
               - ""
               - "&7You can set the arenas icon by using the"
               - "&7&l/arena set icon %arenaName% &7command."
@@ -1367,12 +1367,6 @@ GUIS:
             NAME: "&5Locations"
             MATERIAL: COMPASS
             LORE:
-              - ""
-              - "&d&lClick here &7to get a corner marker item."
-              - ""
-              - "&dAfter &7you marked the corners, you can add"
-              - "&7the &dplayer spawn positions &7by using the"
-              - "&7&l/arena set ffapos %arenaName% add &7command."
               - ""
               - "&5&lCurrently Marked:"
               - " &5» &dCorner 1: &7%corner1%"
@@ -1595,7 +1589,7 @@ GUIS:
               - "&eArena Type: &b%arenaType%"
               - ""
               - "&e&lLeft-Click here &7to get detailed information."
-              - "&6&lRight-Click here &7to teleport to the arena."
+              - "&6&lRight-Click here &7to get a setup item for the arena."
               - ""
               - "&7You can set the arenas icon by using the"
               - "&7&l/arena seticon %arenaName% &7command."
@@ -1628,12 +1622,6 @@ GUIS:
               MATERIAL: COMPASS
               LORE:
                 - ""
-                - "&d&lClick here &7to get a corner marker item."
-                - ""
-                - "&dAfter &7you marked the corners, you can set"
-                - "&7the &dplayers positions &7by using the"
-                - "&7&l/arena set pos %arenaName% <1/2> &7command."
-                - ""
                 - "&5&lCurrently Marked:"
                 - " &5» &dCorner 1: &7%corner1%"
                 - " &5» &dCorner 2: &7%corner2%"
@@ -1650,12 +1638,6 @@ GUIS:
               NAME: "&5Locations"
               MATERIAL: COMPASS
               LORE:
-                - ""
-                - "&d&lClick here &7to get a corner marker item."
-                - ""
-                - "&dAfter &7you marked the corners, you can set"
-                - "&7the &dplayers positions &7by using the"
-                - "&7&l/arena set pos %arenaName% <1/2> &7command."
                 - ""
                 - "&5&lCurrently Marked:"
                 - " &5» &dCorner 1: &7%corner1%"

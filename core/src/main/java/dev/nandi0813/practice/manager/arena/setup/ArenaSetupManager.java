@@ -1,11 +1,13 @@
 package dev.nandi0813.practice.manager.arena.setup;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,12 +20,17 @@ import java.util.Map;
 
 public class ArenaSetupManager {
 
-    @Getter
     private static ArenaSetupManager instance;
-    private final Map<Player, SetupSession> setupSessions = new HashMap<>();
 
-    public ArenaSetupManager() {
-        instance = this;
+    public static ArenaSetupManager getInstance() {
+        if (instance == null)
+            instance = new ArenaSetupManager();
+        return instance;
+    }
+
+    private ArenaSetupManager() {
+        ArenaSetupListener arenaSetupListener = new ArenaSetupListener(this);
+        Bukkit.getPluginManager().registerEvents(arenaSetupListener, ZonePractice.getInstance());
     }
 
     @Getter
@@ -38,15 +45,32 @@ public class ArenaSetupManager {
         }
     }
 
-    public void startSetup(Player player, DisplayArena arena) {
+    private final Map<Player, SetupSession> setupSessions = new HashMap<>();
+
+    public boolean startSetup(Player player, DisplayArena arena) {
+        if (arena.isEnabled()) {
+            return false;
+        }
+
         setupSessions.put(player, new SetupSession(arena));
+        arena.teleport(player);
         updateWand(player);
-        player.sendMessage(Common.colorize("&aSetup mode started for arena: " + arena));
+        player.sendMessage(Common.colorize("&aSetup mode started for arena: &e" + arena.getName() + "&a."));
+        return true;
     }
 
     public void stopSetup(Player player) {
         setupSessions.remove(player);
-        player.getInventory().remove(Material.BLAZE_ROD);
+
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack item = contents[i];
+
+            if (isSetupWand(item)) {
+                player.getInventory().clear(i);
+            }
+        }
+
         player.sendMessage(Common.colorize("&cSetup mode ended."));
     }
 
@@ -56,6 +80,18 @@ public class ArenaSetupManager {
 
     public boolean isSettingUp(Player player) {
         return setupSessions.containsKey(player);
+    }
+
+    public List<Player> getPlayersSettingUpArena(DisplayArena arena) {
+        List<Player> players = new ArrayList<>();
+
+        for (Map.Entry<Player, SetupSession> entry : setupSessions.entrySet()) {
+            if (entry.getValue().getArena().equals(arena)) {
+                players.add(entry.getKey());
+            }
+        }
+
+        return players;
     }
 
     public boolean isSetupWand(ItemStack item) {
@@ -83,10 +119,13 @@ public class ArenaSetupManager {
     private List<SetupMode> getValidModes(DisplayArena arena) {
         List<SetupMode> modes = new ArrayList<>();
 
-        modes.add(SetupMode.CORNERS);
-
-        if (arena instanceof FFAArena) {
+        if (arena instanceof FFAArena a) {
             modes.add(SetupMode.FFA_POSITIONS);
+
+            if (a.isBuild()) {
+                modes.add(SetupMode.BUILD_MAX);
+                modes.add(SetupMode.DEAD_ZONE);
+            }
         } else if (arena instanceof Arena a) {
             modes.add(SetupMode.POSITIONS);
 
@@ -99,6 +138,7 @@ public class ArenaSetupManager {
         }
 
         modes.add(SetupMode.TOGGLE_STATUS);
+        modes.add(SetupMode.CORNERS);
 
         return modes;
     }
@@ -131,6 +171,8 @@ public class ArenaSetupManager {
         lore.add("");
         lore.add(Common.colorize("&dShift + Left: &7Next Mode"));
         lore.add(Common.colorize("&dShift + Right: &7Prev Mode"));
+        lore.add("");
+        lore.add(Common.colorize("&cDrop (Q): &7Exit Setup"));
 
         meta.setLore(lore);
         wand.setItemMeta(meta);

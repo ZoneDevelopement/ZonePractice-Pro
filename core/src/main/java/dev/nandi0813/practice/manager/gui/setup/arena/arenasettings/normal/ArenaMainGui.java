@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.gui.setup.arena.arenasettings.normal;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
+import dev.nandi0813.practice.manager.arena.setup.ArenaSetupManager;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
@@ -89,10 +90,13 @@ public class ArenaMainGui extends GUI {
                 arenaSummaryGui.getBackToPage().remove(player);
                 break;
             case 10:
-                if (clickType.isLeftClick())
+                if (clickType.isLeftClick()) {
                     player.performCommand("arena info " + arena.getName());
-                else if (clickType.isRightClick())
-                    arena.teleport(player);
+                } else if (clickType.isRightClick()) {
+                    if (!ArenaSetupManager.getInstance().startSetup(player, arena)) {
+                        player.sendMessage(Common.colorize("&cYou can't edit an enabled arena."));
+                    }
+                }
                 break;
             case 11:
                 ArenaUtil.changeStatus(player, arena);
