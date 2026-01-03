@@ -52,6 +52,10 @@ public class ArenaSetupManager {
             return false;
         }
 
+        if (isSettingUp(player)) {
+            stopSetup(player);
+        }
+
         setupSessions.put(player, new SetupSession(arena));
         arena.teleport(player);
         updateWand(player);
@@ -60,6 +64,7 @@ public class ArenaSetupManager {
     }
 
     public void stopSetup(Player player) {
+        DisplayArena arena = getSession(player).getArena();
         setupSessions.remove(player);
 
         ItemStack[] contents = player.getInventory().getContents();
@@ -71,7 +76,7 @@ public class ArenaSetupManager {
             }
         }
 
-        player.sendMessage(Common.colorize("&cSetup mode ended."));
+        player.sendMessage(Common.colorize("&cSetup mode ended for arena: &c" + arena.getName() + "."));
     }
 
     public SetupSession getSession(Player player) {
