@@ -95,8 +95,9 @@ public abstract class BasicArena {
 
     public void loadChunks() {
         if (this.cuboid != null) {
-            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
-                    ClassImport.getClasses().getArenaUtil().loadArenaChunks(this));
+            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+                ClassImport.getClasses().getArenaUtil().loadArenaChunks(this);
+            }, 5L);
 
             if (ArenaManager.LOAD_CHUNKS) {
                 ArenaManager.LOADED_CHUNKS.addAll(this.cuboid.getChunks());

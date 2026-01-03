@@ -104,10 +104,13 @@ public class ArenaManager implements Listener {
                             try {
                                 ArenaType type = ArenaType.valueOf(config.getString("type"));
 
-                                if (type == ArenaType.FFA)
-                                    arenaList.add(new FFAArena(name));
-                                else
-                                    arenaList.add(new Arena(name, type));
+                                Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+                                    if (type == ArenaType.FFA) {
+                                        arenaList.add(new FFAArena(name));
+                                    } else {
+                                        arenaList.add(new Arena(name, type));
+                                    }
+                                });
                             } catch (IllegalArgumentException e) {
                                 Common.sendConsoleMMMessage("<red>Can't load arena " + name + " because the type format isn't set correctly in the config.");
                             }
