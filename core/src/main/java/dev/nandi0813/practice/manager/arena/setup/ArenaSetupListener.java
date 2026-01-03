@@ -200,15 +200,17 @@ public class ArenaSetupListener implements Listener {
         }
 
         int cornerId = (action == Action.LEFT_CLICK_BLOCK) ? 1 : 2;
-        if (cornerId == 1) arena.setCorner1(cornerLocation);
-        else arena.setCorner2(cornerLocation);
+        if (cornerId == 1) {
+            arena.setCorner1(cornerLocation);
+        } else {
+            arena.setCorner2(cornerLocation);
+        }
 
         arena.createCuboid();
         Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.CORNER.SAVED-CORNER")
                 .replace("%arena%", arena.getName())
                 .replace("%corner%", cornerId + "."));
 
-        // Cleanup Logic if region changed
         cleanupAfterRegionChange(player, arena);
     }
 
@@ -403,7 +405,6 @@ public class ArenaSetupListener implements Listener {
             return;
         }
 
-        // Clean Position 1
         if (arena.getPosition1() != null && !cuboid.contains(arena.getPosition1())) {
             arena.setPosition1(null);
             arena.setEnabled(false);
@@ -443,5 +444,7 @@ public class ArenaSetupListener implements Listener {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.CORNER.BED-REMOVED").replace("%arena%", arena.getName()).replace("%bed%", "2"));
             }
         }
+
+        updateGui(arena);
     }
 }
