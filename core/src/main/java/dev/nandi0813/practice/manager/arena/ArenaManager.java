@@ -24,7 +24,6 @@ import org.bukkit.event.Listener;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
 public class ArenaManager implements Listener {
@@ -40,7 +39,7 @@ public class ArenaManager implements Listener {
     public static final boolean LOAD_CHUNKS = ConfigManager.getBoolean("ARENA.LOAD-CHUNKS");
     public static final List<Chunk> LOADED_CHUNKS = new ArrayList<>();
 
-    private final List<DisplayArena> arenaList = new CopyOnWriteArrayList<>();
+    private final List<DisplayArena> arenaList = new ArrayList<>();
     private final Map<Cuboid, BasicArena> arenaCuboids = new HashMap<>();
 
     private final File folder = new File(ZonePractice.getInstance().getDataFolder() + "/arenas");

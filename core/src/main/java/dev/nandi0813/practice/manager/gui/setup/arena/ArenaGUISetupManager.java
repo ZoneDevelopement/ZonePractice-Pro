@@ -23,6 +23,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,7 +66,7 @@ public class ArenaGUISetupManager implements Listener {
         {
             GUIManager.getInstance().addGUI(new ArenaSummaryGui());
 
-            for (DisplayArena arena : ArenaManager.getInstance().getArenaList()) {
+            for (DisplayArena arena : new ArrayList<>(ArenaManager.getInstance().getArenaList())) {
                 buildArenaSetupGUIs(arena);
             }
         });

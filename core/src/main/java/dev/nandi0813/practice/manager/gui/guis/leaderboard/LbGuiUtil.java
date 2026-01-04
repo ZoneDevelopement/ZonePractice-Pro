@@ -27,6 +27,7 @@ import java.util.Map;
 public enum LbGuiUtil {
     ;
 
+    // if it says not used don't listen to it, buggy
     public static ItemStack createProfileStatItem(Profile profile, Player opener) {
         String playerName = profile.getPlayer().getName();
         ItemStack itemStack = ClassImport.getClasses().getItemMaterialUtil().getPlayerHead(profile.getPlayer());
@@ -56,18 +57,12 @@ public enum LbGuiUtil {
     }
 
     public static GUIItem createLadderStatItem(Profile profile, NormalLadder ladder) {
-        GUIItem guiItem = null;
-        switch (ladder.getWeightClass()) {
-            case UNRANKED:
-                guiItem = GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.UNRANKED-LADDER-STATS");
-                break;
-            case RANKED:
-                guiItem = GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.RANKED-LADDER-STATS");
-                break;
-            case UNRANKED_AND_RANKED:
-                guiItem = GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.UNRANKED-RANKED-STATS");
-                break;
-        }
+        GUIItem guiItem = switch (ladder.getWeightClass()) {
+            case UNRANKED -> GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.UNRANKED-LADDER-STATS");
+            case RANKED -> GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.RANKED-LADDER-STATS");
+            case UNRANKED_AND_RANKED ->
+                    GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.UNRANKED-RANKED-STATS");
+        };
 
         switch (ladder.getWeightClass()) {
             case RANKED:

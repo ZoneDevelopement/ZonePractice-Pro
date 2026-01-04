@@ -96,23 +96,16 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        Hologram hologram = null;
-        switch (hologramType) {
-            case GLOBAL:
-                hologram = new GlobalHologram(name, player.getLocation());
-                break;
-            case LADDER_STATIC:
-                hologram = new LadderStaticHologram(name, player.getLocation());
-                break;
-            case LADDER_DYNAMIC:
-                hologram = new LadderDynamicHologram(name, player.getLocation());
-                break;
-        }
+        Hologram hologram = switch (hologramType) {
+            case GLOBAL -> new GlobalHologram(name, player.getLocation());
+            case LADDER_STATIC -> new LadderStaticHologram(name, player.getLocation());
+            case LADDER_DYNAMIC -> new LadderDynamicHologram(name, player.getLocation());
+        };
+
         HologramManager.getInstance().createHologram(hologram);
 
-        Hologram finalHologram = hologram;
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                HologramSetupManager.getInstance().getHologramSetupGUIs().get(finalHologram).get(GUIType.Hologram_Main).open(player), 3L);
+                HologramSetupManager.getInstance().getHologramSetupGUIs().get(hologram).get(GUIType.Hologram_Main).open(player), 3L);
 
         Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.CREATE-SUCCESS").replace("%hologram%", hologram.getName()));
 
