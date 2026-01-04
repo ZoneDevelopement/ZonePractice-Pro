@@ -113,7 +113,11 @@ public class SidebarManager extends ConfigFile implements Listener {
     }
 
     public void close() {
-        if (scoreboardLibrary != null)
-            scoreboardLibrary.close();
+        try {
+            if (scoreboardLibrary != null) {
+                scoreboardLibrary.close();
+            }
+        } catch (IllegalStateException ignored) {
+        }
     }
 }
