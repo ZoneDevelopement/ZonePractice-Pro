@@ -75,7 +75,15 @@ public class SidebarManager extends ConfigFile implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        unLoadSidebar(e.getPlayer());
+        Player player = e.getPlayer();
+
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            if (Bukkit.getPlayer(player.getUniqueId()) != null) {
+                return;
+            }
+
+            unLoadSidebar(player);
+        }, 1L);
     }
 
     public void loadSidebar(Player player) {

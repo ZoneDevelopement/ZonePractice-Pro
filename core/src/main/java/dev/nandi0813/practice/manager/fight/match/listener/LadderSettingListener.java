@@ -207,8 +207,8 @@ public class LadderSettingListener implements Listener {
     @EventHandler ( priority = EventPriority.HIGHEST )
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
-        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
 
+        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
         if (match == null) return;
 
         match.removePlayer(player, true);
