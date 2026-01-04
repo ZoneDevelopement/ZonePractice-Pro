@@ -114,11 +114,11 @@ public class MatchTypeGui extends GUI {
     private ItemStack getMatchTypeItem(Ladder ladder, MatchType matchType) {
         if (ladder.getMatchTypes().contains(matchType)) {
             return GUIFile.getGuiItem("GUIS.SETUP.LADDER.MATCH-TYPE.ICONS.ENABLED")
-                    .replaceAll("%matchType%", matchType.getName(false))
+                    .replace("%matchType%", matchType.getName(false))
                     .get();
         } else {
             return GUIFile.getGuiItem("GUIS.SETUP.LADDER.MATCH-TYPE.ICONS.DISABLED")
-                    .replaceAll("%matchType%", matchType.getName(false))
+                    .replace("%matchType%", matchType.getName(false))
                     .get();
         }
     }

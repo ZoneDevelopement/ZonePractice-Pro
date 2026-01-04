@@ -39,8 +39,8 @@ public class ProfileLimitRunnable extends BukkitRunnable {
 
         for (Player player : Bukkit.getOnlinePlayers())
             Common.sendMMMessage(player, LanguageManager.getString("GAMES-RESET")
-                    .replaceAll("%unranked%", WeightClass.UNRANKED.getMMName())
-                    .replaceAll("%ranked%", WeightClass.RANKED.getMMName())
+                    .replace("%unranked%", WeightClass.UNRANKED.getMMName())
+                    .replace("%ranked%", WeightClass.RANKED.getMMName())
             );
     }
 

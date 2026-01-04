@@ -34,16 +34,16 @@ public enum InfoArg {
         List<String> ladderNames = ArenaUtil.getLadderNames(arena);
         for (String line : LanguageManager.getList("command.arena.arguments.info.arena-info")) {
             Common.sendMMMessage(player, line
-                    .replaceAll("%arena%", arena.getName())
-                    .replaceAll("%type%", arena.getType().getName())
-                    .replaceAll("%icon%", arena.getIcon() != null ? LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.INFO.STATUS-NAMES.SET") : LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.INFO.STATUS-NAMES.NOT-SET"))
-                    .replaceAll("%displayName%", StringUtil.legacyColorToMiniMessage(arena.getDisplayName()))
-                    .replaceAll("%ladders%", (ladderNames.isEmpty() ? StringUtil.CC("<red>NULL") : ladderNames.toString().replace("]", "").replace("[", "")))
-                    .replaceAll("%corner1%", ArenaUtil.convertLocation(arena.getCorner1()))
-                    .replaceAll("%corner2%", ArenaUtil.convertLocation(arena.getCorner2()))
-                    .replaceAll("%position1%", ArenaUtil.convertLocation(arena.getPosition1()))
-                    .replaceAll("%position2%", ArenaUtil.convertLocation(arena.getPosition2()))
-                    .replaceAll("%status%", arena.isEnabled() ? LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.INFO.STATUS-NAMES.ENABLED") : LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.INFO.STATUS-NAMES.DISABLED"))
+                    .replace("%arena%", arena.getName())
+                    .replace("%type%", arena.getType().getName())
+                    .replace("%icon%", arena.getIcon() != null ? LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.INFO.STATUS-NAMES.SET") : LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.INFO.STATUS-NAMES.NOT-SET"))
+                    .replace("%displayName%", StringUtil.legacyColorToMiniMessage(arena.getDisplayName()))
+                    .replace("%ladders%", (ladderNames.isEmpty() ? StringUtil.CC("<red>NULL") : ladderNames.toString().replace("]", "").replace("[", "")))
+                    .replace("%corner1%", ArenaUtil.convertLocation(arena.getCorner1()))
+                    .replace("%corner2%", ArenaUtil.convertLocation(arena.getCorner2()))
+                    .replace("%position1%", ArenaUtil.convertLocation(arena.getPosition1()))
+                    .replace("%position2%", ArenaUtil.convertLocation(arena.getPosition2()))
+                    .replace("%status%", arena.isEnabled() ? LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.INFO.STATUS-NAMES.ENABLED") : LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.INFO.STATUS-NAMES.DISABLED"))
             );
         }
     }

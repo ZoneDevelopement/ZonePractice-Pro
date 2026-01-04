@@ -98,7 +98,7 @@ public class ArenaCreateGui extends GUI {
         ArenaGUISetupManager.getInstance().buildArenaSetupGUIs(arena);
         GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
 
-        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CREATE.ARENA-CREATED").replaceAll("%arena%", arenaName));
+        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CREATE.ARENA-CREATED").replace("%arena%", arenaName));
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
             ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).open(player);

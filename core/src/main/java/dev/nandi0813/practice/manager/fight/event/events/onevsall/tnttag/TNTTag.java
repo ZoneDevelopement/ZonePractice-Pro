@@ -64,7 +64,7 @@ public class TNTTag extends Event {
         }
 
         this.sendExplosion(player.getLocation());
-        this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.BLOWN-UP").replaceAll("%player%", player.getName()), true);
+        this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.BLOWN-UP").replace("%player%", player.getName()), true);
 
         this.taggedPlayers.remove(player);
         this.players.remove(player);
@@ -107,8 +107,8 @@ public class TNTTag extends Event {
             this.nextRound(round != 1);
         } else if (seconds <= 5) {
             this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.ROUND-STARTING")
-                            .replaceAll("%seconds%", String.valueOf(seconds))
-                            .replaceAll("%secondName%", (seconds == 1 ? LanguageManager.getString("SECOND-NAME.1SEC") : LanguageManager.getString("SECOND-NAME.1<SEC")))
+                            .replace("%seconds%", String.valueOf(seconds))
+                            .replace("%secondName%", (seconds == 1 ? LanguageManager.getString("SECOND-NAME.1SEC") : LanguageManager.getString("SECOND-NAME.1<SEC")))
                     , true);
         }
 
@@ -168,10 +168,10 @@ public class TNTTag extends Event {
         }
 
         if (winner != null) {
-            this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.WON-EVENT").replaceAll("%winner%", winner.getName()), true);
+            this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.WON-EVENT").replace("%winner%", winner.getName()), true);
 
             for (String cmd : eventData.getType().getWinnerCMD())
-                ServerManager.runConsoleCommand(cmd.replaceAll("%player%", winner.getName()));
+                ServerManager.runConsoleCommand(cmd.replace("%player%", winner.getName()));
         } else {
             this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.NO-WINNER"), true);
         }
@@ -220,7 +220,7 @@ public class TNTTag extends Event {
         EventUtil.setEventSpectatorInventory(spectator);
 
         if (message && !this.status.equals(EventStatus.END)) {
-            this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.STARTED-SPECTATING").replaceAll("%spectator%", spectator.getName()), true);
+            this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.STARTED-SPECTATING").replace("%spectator%", spectator.getName()), true);
         }
 
         for (Player eventPlayer : players) {
@@ -245,12 +245,12 @@ public class TNTTag extends Event {
             this.loadInv(tagger);
 
             this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.PLAYER-TAGGED-PLAYER")
-                            .replaceAll("%player%", tagger.getName())
-                            .replaceAll("%target%", tagged.getName())
+                            .replace("%player%", tagger.getName())
+                            .replace("%target%", tagged.getName())
                     , true
             );
         } else {
-            this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.START-TAGGER").replaceAll("%player%", tagged.getName()), true);
+            this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.START-TAGGER").replace("%player%", tagged.getName()), true);
         }
 
         tagged.getInventory().setItem(0, ConfigManager.getGuiItem("EVENT.TNTTAG.TAGGED-ITEM").get());

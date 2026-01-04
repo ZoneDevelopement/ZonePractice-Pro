@@ -88,7 +88,7 @@ public class PlayerKitManager extends ConfigFile implements Listener {
         String uuid = UUID.randomUUID().toString();
         String code;
         do {
-            code = uuid.replaceAll("[^a-zA-Z0-9]", "").substring(0, 7);
+            code = uuid.replace("[^a-zA-Z0-9]", "").substring(0, 7);
         } while (this.copy.containsKey(code));
         return code;
     }

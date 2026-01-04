@@ -23,7 +23,7 @@ public class ReplyCommand extends PrivateMessageCommand {
         }
 
         if (args.length < 1) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.REPLY.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.REPLY.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
@@ -40,13 +40,13 @@ public class ReplyCommand extends PrivateMessageCommand {
 
         Player target = MessageCommand.getLatestMessage().get(player);
         if (!target.isOnline()) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.REPLY.PLAYER-LEFT").replaceAll("%target%", target.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.REPLY.PLAYER-LEFT").replace("%target%", target.getName()));
             return;
         }
 
         Profile targetProfile = ProfileManager.getInstance().getProfile(target);
         if (!targetProfile.isPrivateMessages() && !player.hasPermission("zpp.bypass.privatemessage")) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.REPLY.CANT-REPLY2").replaceAll("%target%", target.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.REPLY.CANT-REPLY2").replace("%target%", target.getName()));
             return;
         }
 
@@ -55,14 +55,14 @@ public class ReplyCommand extends PrivateMessageCommand {
             message.append(arg).append(" ");
 
         Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.REPLY.SENDER-MESSAGE")
-                .replaceAll("%sender%", player.getName())
-                .replaceAll("%receiver%", target.getName())
-                .replaceAll("%message%", message.toString())
+                .replace("%sender%", player.getName())
+                .replace("%receiver%", target.getName())
+                .replace("%message%", message.toString())
         );
         Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.REPLY.RECEIVER-MESSAGE")
-                .replaceAll("%sender%", player.getName())
-                .replaceAll("%receiver%", target.getName())
-                .replaceAll("%message%", message.toString())
+                .replace("%sender%", player.getName())
+                .replace("%receiver%", target.getName())
+                .replace("%message%", message.toString())
         );
 
         MessageCommand.getLatestMessage().put(target, player);

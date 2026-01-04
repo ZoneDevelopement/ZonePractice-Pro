@@ -68,7 +68,7 @@ public abstract class DisplayArena extends NormalArena {
         if (this.icon == null) {
             if (DEFAULT_ICON) {
                 GUIItem guiItem = DEFAULT_ICON_ITEM.cloneItem();
-                guiItem.replaceAll("%arena%", this.name);
+                guiItem.replace("%arena%", this.name);
                 return guiItem.get().clone();
             }
             return null;

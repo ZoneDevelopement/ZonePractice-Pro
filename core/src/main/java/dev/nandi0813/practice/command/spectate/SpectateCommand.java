@@ -44,13 +44,13 @@ public class SpectateCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length != 1) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SPECTATE.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SPECTATE.COMMAND-HELP").replace("%label%", label));
             return false;
         }
 
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SPECTATE.TARGET-OFFLINE").replaceAll("%target%", args[0]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SPECTATE.TARGET-OFFLINE").replace("%target%", args[0]));
             return false;
         }
 

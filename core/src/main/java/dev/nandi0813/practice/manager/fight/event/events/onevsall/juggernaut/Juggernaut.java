@@ -24,7 +24,7 @@ public class Juggernaut extends FFAEvent {
     protected void customCustomStart() {
         this.juggernaut = this.players.get(random.nextInt(this.players.size()));
         this.startPlayerCount = this.startPlayerCount - 1;
-        this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.JUGGERNAUT-ANNOUNCE").replaceAll("%player%", juggernaut.getName()), false);
+        this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.JUGGERNAUT-ANNOUNCE").replace("%player%", juggernaut.getName()), false);
     }
 
     @Override
@@ -46,12 +46,12 @@ public class Juggernaut extends FFAEvent {
 
         if (this.juggernaut != player) {
             this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.PLAYER-DIED")
-                            .replaceAll("%player%", player.getName())
-                            .replaceAll("%startPlayerCount%", String.valueOf(this.getStartPlayerCount()))
-                            .replaceAll("%playerCount%", String.valueOf(this.players.size() - 2))
+                            .replace("%player%", player.getName())
+                            .replace("%startPlayerCount%", String.valueOf(this.getStartPlayerCount()))
+                            .replace("%playerCount%", String.valueOf(this.players.size() - 2))
                     , true);
         } else {
-            this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.JUGGERNAUT-DIED").replaceAll("%player%", juggernaut.getName()), true);
+            this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.JUGGERNAUT-DIED").replace("%player%", juggernaut.getName()), true);
         }
 
         this.players.remove(player);
@@ -86,17 +86,17 @@ public class Juggernaut extends FFAEvent {
 
         if (this.winner != null) {
             if (this.winner == juggernaut) {
-                this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.JUGGERNAUT-WON").replaceAll("%player%", winner.getName()), true);
+                this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.JUGGERNAUT-WON").replace("%player%", winner.getName()), true);
 
                 for (String cmd : eventData.getType().getWinnerCMD())
-                    ServerManager.runConsoleCommand(cmd.replaceAll("%player%", juggernaut.getName()));
+                    ServerManager.runConsoleCommand(cmd.replace("%player%", juggernaut.getName()));
             } else {
                 this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.ATTACKERS-WON"), true);
 
                 for (Player player : players) {
                     if (player != juggernaut) {
                         for (String cmd : eventData.getType().getWinnerCMD()) {
-                            ServerManager.runConsoleCommand(cmd.replaceAll("%player%", player.getName()));
+                            ServerManager.runConsoleCommand(cmd.replace("%player%", player.getName()));
                         }
                     }
                 }

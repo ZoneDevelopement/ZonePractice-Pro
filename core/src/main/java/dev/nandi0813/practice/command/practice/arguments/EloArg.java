@@ -29,12 +29,12 @@ public enum EloArg {
             }
 
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replaceAll("%target%", args[2]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
             }
 
             if (player != target.getPlayer().getPlayer() && target.getPlayer().isOp() && ConfigManager.getBoolean("ADMIN-SETTINGS.OP-BYPASS-ELO-CHANGE")) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OP").replaceAll("%target%", target.getPlayer().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OP").replace("%target%", target.getPlayer().getName()));
                 return;
             }
 
@@ -42,15 +42,15 @@ public enum EloArg {
             if (!args[3].equalsIgnoreCase("*")) {
                 NormalLadder ladder = LadderManager.getInstance().getLadder(args[3]);
                 if (ladder == null) {
-                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.LADDER-NOT-EXISTS").replaceAll("%ladder%", args[3]));
+                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.LADDER-NOT-EXISTS").replace("%ladder%", args[3]));
                     return;
                 }
 
                 target.getStats().getLadderStat(ladder).setElo(defaultElo);
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.SPECIFIC-LADDER-ELO-RESET")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%ladder%", ladder.getDisplayName())
-                        .replaceAll("%defaultElo%", String.valueOf(defaultElo))
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%ladder%", ladder.getDisplayName())
+                        .replace("%defaultElo%", String.valueOf(defaultElo))
                 );
             } else {
                 for (NormalLadder ladder : LadderManager.getInstance().getLadders())
@@ -58,8 +58,8 @@ public enum EloArg {
                         target.getStats().getLadderStat(ladder).setElo(defaultElo);
 
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.ALL-LADDER-ELO-RESET")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%defaultElo%", String.valueOf(defaultElo))
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%defaultElo%", String.valueOf(defaultElo))
                 );
             }
         } else if (args.length == 5 && args[1].equalsIgnoreCase("set")) {
@@ -69,12 +69,12 @@ public enum EloArg {
             }
 
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replaceAll("%target%", args[2]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
             }
 
             if (player != target.getPlayer().getPlayer() && target.getPlayer().isOp() && ConfigManager.getBoolean("ADMIN-SETTINGS.OP-BYPASS-ELO-CHANGE")) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OP").replaceAll("%target%", target.getPlayer().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OP").replace("%target%", target.getPlayer().getName()));
                 return;
             }
 
@@ -87,15 +87,15 @@ public enum EloArg {
             if (!args[3].equalsIgnoreCase("*")) {
                 NormalLadder ladder = LadderManager.getInstance().getLadder(args[3]);
                 if (ladder == null) {
-                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.LADDER-NOT-EXISTS").replaceAll("%ladder%", args[3]));
+                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.LADDER-NOT-EXISTS").replace("%ladder%", args[3]));
                     return;
                 }
 
                 target.getStats().getLadderStat(ladder).setElo(newElo);
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.SPECIFIC-LADDER-ELO-SET")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%ladder%", ladder.getDisplayName())
-                        .replaceAll("%newElo%", String.valueOf(newElo))
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%ladder%", ladder.getDisplayName())
+                        .replace("%newElo%", String.valueOf(newElo))
                 );
             } else {
                 for (NormalLadder ladder : LadderManager.getInstance().getLadders())
@@ -103,13 +103,13 @@ public enum EloArg {
                         target.getStats().getLadderStat(ladder).setElo(newElo);
 
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.ALL-LADDER-ELO-SET")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%newElo%", String.valueOf(newElo))
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%newElo%", String.valueOf(newElo))
                 );
             }
         } else {
             for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.ELO.COMMAND-HELP"))
-                Common.sendMMMessage(player, line.replaceAll("%label%", label));
+                Common.sendMMMessage(player, line.replace("%label%", label));
         }
     }
 
@@ -117,7 +117,7 @@ public enum EloArg {
         if (args.length == 4 && args[1].equalsIgnoreCase("reset")) {
             Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
             if (target == null) {
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replaceAll("%target%", args[2]));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
             }
 
@@ -126,28 +126,28 @@ public enum EloArg {
             if (!args[3].equalsIgnoreCase("*")) {
                 NormalLadder ladder = LadderManager.getInstance().getLadder(args[3]);
                 if (ladder == null) {
-                    Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.LADDER-NOT-EXISTS").replaceAll("%ladder%", args[3]));
+                    Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.LADDER-NOT-EXISTS").replace("%ladder%", args[3]));
                     return;
                 }
 
                 target.getStats().getLadderStat(ladder).setElo(defaultElo);
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.SPECIFIC-LADDER-ELO-RESET")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%ladder%", ladder.getDisplayName())
-                        .replaceAll("%defaultElo%", String.valueOf(defaultElo)));
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%ladder%", ladder.getDisplayName())
+                        .replace("%defaultElo%", String.valueOf(defaultElo)));
             } else {
                 for (NormalLadder ladder : LadderManager.getInstance().getLadders())
                     if (ladder.isRanked())
                         target.getStats().getLadderStat(ladder).setElo(defaultElo);
 
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.ALL-LADDER-ELO-RESET")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%defaultElo%", String.valueOf(defaultElo)));
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%defaultElo%", String.valueOf(defaultElo)));
             }
         } else if (args.length == 5 && args[1].equalsIgnoreCase("set")) {
             Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
             if (target == null) {
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replaceAll("%target%", args[2]));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
             }
 
@@ -160,27 +160,27 @@ public enum EloArg {
             if (!args[3].equalsIgnoreCase("*")) {
                 NormalLadder ladder = LadderManager.getInstance().getLadder(args[3]);
                 if (ladder == null) {
-                    Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.LADDER-NOT-EXISTS").replaceAll("%ladder%", args[3]));
+                    Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.LADDER-NOT-EXISTS").replace("%ladder%", args[3]));
                     return;
                 }
 
                 target.getStats().getLadderStat(ladder).setElo(newElo);
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.SPECIFIC-LADDER-ELO-SET")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%ladder%", ladder.getDisplayName())
-                        .replaceAll("%newElo%", String.valueOf(newElo)));
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%ladder%", ladder.getDisplayName())
+                        .replace("%newElo%", String.valueOf(newElo)));
             } else {
                 for (NormalLadder ladder : LadderManager.getInstance().getLadders())
                     if (ladder.isRanked())
                         target.getStats().getLadderStat(ladder).setElo(newElo);
 
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.ALL-LADDER-ELO-SET")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%newElo%", String.valueOf(newElo)));
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%newElo%", String.valueOf(newElo)));
             }
         } else {
             for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.ELO.COMMAND-HELP"))
-                Common.sendConsoleMMMessage(line.replaceAll("%label%", label));
+                Common.sendConsoleMMMessage(line.replace("%label%", label));
         }
     }
 

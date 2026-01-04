@@ -121,10 +121,10 @@ public class ProfileLadderStats extends GUI {
         if (!ladder.isRanked()) {
             for (String line : GUIFile.getStringList("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.LADDER.UNRANKED-LADDER-STATS.LORE")) {
                 lore.add(line
-                        .replaceAll("%ladder%", ladder.getDisplayName())
-                        .replaceAll("%wins%", String.valueOf(profile.getStats().getLadderStat(ladder).getUnRankedWins()))
-                        .replaceAll("%losses%", String.valueOf(profile.getStats().getLadderStat(ladder).getUnRankedLosses()))
-                        .replaceAll("%custom_kits%", profile.getUnrankedCustomKits().containsKey(ladder) ? String.valueOf(profile.getUnrankedCustomKits().get(ladder).size()) : nullString)
+                        .replace("%ladder%", ladder.getDisplayName())
+                        .replace("%wins%", String.valueOf(profile.getStats().getLadderStat(ladder).getUnRankedWins()))
+                        .replace("%losses%", String.valueOf(profile.getStats().getLadderStat(ladder).getUnRankedLosses()))
+                        .replace("%custom_kits%", profile.getUnrankedCustomKits().containsKey(ladder) ? String.valueOf(profile.getUnrankedCustomKits().get(ladder).size()) : nullString)
                 );
             }
 
@@ -142,13 +142,13 @@ public class ProfileLadderStats extends GUI {
             LadderStats ladderStats = profile.getStats().getLadderStat(ladder);
             for (String line : GUIFile.getStringList("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.LADDER.RANKED-LADDER-STATS.LORE")) {
                 lore.add(line
-                        .replaceAll("%unranked_wins%", String.valueOf(ladderStats.getUnRankedWins()))
-                        .replaceAll("%unranked_losses%", String.valueOf(ladderStats.getUnRankedLosses()))
-                        .replaceAll("%unranked_custom_kits%", String.valueOf(profile.getUnrankedCustomKits().containsKey(ladder) ? profile.getUnrankedCustomKits().get(ladder).size() : nullString))
-                        .replaceAll("%ranked_wins%", String.valueOf(ladderStats.getRankedWins()))
-                        .replaceAll("%ranked_losses%", String.valueOf(ladderStats.getRankedLosses()))
-                        .replaceAll("%ranked_custom_kits%", String.valueOf(profile.getRankedCustomKits().containsKey(ladder) ? profile.getRankedCustomKits().get(ladder).size() : nullString))
-                        .replaceAll("%elo%", String.valueOf(ladderStats.getElo()))
+                        .replace("%unranked_wins%", String.valueOf(ladderStats.getUnRankedWins()))
+                        .replace("%unranked_losses%", String.valueOf(ladderStats.getUnRankedLosses()))
+                        .replace("%unranked_custom_kits%", String.valueOf(profile.getUnrankedCustomKits().containsKey(ladder) ? profile.getUnrankedCustomKits().get(ladder).size() : nullString))
+                        .replace("%ranked_wins%", String.valueOf(ladderStats.getRankedWins()))
+                        .replace("%ranked_losses%", String.valueOf(ladderStats.getRankedLosses()))
+                        .replace("%ranked_custom_kits%", String.valueOf(profile.getRankedCustomKits().containsKey(ladder) ? profile.getRankedCustomKits().get(ladder).size() : nullString))
+                        .replace("%elo%", String.valueOf(ladderStats.getElo()))
                 );
             }
 

@@ -69,16 +69,16 @@ public class OITC extends FFAEvent {
                 this.givePoints(eventPlayer, 5);
 
             this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.OITC.PLAYER-DIED")
-                            .replaceAll("%player%", player.getName())
-                            .replaceAll("%startPlayerCount%", String.valueOf(playerLives.size()))
-                            .replaceAll("%playerCount%", String.valueOf(players.size()))
+                            .replace("%player%", player.getName())
+                            .replace("%startPlayerCount%", String.valueOf(playerLives.size()))
+                            .replace("%playerCount%", String.valueOf(players.size()))
                     , true);
 
             this.addSpectator(player, null, teleport, false);
             this.checkIfEnd();
         } else {
             this.teleport(player);
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.OITC.LIFE-LEFT").replaceAll("%life%", String.valueOf(newLife)));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.OITC.LIFE-LEFT").replace("%life%", String.valueOf(newLife)));
         }
 
         playerLives.replace(player, newLife);
@@ -89,7 +89,7 @@ public class OITC extends FFAEvent {
             playerPoints.replace(player, playerPoints.get(player) + point);
         }
 
-        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.OITC.POINTS-RECEIVED").replaceAll("%point%", String.valueOf(point)));
+        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.OITC.POINTS-RECEIVED").replace("%point%", String.valueOf(point)));
     }
 
     @Override
@@ -111,12 +111,12 @@ public class OITC extends FFAEvent {
 
         if (winner != null) {
             this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.OITC.WON-EVENT")
-                            .replaceAll("%winner%", winner.getName())
-                            .replaceAll("%points%", String.valueOf(playerPoints.get(winner)))
+                            .replace("%winner%", winner.getName())
+                            .replace("%points%", String.valueOf(playerPoints.get(winner)))
                     , true);
 
             for (String cmd : eventData.getType().getWinnerCMD())
-                ServerManager.runConsoleCommand(cmd.replaceAll("%player%", winner.getName()));
+                ServerManager.runConsoleCommand(cmd.replace("%player%", winner.getName()));
         } else
             this.sendMessage(LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.OITC.NO-WINNER"), true);
     }

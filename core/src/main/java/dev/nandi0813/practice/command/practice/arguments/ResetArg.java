@@ -25,18 +25,18 @@ public enum ResetArg {
         }
 
         if (args.length != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
         Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[1]));
         if (target == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.TARGET-OFFLINE").replaceAll("%target%", args[1]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.TARGET-OFFLINE").replace("%target%", args[1]));
             return;
         }
 
         if (player != target.getPlayer() && target.getPlayer().isOp() && ConfigManager.getBoolean("ADMIN-SETTINGS.OP-BYPASS-FULL-RESET")) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.TARGET-OP").replaceAll("%target%", target.getPlayer().getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.TARGET-OP").replace("%target%", target.getPlayer().getName()));
             return;
         }
 
@@ -51,18 +51,18 @@ public enum ResetArg {
         }
         target.getStats().setExperience(0);
 
-        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.RESET-PLAYER").replaceAll("%target%", target.getPlayer().getName()));
+        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.RESET-PLAYER").replace("%target%", target.getPlayer().getName()));
     }
 
     public static void run(String label, String[] args) {
         if (args.length != 2) {
-            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
         Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[1]));
         if (target == null) {
-            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.TARGET-OFFLINE").replaceAll("%target%", args[1]));
+            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.TARGET-OFFLINE").replace("%target%", args[1]));
             return;
         }
 
@@ -75,7 +75,7 @@ public enum ResetArg {
         }
         target.getStats().setExperience(0);
 
-        Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.RESET-PLAYER").replaceAll("%target%", target.getPlayer().getName()));
+        Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.RESET-PLAYER").replace("%target%", target.getPlayer().getName()));
     }
 
     public static List<String> tabComplete(Player player, String[] args) {

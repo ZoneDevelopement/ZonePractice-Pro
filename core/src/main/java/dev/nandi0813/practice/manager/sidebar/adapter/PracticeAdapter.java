@@ -385,14 +385,14 @@ public class PracticeAdapter implements SidebarAdapter {
                                         Statistic player1stats = match.getCurrentStat(duel.getPlayer1());
                                         Statistic player2stats = match.getCurrentStat(duel.getPlayer2());
                                         line = line
-                                                .replaceAll("%player1hits%", String.valueOf(player1stats != null ? player1stats.getHit() : 0))
-                                                .replaceAll("%player2hits%", String.valueOf(player2stats != null ? player2stats.getHit() : 0));
+                                                .replace("%player1hits%", String.valueOf(player1stats != null ? player1stats.getHit() : 0))
+                                                .replace("%player2hits%", String.valueOf(player2stats != null ? player2stats.getHit() : 0));
                                         break;
                                     case BEDWARS:
                                     case FIREBALL_FIGHT:
                                         line = line
-                                                .replaceAll("%player1BedStatus%", (round != null && round.getBedStatus().get(duel.getTeam(duel.getPlayer1())) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
-                                                .replaceAll("%player2BedStatus%", (round != null && round.getBedStatus().get(duel.getTeam(duel.getPlayer2())) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
+                                                .replace("%player1BedStatus%", (round != null && round.getBedStatus().get(duel.getTeam(duel.getPlayer1())) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
+                                                .replace("%player2BedStatus%", (round != null && round.getBedStatus().get(duel.getTeam(duel.getPlayer2())) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
                                         break;
                                 }
 
@@ -407,34 +407,34 @@ public class PracticeAdapter implements SidebarAdapter {
                                     Player player1 = MatchUtil.getBoxingTopPlayer(partyFFA, 1);
                                     if (player1 != null) {
                                         line = line
-                                                .replaceAll("%player1boxing%", player1.getName())
-                                                .replaceAll("%player1boxingHits%", String.valueOf(match.getCurrentStat(player1).getHit()));
+                                                .replace("%player1boxing%", player1.getName())
+                                                .replace("%player1boxingHits%", String.valueOf(match.getCurrentStat(player1).getHit()));
                                     } else {
                                         line = line
-                                                .replaceAll("%player1boxing%", "<red>N/A")
-                                                .replaceAll("%player1boxingHits%", "<red>N/A");
+                                                .replace("%player1boxing%", "<red>N/A")
+                                                .replace("%player1boxingHits%", "<red>N/A");
                                     }
 
                                     Player player2 = MatchUtil.getBoxingTopPlayer(partyFFA, 2);
                                     if (player2 != null) {
                                         line = line
-                                                .replaceAll("%player2boxing%", player2.getName())
-                                                .replaceAll("%player2boxingHits%", String.valueOf(match.getCurrentStat(player2).getHit()));
+                                                .replace("%player2boxing%", player2.getName())
+                                                .replace("%player2boxingHits%", String.valueOf(match.getCurrentStat(player2).getHit()));
                                     } else {
                                         line = line
-                                                .replaceAll("%player2boxing%", "<red>N/A")
-                                                .replaceAll("%player2boxingHits%", "<red>N/A");
+                                                .replace("%player2boxing%", "<red>N/A")
+                                                .replace("%player2boxingHits%", "<red>N/A");
                                     }
 
                                     Player player3 = MatchUtil.getBoxingTopPlayer(partyFFA, 3);
                                     if (player3 != null) {
                                         line = line
-                                                .replaceAll("%player3boxing%", player3.getName())
-                                                .replaceAll("%player3boxingHits%", String.valueOf(match.getCurrentStat(player3).getHit()));
+                                                .replace("%player3boxing%", player3.getName())
+                                                .replace("%player3boxingHits%", String.valueOf(match.getCurrentStat(player3).getHit()));
                                     } else {
                                         line = line
-                                                .replaceAll("%player3boxing%", "<red>N/A")
-                                                .replaceAll("%player3boxingHits%", "<red>N/A");
+                                                .replace("%player3boxing%", "<red>N/A")
+                                                .replace("%player3boxingHits%", "<red>N/A");
                                     }
                                 }
 
@@ -449,14 +449,14 @@ public class PracticeAdapter implements SidebarAdapter {
                                 switch (ladderType) {
                                     case BOXING:
                                         line = line
-                                                .replaceAll("%team1boxingHits%", String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM1))))
-                                                .replaceAll("%team2boxingHits%", String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM2))));
+                                                .replace("%team1boxingHits%", String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM1))))
+                                                .replace("%team2boxingHits%", String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM2))));
                                         break;
                                     case BEDWARS:
                                     case FIREBALL_FIGHT:
                                         line = line
-                                                .replaceAll("%team1BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
-                                                .replaceAll("%team2BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
+                                                .replace("%team1BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
+                                                .replace("%team2BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
                                         break;
                                 }
 
@@ -471,14 +471,14 @@ public class PracticeAdapter implements SidebarAdapter {
                                 switch (ladderType) {
                                     case BOXING:
                                         line = line
-                                                .replaceAll("%team1boxingHits%", String.valueOf(Boxing.getTeamBoxingStrokes(match, partyVsParty.getTeamPlayers(TeamEnum.TEAM1))))
-                                                .replaceAll("%team2boxingHits%", String.valueOf(Boxing.getTeamBoxingStrokes(match, partyVsParty.getTeamPlayers(TeamEnum.TEAM2))));
+                                                .replace("%team1boxingHits%", String.valueOf(Boxing.getTeamBoxingStrokes(match, partyVsParty.getTeamPlayers(TeamEnum.TEAM1))))
+                                                .replace("%team2boxingHits%", String.valueOf(Boxing.getTeamBoxingStrokes(match, partyVsParty.getTeamPlayers(TeamEnum.TEAM2))));
                                         break;
                                     case BEDWARS:
                                     case FIREBALL_FIGHT:
                                         line = line
-                                                .replaceAll("%team1BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
-                                                .replaceAll("%team2BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
+                                                .replace("%team1BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
+                                                .replace("%team2BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
                                         break;
                                 }
 
@@ -509,9 +509,9 @@ public class PracticeAdapter implements SidebarAdapter {
 
                         for (String line : config.getStringList(path)) {
                             line = line
-                                    .replaceAll("%players%", String.valueOf(lms.getStartPlayerCount()))
-                                    .replaceAll("%alivePlayers%", String.valueOf(lms.getPlayers().size()))
-                                    .replaceAll("%duration%", lms.getDurationRunnable().getFormattedTime());
+                                    .replace("%players%", String.valueOf(lms.getStartPlayerCount()))
+                                    .replace("%alivePlayers%", String.valueOf(lms.getPlayers().size()))
+                                    .replace("%duration%", lms.getDurationRunnable().getFormattedTime());
 
                             sidebar.add(PAPIUtil.runThroughFormat(player, line));
                         }
@@ -522,11 +522,11 @@ public class PracticeAdapter implements SidebarAdapter {
 
                         for (String line : config.getStringList(path)) {
                             line = line
-                                    .replaceAll("%topPlayer%", highestPointPlayer.getName())
-                                    .replaceAll("%topScore%", String.valueOf(oitc.getPlayerPoints().get(highestPointPlayer)))
-                                    .replaceAll("%players%", String.valueOf(oitc.getPlayerPoints().size()))
-                                    .replaceAll("%alivePlayers%", String.valueOf(oitc.getPlayers().size()))
-                                    .replaceAll("%duration%", oitc.getDurationRunnable().getFormattedTime());
+                                    .replace("%topPlayer%", highestPointPlayer.getName())
+                                    .replace("%topScore%", String.valueOf(oitc.getPlayerPoints().get(highestPointPlayer)))
+                                    .replace("%players%", String.valueOf(oitc.getPlayerPoints().size()))
+                                    .replace("%alivePlayers%", String.valueOf(oitc.getPlayers().size()))
+                                    .replace("%duration%", oitc.getDurationRunnable().getFormattedTime());
 
                             sidebar.add(PAPIUtil.runThroughFormat(player, line));
                         }
@@ -537,8 +537,8 @@ public class PracticeAdapter implements SidebarAdapter {
 
                         for (String line : config.getStringList(path)) {
                             line = line
-                                    .replaceAll("%explosionTime%", (tntTag.getDurationRunnable() != null ? String.valueOf(tntTag.getDurationRunnable().getSeconds()) : "0"))
-                                    .replaceAll("%alivePlayers%", String.valueOf(tntTag.getPlayers().size()));
+                                    .replace("%explosionTime%", (tntTag.getDurationRunnable() != null ? String.valueOf(tntTag.getDurationRunnable().getSeconds()) : "0"))
+                                    .replace("%alivePlayers%", String.valueOf(tntTag.getPlayers().size()));
 
                             sidebar.add(PAPIUtil.runThroughFormat(player, line));
                         }
@@ -549,10 +549,10 @@ public class PracticeAdapter implements SidebarAdapter {
 
                         for (String line : config.getStringList(path)) {
                             line = line
-                                    .replaceAll("%players%", String.valueOf(duelEvent.getStartPlayerCount()))
-                                    .replaceAll("%alivePlayers%", String.valueOf(duelEvent.getPlayers().size()))
-                                    .replaceAll("%timeLeft%", (duelEvent.getDurationRunnable() != null ? duelEvent.getDurationRunnable().getFormattedTime() : "0"))
-                                    .replaceAll("%round%", String.valueOf(duelEvent.getRound()));
+                                    .replace("%players%", String.valueOf(duelEvent.getStartPlayerCount()))
+                                    .replace("%alivePlayers%", String.valueOf(duelEvent.getPlayers().size()))
+                                    .replace("%timeLeft%", (duelEvent.getDurationRunnable() != null ? duelEvent.getDurationRunnable().getFormattedTime() : "0"))
+                                    .replace("%round%", String.valueOf(duelEvent.getRound()));
 
                             sidebar.add(PAPIUtil.runThroughFormat(player, line));
                         }
@@ -562,9 +562,9 @@ public class PracticeAdapter implements SidebarAdapter {
 
                         for (String line : config.getStringList(path)) {
                             line = line
-                                    .replaceAll("%players%", String.valueOf(splegg.getStartPlayerCount()))
-                                    .replaceAll("%alivePlayers%", String.valueOf(splegg.getPlayers().size()))
-                                    .replaceAll("%timeLeft%", (splegg.getDurationRunnable() != null ? splegg.getDurationRunnable().getFormattedTime() : "0"));
+                                    .replace("%players%", String.valueOf(splegg.getStartPlayerCount()))
+                                    .replace("%alivePlayers%", String.valueOf(splegg.getPlayers().size()))
+                                    .replace("%timeLeft%", (splegg.getDurationRunnable() != null ? splegg.getDurationRunnable().getFormattedTime() : "0"));
 
                             sidebar.add(PAPIUtil.runThroughFormat(player, line));
                         }
@@ -574,9 +574,9 @@ public class PracticeAdapter implements SidebarAdapter {
 
                         for (String line : config.getStringList(path)) {
                             line = line
-                                    .replaceAll("%players%", String.valueOf(juggernaut.getStartPlayerCount()))
-                                    .replaceAll("%alivePlayers%", String.valueOf(juggernaut.getPlayers().size() - 1))
-                                    .replaceAll("%duration%", juggernaut.getDurationRunnable().getFormattedTime());
+                                    .replace("%players%", String.valueOf(juggernaut.getStartPlayerCount()))
+                                    .replace("%alivePlayers%", String.valueOf(juggernaut.getPlayers().size() - 1))
+                                    .replace("%duration%", juggernaut.getDurationRunnable().getFormattedTime());
 
                             sidebar.add(PAPIUtil.runThroughFormat(player, line));
                         }
@@ -593,9 +593,9 @@ public class PracticeAdapter implements SidebarAdapter {
         if (player.hasPermission("zpp.admin.scoreboard")) {
             for (String line : config.getStringList("ADMIN-EXTENSION")) {
                 line = line
-                        .replaceAll("%tps%", String.valueOf(TPSUtil.get1MinTPSRounded()))
-                        .replaceAll("%arenas%", String.valueOf(ArenaManager.getInstance().getArenaList().size()))
-                        .replaceAll("%enabledArenas%", String.valueOf(ArenaManager.getInstance().getEnabledArenas().size()));
+                        .replace("%tps%", String.valueOf(TPSUtil.get1MinTPSRounded()))
+                        .replace("%arenas%", String.valueOf(ArenaManager.getInstance().getArenaList().size()))
+                        .replace("%enabledArenas%", String.valueOf(ArenaManager.getInstance().getEnabledArenas().size()));
 
                 sidebar.add(PAPIUtil.runThroughFormat(player, line));
             }

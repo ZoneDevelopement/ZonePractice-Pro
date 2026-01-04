@@ -60,7 +60,7 @@ public class MatchListener extends LadderTypeListener implements Listener {
             if (e instanceof EntityDamageByEntityEvent) {
                 Player killer = FightUtil.getKiller(((EntityDamageByEntityEvent) e).getDamager());
 
-                match.killPlayer(player, killer, DeathCause.convert(e.getCause()).getMessage().replaceAll("%killer%", killer != null ? killer.getName() : "Unknown"));
+                match.killPlayer(player, killer, DeathCause.convert(e.getCause()).getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
                 if (killer != null) {
                     Statistic statistic = match.getCurrentStat(killer);

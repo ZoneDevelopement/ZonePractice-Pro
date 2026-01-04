@@ -173,7 +173,7 @@ public class InventoryGui extends GUI {
 
     private ItemStack getEffectItem(List<PotionEffect> effects) {
         if (!effects.isEmpty()) {
-            GUIItem guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.INVENTORY.ICONS.EFFECTS.HAS-EFFECT").replaceAll("%ladder%", ladder.getName());
+            GUIItem guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.INVENTORY.ICONS.EFFECTS.HAS-EFFECT").replace("%ladder%", ladder.getName());
 
             List<String> effectStrings = new ArrayList<>();
             for (PotionEffect potionEffect : effects)

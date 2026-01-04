@@ -40,21 +40,21 @@ public class DuelRequest {
 
         for (String line : LanguageManager.getList("COMMAND.DUEL.REQUEST-MESSAGE.SENDER")) {
             Common.sendMMMessage(sender, line
-                    .replaceAll("%ladder%", ladder.getDisplayName())
-                    .replaceAll("%arena%", arenaName)
-                    .replaceAll("%rounds%", String.valueOf(rounds))
-                    .replaceAll("%target%", target.getName())
-                    .replaceAll("%targetPing%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(target)))
+                    .replace("%ladder%", ladder.getDisplayName())
+                    .replace("%arena%", arenaName)
+                    .replace("%rounds%", String.valueOf(rounds))
+                    .replace("%target%", target.getName())
+                    .replace("%targetPing%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(target)))
             );
         }
 
         for (String line : LanguageManager.getList("COMMAND.DUEL.REQUEST-MESSAGE.TARGET")) {
             Common.sendMMMessage(target, line
-                    .replaceAll("%ladder%", ladder.getDisplayName())
-                    .replaceAll("%arena%", arenaName)
-                    .replaceAll("%rounds%", String.valueOf(rounds))
-                    .replaceAll("%sender%", sender.getName())
-                    .replaceAll("%senderPing%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(sender)))
+                    .replace("%ladder%", ladder.getDisplayName())
+                    .replace("%arena%", arenaName)
+                    .replace("%rounds%", String.valueOf(rounds))
+                    .replace("%sender%", sender.getName())
+                    .replace("%senderPing%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(sender)))
             );
         }
     }
@@ -67,7 +67,7 @@ public class DuelRequest {
             arena = this.getArena();
 
             if (arena.getAvailableArena() == null) {
-                Common.sendMMMessage(sender, LanguageManager.getString("COMMAND.DUEL.ARENA-BUSY").replaceAll("%arena%", this.getArena().getDisplayName()));
+                Common.sendMMMessage(sender, LanguageManager.getString("COMMAND.DUEL.ARENA-BUSY").replace("%arena%", this.getArena().getDisplayName()));
                 arena = LadderUtil.getAvailableArena(ladder);
             }
         } else

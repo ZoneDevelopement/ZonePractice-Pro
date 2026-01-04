@@ -45,11 +45,11 @@ public class PartyFFA extends Match {
         if (round.getRoundNumber() == 1) {
             for (String line : LanguageManager.getList("MATCH.PARTY-FFA.MATCH-START")) {
                 this.sendMessage(line
-                        .replaceAll("%matchTypeName%", MatchType.PARTY_FFA.getName(true))
-                        .replaceAll("%ladder%", ladder.getDisplayName())
-                        .replaceAll("%arena%", arena.getDisplayName())
-                        .replaceAll("%rounds%", String.valueOf(this.winsNeeded))
-                        .replaceAll("%players%", PlayerUtil.getPlayerNames(players).toString().replace("[", "").replace("]", "")), false);
+                        .replace("%matchTypeName%", MatchType.PARTY_FFA.getName(true))
+                        .replace("%ladder%", ladder.getDisplayName())
+                        .replace("%arena%", arena.getDisplayName())
+                        .replace("%rounds%", String.valueOf(this.winsNeeded))
+                        .replace("%players%", PlayerUtil.getPlayerNames(players).toString().replace("[", "").replace("]", "")), false);
             }
         }
 
@@ -129,7 +129,7 @@ public class PartyFFA extends Match {
             this.getCurrentStat(player).end(true);
 
             this.sendMessage(LanguageManager.getString("MATCH.PARTY-FFA.PLAYER-LEFT")
-                    .replaceAll("%player%", player.getName()), true);
+                    .replace("%player%", player.getName()), true);
 
             Player winnerPlayer = this.getWinnerPlayer();
             if (winnerPlayer != null) {

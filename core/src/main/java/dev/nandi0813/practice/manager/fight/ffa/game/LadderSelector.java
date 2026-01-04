@@ -50,7 +50,7 @@ public class LadderSelector extends GUI {
             ItemStack ladderItem = LADDER_ITEM.cloneItem()
                     .setMaterial(ladder.getIcon().getType())
                     .setDamage(ladder.getIcon().getDurability())
-                    .replaceAll("%ladder%", ladder.getDisplayName())
+                    .replace("%ladder%", ladder.getDisplayName())
                     .get();
 
             int slot = inventory.firstEmpty();
@@ -94,7 +94,7 @@ public class LadderSelector extends GUI {
         }
 
         if (!ffa.isOpen()) {
-            Common.sendMMMessage(player, LanguageManager.getString("FFA.FFA-CLOSED").replaceAll("%arena%", ffaArena.getDisplayName()));
+            Common.sendMMMessage(player, LanguageManager.getString("FFA.FFA-CLOSED").replace("%arena%", ffaArena.getDisplayName()));
             player.closeInventory();
             return;
         }

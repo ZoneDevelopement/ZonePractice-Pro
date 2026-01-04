@@ -161,15 +161,15 @@ public class ArenaSetupListener implements Listener {
             if (isOutsideRegion(player, ffaArena, loc)) return;
 
             if (ffaArena.getFfaPositions().size() >= 18) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.FFA-POSITIONS.MAX-18").replaceAll("%arena%", ffaArena.getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.FFA-POSITIONS.MAX-18").replace("%arena%", ffaArena.getName()));
                 return;
             }
 
             ffaArena.getFfaPositions().add(loc);
             updateGui(ffaArena);
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.FFA-POSITIONS.SET-FFAPOS")
-                    .replaceAll("%arena%", ffaArena.getName())
-                    .replaceAll("%posCount%", String.valueOf(ffaArena.getFfaPositions().size())));
+                    .replace("%arena%", ffaArena.getName())
+                    .replace("%posCount%", String.valueOf(ffaArena.getFfaPositions().size())));
 
         } else {
             // Remove Spawn
@@ -424,12 +424,12 @@ public class ArenaSetupListener implements Listener {
         if (arena.isBuildMax() && (cuboid.getLowerY() > arena.getBuildMaxValue() || arena.getBuildMaxValue() > cuboid.getUpperY())) {
             arena.setBuildMaxValue(ConfigManager.getInt("MATCH-SETTINGS.BUILD-LIMIT-DEFAULT"));
             arena.setBuildMax(false);
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.CORNER.BUILD-MAX-REMOVED").replaceAll("%arena%", arena.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.CORNER.BUILD-MAX-REMOVED").replace("%arena%", arena.getName()));
         }
         // Clean DeadZone
         if (arena.isDeadZone() && (cuboid.getLowerY() > arena.getDeadZoneValue() || arena.getDeadZoneValue() > cuboid.getUpperY())) {
             arena.setDeadZone(false);
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.CORNER.DEAD-ZONE-REMOVED").replaceAll("%arena%", arena.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.CORNER.DEAD-ZONE-REMOVED").replace("%arena%", arena.getName()));
         }
         // Clean Beds
         if (arena instanceof Arena a && a.getAssignedLadderTypes().contains(LadderType.BEDWARS)) {

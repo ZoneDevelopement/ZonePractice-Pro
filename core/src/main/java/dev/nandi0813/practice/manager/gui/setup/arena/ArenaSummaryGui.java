@@ -76,7 +76,7 @@ public class ArenaSummaryGui extends GUI {
                 // Left navigation
                 ItemStack left;
                 if (PageUtil.isPageValid(displayIcons.size(), page - 1, spaces))
-                    left = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.PAGE-LEFT").replaceAll("%page%", String.valueOf(page - 1)).get();
+                    left = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.PAGE-LEFT").replace("%page%", String.valueOf(page - 1)).get();
                 else
                     left = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.BACK-TO").get();
                 gui.get(page).setItem(36, left);
@@ -84,7 +84,7 @@ public class ArenaSummaryGui extends GUI {
                 // Right navigation
                 ItemStack right;
                 if (PageUtil.isPageValid(displayIcons.size(), page + 1, spaces))
-                    right = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.PAGE-RIGHT").replaceAll("%page%", String.valueOf(page + 1)).get();
+                    right = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.PAGE-RIGHT").replace("%page%", String.valueOf(page + 1)).get();
                 else
                     right = GUIManager.getFILLER_ITEM();
                 gui.get(page).setItem(44, right);
@@ -165,10 +165,10 @@ public class ArenaSummaryGui extends GUI {
         }
 
         guiItem
-                .replaceAll("%arenaName%", arena.getName())
-                .replaceAll("%type%", arena.getType().getName())
-                .replaceAll("%state%", (arena.isEnabled() ? STATUS_ENABLED : STATUS_DISABLED))
-                .replaceAll("%build%", (arena.isBuild() ? STATUS_ENABLED : STATUS_DISABLED));
+                .replace("%arenaName%", arena.getName())
+                .replace("%type%", arena.getType().getName())
+                .replace("%state%", (arena.isEnabled() ? STATUS_ENABLED : STATUS_DISABLED))
+                .replace("%build%", (arena.isBuild() ? STATUS_ENABLED : STATUS_DISABLED));
 
         return guiItem.get();
     }
@@ -184,14 +184,14 @@ public class ArenaSummaryGui extends GUI {
         }
 
         guiItem
-                .replaceAll("%arenaName%", arena.getName())
-                .replaceAll("%type%", arena.getType().getName())
-                .replaceAll("%state%", (arena.isEnabled() ? STATUS_ENABLED : STATUS_DISABLED))
-                .replaceAll("%assigned_ladders%", String.valueOf(arena.getAssignedLadders().size()))
-                .replaceAll("%assignable_ladders%", String.valueOf(arena.getAssignableLadders().size()));
+                .replace("%arenaName%", arena.getName())
+                .replace("%type%", arena.getType().getName())
+                .replace("%state%", (arena.isEnabled() ? STATUS_ENABLED : STATUS_DISABLED))
+                .replace("%assigned_ladders%", String.valueOf(arena.getAssignedLadders().size()))
+                .replace("%assignable_ladders%", String.valueOf(arena.getAssignableLadders().size()));
 
         if (arena.isBuild())
-            guiItem.replaceAll("%copies%", String.valueOf(arena.getCopies().size()));
+            guiItem.replace("%copies%", String.valueOf(arena.getCopies().size()));
 
         return guiItem.get();
     }

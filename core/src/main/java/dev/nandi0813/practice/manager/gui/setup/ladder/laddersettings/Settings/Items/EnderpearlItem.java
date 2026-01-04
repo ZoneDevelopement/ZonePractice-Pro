@@ -16,7 +16,7 @@ public class EnderpearlItem extends SettingItem {
     @Override
     public void updateItemStack() {
         guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.ENDERPEARL-COOLDOWN")
-                .replaceAll("%epCooldown%", String.valueOf(ladder.getEnderPearlCooldown()));
+                .replace("%epCooldown%", String.valueOf(ladder.getEnderPearlCooldown()));
     }
 
     @Override

@@ -69,7 +69,7 @@ public class ArenaSelectorGui extends MatchStarterGui {
             for (Arena arena : ladder.getAvailableArenas()) {
                 List<String> lore = new ArrayList<>();
                 for (String line : GUIFile.getStringList("GUIS.SELECTORS.ARENA-SELECTOR.ICONS.ARENA-ICON.LORE"))
-                    lore.add(line.replaceAll("%arena%", arena.getDisplayName()));
+                    lore.add(line.replace("%arena%", arena.getDisplayName()));
 
                 ItemStack icon = ClassImport.getClasses().getItemCreateUtil().createItem(arena.getIcon(), GUIFile.getString("GUIS.SELECTORS.ARENA-SELECTOR.ICONS.ARENA-ICON.NAME").replace("%arena%", arena.getDisplayName()), lore);
 

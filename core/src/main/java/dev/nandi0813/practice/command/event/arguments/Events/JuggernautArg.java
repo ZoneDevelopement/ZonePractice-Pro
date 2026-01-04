@@ -75,7 +75,7 @@ public enum JuggernautArg {
 
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.PLAYERS-KIT-SET"));
             } else {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.KIT-COMMAND-HELP").replaceAll("%label%", label).replaceAll("%label2%", label2));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.KIT-COMMAND-HELP").replace("%label%", label).replace("%label2%", label2));
             }
         } else {
             sendHelpMSG(player, label, label2);
@@ -85,7 +85,7 @@ public enum JuggernautArg {
 
     private static void sendHelpMSG(Player player, String label, String label2) {
         for (String line : LanguageManager.getList("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.COMMAND-HELP"))
-            Common.sendMMMessage(player, line.replaceAll("%label%", label).replaceAll("%label2%", label2));
+            Common.sendMMMessage(player, line.replace("%label%", label).replace("%label2%", label2));
     }
 
     public static List<String> tabComplete(Player player, String[] args) {

@@ -29,8 +29,8 @@ public abstract class BedUtil implements Listener {
         if (languagePath == null) return;
 
         match.sendMessage(LanguageManager.getString(languagePath + ".BED-DESTROYED")
-                        .replaceAll("%team%", team.getNameMM())
-                        .replaceAll("%teamColor%", team.getColorMM())
+                        .replace("%team%", team.getNameMM())
+                        .replace("%teamColor%", team.getColorMM())
                 , true);
     }
 

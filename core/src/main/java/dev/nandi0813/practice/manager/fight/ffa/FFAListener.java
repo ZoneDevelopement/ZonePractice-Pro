@@ -167,8 +167,8 @@ public abstract class FFAListener implements Listener {
         if (health <= 0) return;
 
         Common.sendMMMessage(shooter, LanguageManager.getString("FFA.GAME.ARROW-HIT-PLAYER")
-                .replaceAll("%player%", target.getName())
-                .replaceAll("%health%", String.valueOf(health)));
+                .replace("%player%", target.getName())
+                .replace("%health%", String.valueOf(health)));
     }
 
     private static final boolean ALLOW_DESTROYABLE_BLOCK = ConfigManager.getBoolean("FFA.ALLOW-DESTROYABLE-BLOCK");

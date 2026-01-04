@@ -27,7 +27,7 @@ public enum ProfileStatData {
                 String replace = getData(profile, s);
 
                 if (replace != null)
-                    original = original.replaceAll("%" + s + "%", replace);
+                    original = original.replace("%" + s + "%", replace);
             }
         }
 

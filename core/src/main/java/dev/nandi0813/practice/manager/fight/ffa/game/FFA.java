@@ -127,7 +127,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         }
 
         teleportPlayer(player);
-        this.sendMessage(LanguageManager.getString("FFA.GAME.PLAYER-JOIN").replaceAll("%player%", player.getName()), true);
+        this.sendMessage(LanguageManager.getString("FFA.GAME.PLAYER-JOIN").replace("%player%", player.getName()), true);
 
         PlayerUtil.setFightPlayer(player);
         KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, players.get(player));
@@ -142,7 +142,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
         Bukkit.getPluginManager().callEvent(new FFARemovePlayerEvent(this, player));
 
-        this.sendMessage(LanguageManager.getString("FFA.GAME.PLAYER-LEAVE").replaceAll("%player%", player.getName()), true);
+        this.sendMessage(LanguageManager.getString("FFA.GAME.PLAYER-LEAVE").replace("%player%", player.getName()), true);
 
         players.remove(player);
         fightPlayers.remove(player);
@@ -248,7 +248,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             InventoryManager.getInstance().setInventory(player, Inventory.InventoryType.SPECTATE_FFA);
 
         if (message) {
-            this.sendMessage(LanguageManager.getString("FFA.GAME.SPECTATE-START").replaceAll("%player%", player.getName()), true);
+            this.sendMessage(LanguageManager.getString("FFA.GAME.SPECTATE-START").replace("%player%", player.getName()), true);
         }
 
         SpectatorManager.getInstance().getSpectatorMenuGui().update();
@@ -281,10 +281,10 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         return GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.FFA-ICON")
                 .setMaterial(arena.getIcon().getType())
                 .setDamage(arena.getIcon().getDurability())
-                .replaceAll("%players%", String.valueOf(players.size()))
-                .replaceAll("%spectators%", String.valueOf(spectators.size()))
-                .replaceAll("%arena%", arena.getDisplayName())
-                .replaceAll("%build_status%", arena.isBuild() ? BUILD_ON : BUILD_OFF);
+                .replace("%players%", String.valueOf(players.size()))
+                .replace("%spectators%", String.valueOf(spectators.size()))
+                .replace("%arena%", arena.getDisplayName())
+                .replace("%build_status%", arena.isBuild() ? BUILD_ON : BUILD_OFF);
     }
 
     @Override

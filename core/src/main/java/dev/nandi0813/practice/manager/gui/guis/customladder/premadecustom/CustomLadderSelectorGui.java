@@ -49,16 +49,16 @@ public class CustomLadderSelectorGui extends GUI {
                 ItemMeta iconMeta = icon.getItemMeta();
                 if (iconMeta != null) {
                     iconMeta.setDisplayName(GUIFile.getString("GUIS.KIT-EDITOR.LADDER-SELECTOR.ICONS.NAME")
-                            .replaceAll("%ladder%", ladder.getDisplayName())
-                            .replaceAll("%ladderOriginal%", ladder.getName())
+                            .replace("%ladder%", ladder.getDisplayName())
+                            .replace("%ladderOriginal%", ladder.getName())
                     );
                     ItemCreateUtil.hideItemFlags(iconMeta);
 
                     List<String> lore = new ArrayList<>();
                     for (String line : GUIFile.getStringList("GUIS.KIT-EDITOR.LADDER-SELECTOR.ICONS.LORE")) {
                         lore.add(line
-                                .replaceAll("%ladder%", ladder.getDisplayName())
-                                .replaceAll("%ladderOriginal%", ladder.getName()))
+                                .replace("%ladder%", ladder.getDisplayName())
+                                .replace("%ladderOriginal%", ladder.getName()))
                         ;
                     }
                     iconMeta.setLore(lore);
@@ -91,13 +91,13 @@ public class CustomLadderSelectorGui extends GUI {
             NormalLadder ladder = ladderSlots.get(slot);
 
             if (!ladder.isEnabled() || !ladder.isEditable()) {
-                Common.sendMMMessage(player, LanguageManager.getString("LADDER.KIT-EDITOR.LADDER-SELECTOR.NOT-AVAILABLE").replaceAll("%ladder%", ladder.getDisplayName()));
+                Common.sendMMMessage(player, LanguageManager.getString("LADDER.KIT-EDITOR.LADDER-SELECTOR.NOT-AVAILABLE").replace("%ladder%", ladder.getDisplayName()));
                 update();
                 return;
             }
 
             if (ladder.isFrozen()) {
-                Common.sendMMMessage(player, LanguageManager.getString("LADDER.KIT-EDITOR.LADDER-SELECTOR.LADDER-FROZEN").replaceAll("%ladder%", ladder.getDisplayName()));
+                Common.sendMMMessage(player, LanguageManager.getString("LADDER.KIT-EDITOR.LADDER-SELECTOR.LADDER-FROZEN").replace("%ladder%", ladder.getDisplayName()));
                 return;
             }
 

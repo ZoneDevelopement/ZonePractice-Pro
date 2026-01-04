@@ -87,9 +87,9 @@ public class LadderPreviewGui extends GUI {
             List<String> effects = new ArrayList<>();
             for (PotionEffect potionEffect : kitData.getEffects()) {
                 effects.add(GUIFile.getString("GUIS.LADDER-PREVIEW.ICONS.HAS-EFFECT.FORMAT")
-                        .replaceAll("%name%", StringUtils.capitalize(potionEffect.getType().getName().replace("_", " ").toLowerCase()))
-                        .replaceAll("%amplifier%", String.valueOf(potionEffect.getAmplifier() + 1))
-                        .replaceAll("%time%", StringUtil.formatMillisecondsToMinutes((potionEffect.getDuration() / 20) * 1000L))
+                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getName().replace("_", " ").toLowerCase()))
+                        .replace("%amplifier%", String.valueOf(potionEffect.getAmplifier() + 1))
+                        .replace("%time%", StringUtil.formatMillisecondsToMinutes((potionEffect.getDuration() / 20) * 1000L))
                 );
             }
 
@@ -97,11 +97,11 @@ public class LadderPreviewGui extends GUI {
             for (String line : GUIFile.getStringList("GUIS.LADDER-PREVIEW.ICONS.HAS-EFFECT.ICON.LORE")) {
                 if (line.contains("%effects%")) lore.addAll(effects);
                 else
-                    lore.add(line.replaceAll("%ladder%", ladder.getDisplayName()));
+                    lore.add(line.replace("%ladder%", ladder.getDisplayName()));
             }
 
             return GUIFile.getGuiItem("GUIS.LADDER-PREVIEW.ICONS.HAS-EFFECT.ICON")
-                    .replaceAll("%ladder%", ladder.getDisplayName())
+                    .replace("%ladder%", ladder.getDisplayName())
                     .setLore(lore)
                     .get();
         } else

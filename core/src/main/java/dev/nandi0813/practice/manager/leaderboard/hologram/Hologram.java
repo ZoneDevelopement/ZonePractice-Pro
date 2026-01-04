@@ -147,8 +147,8 @@ public abstract class Hologram {
             case LADDER:
                 lines = new ArrayList<>(currentLB.getSecondaryType().getLadderLines());
                 if (currentLB.getLadder() != null) {
-                    lines.replaceAll(line -> line.replaceAll("%ladder_name%", currentLB.getLadder().getName()));
-                    lines.replaceAll(line -> line.replaceAll("%ladder_displayName%", currentLB.getLadder().getDisplayName()));
+                    lines.replace(line -> line.replace("%ladder_name%", currentLB.getLadder().getName()));
+                    lines.replace(line -> line.replace("%ladder_displayName%", currentLB.getLadder().getDisplayName()));
                 }
                 break;
         }
@@ -201,23 +201,23 @@ public abstract class Hologram {
                 Profile targetProfile = ProfileManager.getInstance().getProfile(target);
 
                 if (targetProfile == null) {
-                    placementStrings.add(NULL_STRING.replaceAll("%number%", rankNumber));
+                    placementStrings.add(NULL_STRING.replace("%number%", rankNumber));
                 } else {
                     Group group = targetProfile.getGroup();
                     String statNumber = String.valueOf(list.get(target));
                     Division division = targetProfile.getStats().getDivision();
 
                     placementStrings.add(StringUtil.CC(leaderboardType.getFormat()
-                            .replaceAll("%placement%", rankNumber)
-                            .replaceAll("%score%", statNumber)
-                            .replaceAll("%player%", target.getName())
-                            .replaceAll("%division%", (division != null ? Common.mmToNormal(division.getFullName()) : ""))
-                            .replaceAll("%division_short%", (division != null ? Common.mmToNormal(division.getShortName()) : ""))
-                            .replaceAll("%group%", (group != null ? group.getDisplayName() : ""))
+                            .replace("%placement%", rankNumber)
+                            .replace("%score%", statNumber)
+                            .replace("%player%", target.getName())
+                            .replace("%division%", (division != null ? Common.mmToNormal(division.getFullName()) : ""))
+                            .replace("%division_short%", (division != null ? Common.mmToNormal(division.getShortName()) : ""))
+                            .replace("%group%", (group != null ? group.getDisplayName() : ""))
                     ));
                 }
             } else
-                placementStrings.add(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.NULL-LINE").replaceAll("%number%", rankNumber));
+                placementStrings.add(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.NULL-LINE").replace("%number%", rankNumber));
         }
         return placementStrings;
     }
@@ -231,7 +231,7 @@ public abstract class Hologram {
                 stand1.setCustomName(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.SETUP-HOLO.TITLE"));
 
                 ArmorStand stand2 = getHologram(location, 0.3);
-                stand2.setCustomName(StringUtil.CC(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.SETUP-HOLO.LINE").replaceAll("%name%", name)));
+                stand2.setCustomName(StringUtil.CC(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.SETUP-HOLO.LINE").replace("%name%", name)));
                 break;
             case NO_DISPLAY:
                 ArmorStand stand3 = getHologram(location, 0.3);

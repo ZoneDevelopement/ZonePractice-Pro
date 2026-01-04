@@ -119,7 +119,7 @@ public class OtherPartiesGui extends GUI {
             if (count < 6) {
                 if (!party.getLeader().equals(player)) {
                     memberStrings.add(GUIFile.getString("GUIS.PARTY.OTHER-PARTIES.ICONS.PARTY-ITEM.LORE.MEMBER-FORMAT")
-                            .replaceAll("%player%", player.getName())
+                            .replace("%player%", player.getName())
                     );
                     count++;
                 }
@@ -134,8 +134,8 @@ public class OtherPartiesGui extends GUI {
         }
 
         itemMeta.setDisplayName(GUIFile.getString("GUIS.PARTY.OTHER-PARTIES.ICONS.PARTY-ITEM.NAME")
-                .replaceAll("%leader%", party.getLeader().getName())
-                .replaceAll("%partySize%", String.valueOf(party.getMembers().size()))
+                .replace("%leader%", party.getLeader().getName())
+                .replace("%partySize%", String.valueOf(party.getMembers().size()))
         );
         itemMeta.setLore(lore);
 

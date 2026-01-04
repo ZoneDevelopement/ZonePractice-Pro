@@ -9,7 +9,7 @@ public enum PartyJoinArg {
 
     public static void JoinCommand(Player player, String label, String[] args) {
         if (args.length != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.ACCEPT.COMMAND-HELP2").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.ACCEPT.COMMAND-HELP2").replace("%label%", label));
             return;
         }
 

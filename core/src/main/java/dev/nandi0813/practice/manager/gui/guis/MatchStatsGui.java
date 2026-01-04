@@ -115,23 +115,23 @@ public class MatchStatsGui extends GUI {
 
     private ItemStack getPotionItem(Statistic roundStatistic, int healthPotionsLeft) {
         return GUIFile.getGuiItem("GUIS.MATCH-STATISTICS.ICONS.POTION")
-                .replaceAll("%potion_left%", String.valueOf(healthPotionsLeft))
-                .replaceAll("%potion_thrown%", String.valueOf(roundStatistic.getPotionThrown()))
-                .replaceAll("%potion_missed%", String.valueOf(roundStatistic.getPotionMissed()))
-                .replaceAll("%potion_accuracy%", String.valueOf(roundStatistic.getPotionAccuracy()))
+                .replace("%potion_left%", String.valueOf(healthPotionsLeft))
+                .replace("%potion_thrown%", String.valueOf(roundStatistic.getPotionThrown()))
+                .replace("%potion_missed%", String.valueOf(roundStatistic.getPotionMissed()))
+                .replace("%potion_accuracy%", String.valueOf(roundStatistic.getPotionAccuracy()))
                 .setAmount(healthPotionsLeft >= 1 && healthPotionsLeft <= 64 ? healthPotionsLeft : 1)
                 .get();
     }
 
     private ItemStack getHealthItem(double endHearth) {
         return GUIFile.getGuiItem("GUIS.MATCH-STATISTICS.ICONS.HEALTH")
-                .replaceAll("%end_hearth%", String.valueOf(endHearth))
+                .replace("%end_hearth%", String.valueOf(endHearth))
                 .get();
     }
 
     private ItemStack getFoodItem(double endHunger) {
         return GUIFile.getGuiItem("GUIS.MATCH-STATISTICS.ICONS.HUNGER")
-                .replaceAll("%end_hunger%", String.valueOf(endHunger))
+                .replace("%end_hunger%", String.valueOf(endHunger))
                 .get();
     }
 
@@ -140,9 +140,9 @@ public class MatchStatsGui extends GUI {
             List<String> effects = new ArrayList<>();
             for (PotionEffect potionEffect : roundStatistic.getEndPotionEffects()) {
                 effects.add(GUIFile.getString("GUIS.MATCH-STATISTICS.ICONS.EFFECT.HAS-EFFECT.FORMAT")
-                        .replaceAll("%name%", StringUtils.capitalize(potionEffect.getType().getName().replace("_", " ").toLowerCase()))
-                        .replaceAll("%amplifier%", String.valueOf(potionEffect.getAmplifier() + 1))
-                        .replaceAll("%time%", StringUtil.formatMillisecondsToMinutes((potionEffect.getDuration() / 20) * 1000L))
+                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getName().replace("_", " ").toLowerCase()))
+                        .replace("%amplifier%", String.valueOf(potionEffect.getAmplifier() + 1))
+                        .replace("%time%", StringUtil.formatMillisecondsToMinutes((potionEffect.getDuration() / 20) * 1000L))
                 );
             }
 
@@ -167,16 +167,16 @@ public class MatchStatsGui extends GUI {
 
     private ItemStack getStatsItem(Statistic roundStatistic) {
         return GUIFile.getGuiItem("GUIS.MATCH-STATISTICS.ICONS.STATS")
-                .replaceAll("%total_hits%", String.valueOf(roundStatistic.getHit()))
-                .replaceAll("%total_hits_received%", String.valueOf(roundStatistic.getGetHit()))
-                .replaceAll("%longest_combo%", String.valueOf(roundStatistic.getLongestCombo()))
-                .replaceAll("%avarage_cps%", String.valueOf(roundStatistic.getAverageCPS()))
+                .replace("%total_hits%", String.valueOf(roundStatistic.getHit()))
+                .replace("%total_hits_received%", String.valueOf(roundStatistic.getGetHit()))
+                .replace("%longest_combo%", String.valueOf(roundStatistic.getLongestCombo()))
+                .replace("%avarage_cps%", String.valueOf(roundStatistic.getAverageCPS()))
                 .get();
     }
 
     private ItemStack getNextRoundItem(int nextRound) {
         return GUIFile.getGuiItem("GUIS.MATCH-STATISTICS.ICONS.VIEW-ROUND")
-                .replaceAll("%round%", String.valueOf(nextRound))
+                .replace("%round%", String.valueOf(nextRound))
                 .get();
     }
 

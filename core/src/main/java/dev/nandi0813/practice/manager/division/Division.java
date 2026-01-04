@@ -26,8 +26,8 @@ public class Division {
         this.configName = configName;
 
         this.color = section.getString("DATA.COLOR");
-        this.fullName = section.getString("DATA.NAME.FULL").replaceAll("%color%", color);
-        this.shortName = section.getString("DATA.NAME.SHORT").replaceAll("%color%", color);
+        this.fullName = section.getString("DATA.NAME.FULL").replace("%color%", color);
+        this.shortName = section.getString("DATA.NAME.SHORT").replace("%color%", color);
 
         this.iconMaterial = Material.valueOf(section.getString("DATA.ICON-MATERIAL"));
 

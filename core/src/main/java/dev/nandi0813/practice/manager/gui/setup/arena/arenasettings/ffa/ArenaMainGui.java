@@ -41,7 +41,7 @@ public class ArenaMainGui extends GUI {
         super(GUIType.Arena_Main);
 
         this.ffaArena = ffaArena;
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.FFA-ARENA.MAIN.TITLE").replaceAll("%arenaName%", ffaArena.getName()), 4));
+        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.FFA-ARENA.MAIN.TITLE").replace("%arenaName%", ffaArena.getName()), 4));
         this.ffaSettingsGui = new FFASettingsGui(ffaArena, this);
 
         this.build();
@@ -69,9 +69,9 @@ public class ArenaMainGui extends GUI {
         Inventory inventory = gui.get(1);
 
         inventory.setItem(10, NAME_ITEM.cloneItem()
-                .replaceAll("%arenaDisplayName%", ffaArena.getDisplayName())
-                .replaceAll("%arenaName%", ffaArena.getName())
-                .replaceAll("%arenaType%", ffaArena.getType().toString())
+                .replace("%arenaDisplayName%", ffaArena.getDisplayName())
+                .replace("%arenaName%", ffaArena.getName())
+                .replace("%arenaType%", ffaArena.getType().toString())
                 .setMaterial(ffaArena.getIcon() != null && ffaArena.getIcon().getType() != null ? ffaArena.getIcon().getType() : null)
                 .setDamage(ffaArena.getIcon() != null && ffaArena.getIcon().getDurability() != 0 ? ffaArena.getIcon().getDurability() : -1)
                 .get());
@@ -81,11 +81,11 @@ public class ArenaMainGui extends GUI {
         inventory.setItem(15, LADDER_ITEM);
 
         inventory.setItem(16, LOCATION_ITEM.cloneItem()
-                .replaceAll("%arenaName%", ffaArena.getName())
-                .replaceAll("%arenaDisplayName%", ffaArena.getDisplayName())
-                .replaceAll("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(ffaArena.getCorner1())))
-                .replaceAll("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(ffaArena.getCorner2())))
-                .replaceAll("%ffa_pos_num%", String.valueOf(ffaArena.getFfaPositions().size()))
+                .replace("%arenaName%", ffaArena.getName())
+                .replace("%arenaDisplayName%", ffaArena.getDisplayName())
+                .replace("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(ffaArena.getCorner1())))
+                .replace("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(ffaArena.getCorner2())))
+                .replace("%ffa_pos_num%", String.valueOf(ffaArena.getFfaPositions().size()))
                 .get());
 
         inventory.setItem(31, ffaArena.getFfa().isOpen() ? FFA_OPEN_ITEM : FFA_CLOSE_ITEM);

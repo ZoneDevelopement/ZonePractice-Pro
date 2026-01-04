@@ -79,7 +79,7 @@ public class LadderTypeGui extends GUI {
                     item.setDamage((short) 0);
                 }
 
-                item.replaceAll("%ladderTypeName%", ladderType.getName());
+                item.replace("%ladderTypeName%", ladderType.getName());
 
                 int slot = inventory.firstEmpty();
                 inventory.setItem(slot, item.get());
@@ -89,7 +89,7 @@ public class LadderTypeGui extends GUI {
             int slot = inventory.firstEmpty();
             inventory.setItem(slot,
                     GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-LADDERS-TYPE.ICONS.CUSTOM-KIT-ICONS.ICON")
-                            .replaceAll("%status%", arena.isAllowCustomKitOnMap() ? "&aEnabled" : "&cDisabled")
+                            .replace("%status%", arena.isAllowCustomKitOnMap() ? "&aEnabled" : "&cDisabled")
                             .get());
             customKitSlot = slot;
 

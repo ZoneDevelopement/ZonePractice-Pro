@@ -12,7 +12,7 @@ public enum PartyInfoArg {
 
     public static void InfoCommand(Player player, String label, String[] args) {
         if (args.length != 1 && args.length != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INFO.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INFO.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
@@ -30,13 +30,13 @@ public enum PartyInfoArg {
 
             Player target = Bukkit.getPlayer(args[1]);
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INFO.NOT-ONLINE").replaceAll("%target%", args[1]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INFO.NOT-ONLINE").replace("%target%", args[1]));
                 return;
             }
 
             party = PartyManager.getInstance().getParty(target);
             if (party == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INFO.PLAYER-NO-PARTY").replaceAll("%target%", target.getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INFO.PLAYER-NO-PARTY").replace("%target%", target.getName()));
                 return;
             }
         }
@@ -44,11 +44,11 @@ public enum PartyInfoArg {
         for (String line : LanguageManager.getList("COMMAND.PARTY.ARGUMENTS.INFO.PARTY-INFO")) {
             Common.sendMMMessage(player, line
 
-                    .replaceAll("%leader%", party.getLeader().getName())
-                    .replaceAll("%partyState%", (party.isPublicParty() ? LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INFO.PARTY-STATES.PUBLIC") : LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INFO.PARTY-STATES.PRIVATE")))
-                    .replaceAll("%maxPlayerLimit%", String.valueOf(party.getMaxPlayerLimit()))
-                    .replaceAll("%memberSize%", String.valueOf(party.getMembers().size()))
-                    .replaceAll("%members%", party.getMemberNames().toString().replace("[", "").replace("]", ""))
+                    .replace("%leader%", party.getLeader().getName())
+                    .replace("%partyState%", (party.isPublicParty() ? LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INFO.PARTY-STATES.PUBLIC") : LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INFO.PARTY-STATES.PRIVATE")))
+                    .replace("%maxPlayerLimit%", String.valueOf(party.getMaxPlayerLimit()))
+                    .replace("%memberSize%", String.valueOf(party.getMembers().size()))
+                    .replace("%members%", party.getMemberNames().toString().replace("[", "").replace("]", ""))
             );
         }
     }

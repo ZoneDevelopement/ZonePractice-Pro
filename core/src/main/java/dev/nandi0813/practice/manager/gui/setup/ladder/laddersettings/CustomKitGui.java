@@ -145,20 +145,20 @@ public class CustomKitGui extends GUI {
         switch (ladder.getWeightClass()) {
             case UNRANKED:
                 return GUIFile.getGuiItem("GUIS.SETUP.LADDER.CUSTOM-KIT.ICONS.SWITCH-WEIGHTCLASS.ONLY-UNRANKED")
-                        .replaceAll("%weightClass%", WeightClass.UNRANKED.getName())
+                        .replace("%weightClass%", WeightClass.UNRANKED.getName())
                         .get();
             case RANKED:
                 return GUIFile.getGuiItem("GUIS.SETUP.LADDER.CUSTOM-KIT.ICONS.SWITCH-WEIGHTCLASS.ONLY-RANKED")
-                        .replaceAll("%weightClass%", WeightClass.RANKED.getName())
+                        .replace("%weightClass%", WeightClass.RANKED.getName())
                         .get();
             case UNRANKED_AND_RANKED:
                 if (ranked)
                     return GUIFile.getGuiItem("GUIS.SETUP.LADDER.CUSTOM-KIT.ICONS.SWITCH-WEIGHTCLASS.SWITCH-TO-UNRANKED")
-                            .replaceAll("%weightClass%", WeightClass.UNRANKED.getName())
+                            .replace("%weightClass%", WeightClass.UNRANKED.getName())
                             .get();
                 else
                     return GUIFile.getGuiItem("GUIS.SETUP.LADDER.CUSTOM-KIT.ICONS.SWITCH-WEIGHTCLASS.SWITCH-TO-RANKED")
-                            .replaceAll("%weightClass%", WeightClass.RANKED.getName())
+                            .replace("%weightClass%", WeightClass.RANKED.getName())
                             .get();
         }
 

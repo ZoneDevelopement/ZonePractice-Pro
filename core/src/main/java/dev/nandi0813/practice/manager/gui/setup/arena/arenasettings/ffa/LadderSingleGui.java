@@ -33,7 +33,7 @@ public class LadderSingleGui extends GUI {
     public LadderSingleGui(FFAArena ffaArena) {
         super(GUIType.Arena_Ladders_Single);
 
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.FFA-ARENA.ARENA-LADDERS-SINGLE.TITLE").replaceAll("%arenaName%", ffaArena.getName()), 6));
+        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.FFA-ARENA.ARENA-LADDERS-SINGLE.TITLE").replace("%arenaName%", ffaArena.getName()), 6));
         this.ffaArena = ffaArena;
 
         this.build();
@@ -117,9 +117,9 @@ public class LadderSingleGui extends GUI {
 
     private static GUIItem replacePlaceholders(GUIItem guiItem, NormalLadder ladder) {
         return guiItem.cloneItem()
-                .replaceAll("%ladderName%", ladder.getName())
-                .replaceAll("%ladderDisplayName%", ladder.getDisplayName())
-                .replaceAll("%ladderType%", ladder.getType().getName());
+                .replace("%ladderName%", ladder.getName())
+                .replace("%ladderDisplayName%", ladder.getDisplayName())
+                .replace("%ladderType%", ladder.getType().getName());
     }
 
 }

@@ -31,12 +31,12 @@ public enum NametagArg {
 
             Player target = Bukkit.getPlayer(args[2]);
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-OFFLINE").replaceAll("%target%", args[2]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
             }
 
             if (player != target && target.hasPermission("zpp.bypass.nametag")) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-BYPASS").replaceAll("%target%", target.getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-BYPASS").replace("%target%", target.getName()));
                 return;
             }
 
@@ -56,12 +56,12 @@ public enum NametagArg {
                 InventoryUtil.setLobbyNametag(target, targetProfile);
 
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.PREFIX-SET")
-                        .replaceAll("%target%", target.getName())
-                        .replaceAll("%prefix%", Common.mmToNormal(message.toString())));
+                        .replace("%target%", target.getName())
+                        .replace("%prefix%", Common.mmToNormal(message.toString())));
 
                 Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.PLAYER-PREFIX-SET")
-                        .replaceAll("%player%", player.getName())
-                        .replaceAll("%prefix%", Common.mmToNormal(message.toString())));
+                        .replace("%player%", player.getName())
+                        .replace("%prefix%", Common.mmToNormal(message.toString())));
             } else if (args[1].equalsIgnoreCase("suffix")) {
                 StringBuilder message = new StringBuilder();
                 for (int i = 3; i < args.length; i++) {
@@ -78,12 +78,12 @@ public enum NametagArg {
                 InventoryUtil.setLobbyNametag(target, targetProfile);
 
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.SUFFIX-SET")
-                        .replaceAll("%target%", target.getName())
-                        .replaceAll("%suffix%", Common.mmToNormal(message.toString())));
+                        .replace("%target%", target.getName())
+                        .replace("%suffix%", Common.mmToNormal(message.toString())));
 
                 Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.PLAYER-SUFFIX-SET")
-                        .replaceAll("%player%", player.getName())
-                        .replaceAll("%suffix%", Common.mmToNormal(message.toString())));
+                        .replace("%player%", player.getName())
+                        .replace("%suffix%", Common.mmToNormal(message.toString())));
             }
         } else if (args.length == 3 && args[1].equalsIgnoreCase("reset")) {
             if (!player.hasPermission("zpp.practice.nametag.reset")) {
@@ -93,13 +93,13 @@ public enum NametagArg {
 
             Player target = Bukkit.getPlayer(args[2]);
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-OFFLINE").replaceAll("%target%", args[2]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
             }
             Profile targetProfile = ProfileManager.getInstance().getProfile(target);
 
             if (player != target && target.hasPermission("zpp.bypass.nametag")) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-BYPASS").replaceAll("%target%", target.getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-BYPASS").replace("%target%", target.getName()));
                 return;
             }
 
@@ -108,12 +108,12 @@ public enum NametagArg {
 
             InventoryUtil.setLobbyNametag(target, targetProfile);
 
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.RELOADED").replaceAll("%target%", target.getName()));
-            Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.RELOADED").replaceAll("%player%", player.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.RELOADED").replace("%target%", target.getName()));
+            Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.RELOADED").replace("%player%", player.getName()));
         } else {
             if (player.hasPermission("zpp.practice.nametag.set") || player.hasPermission("zpp.practice.nametag.reset"))
                 for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.COMMAND-HELP"))
-                    Common.sendMMMessage(player, line.replaceAll("%label%", label));
+                    Common.sendMMMessage(player, line.replace("%label%", label));
             else
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
         }
@@ -128,7 +128,7 @@ public enum NametagArg {
         if (args.length >= 4 && (args[1].equalsIgnoreCase("prefix") || args[1].equalsIgnoreCase("suffix"))) {
             Player target = Bukkit.getPlayer(args[2]);
             if (target == null) {
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-OFFLINE").replaceAll("%target%", args[2]));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
             }
 
@@ -148,12 +148,12 @@ public enum NametagArg {
                 InventoryUtil.setLobbyNametag(target, targetProfile);
 
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.PREFIX-SET")
-                        .replaceAll("%target%", target.getName())
-                        .replaceAll("%prefix%", Common.mmToNormal(message.toString())));
+                        .replace("%target%", target.getName())
+                        .replace("%prefix%", Common.mmToNormal(message.toString())));
 
                 Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.PLAYER-PREFIX-SET")
-                        .replaceAll("%player%", LanguageManager.getString("CONSOLE-NAME"))
-                        .replaceAll("%prefix%", Common.mmToNormal(message.toString())));
+                        .replace("%player%", LanguageManager.getString("CONSOLE-NAME"))
+                        .replace("%prefix%", Common.mmToNormal(message.toString())));
             } else if (args[1].equalsIgnoreCase("suffix")) {
                 StringBuilder message = new StringBuilder();
                 for (int i = 3; i < args.length; i++) {
@@ -170,17 +170,17 @@ public enum NametagArg {
                 InventoryUtil.setLobbyNametag(target, targetProfile);
 
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.SUFFIX-SET")
-                        .replaceAll("%target%", target.getName())
-                        .replaceAll("%suffix%", Common.mmToNormal(message.toString())));
+                        .replace("%target%", target.getName())
+                        .replace("%suffix%", Common.mmToNormal(message.toString())));
 
                 Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.PLAYER-SUFFIX-SET")
-                        .replaceAll("%player%", LanguageManager.getString("CONSOLE-NAME"))
-                        .replaceAll("%suffix%", Common.mmToNormal(message.toString())));
+                        .replace("%player%", LanguageManager.getString("CONSOLE-NAME"))
+                        .replace("%suffix%", Common.mmToNormal(message.toString())));
             }
         } else if (args.length == 3 && args[1].equalsIgnoreCase("reset")) {
             Player target = Bukkit.getPlayer(args[2]);
             if (target == null) {
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-OFFLINE").replaceAll("%target%", args[2]));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
             }
             Profile targetProfile = ProfileManager.getInstance().getProfile(target);
@@ -190,11 +190,11 @@ public enum NametagArg {
 
             InventoryUtil.setLobbyNametag(target, targetProfile);
 
-            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.RELOADED").replaceAll("%target%", target.getName()));
-            Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.RELOADED").replaceAll("%player%", LanguageManager.getString("CONSOLE-NAME")));
+            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.RELOADED").replace("%target%", target.getName()));
+            Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.RELOADED").replace("%player%", LanguageManager.getString("CONSOLE-NAME")));
         } else {
             for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.COMMAND-HELP"))
-                Common.sendConsoleMMMessage(line.replaceAll("%label%", label));
+                Common.sendConsoleMMMessage(line.replace("%label%", label));
         }
     }
 

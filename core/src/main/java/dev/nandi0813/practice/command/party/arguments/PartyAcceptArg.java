@@ -15,7 +15,7 @@ public enum PartyAcceptArg {
 
     public static void AcceptCommand(Player player, String label, String[] args) {
         if (args.length != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.ACCEPT.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.ACCEPT.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
@@ -43,7 +43,7 @@ public enum PartyAcceptArg {
         }
 
         if (party.getMembers().size() >= party.getMaxPlayerLimit()) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.ACCEPT.PARTY-FULL").replaceAll("%leader%", party.getLeader().getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.ACCEPT.PARTY-FULL").replace("%leader%", party.getLeader().getName()));
             return;
         }
 
@@ -51,7 +51,7 @@ public enum PartyAcceptArg {
             party.addMember(player);
         } else {
             if (!party.getInvites().containsKey(player)) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.ACCEPT.NO-INVITE").replaceAll("%leader%", party.getLeader().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.ACCEPT.NO-INVITE").replace("%leader%", party.getLeader().getName()));
                 return;
             }
 
@@ -59,7 +59,7 @@ public enum PartyAcceptArg {
                 profile.setSpectatorMode(false);
                 party.addMember(player);
             } else
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.ACCEPT.INVITE-EXPIRED").replaceAll("%leader%", party.getLeader().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.ACCEPT.INVITE-EXPIRED").replace("%leader%", party.getLeader().getName()));
 
             party.getInvites().remove(player);
         }

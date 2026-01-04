@@ -32,8 +32,8 @@ public class PlayerChat implements Listener {
 
             if (party.isPartyChat() || party.getLeader() == player) {
                 party.sendMessage(LanguageManager.getString("GENERAL-CHAT.PARTY-CHAT")
-                        .replaceAll("%%player%%", player.getName())
-                        .replaceAll("%%message%%", message.replaceFirst("@", "")));
+                        .replace("%%player%%", player.getName())
+                        .replace("%%message%%", message.replaceFirst("@", "")));
             } else
                 Common.sendMMMessage(player, LanguageManager.getString("PARTY.CANT-USE-PARTY-CHAT"));
         } else if (profile.isStaffChat()) {
@@ -57,10 +57,10 @@ public class PlayerChat implements Listener {
                     e.setCancelled(true);
 
                     sendMessage(group.getChatFormat()
-                            .replaceAll("%%division%%", (profile.getStats().getDivision() != null ? profile.getStats().getDivision().getFullName() : ""))
-                            .replaceAll("%%division_short%%", profile.getStats().getDivision() != null ? profile.getStats().getDivision().getShortName() : "")
-                            .replaceAll("%%player%%", player.getName())
-                            .replaceAll("%%message%%", message));
+                            .replace("%%division%%", (profile.getStats().getDivision() != null ? profile.getStats().getDivision().getFullName() : ""))
+                            .replace("%%division_short%%", profile.getStats().getDivision() != null ? profile.getStats().getDivision().getShortName() : "")
+                            .replace("%%player%%", player.getName())
+                            .replace("%%message%%", message));
                     return;
                 }
             }
@@ -68,10 +68,10 @@ public class PlayerChat implements Listener {
             e.setCancelled(true);
 
             sendMessage(LanguageManager.getString("GENERAL-CHAT.SERVER-CHAT")
-                    .replaceAll("%%division%%", (profile.getStats().getDivision() != null ? profile.getStats().getDivision().getFullName() : ""))
-                    .replaceAll("%%division_short%%", profile.getStats().getDivision() != null ? profile.getStats().getDivision().getShortName() : "")
-                    .replaceAll("%%player%%", player.getName())
-                    .replaceAll("%%message%%", message));
+                    .replace("%%division%%", (profile.getStats().getDivision() != null ? profile.getStats().getDivision().getFullName() : ""))
+                    .replace("%%division_short%%", profile.getStats().getDivision() != null ? profile.getStats().getDivision().getShortName() : "")
+                    .replace("%%player%%", player.getName())
+                    .replace("%%message%%", message));
         }
     }
 

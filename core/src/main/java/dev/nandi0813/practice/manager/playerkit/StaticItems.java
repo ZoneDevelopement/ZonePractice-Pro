@@ -133,7 +133,7 @@ public enum StaticItems {
     static {
         for (int i = 1; i <= 5; i++) {
             ENCHANTMENT_LEVEL_MAP.put(i, PlayerKitManager.getInstance().getGuiItem("GUI.ITEMS.ENCHANT-GUI.ICONS.SET-ENCHANTMENT-LEVEL")
-                    .replaceAll("%level%", String.valueOf(i)));
+                    .replace("%level%", String.valueOf(i)));
         }
 
         for (String path : PlayerKitManager.getInstance().getConfigSectionKeys("DISABLED-ENCHANTS")) {

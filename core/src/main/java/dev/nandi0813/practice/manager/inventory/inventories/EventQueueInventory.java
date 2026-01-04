@@ -35,7 +35,7 @@ public class EventQueueInventory extends Inventory {
 
                 ItemStack item = invItem.getItem().clone();
                 ItemMeta itemMeta = item.getItemMeta();
-                itemMeta.setDisplayName(StringUtil.CC(itemMeta.getDisplayName().replaceAll("%event%", event.getType().getName())));
+                itemMeta.setDisplayName(StringUtil.CC(itemMeta.getDisplayName().replace("%event%", event.getType().getName())));
                 item.setItemMeta(itemMeta);
 
                 playerInventory.setItem(slot, item);

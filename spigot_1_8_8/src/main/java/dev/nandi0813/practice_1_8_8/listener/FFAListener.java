@@ -37,7 +37,7 @@ public class FFAListener extends dev.nandi0813.practice.manager.fight.ffa.FFALis
             if (e instanceof EntityDamageByEntityEvent) {
                 Player killer = FightUtil.getKiller(((EntityDamageByEntityEvent) e).getDamager());
 
-                ffa.killPlayer(player, killer, DeathCause.convert(e.getCause()).getMessage().replaceAll("%killer%", killer != null ? killer.getName() : "Unknown"));
+                ffa.killPlayer(player, killer, DeathCause.convert(e.getCause()).getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
                 if (killer != null) {
                     Statistic statistic = ffa.getStatistics().get(killer);

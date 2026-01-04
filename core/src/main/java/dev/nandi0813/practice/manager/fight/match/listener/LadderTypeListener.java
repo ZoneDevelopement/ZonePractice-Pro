@@ -66,8 +66,8 @@ public abstract class LadderTypeListener implements Listener {
         if (health <= 0) return;
 
         Common.sendMMMessage(shooter, LanguageManager.getString("MATCH.ARROW-HIT-PLAYER")
-                .replaceAll("%player%", target.getName())
-                .replaceAll("%health%", String.valueOf(health)));
+                .replace("%player%", target.getName())
+                .replace("%health%", String.valueOf(health)));
     }
 
 

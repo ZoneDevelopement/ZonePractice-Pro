@@ -32,7 +32,7 @@ public enum Exp {
             target.getStats().setDivision(DivisionManager.getInstance().getDivision(target));
 
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-RESET")
-                    .replaceAll("%target%", target.getPlayer().getName())
+                    .replace("%target%", target.getPlayer().getName())
             );
         } else if (args.length == 4 && args[1].equalsIgnoreCase("add")) // /prac exp add <player> <number>
         {
@@ -53,9 +53,9 @@ public enum Exp {
             target.getStats().setDivision(DivisionManager.getInstance().getDivision(target));
 
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.ADD-EXTRA-EXP")
-                    .replaceAll("%extraExp%", String.valueOf(extraExp))
-                    .replaceAll("%target%", target.getPlayer().getName())
-                    .replaceAll("%newExp%", String.valueOf(target.getStats().getExperience()))
+                    .replace("%extraExp%", String.valueOf(extraExp))
+                    .replace("%target%", target.getPlayer().getName())
+                    .replace("%newExp%", String.valueOf(target.getStats().getExperience()))
             );
         } else if (args[1].equalsIgnoreCase("set")) // /prac exp set <player> <number>
         {
@@ -76,26 +76,26 @@ public enum Exp {
             target.getStats().setDivision(DivisionManager.getInstance().getDivision(target));
 
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.SET-EXP")
-                    .replaceAll("%newExp%", String.valueOf(setExp))
-                    .replaceAll("%target%", target.getPlayer().getName())
+                    .replace("%newExp%", String.valueOf(setExp))
+                    .replace("%target%", target.getPlayer().getName())
             );
         } else {
             if (player.hasPermission("zpp.practice.exp.reset") || player.hasPermission("zpp.practice.exp.set") || player.hasPermission("zpp.practice.exp.add")) {
                 for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.COMMAND-HELP"))
-                    Common.sendMMMessage(player, line.replaceAll("%label%", label));
+                    Common.sendMMMessage(player, line.replace("%label%", label));
             }
         }
     }
 
     private static boolean get(Player player, String[] args, Profile target) {
         if (target == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replaceAll("%target%", args[2]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replace("%target%", args[2]));
             return true;
         }
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile != target && target.getPlayer().isOp() && ConfigManager.getBoolean("ADMIN-SETTINGS.OP-BYPASS-EXP-CHANGE")) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-OP").replaceAll("%target%", args[2]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-OP").replace("%target%", args[2]));
             return true;
         }
         return false;
@@ -107,7 +107,7 @@ public enum Exp {
         if (args.length == 3 && args[1].equalsIgnoreCase("reset")) // /prac exp reset <player>
         {
             if (target == null) {
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replaceAll("%target%", args[2]));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
@@ -115,12 +115,12 @@ public enum Exp {
             target.getStats().setDivision(DivisionManager.getInstance().getDivision(target));
 
             Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-RESET")
-                    .replaceAll("%target%", target.getPlayer().getName())
+                    .replace("%target%", target.getPlayer().getName())
             );
         } else if (args.length == 4 && args[1].equalsIgnoreCase("add")) // /prac exp add <player> <number>
         {
             if (target == null) {
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replaceAll("%target%", args[2]));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
@@ -134,14 +134,14 @@ public enum Exp {
             target.getStats().setDivision(DivisionManager.getInstance().getDivision(target));
 
             Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.ADD-EXTRA-EXP")
-                    .replaceAll("%extraExp%", String.valueOf(extraExp))
-                    .replaceAll("%target%", target.getPlayer().getName())
-                    .replaceAll("%newExp%", String.valueOf(target.getStats().getExperience()))
+                    .replace("%extraExp%", String.valueOf(extraExp))
+                    .replace("%target%", target.getPlayer().getName())
+                    .replace("%newExp%", String.valueOf(target.getStats().getExperience()))
             );
         } else if (args[1].equalsIgnoreCase("set")) // /prac exp set <player> <number>
         {
             if (target == null) {
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replaceAll("%target%", args[2]));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
@@ -155,12 +155,12 @@ public enum Exp {
             target.getStats().setDivision(DivisionManager.getInstance().getDivision(target));
 
             Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.SET-EXP")
-                    .replaceAll("%newExp%", String.valueOf(setExp))
-                    .replaceAll("%target%", target.getPlayer().getName())
+                    .replace("%newExp%", String.valueOf(setExp))
+                    .replace("%target%", target.getPlayer().getName())
             );
         } else {
             for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.COMMAND-HELP"))
-                Common.sendConsoleMMMessage(line.replaceAll("%label%", label));
+                Common.sendConsoleMMMessage(line.replace("%label%", label));
         }
     }
 

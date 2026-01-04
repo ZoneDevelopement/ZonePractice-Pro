@@ -45,7 +45,7 @@ public abstract class ArenaCopyUtil implements Listener {
 
         for (Player player : Bukkit.getOnlinePlayers())
             if (player.hasPermission("zpp.setup"))
-                Common.sendMMMessage(player, LanguageManager.getString("ARENA.GENERATE-COPY").replaceAll("%arena%", Common.serializeNormalToMMString(arena.getDisplayName())));
+                Common.sendMMMessage(player, LanguageManager.getString("ARENA.GENERATE-COPY").replace("%arena%", Common.serializeNormalToMMString(arena.getDisplayName())));
 
         if (newLocation != null) {
             Location corner1 = arena.getCorner1().clone();
@@ -179,9 +179,9 @@ public abstract class ArenaCopyUtil implements Listener {
 
                             if (finalActionBar != null) {
                                 finalActionBar.setMessage(LanguageManager.getString("ARENA.ACTION-BAR-MSG")
-                                        .replaceAll("%arena%", Common.serializeNormalToMMString(arenaCopy.getMainArena().getDisplayName()))
-                                        .replaceAll("%progress_bar%", StatisticUtil.getProgressBar(progress))
-                                        .replaceAll("%progress_percent%", String.valueOf(progress)));
+                                        .replace("%arena%", Common.serializeNormalToMMString(arenaCopy.getMainArena().getDisplayName()))
+                                        .replace("%progress_bar%", StatisticUtil.getProgressBar(progress))
+                                        .replace("%progress_percent%", String.valueOf(progress)));
                             }
 
                             if (block.getType().equals(Material.AIR)) {
@@ -204,7 +204,7 @@ public abstract class ArenaCopyUtil implements Listener {
 
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (player.hasPermission("zpp.setup"))
-                            Common.sendMMMessage(player, LanguageManager.getString("ARENA.ERROR-DURING-COPY-GENERATE").replaceAll("%arena%", Common.serializeNormalToMMString(arenaCopy.getMainArena().getDisplayName())));
+                            Common.sendMMMessage(player, LanguageManager.getString("ARENA.ERROR-DURING-COPY-GENERATE").replace("%arena%", Common.serializeNormalToMMString(arenaCopy.getMainArena().getDisplayName())));
                     }
 
                     Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
@@ -221,7 +221,7 @@ public abstract class ArenaCopyUtil implements Listener {
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (player.hasPermission("zpp.setup"))
-                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.COPY-GENERATED").replaceAll("%arena%", arenaCopy.getMainArena().getDisplayName()));
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.COPY-GENERATED").replace("%arena%", arenaCopy.getMainArena().getDisplayName()));
                 }
             }
         }.runTaskTimer(ZonePractice.getInstance(), 0, 1L);
@@ -261,7 +261,7 @@ public abstract class ArenaCopyUtil implements Listener {
 
                 for (Player player : Bukkit.getOnlinePlayers())
                     if (player.hasPermission("zpp.setup"))
-                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.LAST-COPY-DELETED").replaceAll("%arena%", arena));
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.LAST-COPY-DELETED").replace("%arena%", arena));
             }
         }.runTaskTimer(ZonePractice.getInstance(), 0, 1);
     }

@@ -16,7 +16,7 @@ public class TntFuseTimeItem extends SettingItem {
     @Override
     public void updateItemStack() {
         this.guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.TNT-FUSE-TIME")
-                .replaceAll("%tntFuseTime%", String.valueOf(ladder.getTntFuseTime()));
+                .replace("%tntFuseTime%", String.valueOf(ladder.getTntFuseTime()));
     }
 
     @Override

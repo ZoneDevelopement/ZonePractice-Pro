@@ -34,7 +34,7 @@ public enum EndMessageUtil {
                 if (!spectatorNames.isEmpty()) {
                     for (String line2 : LanguageManager.getList("MATCH.DUEL.MATCH-END.SPECTATOR-EXTENSION")) {
                         message.add(line2
-                                .replaceAll("%size%", String.valueOf(spectatorNames.size()))
+                                .replace("%size%", String.valueOf(spectatorNames.size()))
                                 .replace("%spectators%", spectatorNames.toString().replace("[", "").replace("]", "")));
                     }
                 }
@@ -43,11 +43,11 @@ public enum EndMessageUtil {
                     message.addAll(rankedExtension);
             } else {
                 message.add(line
-                        .replaceAll("%matchId%", duel.getId())
-                        .replaceAll("%winner%", winner.getName())
-                        .replaceAll("%winner_uuid%", ProfileManager.getInstance().getUuids().get(winner).toString())
-                        .replaceAll("%loser%", loser.getName())
-                        .replaceAll("%loser_uuid%", ProfileManager.getInstance().getUuids().get(loser).toString())
+                        .replace("%matchId%", duel.getId())
+                        .replace("%winner%", winner.getName())
+                        .replace("%winner_uuid%", ProfileManager.getInstance().getUuids().get(winner).toString())
+                        .replace("%loser%", loser.getName())
+                        .replace("%loser_uuid%", ProfileManager.getInstance().getUuids().get(loser).toString())
                 );
             }
         }
@@ -65,12 +65,12 @@ public enum EndMessageUtil {
 
             if (partyFFA.getPlayers().contains(loser)) {
                 loserString = LanguageManager.getString("MATCH.PARTY-FFA.MATCH-END.LOSER-PLAYER-FORMAT")
-                        .replaceAll("%matchId%", partyFFA.getId())
-                        .replaceAll("%player%", loser.getName())
-                        .replaceAll("%player_uuid%", ProfileManager.getInstance().getUuids().get(loser).toString());
+                        .replace("%matchId%", partyFFA.getId())
+                        .replace("%player%", loser.getName())
+                        .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(loser).toString());
             } else {
                 loserString = LanguageManager.getString("MATCH.PARTY-FFA.MATCH-END.LEFT-PLAYER-FORMAT")
-                        .replaceAll("%player%", loser.getName());
+                        .replace("%player%", loser.getName());
             }
 
             losersString = losersString.concat(loserString);
@@ -90,16 +90,16 @@ public enum EndMessageUtil {
                 if (!spectators.isEmpty()) {
                     for (String line2 : LanguageManager.getList("MATCH.PARTY-FFA.MATCH-END.SPECTATOR-EXTENSION")) {
                         message.add(line2
-                                .replaceAll("%size%", String.valueOf(spectators.size()))
+                                .replace("%size%", String.valueOf(spectators.size()))
                                 .replace("%spectators%", spectators.toString().replace("[", "").replace("]", "")));
                     }
                 }
             } else {
                 message.add(line
-                        .replaceAll("%matchId%", partyFFA.getId())
-                        .replaceAll("%losers%", losersString)
-                        .replaceAll("%winner%", winner.getName())
-                        .replaceAll("%winner_uuid%", ProfileManager.getInstance().getUuids().get(winner).toString())
+                        .replace("%matchId%", partyFFA.getId())
+                        .replace("%losers%", losersString)
+                        .replace("%winner%", winner.getName())
+                        .replace("%winner_uuid%", ProfileManager.getInstance().getUuids().get(winner).toString())
                 );
             }
         }
@@ -114,9 +114,9 @@ public enum EndMessageUtil {
         String winnersString = "";
         for (Player winner : winners) {
             String winnerString = LanguageManager.getString("MATCH.PARTY-SPLIT.MATCH-END.WINNER-PLAYER-FORMAT")
-                    .replaceAll("%matchId%", partySplit.getId())
-                    .replaceAll("%player%", winner.getName())
-                    .replaceAll("%player_uuid%", ProfileManager.getInstance().getUuids().get(winner).toString());
+                    .replace("%matchId%", partySplit.getId())
+                    .replace("%player%", winner.getName())
+                    .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(winner).toString());
 
             winnersString = winnersString.concat(winnerString);
             if (!winners.get(winners.size() - 1).equals(winner))
@@ -126,9 +126,9 @@ public enum EndMessageUtil {
         String losersString = "";
         for (Player loser : losers) {
             String loserString = LanguageManager.getString("MATCH.PARTY-SPLIT.MATCH-END.LOSER-PLAYER-FORMAT")
-                    .replaceAll("%matchId%", partySplit.getId())
-                    .replaceAll("%player%", loser.getName())
-                    .replaceAll("%player_uuid%", ProfileManager.getInstance().getUuids().get(loser).toString());
+                    .replace("%matchId%", partySplit.getId())
+                    .replace("%player%", loser.getName())
+                    .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(loser).toString());
 
             losersString = losersString.concat(loserString);
             if (!losers.get(losers.size() - 1).equals(loser))
@@ -147,17 +147,17 @@ public enum EndMessageUtil {
                 if (!spectators.isEmpty()) {
                     for (String line2 : LanguageManager.getList("MATCH.PARTY-SPLIT.MATCH-END.SPECTATOR-EXTENSION")) {
                         message.add(line2
-                                .replaceAll("%size%", String.valueOf(spectators.size()))
+                                .replace("%size%", String.valueOf(spectators.size()))
                                 .replace("%spectators%", spectators.toString().replace("[", "").replace("]", "")));
                     }
                 }
             } else {
                 message.add(line
-                        .replaceAll("%matchId%", partySplit.getId())
-                        .replaceAll("%winnerTeam%", winnerTeam.getNameMM())
-                        .replaceAll("%winners%", winnersString)
-                        .replaceAll("%loserTeam%", loserTeam.getNameMM())
-                        .replaceAll("%losers%", losersString)
+                        .replace("%matchId%", partySplit.getId())
+                        .replace("%winnerTeam%", winnerTeam.getNameMM())
+                        .replace("%winners%", winnersString)
+                        .replace("%loserTeam%", loserTeam.getNameMM())
+                        .replace("%losers%", losersString)
                 );
             }
         }
@@ -172,9 +172,9 @@ public enum EndMessageUtil {
         String winnersString = "";
         for (Player winner : winners) {
             String winnerString = LanguageManager.getString("MATCH.PARTY-VS-PARTY.MATCH-END.WINNER-PLAYER-FORMAT")
-                    .replaceAll("%matchId%", partyVsParty.getId())
-                    .replaceAll("%player%", winner.getName())
-                    .replaceAll("%player_uuid%", ProfileManager.getInstance().getUuids().get(winner).toString());
+                    .replace("%matchId%", partyVsParty.getId())
+                    .replace("%player%", winner.getName())
+                    .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(winner).toString());
 
             winnersString = winnersString.concat(winnerString);
             if (!winners.get(winners.size() - 1).equals(winner))
@@ -184,9 +184,9 @@ public enum EndMessageUtil {
         String losersString = "";
         for (Player loser : losers) {
             String loserString = LanguageManager.getString("MATCH.PARTY-VS-PARTY.MATCH-END.LOSER-PLAYER-FORMAT")
-                    .replaceAll("%matchId%", partyVsParty.getId())
-                    .replaceAll("%player%", loser.getName())
-                    .replaceAll("%player_uuid%", ProfileManager.getInstance().getUuids().get(loser).toString());
+                    .replace("%matchId%", partyVsParty.getId())
+                    .replace("%player%", loser.getName())
+                    .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(loser).toString());
 
             losersString = losersString.concat(loserString);
             if (!losers.get(losers.size() - 1).equals(loser))
@@ -205,17 +205,17 @@ public enum EndMessageUtil {
                 if (!spectators.isEmpty()) {
                     for (String line2 : LanguageManager.getList("MATCH.PARTY-VS-PARTY.MATCH-END.SPECTATOR-EXTENSION")) {
                         message.add(line2
-                                .replaceAll("%size%", String.valueOf(spectators.size()))
+                                .replace("%size%", String.valueOf(spectators.size()))
                                 .replace("%spectators%", spectators.toString().replace("[", "").replace("]", "")));
                     }
                 }
             } else {
                 message.add(line
-                        .replaceAll("%matchId%", partyVsParty.getId())
-                        .replaceAll("%winnerTeam%", winnerTeam.getNameMM())
-                        .replaceAll("%winners%", winnersString)
-                        .replaceAll("%loserTeam%", loserTeam.getNameMM())
-                        .replaceAll("%losers%", losersString)
+                        .replace("%matchId%", partyVsParty.getId())
+                        .replace("%winnerTeam%", winnerTeam.getNameMM())
+                        .replace("%winners%", winnersString)
+                        .replace("%loserTeam%", loserTeam.getNameMM())
+                        .replace("%losers%", losersString)
                 );
             }
         }

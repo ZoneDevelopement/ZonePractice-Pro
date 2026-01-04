@@ -129,13 +129,13 @@ public class LadderGui extends GUI {
     private static ItemStack getLadderItem(Ladder ladder, boolean enabled) {
         if (enabled) {
             return GUIFile.getGuiItem("GUIS.SETUP.HOLOGRAM.HOLOGRAM-LADDERS.ICONS.ENABLED-LADDER")
-                    .replaceAll("%ladder%", ladder.getName())
-                    .replaceAll("%ladderDisplayName%", ladder.getDisplayName())
+                    .replace("%ladder%", ladder.getName())
+                    .replace("%ladderDisplayName%", ladder.getDisplayName())
                     .get();
         } else {
             return GUIFile.getGuiItem("GUIS.SETUP.HOLOGRAM.HOLOGRAM-LADDERS.ICONS.DISABLED-LADDER")
-                    .replaceAll("%ladder%", ladder.getName())
-                    .replaceAll("%ladderDisplayName%", ladder.getDisplayName())
+                    .replace("%ladder%", ladder.getName())
+                    .replace("%ladderDisplayName%", ladder.getDisplayName())
                     .get();
         }
     }

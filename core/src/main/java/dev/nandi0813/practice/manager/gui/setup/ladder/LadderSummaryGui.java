@@ -93,11 +93,11 @@ public class LadderSummaryGui extends GUI {
         String disabledStatus = GUIFile.getString("GUIS.SETUP.LADDER.LADDER-MANAGER.ICONS.LADDER-ICON.STATUS-NAMES.DISABLED");
 
         GUIItem guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.LADDER-MANAGER.ICONS.LADDER-ICON")
-                .replaceAll("%ladder%", ladder.getName())
-                .replaceAll("%type%", ladder.getType().getName())
-                .replaceAll("%ladderState%", ladder.isEnabled() ? enabledStatus : disabledStatus)
-                .replaceAll("%rankedState%", ladder.isRanked() ? enabledStatus : disabledStatus)
-                .replaceAll("%freezeState%", ladder.isFrozen() ? enabledStatus : disabledStatus);
+                .replace("%ladder%", ladder.getName())
+                .replace("%type%", ladder.getType().getName())
+                .replace("%ladderState%", ladder.isEnabled() ? enabledStatus : disabledStatus)
+                .replace("%rankedState%", ladder.isRanked() ? enabledStatus : disabledStatus)
+                .replace("%freezeState%", ladder.isFrozen() ? enabledStatus : disabledStatus);
 
         if (ladder.getIcon() != null) {
             guiItem.setMaterial(ladder.getIcon().getType());

@@ -93,26 +93,26 @@ public class UnrankedSearchRunnable extends SearchRunnable {
     private void sendMSG() {
         if (acceptableDivisions.size() == 1) {
             this.actionBar.setMessage(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-OWN-DIVISION")
-                    .replaceAll("%division_fullName%", currentDivision.getFullName())
-                    .replaceAll("%division_shortName%", currentDivision.getShortName()));
+                    .replace("%division_fullName%", currentDivision.getFullName())
+                    .replace("%division_shortName%", currentDivision.getShortName()));
         } else if (previousDivision != null && nextDivision == null) {
             this.actionBar.setMessage(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-IN-RANGE")
-                    .replaceAll("%from_fullName%", previousDivision.getFullName())
-                    .replaceAll("%from_shortName%", previousDivision.getShortName())
-                    .replaceAll("%to_fullName%", currentDivision.getFullName())
-                    .replaceAll("%to_shortName%", currentDivision.getShortName()));
+                    .replace("%from_fullName%", previousDivision.getFullName())
+                    .replace("%from_shortName%", previousDivision.getShortName())
+                    .replace("%to_fullName%", currentDivision.getFullName())
+                    .replace("%to_shortName%", currentDivision.getShortName()));
         } else if (previousDivision == null && nextDivision != null) {
             this.actionBar.setMessage(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-IN-RANGE")
-                    .replaceAll("%from_fullName%", currentDivision.getFullName())
-                    .replaceAll("%from_shortName%", currentDivision.getShortName())
-                    .replaceAll("%to_fullName%", nextDivision.getFullName())
-                    .replaceAll("%to_shortName%", nextDivision.getShortName()));
+                    .replace("%from_fullName%", currentDivision.getFullName())
+                    .replace("%from_shortName%", currentDivision.getShortName())
+                    .replace("%to_fullName%", nextDivision.getFullName())
+                    .replace("%to_shortName%", nextDivision.getShortName()));
         } else if (previousDivision != null) {
             this.actionBar.setMessage(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-IN-RANGE")
-                    .replaceAll("%from_fullName%", previousDivision.getFullName())
-                    .replaceAll("%from_shortName%", previousDivision.getShortName())
-                    .replaceAll("%to_fullName%", nextDivision.getFullName())
-                    .replaceAll("%to_shortName%", nextDivision.getShortName()));
+                    .replace("%from_fullName%", previousDivision.getFullName())
+                    .replace("%from_shortName%", previousDivision.getShortName())
+                    .replace("%to_fullName%", nextDivision.getFullName())
+                    .replace("%to_shortName%", nextDivision.getShortName()));
         }
     }
 

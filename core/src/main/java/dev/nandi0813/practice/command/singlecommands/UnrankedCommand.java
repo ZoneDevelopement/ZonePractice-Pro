@@ -38,7 +38,7 @@ public class UnrankedCommand implements CommandExecutor {
         } else if (args.length == 1) {
             NormalLadder ladder = LadderManager.getInstance().getLadder(args[0]);
             if (ladder == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.UNRANKED.LADDER-NOT-FOUND").replaceAll("%ladder%", args[0]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.UNRANKED.LADDER-NOT-FOUND").replace("%ladder%", args[0]));
                 return false;
             }
 

@@ -59,7 +59,7 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
         }
 
         if (DuelManager.getInstance().isRequested(player, target) && !player.hasPermission("zpp.duel.infiniteinvite")) {
-            Common.sendMMMessage(player, LanguageManager.getString("command.duel.already-invited").replaceAll("%target%", target.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("command.duel.already-invited").replace("%target%", target.getName()));
             return false;
         }
 

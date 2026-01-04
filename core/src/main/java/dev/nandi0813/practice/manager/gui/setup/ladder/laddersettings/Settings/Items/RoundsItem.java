@@ -16,7 +16,7 @@ public class RoundsItem extends SettingItem {
     @Override
     public void updateItemStack() {
         guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.ROUNDS")
-                .replaceAll("%rounds%", String.valueOf(ladder.getRounds()));
+                .replace("%rounds%", String.valueOf(ladder.getRounds()));
     }
 
     @Override

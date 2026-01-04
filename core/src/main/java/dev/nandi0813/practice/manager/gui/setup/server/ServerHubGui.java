@@ -135,25 +135,25 @@ public class ServerHubGui extends GUI {
 
     private ItemStack getInformationItem() {
         return GUIFile.getGuiItem("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.INFORMATIONS")
-                .replaceAll("%onlinePlayers%", String.valueOf(Bukkit.getOnlinePlayers().size()))
-                .replaceAll("%onlineStaffs%", String.valueOf(PlayerUtil.getOnlineStaff().size()))
-                .replaceAll("%requiredDivision%", DivisionManager.getInstance().getMinimumForRanked() != null ? DivisionManager.getInstance().getMinimumForRanked().getFullName() : "&cN/A")
-                .replaceAll("%lobbyStatus%", ServerManager.getLobby() != null ? GUIFile.getString("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.INFORMATIONS.STATUS-NAMES.SET") : GUIFile.getString("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.INFORMATIONS.STATUS-NAMES.UNSET"))
-                .replaceAll("%enabledArena%", String.valueOf(ArenaManager.getInstance().getEnabledArenas().size()))
-                .replaceAll("%enabledLadder%", String.valueOf(LadderManager.getInstance().getEnabledLadders().size()))
-                .replaceAll("%enabledEvents%", String.valueOf(EventManager.getInstance().getEnabledEvents().size()))
+                .replace("%onlinePlayers%", String.valueOf(Bukkit.getOnlinePlayers().size()))
+                .replace("%onlineStaffs%", String.valueOf(PlayerUtil.getOnlineStaff().size()))
+                .replace("%requiredDivision%", DivisionManager.getInstance().getMinimumForRanked() != null ? DivisionManager.getInstance().getMinimumForRanked().getFullName() : "&cN/A")
+                .replace("%lobbyStatus%", ServerManager.getLobby() != null ? GUIFile.getString("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.INFORMATIONS.STATUS-NAMES.SET") : GUIFile.getString("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.INFORMATIONS.STATUS-NAMES.UNSET"))
+                .replace("%enabledArena%", String.valueOf(ArenaManager.getInstance().getEnabledArenas().size()))
+                .replace("%enabledLadder%", String.valueOf(LadderManager.getInstance().getEnabledLadders().size()))
+                .replace("%enabledEvents%", String.valueOf(EventManager.getInstance().getEnabledEvents().size()))
                 .get();
     }
 
     private ItemStack getMatchesItem() {
         return GUIFile.getGuiItem("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.MATCHES")
-                .replaceAll("%liveMatches%", String.valueOf(MatchManager.getInstance().getLiveMatches().size()))
+                .replace("%liveMatches%", String.valueOf(MatchManager.getInstance().getLiveMatches().size()))
                 .get();
     }
 
     private ItemStack getEventsItem() {
         return GUIFile.getGuiItem("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.EVENTS")
-                .replaceAll("%liveEvents%", String.valueOf(EventManager.getInstance().getEvents().size()))
+                .replace("%liveEvents%", String.valueOf(EventManager.getInstance().getEvents().size()))
                 .get();
     }
 

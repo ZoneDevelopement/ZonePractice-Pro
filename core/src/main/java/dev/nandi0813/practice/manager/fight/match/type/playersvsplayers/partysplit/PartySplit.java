@@ -50,14 +50,14 @@ public class PartySplit extends PlayersVsPlayers {
         if (round.getRoundNumber() == 1) {
             for (String line : LanguageManager.getList("MATCH.PARTY-SPLIT.MATCH-START")) {
                 this.sendMessage(line
-                        .replaceAll("%matchTypeName%", MatchType.PARTY_SPLIT.getName(false))
-                        .replaceAll("%ladder%", ladder.getDisplayName())
-                        .replaceAll("%map%", arena.getDisplayName())
-                        .replaceAll("%rounds%", String.valueOf(this.winsNeeded))
-                        .replaceAll("%team1name%", TeamEnum.TEAM1.getNameMM())
-                        .replaceAll("%team2name%", TeamEnum.TEAM2.getNameMM())
-                        .replaceAll("%team1players%", PlayerUtil.getPlayerNames(teams.get(TeamEnum.TEAM1)).toString().replace("[", "").replace("]", ""))
-                        .replaceAll("%team2players%", PlayerUtil.getPlayerNames(teams.get(TeamEnum.TEAM2)).toString().replace("[", "").replace("]", "")), false);
+                        .replace("%matchTypeName%", MatchType.PARTY_SPLIT.getName(false))
+                        .replace("%ladder%", ladder.getDisplayName())
+                        .replace("%map%", arena.getDisplayName())
+                        .replace("%rounds%", String.valueOf(this.winsNeeded))
+                        .replace("%team1name%", TeamEnum.TEAM1.getNameMM())
+                        .replace("%team2name%", TeamEnum.TEAM2.getNameMM())
+                        .replace("%team1players%", PlayerUtil.getPlayerNames(teams.get(TeamEnum.TEAM1)).toString().replace("[", "").replace("]", ""))
+                        .replace("%team2players%", PlayerUtil.getPlayerNames(teams.get(TeamEnum.TEAM2)).toString().replace("[", "").replace("]", "")), false);
             }
         }
 

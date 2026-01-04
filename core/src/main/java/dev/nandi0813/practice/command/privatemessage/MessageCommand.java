@@ -32,7 +32,7 @@ public class MessageCommand extends PrivateMessageCommand {
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
         if (args.length < 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.MESSAGE.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.MESSAGE.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
@@ -43,18 +43,18 @@ public class MessageCommand extends PrivateMessageCommand {
 
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.MESSAGE.TARGET-OFFLINE").replaceAll("%target%", args[0]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.MESSAGE.TARGET-OFFLINE").replace("%target%", args[0]));
             return;
         }
 
         Profile targetProfile = ProfileManager.getInstance().getProfile(target);
         if (player != target && targetProfile.isHideFromPlayers() && !player.hasPermission("zpp.staffmode.see")) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.MESSAGE.TARGET-HIDE").replaceAll("%target%", target.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.MESSAGE.TARGET-HIDE").replace("%target%", target.getName()));
             return;
         }
 
         if (!targetProfile.isPrivateMessages() && !player.hasPermission("zpp.bypass.privatemessage")) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.MESSAGE.CANT-SEND2").replaceAll("%target%", target.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.MESSAGE.CANT-SEND2").replace("%target%", target.getName()));
             return;
         }
 
@@ -63,14 +63,14 @@ public class MessageCommand extends PrivateMessageCommand {
             message.append(args[i]).append(" ");
 
         Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.MESSAGE.SENDER-MESSAGE")
-                .replaceAll("%sender%", player.getName())
-                .replaceAll("%receiver%", target.getName())
-                .replaceAll("%message%", message.toString())
+                .replace("%sender%", player.getName())
+                .replace("%receiver%", target.getName())
+                .replace("%message%", message.toString())
         );
         Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PRIVATE-MESSAGE.MESSAGE.RECEIVER-MESSAGE")
-                .replaceAll("%sender%", player.getName())
-                .replaceAll("%receiver%", target.getName())
-                .replaceAll("%message%", message.toString())
+                .replace("%sender%", player.getName())
+                .replace("%receiver%", target.getName())
+                .replace("%message%", message.toString())
         );
 
         latestMessage.put(target, player);

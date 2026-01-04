@@ -87,10 +87,10 @@ public class HologramSummaryGui extends GUI {
 
     private ItemStack getSummaryHologramMainItem(Hologram hologram) {
         return GUIFile.getGuiItem("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.HOLOGRAM-ICON")
-                .replaceAll("%hologramName%", hologram.getName())
-                .replaceAll("%state%", (hologram.isEnabled() ? GUIFile.getString("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.HOLOGRAM-ICON.STATUS-NAMES.ENABLED") : GUIFile.getString("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.HOLOGRAM-ICON.STATUS-NAMES.DISABLED")))
-                .replaceAll("%type%", (hologram.getHologramType() != null ? hologram.getHologramType().getName() : GUIFile.getString("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.HOLOGRAM-ICON.STATUS-NAMES.TYPE-NULL")))
-                .replaceAll("%statsShow%", String.valueOf(hologram.getShowStat()))
+                .replace("%hologramName%", hologram.getName())
+                .replace("%state%", (hologram.isEnabled() ? GUIFile.getString("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.HOLOGRAM-ICON.STATUS-NAMES.ENABLED") : GUIFile.getString("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.HOLOGRAM-ICON.STATUS-NAMES.DISABLED")))
+                .replace("%type%", (hologram.getHologramType() != null ? hologram.getHologramType().getName() : GUIFile.getString("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.HOLOGRAM-ICON.STATUS-NAMES.TYPE-NULL")))
+                .replace("%statsShow%", String.valueOf(hologram.getShowStat()))
                 .get();
     }
 
