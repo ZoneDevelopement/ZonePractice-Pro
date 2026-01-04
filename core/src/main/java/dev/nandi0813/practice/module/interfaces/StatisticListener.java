@@ -13,18 +13,19 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class StatisticListener implements Listener {
 
     @Getter
     protected final ZonePractice practice = ZonePractice.getInstance();
     @Getter
-    protected static final HashMap<Player, Integer> CURRENT_CPS = new HashMap<>();
+    protected static final Map<Player, Integer> CURRENT_CPS = new ConcurrentHashMap<>();
     @Getter
-    protected static final HashMap<Player, Integer> CPS = new HashMap<>();
+    protected static final Map<Player, Integer> CPS = new ConcurrentHashMap<>();
     @Getter
-    protected static final HashMap<Player, Integer> CURRENT_COMBO = new HashMap<>();
+    protected static final Map<Player, Integer> CURRENT_COMBO = new ConcurrentHashMap<>();
 
     @EventHandler ( priority = EventPriority.LOWEST )
     public abstract void onClick(PlayerInteractEvent e);
