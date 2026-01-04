@@ -57,7 +57,7 @@ public class RematchRequest {
 
         if ((targetProfile.getStatus().equals(ProfileStatus.LOBBY) || targetProfile.getStatus().equals(ProfileStatus.EDITOR) || targetProfile.getStatus().equals(ProfileStatus.SPECTATE)) && !targetProfile.isParty()) {
             if (!targetProfile.isDuelRequest()) {
-                Common.sendMMMessage(sender, LanguageManager.getString("MATCH.REMATCH-REQUEST.TARGET-DONT-ACCEPT").replaceAll("%target%", target.getName()));
+                Common.sendMMMessage(sender, LanguageManager.getString("MATCH.REMATCH-REQUEST.TARGET-DONT-ACCEPT").replace("%target%", target.getName()));
                 return;
             }
 
@@ -66,7 +66,7 @@ public class RematchRequest {
 
             isRequested = true;
         } else
-            Common.sendMMMessage(sender, LanguageManager.getString("MATCH.REMATCH-REQUEST.CANT-SEND-ANYMORE").replaceAll("%target%", target.getName()));
+            Common.sendMMMessage(sender, LanguageManager.getString("MATCH.REMATCH-REQUEST.CANT-SEND-ANYMORE").replace("%target%", target.getName()));
     }
 
     public Player getOtherPlayer(Player player) {

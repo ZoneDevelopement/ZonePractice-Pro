@@ -49,7 +49,7 @@ public class BroadcastTask extends BukkitRunnable {
             return;
         }
 
-        String broadcastMSG = LanguageManager.getString("PARTY.BROADCAST-MSG").replaceAll("%player%", party.getLeader().getName());
+        String broadcastMSG = LanguageManager.getString("PARTY.BROADCAST-MSG").replace("%player%", party.getLeader().getName());
 
         for (Player online : Bukkit.getOnlinePlayers()) {
             Profile profile = ProfileManager.getInstance().getProfile(online);

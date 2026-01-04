@@ -21,7 +21,7 @@ public class TempRespawnTimeItem extends SettingItem {
     @Override
     public void updateItemStack() {
         guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.RESPAWN")
-                .replaceAll("%respawnTime%", String.valueOf(tempDead.getRespawnTime()));
+                .replace("%respawnTime%", String.valueOf(tempDead.getRespawnTime()));
     }
 
     @Override

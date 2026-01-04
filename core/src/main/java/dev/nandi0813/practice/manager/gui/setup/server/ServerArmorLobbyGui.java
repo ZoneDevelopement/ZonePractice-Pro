@@ -71,7 +71,7 @@ public class ServerArmorLobbyGui extends GUI {
                 int slot = column + (c * 9);
                 switch (c) {
                     case 0:
-                        inventory.setItem(slot, NAME_ITEM.cloneItem().replaceAll("%inventoryName%", type.getName()).get());
+                        inventory.setItem(slot, NAME_ITEM.cloneItem().replace("%inventoryName%", type.getName()).get());
                         break;
                     case 1:
                         inventory.setItem(slot, inv.getInvArmor().getHelmet());

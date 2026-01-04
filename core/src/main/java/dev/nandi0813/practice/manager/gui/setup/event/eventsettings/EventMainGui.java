@@ -54,7 +54,7 @@ public class EventMainGui extends GUI {
         Inventory inventory = gui.get(1);
 
         inventory.setItem(10, GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-MAIN.ICONS.EVENT-NAME")
-                .replaceAll("%eventName%", eventData.getType().getName())
+                .replace("%eventName%", eventData.getType().getName())
                 .setMaterial(eventData.getIcon().getMaterial())
                 .setDamage(eventData.getIcon().getDamage())
                 .get());
@@ -64,9 +64,9 @@ public class EventMainGui extends GUI {
                 : GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-MAIN.ICONS.STATUS.DISABLED").get());
 
         inventory.setItem(16, GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-MAIN.ICONS.LOCATION")
-                .replaceAll("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(eventData.getCuboidLoc1())))
-                .replaceAll("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(eventData.getCuboidLoc2())))
-                .replaceAll("%spawnPositions%", String.valueOf(eventData.getSpawns().size()))
+                .replace("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(eventData.getCuboidLoc1())))
+                .replace("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(eventData.getCuboidLoc2())))
+                .replace("%spawnPositions%", String.valueOf(eventData.getSpawns().size()))
                 .get());
 
         this.updatePlayers();

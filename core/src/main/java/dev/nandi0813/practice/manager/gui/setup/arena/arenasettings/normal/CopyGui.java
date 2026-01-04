@@ -82,13 +82,13 @@ public class CopyGui extends GUI {
 
                     // Left navigation
                     if (PageUtil.isPageValid(iconsList, page - 1, spaces))
-                        inventory.setItem(18, GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-COPY.ICONS.PAGE-LEFT").replaceAll("%page%", String.valueOf(page - 1)).get());
+                        inventory.setItem(18, GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-COPY.ICONS.PAGE-LEFT").replace("%page%", String.valueOf(page - 1)).get());
                     else
                         inventory.setItem(18, GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-COPY.ICONS.BACK-TO").get());
 
                     // Right navigation
                     if (PageUtil.isPageValid(iconsList, page + 1, spaces))
-                        inventory.setItem(26, GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-COPY.ICONS.PAGE-RIGHT").replaceAll("%page%", String.valueOf(page + 1)).get());
+                        inventory.setItem(26, GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-COPY.ICONS.PAGE-RIGHT").replace("%page%", String.valueOf(page + 1)).get());
 
                     // Decrease copies
                     if (!copies.isEmpty())

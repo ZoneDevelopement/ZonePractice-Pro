@@ -44,7 +44,7 @@ public enum StopArg {
             }
 
             event.forceEnd(player);
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.END-SUCCESS").replaceAll("%event%", event.getType().getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.END-SUCCESS").replace("%event%", event.getType().getName()));
         } else if (args.length == 2) {
             Event event = null;
             for (Event e : EventManager.getInstance().getEvents()) {

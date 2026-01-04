@@ -39,8 +39,8 @@ public class PartyFfaRound extends Round implements PlayerWinner {
             if (roundWinner != null) {
                 for (String line : LanguageManager.getList("MATCH.PARTY-FFA.MATCH-END-ROUND"))
                     this.match.sendMessage(line
-                            .replaceAll("%player%", roundWinner.getName())
-                            .replaceAll("%round%", String.valueOf((match.getWinsNeeded() - partyFFA.getWonRounds(roundWinner)))), true);
+                            .replace("%player%", roundWinner.getName())
+                            .replace("%round%", String.valueOf((match.getWinsNeeded() - partyFFA.getWonRounds(roundWinner)))), true);
             } else {
                 for (String line : LanguageManager.getList("MATCH.PARTY-FFA.MATCH-END-ROUND-DRAW"))
                     this.match.sendMessage(line, true);

@@ -50,8 +50,8 @@ public enum EventUtil {
 
             Profile profile = ProfileManager.getInstance().getProfile(player);
             profile.getActionBar().setActionBar(LanguageManager.getString("EVENT.COMPASS-TRACKER-ACTIONBAR")
-                            .replaceAll("%target%", target.getName())
-                            .replaceAll("%distance%", String.valueOf(distance)),
+                            .replace("%target%", target.getName())
+                            .replace("%distance%", String.valueOf(distance)),
                     5);
         }
     }

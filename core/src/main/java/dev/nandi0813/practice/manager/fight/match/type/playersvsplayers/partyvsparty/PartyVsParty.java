@@ -48,16 +48,16 @@ public class PartyVsParty extends PlayersVsPlayers {
         if (round.getRoundNumber() == 1) {
             for (String line : LanguageManager.getList("MATCH.PARTY-VS-PARTY.MATCH-START")) {
                 sendMessage(line
-                        .replaceAll("%matchTypeName%", MatchType.PARTY_VS_PARTY.getName(false))
-                        .replaceAll("%ladder%", ladder.getName())
-                        .replaceAll("%arena%", arena.getName())
-                        .replaceAll("%rounds%", String.valueOf(this.winsNeeded))
-                        .replaceAll("%party1leader%", party1.getLeader().getName())
-                        .replaceAll("%party2leader%", party2.getLeader().getName())
-                        .replaceAll("%team1name%", TeamEnum.TEAM1.getNameMM())
-                        .replaceAll("%team2name%", TeamEnum.TEAM2.getNameMM())
-                        .replaceAll("%team1players%", PlayerUtil.getPlayerNames(teams.get(TeamEnum.TEAM1)).toString().replace("[", "").replace("]", ""))
-                        .replaceAll("%team2players%", PlayerUtil.getPlayerNames(teams.get(TeamEnum.TEAM2)).toString().replace("[", "").replace("]", "")), false);
+                        .replace("%matchTypeName%", MatchType.PARTY_VS_PARTY.getName(false))
+                        .replace("%ladder%", ladder.getName())
+                        .replace("%arena%", arena.getName())
+                        .replace("%rounds%", String.valueOf(this.winsNeeded))
+                        .replace("%party1leader%", party1.getLeader().getName())
+                        .replace("%party2leader%", party2.getLeader().getName())
+                        .replace("%team1name%", TeamEnum.TEAM1.getNameMM())
+                        .replace("%team2name%", TeamEnum.TEAM2.getNameMM())
+                        .replace("%team1players%", PlayerUtil.getPlayerNames(teams.get(TeamEnum.TEAM1)).toString().replace("[", "").replace("]", ""))
+                        .replace("%team2players%", PlayerUtil.getPlayerNames(teams.get(TeamEnum.TEAM2)).toString().replace("[", "").replace("]", "")), false);
             }
         }
 

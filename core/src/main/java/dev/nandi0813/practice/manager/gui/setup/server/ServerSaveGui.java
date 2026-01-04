@@ -45,12 +45,12 @@ public class ServerSaveGui extends GUI {
                 inventory.setItem(i, GUIManager.getFILLER_ITEM());
             inventory.setItem(0, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.BACK-TO").get());
 
-            inventory.setItem(3, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replaceAll("%data%", "Arena").get());
-            inventory.setItem(4, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replaceAll("%data%", "Ladder").get());
-            inventory.setItem(5, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replaceAll("%data%", "Event").get());
-            inventory.setItem(6, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replaceAll("%data%", "Player").get());
-            inventory.setItem(7, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replaceAll("%data%", "Hologram").get());
-            inventory.setItem(8, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replaceAll("%data%", "Mysql").get());
+            inventory.setItem(3, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replace("%data%", "Arena").get());
+            inventory.setItem(4, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replace("%data%", "Ladder").get());
+            inventory.setItem(5, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replace("%data%", "Event").get());
+            inventory.setItem(6, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replace("%data%", "Player").get());
+            inventory.setItem(7, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replace("%data%", "Hologram").get());
+            inventory.setItem(8, GUIFile.getGuiItem("GUIS.SETUP.SERVER.FILE-SAVE.ICONS.DATA-SAVE").replace("%data%", "Mysql").get());
 
             updatePlayers();
         });

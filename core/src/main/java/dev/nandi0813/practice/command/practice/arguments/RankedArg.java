@@ -26,7 +26,7 @@ public enum RankedArg {
 
             final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replaceAll("%target%", args[2]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
@@ -40,11 +40,11 @@ public enum RankedArg {
                 target.setRankedLeft(group.getRankedLimit());
 
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.RESET-DAILY-LIMIT")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%dailyRankedLimit%", String.valueOf(group.getRankedLimit()))
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%dailyRankedLimit%", String.valueOf(group.getRankedLimit()))
                 );
             } else
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.NO-GROUP").replaceAll("%target%", target.getPlayer().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.NO-GROUP").replace("%target%", target.getPlayer().getName()));
         } else if (args.length == 4 && args[1].equalsIgnoreCase("add")) {
             if (!player.hasPermission("zpp.practice.ranked.add")) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
@@ -53,7 +53,7 @@ public enum RankedArg {
 
             final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replaceAll("%target%", args[2]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
@@ -71,9 +71,9 @@ public enum RankedArg {
             target.setRankedLeft(target.getRankedLeft() + extraRanked);
 
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.ADD-EXTRA-RANKED")
-                    .replaceAll("%extraRanked%", String.valueOf(extraRanked))
-                    .replaceAll("%target%", target.getPlayer().getName())
-                    .replaceAll("%newRanked%", String.valueOf(target.getRankedLeft()))
+                    .replace("%extraRanked%", String.valueOf(extraRanked))
+                    .replace("%target%", target.getPlayer().getName())
+                    .replace("%newRanked%", String.valueOf(target.getRankedLeft()))
             );
         } else if (args.length >= 3 && args[1].equalsIgnoreCase("ban")) {
             if (!player.hasPermission("zpp.practice.ranked.ban")) {
@@ -83,12 +83,12 @@ public enum RankedArg {
 
             final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replaceAll("%target%", args[2]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
             if (target.getPlayer().isOp()) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.CANT-BAN-PLAYER").replaceAll("%target%", target.getPlayer().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.CANT-BAN-PLAYER").replace("%target%", target.getPlayer().getName()));
                 return;
             }
 
@@ -105,17 +105,17 @@ public enum RankedArg {
 
             if (target.getRankedBan().ban(ProfileManager.getInstance().getProfile(player), reason)) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.BAN.BANNED-FROM-RANKED")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%reason%", reason == null ? LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.BAN.NO-REASON") : reason));
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%reason%", reason == null ? LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.BAN.NO-REASON") : reason));
 
                 if (target.getPlayer().isOnline()) {
                     Common.sendMMMessage(target.getPlayer().getPlayer(), LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.BAN.BANNED-FROM-RANKED-PLAYER")
-                            .replaceAll("%banner%", player.getName())
-                            .replaceAll("%reason%", reason == null ? LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.BAN.NO-REASON") : reason)
+                            .replace("%banner%", player.getName())
+                            .replace("%reason%", reason == null ? LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.BAN.NO-REASON") : reason)
                     );
                 }
             } else
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.BAN.PLAYER-ALREADY-BANNED").replaceAll("%target%", target.getPlayer().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.BAN.PLAYER-ALREADY-BANNED").replace("%target%", target.getPlayer().getName()));
         } else if (args.length == 3 && args[1].equalsIgnoreCase("unban")) {
             if (!player.hasPermission("zpp.practice.ranked.unban")) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
@@ -124,22 +124,22 @@ public enum RankedArg {
 
             final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replaceAll("%target%", args[2]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
             if (target.getRankedBan().unban()) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNBAN.UNBANNED-FROM-RANKED").replaceAll("%target%", target.getPlayer().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNBAN.UNBANNED-FROM-RANKED").replace("%target%", target.getPlayer().getName()));
                 if (target.getPlayer().isOnline()) {
                     Common.sendMMMessage(target.getPlayer().getPlayer(), LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNBAN.UNBANNED-FROM-RANKED-PLAYER")
-                            .replaceAll("%unbanner%", player.getName()));
+                            .replace("%unbanner%", player.getName()));
                 }
             } else
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNBAN.PLAYER-NOT-BANNED").replaceAll("%target%", target.getPlayer().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNBAN.PLAYER-NOT-BANNED").replace("%target%", target.getPlayer().getName()));
         } else {
             if (player.hasPermission("zpp.practice.ranked.default") || player.hasPermission("zpp.practice.ranked.add")) {
                 for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.RANKED.COMMAND-HELP"))
-                    Common.sendMMMessage(player, line.replaceAll("%label%", label));
+                    Common.sendMMMessage(player, line.replace("%label%", label));
             }
         }
     }
@@ -148,7 +148,7 @@ public enum RankedArg {
         if (args.length == 3 && args[1].equalsIgnoreCase("reset")) {
             final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
             if (target == null) {
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replaceAll("%target%", args[2]));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
@@ -157,14 +157,14 @@ public enum RankedArg {
                 target.setRankedLeft(group.getRankedLimit());
 
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.RESET-DAILY-LIMIT")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%dailyRankedLimit%", String.valueOf(group.getRankedLimit())));
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%dailyRankedLimit%", String.valueOf(group.getRankedLimit())));
             } else
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.NO-GROUP").replaceAll("%target%", target.getPlayer().getName()));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.NO-GROUP").replace("%target%", target.getPlayer().getName()));
         } else if (args.length == 4 && args[1].equalsIgnoreCase("add")) {
             final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
             if (target == null) {
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replaceAll("%target%", args[2]));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
@@ -177,12 +177,12 @@ public enum RankedArg {
             target.setRankedLeft(target.getRankedLeft() + extraRanked);
 
             Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.ADD-EXTRA-RANKED")
-                    .replaceAll("%extraRanked%", String.valueOf(extraRanked))
-                    .replaceAll("%target%", target.getPlayer().getName())
-                    .replaceAll("%newRanked%", String.valueOf(target.getRankedLeft())));
+                    .replace("%extraRanked%", String.valueOf(extraRanked))
+                    .replace("%target%", target.getPlayer().getName())
+                    .replace("%newRanked%", String.valueOf(target.getRankedLeft())));
         } else {
             for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.RANKED.COMMAND-HELP"))
-                Common.sendConsoleMMMessage(line.replaceAll("%label%", label));
+                Common.sendConsoleMMMessage(line.replace("%label%", label));
         }
     }
 

@@ -31,7 +31,7 @@ public enum SpectateArg {
 
         FFA ffa = ffaArena.getFfa();
         if (ffa == null || !ffa.isOpen()) {
-            Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.SPECTATE.ARENA-CLOSED").replaceAll("%arena%", ffaArena.getDisplayName()));
+            Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.SPECTATE.ARENA-CLOSED").replace("%arena%", ffaArena.getDisplayName()));
             return;
         }
 

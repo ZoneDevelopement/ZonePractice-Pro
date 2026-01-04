@@ -63,8 +63,8 @@ public abstract class FFAEvent extends FullRunnableInterface {
             this.getDurationRunnable().begin();
         } else if (seconds % 10 == 0 || seconds <= 3) {
             sendMessage(LanguageManager.getString(LANGUAGE_PATH + ".GAME-STARTING")
-                            .replaceAll("%seconds%", String.valueOf(seconds))
-                            .replaceAll("%secondName%", (seconds == 1 ? LanguageManager.getString("SECOND-NAME.1SEC") : LanguageManager.getString("SECOND-NAME.1<SEC"))),
+                            .replace("%seconds%", String.valueOf(seconds))
+                            .replace("%secondName%", (seconds == 1 ? LanguageManager.getString("SECOND-NAME.1SEC") : LanguageManager.getString("SECOND-NAME.1<SEC"))),
                     true);
         }
 
@@ -101,10 +101,10 @@ public abstract class FFAEvent extends FullRunnableInterface {
         }
 
         if (winner != null) {
-            this.sendMessage(LanguageManager.getString(LANGUAGE_PATH + ".WON-EVENT").replaceAll("%winner%", winner.getName()), true);
+            this.sendMessage(LanguageManager.getString(LANGUAGE_PATH + ".WON-EVENT").replace("%winner%", winner.getName()), true);
 
             for (String cmd : eventData.getType().getWinnerCMD())
-                ServerManager.runConsoleCommand(cmd.replaceAll("%player%", winner.getName()));
+                ServerManager.runConsoleCommand(cmd.replace("%player%", winner.getName()));
         } else
             this.sendMessage(LanguageManager.getString(LANGUAGE_PATH + ".NO-WINNER"), true);
     }
@@ -116,9 +116,9 @@ public abstract class FFAEvent extends FullRunnableInterface {
         }
 
         this.sendMessage(LanguageManager.getString(LANGUAGE_PATH + ".PLAYER-DIED")
-                        .replaceAll("%player%", player.getName())
-                        .replaceAll("%startPlayerCount%", String.valueOf(this.getStartPlayerCount()))
-                        .replaceAll("%playerCount%", String.valueOf(players.size() - 1))
+                        .replace("%player%", player.getName())
+                        .replace("%startPlayerCount%", String.valueOf(this.getStartPlayerCount()))
+                        .replace("%playerCount%", String.valueOf(players.size() - 1))
                 , true);
 
         this.players.remove(player);
@@ -150,7 +150,7 @@ public abstract class FFAEvent extends FullRunnableInterface {
         EventUtil.setEventSpectatorInventory(spectator);
 
         if (message && !this.status.equals(EventStatus.END)) {
-            sendMessage(LanguageManager.getString(LANGUAGE_PATH + ".STARTED-SPECTATING").replaceAll("%spectator%", spectator.getName()), true);
+            sendMessage(LanguageManager.getString(LANGUAGE_PATH + ".STARTED-SPECTATING").replace("%spectator%", spectator.getName()), true);
         }
 
         for (Player eventPlayer : players) {

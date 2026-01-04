@@ -83,21 +83,21 @@ public class PartyRequest {
 
         for (String line : LanguageManager.getList("PARTY.MATCH-REQUEST-MESSAGE.SENDER")) {
             Common.sendMMMessage(sender.getLeader(), line
-                    .replaceAll("%ladder%", ladder.getDisplayName())
-                    .replaceAll("%arena%", arenaName)
-                    .replaceAll("%rounds%", String.valueOf(rounds))
-                    .replaceAll("%target_leader%", target.getLeader().getName())
-                    .replaceAll("%target_members%", PlayerUtil.getPlayerNames(target.getMembers()).toString().replace("[", "").replaceAll("]", ""))
+                    .replace("%ladder%", ladder.getDisplayName())
+                    .replace("%arena%", arenaName)
+                    .replace("%rounds%", String.valueOf(rounds))
+                    .replace("%target_leader%", target.getLeader().getName())
+                    .replace("%target_members%", PlayerUtil.getPlayerNames(target.getMembers()).toString().replace("[", "").replace("]", ""))
             );
         }
 
         for (String line : LanguageManager.getList("PARTY.MATCH-REQUEST-MESSAGE.TARGET")) {
             Common.sendMMMessage(target.getLeader(), line
-                    .replaceAll("%ladder%", ladder.getDisplayName())
-                    .replaceAll("%arena%", arenaName)
-                    .replaceAll("%rounds%", String.valueOf(rounds))
-                    .replaceAll("%sender_leader%", sender.getLeader().getName())
-                    .replaceAll("%sender_members%", PlayerUtil.getPlayerNames(sender.getMembers()).toString().replace("[", "").replaceAll("]", ""))
+                    .replace("%ladder%", ladder.getDisplayName())
+                    .replace("%arena%", arenaName)
+                    .replace("%rounds%", String.valueOf(rounds))
+                    .replace("%sender_leader%", sender.getLeader().getName())
+                    .replace("%sender_members%", PlayerUtil.getPlayerNames(sender.getMembers()).toString().replace("[", "").replace("]", ""))
             );
         }
     }

@@ -278,7 +278,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
         this.addPlayerToBelowName(player);
 
         if (message) {
-            sendMessage(LanguageManager.getString("SPECTATE.MATCH.SPECTATE-START").replaceAll("%player%", player.getName()), true);
+            sendMessage(LanguageManager.getString("SPECTATE.MATCH.SPECTATE-START").replace("%player%", player.getName()), true);
         }
 
         entityVanish(player);
@@ -403,16 +403,16 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
         return GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.MATCH-ICON")
                 .setMaterial(ladder.getIcon().getType())
                 .setDamage(ladder.getIcon().getDurability())
-                .replaceAll("%match_id%", id)
-                .replaceAll("%weight_class%", ((this instanceof Duel && ((Duel) this).isRanked()) ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName()))
-                .replaceAll("%match_type%", type.getName(false))
-                .replaceAll("%ladder%", ladder.getDisplayName())
-                .replaceAll("%arena%", arena.getDisplayName())
-                .replaceAll("%round%", String.valueOf(getCurrentRound().getRoundNumber()))
-                .replaceAll("%duration%", getCurrentRound().getFormattedTime())
-                .replaceAll("%roundDuration%", getCurrentRound().getFormattedTime())
-                .replaceAll("%matchDuration%", this.getFormattedTime())
-                .replaceAll("%spectators%", String.valueOf(spectators.size()));
+                .replace("%match_id%", id)
+                .replace("%weight_class%", ((this instanceof Duel && ((Duel) this).isRanked()) ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName()))
+                .replace("%match_type%", type.getName(false))
+                .replace("%ladder%", ladder.getDisplayName())
+                .replace("%arena%", arena.getDisplayName())
+                .replace("%round%", String.valueOf(getCurrentRound().getRoundNumber()))
+                .replace("%duration%", getCurrentRound().getFormattedTime())
+                .replace("%roundDuration%", getCurrentRound().getFormattedTime())
+                .replace("%matchDuration%", this.getFormattedTime())
+                .replace("%spectators%", String.valueOf(spectators.size()));
     }
 
     @Override

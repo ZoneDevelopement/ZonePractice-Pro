@@ -11,7 +11,7 @@ public enum PartyDisbandArg {
 
     public static void DisbandCommand(Player player, String label, String[] args) {
         if (args.length != 1) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.DISBAND.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.DISBAND.COMMAND-HELP").replace("%label%", label));
             return;
         }
 

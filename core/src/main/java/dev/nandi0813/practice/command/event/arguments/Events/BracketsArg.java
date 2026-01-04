@@ -73,7 +73,7 @@ public enum BracketsArg {
 
     private static void sendHelpMSG(Player player, String label) {
         for (String line : LanguageManager.getList("COMMAND.EVENT.ARGUMENTS.BRACKETS.COMMAND-HELP"))
-            Common.sendMMMessage(player, line.replaceAll("%label%", label));
+            Common.sendMMMessage(player, line.replace("%label%", label));
     }
 
     public static List<String> tabComplete(Player player, String[] args) {

@@ -32,7 +32,7 @@ public enum JoinArg {
 
         FFA ffa = ffaArena.getFfa();
         if (ffa == null || !ffa.isOpen()) {
-            Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.JOIN.ARENA-CLOSED").replaceAll("%arena%", ffaArena.getDisplayName()));
+            Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.JOIN.ARENA-CLOSED").replace("%arena%", ffaArena.getDisplayName()));
             return;
         }
 

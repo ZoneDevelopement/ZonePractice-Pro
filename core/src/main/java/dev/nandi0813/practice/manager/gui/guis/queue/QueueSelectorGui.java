@@ -89,7 +89,7 @@ public abstract class QueueSelectorGui extends GUI {
                                    String ladderConfigPath, Map<Integer, NormalLadder> slotMap, int navSlot, ItemStack navItem) {
 
         this.gui.put(pageId, InventoryUtil.createInventory(
-                title.replaceAll("%weight_class%", getWeightClass().getName()),
+                title.replace("%weight_class%", getWeightClass().getName()),
                 configSize
         ));
 
@@ -118,7 +118,7 @@ public abstract class QueueSelectorGui extends GUI {
 
             if (icon == null) continue;
 
-            icon.replaceAll("%ladder%", ladder.getDisplayName());
+            icon.replace("%ladder%", ladder.getDisplayName());
 
             if (icon.getMaterial() == null && ladder.getIcon() != null) {
                 icon.setMaterial(ladder.getIcon().getType());
@@ -153,9 +153,9 @@ public abstract class QueueSelectorGui extends GUI {
     private void updateIconWithQueueData(NormalLadder ladder, GUIItem icon, String guiPath) {
         int duelMatchSize = MatchManager.getInstance().getDuelMatchSize(ladder, isRanked());
 
-        icon.replaceAll("%in_queue%", String.valueOf(QueueManager.getInstance().getQueueSize(ladder, isRanked())))
-                .replaceAll("%in_fight%", String.valueOf(duelMatchSize))
-                .replaceAll("%weight_class%", getWeightClass().getName());
+        icon.replace("%in_queue%", String.valueOf(QueueManager.getInstance().getQueueSize(ladder, isRanked())))
+                .replace("%in_fight%", String.valueOf(duelMatchSize))
+                .replace("%weight_class%", getWeightClass().getName());
 
         String lbFormat = GUIFile.getString(guiPath + ".LB-FORMAT");
         icon.setLore(QueueGuiUtil.replaceLore(lbFormat, icon.getLore(), ladder));

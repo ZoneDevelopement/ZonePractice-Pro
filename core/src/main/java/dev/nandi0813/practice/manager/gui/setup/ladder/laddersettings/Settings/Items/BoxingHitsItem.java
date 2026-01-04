@@ -20,7 +20,7 @@ public class BoxingHitsItem extends SettingItem {
     @Override
     public void updateItemStack() {
         this.guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.BOXING")
-                .replaceAll("%boxingWinHits%", String.valueOf(boxing.getBoxingWinHit()));
+                .replace("%boxingWinHits%", String.valueOf(boxing.getBoxingWinHit()));
     }
 
     @Override

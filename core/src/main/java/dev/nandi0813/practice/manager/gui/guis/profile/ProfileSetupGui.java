@@ -105,8 +105,8 @@ public class ProfileSetupGui extends GUI {
                                     return;
                                 }
 
-                                Common.sendMMMessage(player, LanguageManager.getString("PROFILE.PLAYER-REMOVED-MATCH").replaceAll("%target%", target.getName()));
-                                match.sendMessage(LanguageManager.getString("PROFILE.REMOVED-PLAYER-MATCH").replaceAll("%target%", target.getName()), true);
+                                Common.sendMMMessage(player, LanguageManager.getString("PROFILE.PLAYER-REMOVED-MATCH").replace("%target%", target.getName()));
+                                match.sendMessage(LanguageManager.getString("PROFILE.REMOVED-PLAYER-MATCH").replace("%target%", target.getName()), true);
 
                                 match.removePlayer(target, false);
                             }
@@ -148,8 +148,8 @@ public class ProfileSetupGui extends GUI {
                                     return;
                                 }
 
-                                Common.sendMMMessage(player, LanguageManager.getString("PROFILE.PLAYER-REMOVED-EVENT").replaceAll("%target%", target.getName()));
-                                event.sendMessage(LanguageManager.getString("PROFILE.REMOVED-PLAYER-EVENT").replaceAll("%target%", target.getName()), true);
+                                Common.sendMMMessage(player, LanguageManager.getString("PROFILE.PLAYER-REMOVED-EVENT").replace("%target%", target.getName()));
+                                event.sendMessage(LanguageManager.getString("PROFILE.REMOVED-PLAYER-EVENT").replace("%target%", target.getName()), true);
 
                                 event.removePlayer(target, false);
                             }
@@ -176,7 +176,7 @@ public class ProfileSetupGui extends GUI {
                                     spectatable.removeSpectator(target);
                                 }
 
-                                Common.sendMMMessage(player, LanguageManager.getString("PROFILE.PLAYER-REMOVED-SPECTATOR").replaceAll("%target%", target.getName()));
+                                Common.sendMMMessage(player, LanguageManager.getString("PROFILE.PLAYER-REMOVED-SPECTATOR").replace("%target%", target.getName()));
                             }
                             break;
                     }
@@ -202,14 +202,14 @@ public class ProfileSetupGui extends GUI {
         guiItem.setLore(GUIFile.getStringList("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.BASIC-INFO.LORE"));
 
         guiItem
-                .replaceAll("%player%", profile.getPlayer().getName())
-                .replaceAll("%uuid%", String.valueOf(profile.getUuid()))
-                .replaceAll("%first_played%", StringUtil.getDate(profile.getFirstJoin()))
-                .replaceAll("%last_played%", (profile.getStatus().equals(ProfileStatus.OFFLINE) ? StringUtil.getDate(profile.getLastJoin()) : GUIFile.getString("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.BASIC-INFO.ONLINE-STATUS")))
-                .replaceAll("%unranked_left%", String.valueOf(profile.getUnrankedLeft()))
-                .replaceAll("%ranked_left%", String.valueOf(profile.getRankedLeft()))
-                .replaceAll("%division_fullName%", profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "&cN/A")
-                .replaceAll("%division_shortName%", profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "&cN/A");
+                .replace("%player%", profile.getPlayer().getName())
+                .replace("%uuid%", String.valueOf(profile.getUuid()))
+                .replace("%first_played%", StringUtil.getDate(profile.getFirstJoin()))
+                .replace("%last_played%", (profile.getStatus().equals(ProfileStatus.OFFLINE) ? StringUtil.getDate(profile.getLastJoin()) : GUIFile.getString("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.BASIC-INFO.ONLINE-STATUS")))
+                .replace("%unranked_left%", String.valueOf(profile.getUnrankedLeft()))
+                .replace("%ranked_left%", String.valueOf(profile.getRankedLeft()))
+                .replace("%division_fullName%", profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "&cN/A")
+                .replace("%division_shortName%", profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "&cN/A");
 
         return guiItem.get();
     }
@@ -221,14 +221,14 @@ public class ProfileSetupGui extends GUI {
             return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.PLAYER-OFFLINE").get();
         else
             return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.PLAYER-ONLINE")
-                    .replaceAll("%world%", player.getWorld().getName())
-                    .replaceAll("%gamemode%", player.getGameMode().name())
-                    .replaceAll("%flying%", String.valueOf(player.isFlying()))
-                    .replaceAll("%tablist_name%", player.getPlayerListName())
-                    .replaceAll("%health%", String.valueOf(player.getHealth()))
-                    .replaceAll("%food%", String.valueOf(player.getFoodLevel()))
-                    .replaceAll("%hit_delay%", String.valueOf(player.getMaximumNoDamageTicks()))
-                    .replaceAll("%ping%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(player)))
+                    .replace("%world%", player.getWorld().getName())
+                    .replace("%gamemode%", player.getGameMode().name())
+                    .replace("%flying%", String.valueOf(player.isFlying()))
+                    .replace("%tablist_name%", player.getPlayerListName())
+                    .replace("%health%", String.valueOf(player.getHealth()))
+                    .replace("%food%", String.valueOf(player.getFoodLevel()))
+                    .replace("%hit_delay%", String.valueOf(player.getMaximumNoDamageTicks()))
+                    .replace("%ping%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(player)))
                     .get();
     }
 
@@ -262,10 +262,10 @@ public class ProfileSetupGui extends GUI {
         if (profile.getRankedBan().isBanned()) {
             RankedBan rankedBan = profile.getRankedBan();
             return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.RANKED-BAN")
-                    .replaceAll("%player%", profile.getPlayer().getName())
-                    .replaceAll("%banner%", rankedBan.getBanner() == null ? "&cConsole" : rankedBan.getBanner().getPlayer().getName())
-                    .replaceAll("%reason%", rankedBan.getReason() == null ? "&cN/A" : rankedBan.getReason())
-                    .replaceAll("%time%", StringUtil.getDate(rankedBan.getTime()))
+                    .replace("%player%", profile.getPlayer().getName())
+                    .replace("%banner%", rankedBan.getBanner() == null ? "&cConsole" : rankedBan.getBanner().getPlayer().getName())
+                    .replace("%reason%", rankedBan.getReason() == null ? "&cN/A" : rankedBan.getReason())
+                    .replace("%time%", StringUtil.getDate(rankedBan.getTime()))
                     .get();
         } else
             return null;

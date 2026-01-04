@@ -60,7 +60,7 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length != 3 || !args[0].equalsIgnoreCase("create")) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.COMMAND-HELP").replace("%label%", label));
             return false;
         }
 
@@ -114,7 +114,7 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                 HologramSetupManager.getInstance().getHologramSetupGUIs().get(finalHologram).get(GUIType.Hologram_Main).open(player), 3L);
 
-        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.CREATE-SUCCESS").replaceAll("%hologram%", hologram.getName()));
+        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.CREATE-SUCCESS").replace("%hologram%", hologram.getName()));
 
         return true;
     }

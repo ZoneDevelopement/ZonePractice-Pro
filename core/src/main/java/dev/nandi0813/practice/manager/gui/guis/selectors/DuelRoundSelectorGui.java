@@ -69,7 +69,7 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
         }
 
         inventory.setItem(5, ladderIconItem
-                .replaceAll("%ladder%", ladder.getDisplayName())
+                .replace("%ladder%", ladder.getDisplayName())
                 .get());
 
         if (arena != null) {
@@ -82,7 +82,7 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
             }
 
             inventory.setItem(6, arenaIconItem
-                    .replaceAll("%arena%", arena.getDisplayName())
+                    .replace("%arena%", arena.getDisplayName())
                     .get());
         }
 
@@ -94,8 +94,8 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
     @Override
     public void update() {
         gui.get(1).setItem(3, ROUND_SELECTOR.cloneItem()
-                .replaceAll("%rounds%", String.valueOf(rounds))
-                .replaceAll("%recommended_rounds%", String.valueOf(ladder.getRounds()))
+                .replace("%rounds%", String.valueOf(rounds))
+                .replace("%recommended_rounds%", String.valueOf(ladder.getRounds()))
                 .get());
 
         this.updatePlayers();

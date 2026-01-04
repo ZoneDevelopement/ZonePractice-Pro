@@ -58,7 +58,7 @@ public class MatchFightPlayer extends FightPlayer {
         if (customKits != null && !customKits.isEmpty()) {
             for (Map.Entry<Integer, CustomKit> customKit : customKits.entrySet()) {
                 this.kits.put(customKit.getKey() - 1, new CustomKit(
-                        CUSTOM_KIT_ITEM.cloneItem().replaceAll("%kit%", String.valueOf(customKit.getKey())).get(),
+                        CUSTOM_KIT_ITEM.cloneItem().replace("%kit%", String.valueOf(customKit.getKey())).get(),
                         customKit.getValue().getInventory(),
                         customKit.getValue().getExtra()));
             }

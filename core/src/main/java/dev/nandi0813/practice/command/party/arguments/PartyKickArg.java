@@ -16,7 +16,7 @@ public enum PartyKickArg {
 
     public static void KickCommand(Player player, String label, String[] args) {
         if (args.length != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.KICK.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.KICK.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
@@ -33,7 +33,7 @@ public enum PartyKickArg {
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.KICK.TARGET-OFFLINE").replaceAll("%target%", args[1]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.KICK.TARGET-OFFLINE").replace("%target%", args[1]));
             return;
         }
 
@@ -43,7 +43,7 @@ public enum PartyKickArg {
         }
 
         if (!party.getMembers().contains(target)) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.KICK.NOT-MEMBER").replaceAll("%target%", target.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.KICK.NOT-MEMBER").replace("%target%", target.getName()));
             return;
         }
 

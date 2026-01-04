@@ -29,8 +29,8 @@ public class PartySplitRound extends PlayersVsPlayersRound {
             if (roundWinner != null) {
                 for (String line : LanguageManager.getList("MATCH.PARTY-SPLIT.MATCH-END-ROUND"))
                     this.match.sendMessage(line
-                            .replaceAll("%team%", roundWinner.getNameMM())
-                            .replaceAll("%round%", String.valueOf((match.getWinsNeeded() - partySplit.getWonRounds(roundWinner)))), true);
+                            .replace("%team%", roundWinner.getNameMM())
+                            .replace("%round%", String.valueOf((match.getWinsNeeded() - partySplit.getWonRounds(roundWinner)))), true);
             } else {
                 for (String line : LanguageManager.getList("MATCH.PARTY-SPLIT.MATCH-END-ROUND-DRAW"))
                     this.match.sendMessage(line, true);

@@ -9,7 +9,7 @@ public enum PartyHelpArg {
 
     public static void HelpCommand(Player player, String label) {
         for (String line : LanguageManager.getList("COMMAND.PARTY.ARGUMENTS.HELP"))
-            Common.sendMMMessage(player, line.replaceAll("%label%", label));
+            Common.sendMMMessage(player, line.replace("%label%", label));
     }
 
 }

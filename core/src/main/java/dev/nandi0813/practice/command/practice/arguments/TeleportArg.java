@@ -20,18 +20,18 @@ public enum TeleportArg {
         }
 
         if (args.length != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.TELEPORT.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.TELEPORT.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
         World world = Bukkit.getWorld(args[1]);
         if (world == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.TELEPORT.WORLD-DONT-EXISTS").replaceAll("%world%", args[1]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.TELEPORT.WORLD-DONT-EXISTS").replace("%world%", args[1]));
             return;
         }
 
         player.teleport(world.getSpawnLocation());
-        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.TELEPORT.TELEPORTED").replaceAll("%world%", world.getName()));
+        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.TELEPORT.TELEPORTED").replace("%world%", world.getName()));
     }
 
     public static List<String> tabComplete(Player player, String[] args) {

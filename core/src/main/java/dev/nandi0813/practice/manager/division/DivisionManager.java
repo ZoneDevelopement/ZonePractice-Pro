@@ -177,7 +177,7 @@ public class DivisionManager extends ConfigFile implements Listener {
             Profile profile = ProfileManager.getInstance().getProfile(player);
             profile.getStats().setExperience(profile.getStats().getExperience() + expReceived);
 
-            Common.sendMMMessage(player, LanguageManager.getString("MATCH.EXP-RECEIVED").replaceAll("%exp%", String.valueOf(expReceived)));
+            Common.sendMMMessage(player, LanguageManager.getString("MATCH.EXP-RECEIVED").replace("%exp%", String.valueOf(expReceived)));
 
             Division oldDivision = profile.getStats().getDivision();
             Division newDivision = this.getDivision(profile);
@@ -187,16 +187,16 @@ public class DivisionManager extends ConfigFile implements Listener {
 
                 if (this.newDivisionMessageEnabled) {
                     Common.sendMMMessage(player, LanguageManager.getString("MATCH.REACHED-NEW-DIVISION")
-                            .replaceAll("%newDivision_fullName%", newDivision.getFullName())
-                            .replaceAll("%newDivision_shortName%", newDivision.getShortName())
-                            .replaceAll("%oldDivision_fullName%", oldDivision.getFullName())
-                            .replaceAll("%oldDivision_shortName%", oldDivision.getShortName())
+                            .replace("%newDivision_fullName%", newDivision.getFullName())
+                            .replace("%newDivision_shortName%", newDivision.getShortName())
+                            .replace("%oldDivision_fullName%", oldDivision.getFullName())
+                            .replace("%oldDivision_shortName%", oldDivision.getShortName())
                     );
 
                     if (newDivision == this.minimumForRanked) {
                         Common.sendMMMessage(player, LanguageManager.getString("MATCH.DUEL.RANKED-REQUIREMENT-REACHED")
-                                .replaceAll("%newDivision_fullName%", newDivision.getFullName())
-                                .replaceAll("%newDivision_shortName%", newDivision.getShortName())
+                                .replace("%newDivision_fullName%", newDivision.getFullName())
+                                .replace("%newDivision_shortName%", newDivision.getShortName())
                         );
                     }
                 }

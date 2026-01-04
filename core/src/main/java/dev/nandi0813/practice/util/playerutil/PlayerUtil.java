@@ -71,8 +71,8 @@ public enum PlayerUtil {
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (online.hasPermission("zpp.staffmode.chat")) {
                 Common.sendMMMessage(online, LanguageManager.getString("GENERAL-CHAT.STAFF-CHAT")
-                        .replaceAll("%%player%%", (sender != null ? sender.getName() : LanguageManager.getString("CONSOLE-NAME")))
-                        .replaceAll("%%message%%", message));
+                        .replace("%%player%%", (sender != null ? sender.getName() : LanguageManager.getString("CONSOLE-NAME")))
+                        .replace("%%message%%", message));
             }
         }
     }

@@ -123,9 +123,9 @@ public class EventManager {
     public void startEvent(Player starter, EventType eventType) {
         if (this.isEventLive(eventType)) {
             if (starter != null)
-                Common.sendMMMessage(starter, LanguageManager.getString("EVENT.CANT-START-EVENT").replaceAll("%event%", eventType.getName()));
+                Common.sendMMMessage(starter, LanguageManager.getString("EVENT.CANT-START-EVENT").replace("%event%", eventType.getName()));
             else
-                Common.sendConsoleMMMessage(LanguageManager.getString("EVENT.CANT-START-EVENT").replaceAll("%event%", eventType.getName()));
+                Common.sendConsoleMMMessage(LanguageManager.getString("EVENT.CANT-START-EVENT").replace("%event%", eventType.getName()));
 
             return;
         }

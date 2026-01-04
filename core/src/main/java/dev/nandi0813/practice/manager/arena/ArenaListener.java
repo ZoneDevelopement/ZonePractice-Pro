@@ -52,10 +52,10 @@ public class ArenaListener implements Listener {
 
                     if (mainArena.isBuild() && !mainArena.getCopies().isEmpty()) {
                         e.setCancelled(true);
-                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-COPIES").replaceAll("%arena%", mainArena.getDisplayName()));
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-COPIES").replace("%arena%", mainArena.getDisplayName()));
                     } else if (!MatchManager.getInstance().getLiveMatchesByArena(arena).isEmpty()) {
                         e.setCancelled(true);
-                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-MATCH").replaceAll("%arena%", mainArena.getDisplayName()));
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-MATCH").replace("%arena%", mainArena.getDisplayName()));
                     }
                 }
             }
@@ -91,10 +91,10 @@ public class ArenaListener implements Listener {
 
                     if (mainArena.isBuild() && !mainArena.getCopies().isEmpty()) {
                         e.setCancelled(true);
-                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-COPIES").replaceAll("%arena%", mainArena.getDisplayName()));
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-COPIES").replace("%arena%", mainArena.getDisplayName()));
                     } else if (!MatchManager.getInstance().getLiveMatchesByArena(arena).isEmpty()) {
                         e.setCancelled(true);
-                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-MATCH").replaceAll("%arena%", mainArena.getDisplayName()));
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-MATCH").replace("%arena%", mainArena.getDisplayName()));
                     }
                 }
             }
@@ -133,10 +133,10 @@ public class ArenaListener implements Listener {
 
                     if (mainArena.isBuild() && !mainArena.getCopies().isEmpty()) {
                         e.setCancelled(true);
-                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-COPIES").replaceAll("%arena%", mainArena.getDisplayName()));
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-COPIES").replace("%arena%", mainArena.getDisplayName()));
                     } else if (!MatchManager.getInstance().getLiveMatchesByArena(arena).isEmpty()) {
                         e.setCancelled(true);
-                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-MATCH").replaceAll("%arena%", mainArena.getDisplayName()));
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.CANT-EDIT-ARENA-WITH-MATCH").replace("%arena%", mainArena.getDisplayName()));
                     }
                 }
             }

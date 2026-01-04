@@ -34,8 +34,8 @@ public class RankedCommand implements CommandExecutor {
             Division requirement = DivisionManager.getInstance().getMinimumForRanked();
             if (requirement != null && (requirement.getExperience() > profile.getStats().getExperience() || requirement.getWin() > profile.getStats().getGlobalWins())) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.RANKED.DIVISION-REQUIREMENT")
-                        .replaceAll("%division_fullName%", requirement.getFullName())
-                        .replaceAll("%division_shortName%", requirement.getShortName())
+                        .replace("%division_fullName%", requirement.getFullName())
+                        .replace("%division_shortName%", requirement.getShortName())
                 );
 
                 return false;
@@ -52,7 +52,7 @@ public class RankedCommand implements CommandExecutor {
         } else if (args.length == 1) {
             NormalLadder ladder = LadderManager.getInstance().getLadder(args[0]);
             if (ladder == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.RANKED.LADDER-NOT-FOUND").replaceAll("%ladder%", args[0]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.RANKED.LADDER-NOT-FOUND").replace("%ladder%", args[0]));
                 return false;
             }
 

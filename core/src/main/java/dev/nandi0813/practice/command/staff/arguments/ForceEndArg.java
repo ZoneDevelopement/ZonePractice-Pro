@@ -27,7 +27,7 @@ public enum ForceEndArg {
         }
 
         if (args.length != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
@@ -39,7 +39,7 @@ public enum ForceEndArg {
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.TARGET-OFFLINE").replaceAll("%target%", args[1]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.TARGET-OFFLINE").replace("%target%", args[1]));
             return;
         }
 
@@ -61,8 +61,8 @@ public enum ForceEndArg {
             }
 
             match.endMatch();
-            match.sendMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.MATCH.MATCH-END-MSG").replaceAll("%player%", player.getName()), false);
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.MATCH.PLAYER-END-MSG").replaceAll("%target%", target.getName()));
+            match.sendMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.MATCH.MATCH-END-MSG").replace("%player%", player.getName()), false);
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.MATCH.PLAYER-END-MSG").replace("%target%", target.getName()));
         } else if (targetProfile.getStatus().equals(ProfileStatus.EVENT)) {
             Event event = EventManager.getInstance().getEventByPlayer(target);
 
@@ -85,13 +85,13 @@ public enum ForceEndArg {
 
     public static void run(String label, String[] args) {
         if (args.length != 2) {
-            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.TARGET-OFFLINE").replaceAll("%target%", args[1]));
+            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.TARGET-OFFLINE").replace("%target%", args[1]));
             return;
         }
 
@@ -105,8 +105,8 @@ public enum ForceEndArg {
                 return;
             }
 
-            match.sendMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.MATCH.MATCH-END-MSG").replaceAll("%player%", LanguageManager.getString("CONSOLE-NAME")), false);
-            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.MATCH.PLAYER-END-MSG").replaceAll("%target%", target.getName()));
+            match.sendMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.MATCH.MATCH-END-MSG").replace("%player%", LanguageManager.getString("CONSOLE-NAME")), false);
+            Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.MATCH.PLAYER-END-MSG").replace("%target%", target.getName()));
 
             match.endMatch();
         } else if (targetProfile.getStatus().equals(ProfileStatus.EVENT)) {
@@ -118,7 +118,7 @@ public enum ForceEndArg {
             }
 
             Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.EVENT.PLAYER-END-MSG"));
-            event.sendMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.EVENT.MATCH-END-MSG").replaceAll("%player%", LanguageManager.getString("CONSOLE-NAME")), true);
+            event.sendMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.EVENT.MATCH-END-MSG").replace("%player%", LanguageManager.getString("CONSOLE-NAME")), true);
 
             event.forceEnd(null);
         } else

@@ -17,8 +17,8 @@ public enum ListArg {
         for (FFAArena ffaArena : ArenaManager.getInstance().getFFAArenas()) {
             if (ffaArena.getFfa().isOpen()) {
                 ffas.add(LanguageManager.getString("FFA.COMMAND.LIST.FORMAT")
-                        .replaceAll("%arena%", ffaArena.getDisplayName())
-                        .replaceAll("%players%", String.valueOf(ffaArena.getFfa().getPlayers().size()))
+                        .replace("%arena%", ffaArena.getDisplayName())
+                        .replace("%players%", String.valueOf(ffaArena.getFfa().getPlayers().size()))
                 );
             }
         }

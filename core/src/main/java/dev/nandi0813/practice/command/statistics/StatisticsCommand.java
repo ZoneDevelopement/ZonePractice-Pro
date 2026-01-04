@@ -54,14 +54,14 @@ public class StatisticsCommand implements CommandExecutor, TabCompleter {
 
             Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[0]));
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STATISTICS.TARGET-NOT-EXISTS").replaceAll("%target%", args[0]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STATISTICS.TARGET-NOT-EXISTS").replace("%target%", args[0]));
                 return false;
             }
 
             new LbSelectorGui(player, target).open(player);
         } else {
             for (String line : LanguageManager.getList("COMMAND.STATISTICS.COMMAND-HELP"))
-                Common.sendMMMessage(player, line.replaceAll("%label%", label));
+                Common.sendMMMessage(player, line.replace("%label%", label));
         }
 
         return true;

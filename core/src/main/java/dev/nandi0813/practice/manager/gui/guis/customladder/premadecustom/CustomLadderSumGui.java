@@ -58,7 +58,7 @@ public class CustomLadderSumGui extends GUI {
                     GUIItem fillerItem = GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-SELECTOR.ICONS.FILLER-ITEM-2");
 
                     if (profile.getUnrankedCustomKits().get(ladder) != null && profile.getUnrankedCustomKits().get(ladder).get(kit) != null) {
-                        inventory.setItem((kit - 1) * 2 + 1, GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-SELECTOR.ICONS.EXISTING-KIT").replaceAll("%kit%", String.valueOf(kit)).get());
+                        inventory.setItem((kit - 1) * 2 + 1, GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-SELECTOR.ICONS.EXISTING-KIT").replace("%kit%", String.valueOf(kit)).get());
                         inventory.setItem((kit - 1) * 2 + 1 + 9 * 2, GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-SELECTOR.ICONS.EDIT-KIT").get());
                         inventory.setItem((kit - 1) * 2 + 1 + 9 * 3, GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-SELECTOR.ICONS.DELETE-KIT").get());
 
@@ -97,7 +97,7 @@ public class CustomLadderSumGui extends GUI {
 
         if (inventory.getSize() > slot && item != null) {
             if (!ladder.isEnabled() || !ladder.isEditable() || ladder.isFrozen()) {
-                Common.sendMMMessage(player, LanguageManager.getString("LADDER.KIT-EDITOR.KIT-SELECTOR.NOT-AVAILABLE").replaceAll("%ladder%", ladder.getDisplayName()));
+                Common.sendMMMessage(player, LanguageManager.getString("LADDER.KIT-EDITOR.KIT-SELECTOR.NOT-AVAILABLE").replace("%ladder%", ladder.getDisplayName()));
                 GUIManager.getInstance().searchGUI(GUIType.CustomLadder_Selector).open(player);
                 return;
             }

@@ -74,7 +74,7 @@ public class Party implements dev.nandi0813.api.Interface.Party {
             broadcastTask.cancel();
 
         leader = newOwner;
-        sendMessage(LanguageManager.getString("PARTY.NEW-LEADER").replaceAll("%player%", newOwner.getName()));
+        sendMessage(LanguageManager.getString("PARTY.NEW-LEADER").replace("%player%", newOwner.getName()));
     }
 
     public void addMember(Player member) {
@@ -84,7 +84,7 @@ public class Party implements dev.nandi0813.api.Interface.Party {
         memberProfile.setParty(true);
         InventoryManager.getInstance().setLobbyInventory(member, false);
 
-        sendMessage(LanguageManager.getString("PARTY.PLAYER-JOINED").replaceAll("%player%", member.getName()));
+        sendMessage(LanguageManager.getString("PARTY.PLAYER-JOINED").replace("%player%", member.getName()));
         GUIManager.getInstance().searchGUI(GUIType.Party_OtherParties).update();
 
         // If the party is full, stop broadcasting it.
@@ -96,9 +96,9 @@ public class Party implements dev.nandi0813.api.Interface.Party {
         Profile memberProfile = ProfileManager.getInstance().getProfile(member);
 
         if (kick)
-            sendMessage(LanguageManager.getString("PARTY.PLAYER-KICKED").replaceAll("%player%", member.getName()));
+            sendMessage(LanguageManager.getString("PARTY.PLAYER-KICKED").replace("%player%", member.getName()));
         else
-            sendMessage(LanguageManager.getString("PARTY.PLAYER-LEFT").replaceAll("%player%", member.getName()));
+            sendMessage(LanguageManager.getString("PARTY.PLAYER-LEFT").replace("%player%", member.getName()));
 
         if (member.equals(leader))
             disband();

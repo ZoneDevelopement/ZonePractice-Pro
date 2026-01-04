@@ -16,7 +16,7 @@ public class MaxDurationItem extends SettingItem {
     @Override
     public void updateItemStack() {
         this.guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.MAX-DURATION")
-                .replaceAll("%maxDuration%", String.valueOf(ladder.getMaxDuration()));
+                .replace("%maxDuration%", String.valueOf(ladder.getMaxDuration()));
     }
 
     @Override

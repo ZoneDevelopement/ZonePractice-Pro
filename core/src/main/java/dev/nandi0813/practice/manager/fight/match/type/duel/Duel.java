@@ -78,27 +78,27 @@ public class Duel extends Match implements Team {
 
                 for (String line : LanguageManager.getList("MATCH.DUEL.MATCH-START-RANKED")) {
                     this.sendMessage(line
-                                    .replaceAll("%matchTypeName%", MatchType.DUEL.getName(true))
-                                    .replaceAll("%weightClassName%", WeightClass.RANKED.getMMName())
-                                    .replaceAll("%ladder%", ladder.getDisplayName())
-                                    .replaceAll("%arena%", arena.getDisplayName())
-                                    .replaceAll("%rounds%", String.valueOf(this.winsNeeded))
-                                    .replaceAll("%player1%", player1.getName())
-                                    .replaceAll("%player2%", player2.getName())
-                                    .replaceAll("%player1elo%", String.valueOf(playerProfiles.get(player1).getStats().getLadderStat(normalLadder).getElo()))
-                                    .replaceAll("%player1win%", String.valueOf(playerProfiles.get(player1).getStats().getLadderStat(normalLadder).getRankedWins()))
-                                    .replaceAll("%player2elo%", String.valueOf(playerProfiles.get(player2).getStats().getLadderStat(normalLadder).getElo()))
-                                    .replaceAll("%player2win%", String.valueOf(playerProfiles.get(player2).getStats().getLadderStat(normalLadder).getRankedWins()))
+                                    .replace("%matchTypeName%", MatchType.DUEL.getName(true))
+                                    .replace("%weightClassName%", WeightClass.RANKED.getMMName())
+                                    .replace("%ladder%", ladder.getDisplayName())
+                                    .replace("%arena%", arena.getDisplayName())
+                                    .replace("%rounds%", String.valueOf(this.winsNeeded))
+                                    .replace("%player1%", player1.getName())
+                                    .replace("%player2%", player2.getName())
+                                    .replace("%player1elo%", String.valueOf(playerProfiles.get(player1).getStats().getLadderStat(normalLadder).getElo()))
+                                    .replace("%player1win%", String.valueOf(playerProfiles.get(player1).getStats().getLadderStat(normalLadder).getRankedWins()))
+                                    .replace("%player2elo%", String.valueOf(playerProfiles.get(player2).getStats().getLadderStat(normalLadder).getElo()))
+                                    .replace("%player2win%", String.valueOf(playerProfiles.get(player2).getStats().getLadderStat(normalLadder).getRankedWins()))
                             , false);
                 }
             } else {
                 for (String line : LanguageManager.getList("MATCH.DUEL.MATCH-START-UNRANKED")) {
                     this.sendMessage(line
-                            .replaceAll("%matchTypeName%", MatchType.DUEL.getName(true))
-                            .replaceAll("%weightClassName%", WeightClass.UNRANKED.getMMName())
-                            .replaceAll("%ladder%", ladder.getDisplayName())
-                            .replaceAll("%arena%", arena.getDisplayName())
-                            .replaceAll("%rounds%", String.valueOf(this.winsNeeded)), false);
+                            .replace("%matchTypeName%", MatchType.DUEL.getName(true))
+                            .replace("%weightClassName%", WeightClass.UNRANKED.getMMName())
+                            .replace("%ladder%", ladder.getDisplayName())
+                            .replace("%arena%", arena.getDisplayName())
+                            .replace("%rounds%", String.valueOf(this.winsNeeded)), false);
                 }
             }
         }

@@ -83,7 +83,7 @@ public class MatchListener extends LadderTypeListener implements Listener {
 
         DeathCause cause = dev.nandi0813.practice_modern.listener.FightUtil.convert(damageSource.getDamageType());
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                match.killPlayer(player, killer, cause.getMessage().replaceAll("%killer%", killer != null ? killer.getName() : "Unknown")), 1L);
+                match.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown")), 1L);
 
         if (killer != null) {
             Statistic statistic = match.getCurrentStat(killer);

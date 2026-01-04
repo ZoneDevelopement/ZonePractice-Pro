@@ -35,15 +35,15 @@ public class DuelFight {
 
         if (loser == null) {
             for (Player player : players) {
-                this.duelEvent.sendMessage(LanguageManager.getString(duelEvent.getLANGUAGE_PATH() + ".PLAYER-OUT").replaceAll("%player%", player.getName()), true);
+                this.duelEvent.sendMessage(LanguageManager.getString(duelEvent.getLANGUAGE_PATH() + ".PLAYER-OUT").replace("%player%", player.getName()), true);
                 this.duelEvent.getPlayers().remove(player);
                 this.duelEvent.getSpectators().add(player);
             }
         } else {
-            this.duelEvent.sendMessage(LanguageManager.getString(duelEvent.getLANGUAGE_PATH() + ".PLAYER-OUT").replaceAll("%player%", loser.getName()), true);
+            this.duelEvent.sendMessage(LanguageManager.getString(duelEvent.getLANGUAGE_PATH() + ".PLAYER-OUT").replace("%player%", loser.getName()), true);
             this.duelEvent.getPlayers().remove(loser);
             this.duelEvent.getSpectators().add(loser);
-            this.sendMessage(LanguageManager.getString(duelEvent.getLANGUAGE_PATH() + ".WON-FIGHT").replaceAll("%player%", getOtherPlayer(loser).getName()));
+            this.sendMessage(LanguageManager.getString(duelEvent.getLANGUAGE_PATH() + ".WON-FIGHT").replace("%player%", getOtherPlayer(loser).getName()));
         }
 
         if (!this.duelEvent.checkIfEnd()) {

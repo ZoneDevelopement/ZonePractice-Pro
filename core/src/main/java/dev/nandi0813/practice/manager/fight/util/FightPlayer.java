@@ -41,7 +41,7 @@ public class FightPlayer {
             gameRunnable.cancel(true);
 
         if (deathMessage != null && !deathMessage.equalsIgnoreCase("")) {
-            spectatable.sendMessage(deathMessage.replaceAll("%player%", this.player.getName()), true);
+            spectatable.sendMessage(deathMessage.replace("%player%", this.player.getName()), true);
         }
 
         statistic.setDeaths(statistic.getDeaths() + 1);

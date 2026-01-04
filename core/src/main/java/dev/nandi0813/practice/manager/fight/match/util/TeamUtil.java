@@ -64,9 +64,9 @@ public enum TeamUtil {
 
     public static String replaceTeamNames(String string, Player player, TeamEnum playerTeam) {
         return string
-                .replaceAll("%team%", playerTeam.getNameMM())
-                .replaceAll("%teamColor%", playerTeam.getColorMM())
-                .replaceAll("%player%", playerTeam.getColorMM() + player.getName());
+                .replace("%team%", playerTeam.getNameMM())
+                .replace("%teamColor%", playerTeam.getColorMM())
+                .replace("%player%", playerTeam.getColorMM() + player.getName());
     }
 
 }

@@ -59,8 +59,8 @@ public enum SpawnPointArg {
     private static void sendHelp(Player player, String label, EventData eventData) {
         for (String line : LanguageManager.getList("COMMAND.EVENT.ARGUMENTS.SPAWN-POSITION.COMMAND-HELP")) {
             Common.sendMMMessage(player, line
-                    .replaceAll("%label%", label)
-                    .replaceAll("%event%", eventData.getType().getName().toLowerCase())
+                    .replace("%label%", label)
+                    .replace("%event%", eventData.getType().getName().toLowerCase())
             );
         }
     }

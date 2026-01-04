@@ -123,8 +123,8 @@ public class LadderMainGui extends GUI {
 
     private static ItemStack getNameItem(Ladder ladder) {
         GUIItem guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.LADDER-MAIN.ICONS.LADDER-NAME")
-                .replaceAll("%ladder%", ladder.getName())
-                .replaceAll("%type%", ladder.getType().getName());
+                .replace("%ladder%", ladder.getName())
+                .replace("%type%", ladder.getType().getName());
 
         if (ladder.getIcon() != null) {
             guiItem.setMaterial(ladder.getIcon().getType());

@@ -40,18 +40,18 @@ public class PreviewCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length != 1) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PREVIEW.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PREVIEW.COMMAND-HELP").replace("%label%", label));
             return false;
         }
 
         NormalLadder ladder = LadderManager.getInstance().getLadder(args[0]);
         if (ladder == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PREVIEW.LADDER-NOT-EXISTS").replaceAll("%ladder%", args[0]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PREVIEW.LADDER-NOT-EXISTS").replace("%ladder%", args[0]));
             return false;
         }
 
         if (!ladder.isEnabled()) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PREVIEW.LADDER-DISABLED").replaceAll("%ladder%", ladder.getDisplayName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PREVIEW.LADDER-DISABLED").replace("%ladder%", ladder.getDisplayName()));
             return false;
         }
 
