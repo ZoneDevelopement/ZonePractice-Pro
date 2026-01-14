@@ -123,7 +123,14 @@ public class PlayerUtil implements dev.nandi0813.practice.module.interfaces.Play
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
             double distance = playerLoc.distance(fireballLoc);
 
-            double factor = 1.0 - (distance / (yield * 2.0));
+            double safeDistance = 1.8;
+            double factor = 1.0;
+
+            if (distance > safeDistance) {
+                double decayRange = yield * 2.0;
+                factor = 1.0 - ((distance - safeDistance) / decayRange);
+            }
+
             if (factor < 0) factor = 0;
             if (factor > 1) factor = 1;
 
