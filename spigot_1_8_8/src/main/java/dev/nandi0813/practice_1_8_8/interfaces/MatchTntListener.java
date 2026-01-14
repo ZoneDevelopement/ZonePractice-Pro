@@ -14,6 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
+import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
+
 public class MatchTntListener implements Listener {
 
     @EventHandler
@@ -30,9 +32,10 @@ public class MatchTntListener implements Listener {
         }
 
         if (!e.isCancelled()) {
-            e.blockList().removeIf(
-                    block -> !ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)
-                            && !block.getType().equals(Material.TNT)
+            e.blockList().removeIf(block ->
+                    !ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block) &&
+                            !block.getType().equals(Material.TNT) &&
+                            !block.hasMetadata(PLACED_IN_FIGHT)
             );
 
             for (Block block : e.blockList())
@@ -51,14 +54,6 @@ public class MatchTntListener implements Listener {
         if (match == null) {
             return;
         }
-
-        /* Nincs még rá szükség
-        if (match.getLadder() instanceof LadderHandle ladderHandle) {
-            if (ladderHandle.handleEvents(e, match)) {
-                return;
-            }
-        }
-         */
 
         if (e.isCancelled()) {
             return;
