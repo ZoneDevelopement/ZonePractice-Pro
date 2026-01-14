@@ -10,7 +10,7 @@
     <parent>
         <groupId>dev.nandi0813</groupId>
         <artifactId>practice-parent</artifactId>
-        <version>6.22.1-SNAPSHOT</version>
+        <version>6.23-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -20,7 +20,7 @@
 
     <build>
         <defaultGoal>clean install</defaultGoal>
-        <finalName>ZonePractice Pro v6.22.1-SNAPSHOT</finalName>
+        <finalName>ZonePractice Pro v6.23-SNAPSHOT</finalName>
 
         <plugins>
             <plugin>
