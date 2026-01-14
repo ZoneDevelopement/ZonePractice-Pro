@@ -10,7 +10,7 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
@@ -104,10 +104,13 @@ public class ArenaManager implements Listener {
                             try {
                                 ArenaType type = ArenaType.valueOf(config.getString("type"));
 
-                                if (type == ArenaType.FFA)
-                                    arenaList.add(new FFAArena(name));
-                                else
-                                    arenaList.add(new Arena(name, type));
+                                Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+                                    if (type == ArenaType.FFA) {
+                                        arenaList.add(new FFAArena(name));
+                                    } else {
+                                        arenaList.add(new Arena(name, type));
+                                    }
+                                });
                             } catch (IllegalArgumentException e) {
                                 Common.sendConsoleMMMessage("<red>Can't load arena " + name + " because the type format isn't set correctly in the config.");
                             }
@@ -130,7 +133,7 @@ public class ArenaManager implements Listener {
             if (arena.getAssignedLadders().contains(ladder)) {
                 arena.getAssignedLadders().remove(ladder);
 
-                ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Single).update();
+                ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Single).update();
             }
 
             if (arena.isEnabled() && arena.getAssignedLadders().isEmpty()) {

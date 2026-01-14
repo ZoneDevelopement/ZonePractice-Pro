@@ -98,7 +98,7 @@ public class ServerEventsGui extends GUI {
                         event.addSpectator(player, null, true, false);
                     else if (click.isRightClick()) {
                         event.forceEnd(player);
-                        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.SERVER.ENDED-EVENT").replaceAll("%event%", event.getType().getName()));
+                        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.SERVER.ENDED-EVENT").replace("%event%", event.getType().getName()));
                     }
                 }
                 break;
@@ -111,10 +111,10 @@ public class ServerEventsGui extends GUI {
         guiItem.setLore(GUIFile.getStringList("GUIS.SETUP.SERVER.EVENTS.ICONS.EVENT-ITEM.LORE"));
 
         guiItem
-                .replaceAll("%eventName%", event.getEventData().getType().getName())
-                .replaceAll("%type%", event.getType().getName())
-                .replaceAll("%players%", String.valueOf(event.getPlayers().size()))
-                .replaceAll("%spectators%", String.valueOf(event.getSpectators().size()));
+                .replace("%eventName%", event.getEventData().getType().getName())
+                .replace("%type%", event.getType().getName())
+                .replace("%players%", String.valueOf(event.getPlayers().size()))
+                .replace("%spectators%", String.valueOf(event.getSpectators().size()));
 
         return guiItem.get();
     }

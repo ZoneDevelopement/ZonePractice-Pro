@@ -42,8 +42,8 @@ public class EventSummaryGui extends GUI {
     public void update() {
         for (EventData eventData : EventManager.getInstance().getEventData().values()) {
             ItemStack icon = GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-MANAGER.ICONS.EVENT-ICON")
-                    .replaceAll("%eventName%", eventData.getType().getName())
-                    .replaceAll("%state%", eventData.isEnabled() ?
+                    .replace("%eventName%", eventData.getType().getName())
+                    .replace("%state%", eventData.isEnabled() ?
                             GUIFile.getString("GUIS.SETUP.EVENT.EVENT-MANAGER.ICONS.EVENT-ICON.STATUS-NAMES.ENABLED") :
                             GUIFile.getString("GUIS.SETUP.EVENT.EVENT-MANAGER.ICONS.EVENT-ICON.STATUS-NAMES.DISABLED"))
                     .setMaterial(eventData.getIcon().getMaterial())

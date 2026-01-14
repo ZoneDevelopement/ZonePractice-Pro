@@ -16,7 +16,7 @@ public class GoldenAppleItem extends SettingItem {
     @Override
     public void updateItemStack() {
         guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.GOLDENAPPLE-COOLDOWN")
-                .replaceAll("%golden_apple_cooldown%", String.valueOf(ladder.getGoldenAppleCooldown()));
+                .replace("%golden_apple_cooldown%", String.valueOf(ladder.getGoldenAppleCooldown()));
     }
 
     @Override

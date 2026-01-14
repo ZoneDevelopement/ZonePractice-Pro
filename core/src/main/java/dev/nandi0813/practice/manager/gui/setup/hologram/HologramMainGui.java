@@ -168,7 +168,7 @@ public class HologramMainGui extends GUI {
 
     private static ItemStack getShowItem(Hologram hologram) {
         return GUIFile.getGuiItem("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MAIN.ICONS.SHOW-STATS")
-                .replaceAll("%showStats%", String.valueOf(hologram.getShowStat()))
+                .replace("%showStats%", String.valueOf(hologram.getShowStat()))
                 .get();
     }
 
@@ -187,7 +187,7 @@ public class HologramMainGui extends GUI {
             update();
             GUIManager.getInstance().searchGUI(GUIType.Hologram_Summary).update();
 
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.HOLOGRAM.HOLOGRAM-DELETED").replaceAll("%hologram%", hologram.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.HOLOGRAM.HOLOGRAM-DELETED").replace("%hologram%", hologram.getName()));
         }
     }
 

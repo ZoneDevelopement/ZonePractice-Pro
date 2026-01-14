@@ -9,7 +9,7 @@ import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.gui.setup.hologram.HologramSetupManager;
 import dev.nandi0813.practice.manager.gui.setup.ladder.LadderSetupManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
@@ -124,7 +124,7 @@ public enum LadderUtil {
             // Update ladder setup GUIs
             for (Map<GUIType, GUI> map : HologramSetupManager.getInstance().getHologramSetupGUIs().values())
                 map.get(GUIType.Hologram_Ladder).update();
-            for (Map<GUIType, GUI> map : ArenaSetupManager.getInstance().getArenaSetupGUIs().values()) {
+            for (Map<GUIType, GUI> map : ArenaGUISetupManager.getInstance().getArenaSetupGUIs().values()) {
                 if (map.containsKey(GUIType.Arena_Ladders_Type))
                     map.get(GUIType.Arena_Ladders_Type).update();
 

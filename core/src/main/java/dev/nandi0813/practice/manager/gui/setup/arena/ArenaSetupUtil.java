@@ -28,9 +28,9 @@ public enum ArenaSetupUtil {
         List<String> lore = new ArrayList<>();
         for (String line : GUIFile.getStringList("GUIS.SETUP.ARENA.ARENA-MAIN.ICONS.ARENA-NAME.LORE")) {
             lore.add(line
-                    .replaceAll("%arenaName%", arena.getName())
-                    .replaceAll("%arenaDisplayName%", arena.getDisplayName())
-                    .replaceAll("%arenaType%", arena.getType().getName())
+                    .replace("%arenaName%", arena.getName())
+                    .replace("%arenaDisplayName%", arena.getDisplayName())
+                    .replace("%arenaType%", arena.getType().getName())
             );
         }
 
@@ -76,9 +76,9 @@ public enum ArenaSetupUtil {
         GUIItem guiItem = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-COPY.ICONS.COPY-ARENA");
 
         guiItem
-                .replaceAll("%arenaName%", arena.getName())
-                .replaceAll("%arenaDisplayName%", arena.getDisplayName())
-                .replaceAll("%copyNumber%", String.valueOf(number));
+                .replace("%arenaName%", arena.getName())
+                .replace("%arenaDisplayName%", arena.getDisplayName())
+                .replace("%copyNumber%", String.valueOf(number));
 
         ItemStack itemStack = guiItem.get();
         itemStack.setAmount(number);
@@ -91,41 +91,28 @@ public enum ArenaSetupUtil {
         GUIItem guiItem;
         if (arena.isBuild()) {
             guiItem = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MAIN.ICONS.LOCATION.BUILD")
-                    .replaceAll("%arenaName%", arena.getName())
-                    .replaceAll("%arenaDisplayName%", arena.getDisplayName())
-                    .replaceAll("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getCorner1())))
-                    .replaceAll("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getCorner2())))
-                    .replaceAll("%position1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition1())))
-                    .replaceAll("%position2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition2())))
-                    .replaceAll("%bed1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getBedLoc1())))
-                    .replaceAll("%bed2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getBedLoc2())))
-                    .replaceAll("%portal1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPortalLoc1())))
-                    .replaceAll("%portal2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPortalLoc2())))
-                    .replaceAll("%sideBuildLimit%", String.valueOf(arena.getSideBuildLimit()));
+                    .replace("%arenaName%", arena.getName())
+                    .replace("%arenaDisplayName%", arena.getDisplayName())
+                    .replace("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getCorner1())))
+                    .replace("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getCorner2())))
+                    .replace("%position1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition1())))
+                    .replace("%position2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition2())))
+                    .replace("%bed1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getBedLoc1())))
+                    .replace("%bed2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getBedLoc2())))
+                    .replace("%portal1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPortalLoc1())))
+                    .replace("%portal2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPortalLoc2())))
+                    .replace("%sideBuildLimit%", String.valueOf(arena.getSideBuildLimit()));
         } else {
             guiItem = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MAIN.ICONS.LOCATION.NOT-BUILD")
-                    .replaceAll("%arenaName%", arena.getName())
-                    .replaceAll("%arenaDisplayName%", arena.getDisplayName())
-                    .replaceAll("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getCorner1())))
-                    .replaceAll("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getCorner2())))
-                    .replaceAll("%position1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition1())))
-                    .replaceAll("%position2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition2())));
+                    .replace("%arenaName%", arena.getName())
+                    .replace("%arenaDisplayName%", arena.getDisplayName())
+                    .replace("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getCorner1())))
+                    .replace("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getCorner2())))
+                    .replace("%position1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition1())))
+                    .replace("%position2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition2())));
         }
 
         return guiItem.get();
-    }
-
-    // Marker item
-    public static ItemStack getMarkerItem(DisplayArena arena) {
-        List<String> lore = new ArrayList<>();
-        lore.add("");
-        lore.add("&eArena: &b" + arena.getName());
-        lore.add("");
-        lore.add("&e&lLEFT-CLICK &7marks the first corner.");
-        lore.add("&6&lRIGHT-CLICK &7marks the second corner.");
-        lore.add("");
-        lore.add("&c&lNote: &7This can't be undone.");
-        return ClassImport.getClasses().getItemCreateUtil().createItem("&bCorner Marker", Material.STICK, lore);
     }
 
     public static ItemStack getFreezeItem(Arena arena) {
@@ -137,37 +124,37 @@ public enum ArenaSetupUtil {
 
     public static ItemStack getCopyGuiNavMainItem(Arena arena, int copies) {
         return GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-COPY.ICONS.NAV-MAIN")
-                .replaceAll("%arenaDisplayName%", arena.getDisplayName())
-                .replaceAll("%arenaName%", arena.getName())
-                .replaceAll("%copies%", String.valueOf(copies))
+                .replace("%arenaDisplayName%", arena.getDisplayName())
+                .replace("%arenaName%", arena.getName())
+                .replace("%copies%", String.valueOf(copies))
                 .get();
     }
 
     public static ItemStack getAssignedLadderItem(Ladder ladder) {
         return GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-LADDERS-SINGLE.ICONS.LADDER-ICONS.ASSIGNED")
-                .replaceAll("%ladderDisplayName%", ladder.getDisplayName())
-                .replaceAll("%ladderName%", ladder.getName())
+                .replace("%ladderDisplayName%", ladder.getDisplayName())
+                .replace("%ladderName%", ladder.getName())
                 .get();
     }
 
     public static ItemStack getNotAssignedLadderItem(Ladder ladder) {
         return GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-LADDERS-SINGLE.ICONS.LADDER-ICONS.NOT-ASSIGNED")
-                .replaceAll("%ladderDisplayName%", ladder.getDisplayName())
-                .replaceAll("%ladderName%", ladder.getName())
+                .replace("%ladderDisplayName%", ladder.getDisplayName())
+                .replace("%ladderName%", ladder.getName())
                 .get();
     }
 
     public static ItemStack getDisabledLadderItem(Ladder ladder) {
         return GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-LADDERS-SINGLE.ICONS.LADDER-ICONS.DISABLED")
-                .replaceAll("%ladderDisplayName%", ladder.getDisplayName())
-                .replaceAll("%ladderName%", ladder.getName())
+                .replace("%ladderDisplayName%", ladder.getDisplayName())
+                .replace("%ladderName%", ladder.getName())
                 .get();
     }
 
     public static ItemStack getNonCompatibleLadderItem(Ladder ladder) {
         return GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-LADDERS-SINGLE.ICONS.LADDER-ICONS.NOT-COMPATIBLE")
-                .replaceAll("%ladderDisplayName%", ladder.getDisplayName())
-                .replaceAll("%ladderName%", ladder.getName())
+                .replace("%ladderDisplayName%", ladder.getDisplayName())
+                .replace("%ladderName%", ladder.getName())
                 .get();
     }
 

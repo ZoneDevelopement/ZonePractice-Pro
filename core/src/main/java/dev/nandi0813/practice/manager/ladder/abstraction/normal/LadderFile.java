@@ -2,6 +2,8 @@ package dev.nandi0813.practice.manager.ladder.abstraction.normal;
 
 import dev.nandi0813.practice.manager.backend.ConfigFile;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuild;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempDead;
 import dev.nandi0813.practice.manager.ladder.enums.WeightClassType;
 import dev.nandi0813.practice.manager.ladder.util.LadderFileUtil;
 import dev.nandi0813.practice.util.BasicItem;
@@ -47,6 +49,14 @@ public class LadderFile extends ConfigFile {
         config.set("settings.knockback", ladder.getLadderKnockback().get());
         config.set("settings.tntfusetime", ladder.getTntFuseTime());
         config.set("settings.healthbelowname", ladder.isHealthBelowName());
+
+        if (ladder instanceof TempDead tempDead) {
+            config.set("settings.respawntime", tempDead.getRespawnTime());
+        }
+
+        if (ladder instanceof TempBuild tempBuild) {
+            config.set("settings.tempbuild-delay", tempBuild.getBuildDelay());
+        }
 
         if (ladder.getIcon() != null)
             config.set("icon", ladder.getIcon());
@@ -173,6 +183,24 @@ public class LadderFile extends ConfigFile {
             ladder.setTntFuseTime(tntFuseTime);
         } else
             ladder.setTntFuseTime(4);
+
+        if (ladder instanceof TempDead tempDead) {
+            if (config.isInt("settings.respawntime")) {
+                int respawnTime = config.getInt("settings.respawntime");
+                if (respawnTime < 0 || respawnTime > 10) respawnTime = 3;
+                tempDead.setRespawnTime(respawnTime);
+            } else
+                tempDead.setRespawnTime(3);
+        }
+
+        if (ladder instanceof TempBuild tempBuild) {
+            if (config.isInt("settings.tempbuild-delay")) {
+                int buildDelay = config.getInt("settings.tempbuild-delay");
+                if (buildDelay < 3 || buildDelay > 30) buildDelay = 6;
+                tempBuild.setBuildDelay(buildDelay);
+            } else
+                tempBuild.setBuildDelay(6);
+        }
 
         if (config.isString("settings.knockback"))
             ladder.getLadderKnockback().get(config.getString("settings.knockback"));

@@ -4,7 +4,7 @@ import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
@@ -49,7 +49,7 @@ public enum SideBuildLimitArg {
         }
 
         arena.setSideBuildLimit(sideBuildLimit);
-        ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
+        ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).update();
 
         Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.SIDEBUILDLIMIT.SET-SIDEBUILDLIMIT").replace("%arena%", arena.getName()).replace("%sideBuildLimit%", args[3]));
     }

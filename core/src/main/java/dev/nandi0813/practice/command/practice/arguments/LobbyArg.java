@@ -26,7 +26,7 @@ public enum LobbyArg {
                 Location lobbyLocation = ServerManager.getLobby();
                 player.teleport(lobbyLocation);
             } else {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.LOBBY.LOBBY-NOT-SET").replaceAll("%label%", label));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.LOBBY.LOBBY-NOT-SET").replace("%label%", label));
             }
         } else if (args.length == 2 && args[1].equalsIgnoreCase("set")) {
             Location lobbyLocation = player.getLocation();
@@ -42,7 +42,7 @@ public enum LobbyArg {
             InventoryManager.getInstance().setLobbyInventory(player, ServerManager.getLobby() != null);
         } else {
             for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.LOBBY.COMMAND-HELP"))
-                Common.sendMMMessage(player, line.replaceAll("%label%", label));
+                Common.sendMMMessage(player, line.replace("%label%", label));
         }
     }
 

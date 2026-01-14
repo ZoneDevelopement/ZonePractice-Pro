@@ -39,7 +39,9 @@ public enum LadderType {
                             SettingType.START_COUNTDOWN,
                             SettingType.HEALTH_BELOW_NAME
                     )
-            )
+            ),
+            false,
+            false
     ),
     BUILD(
             LanguageManager.getString("LADDER.LADDER-TYPES.BUILD.NAME"),
@@ -67,7 +69,9 @@ public enum LadderType {
                             SettingType.TNT_FUSE_TIME,
                             SettingType.HEALTH_BELOW_NAME
                     )
-            )
+            ),
+            false,
+            false
     ),
     SUMO(
             LanguageManager.getString("LADDER.LADDER-TYPES.SUMO.NAME"),
@@ -92,7 +96,9 @@ public enum LadderType {
                             SettingType.START_COUNTDOWN,
                             SettingType.HEALTH_BELOW_NAME
                     )
-            )
+            ),
+            false,
+            false
     ),
     BOXING(
             LanguageManager.getString("LADDER.LADDER-TYPES.BOXING.NAME"),
@@ -118,7 +124,9 @@ public enum LadderType {
                             SettingType.MAX_DURATION,
                             SettingType.BOXING_HITS
                     )
-            )
+            ),
+            false,
+            false
     ),
     PEARL_FIGHT(
             LanguageManager.getString("LADDER.LADDER-TYPES.PEARL-FIGHT.NAME"),
@@ -143,7 +151,9 @@ public enum LadderType {
                             SettingType.TEMP_BUILD_DELAY,
                             SettingType.TNT_FUSE_TIME
                     )
-            )
+            ),
+            false,
+            false
     ),
     SPLEEF(
             LanguageManager.getString("LADDER.LADDER-TYPES.SPLEEF.NAME"),
@@ -165,7 +175,9 @@ public enum LadderType {
                             SettingType.MAX_DURATION,
                             SettingType.START_COUNTDOWN
                     )
-            )
+            ),
+            false,
+            false
     ),
     SKYWARS(
             LanguageManager.getString("LADDER.LADDER-TYPES.SKYWARS.NAME"),
@@ -193,7 +205,9 @@ public enum LadderType {
                             SettingType.TNT_FUSE_TIME,
                             SettingType.HEALTH_BELOW_NAME
                     )
-            )
+            ),
+            false,
+            false
     ),
     BEDWARS(
             LanguageManager.getString("LADDER.LADDER-TYPES.BEDWARS.NAME"),
@@ -220,7 +234,9 @@ public enum LadderType {
                             SettingType.TNT_FUSE_TIME,
                             SettingType.HEALTH_BELOW_NAME
                     )
-            )
+            ),
+            true,
+            false
     ),
     FIREBALL_FIGHT(
             LanguageManager.getString("LADDER.LADDER-TYPES.FIREBALL-FIGHT.NAME"),
@@ -248,7 +264,9 @@ public enum LadderType {
                             SettingType.TNT_FUSE_TIME,
                             SettingType.HEALTH_BELOW_NAME
                     )
-            )
+            ),
+            true,
+            false
     ),
     BRIDGES(
             LanguageManager.getString("LADDER.LADDER-TYPES.BRIDGES.NAME"),
@@ -271,10 +289,13 @@ public enum LadderType {
                             SettingType.ROUNDS,
                             SettingType.MAX_DURATION,
                             SettingType.START_COUNTDOWN,
+                            SettingType.RESPAWN_TIME,
                             SettingType.TNT_FUSE_TIME,
                             SettingType.HEALTH_BELOW_NAME
                     )
-            )
+            ),
+            false,
+            true
     ),
     BATTLE_RUSH(
             LanguageManager.getString("LADDER.LADDER-TYPES.BATTLE-RUSH.NAME"),
@@ -302,7 +323,9 @@ public enum LadderType {
                             SettingType.TNT_FUSE_TIME,
                             SettingType.HEALTH_BELOW_NAME
                     )
-            )
+            ),
+            false,
+            true
     );
 
     private final String name;
@@ -318,8 +341,12 @@ public enum LadderType {
     private final Class<?> classInstance;
     @Getter
     private final List<SettingType> settingTypes;
+    @Getter
+    private final boolean bed;
+    @Getter
+    private final boolean portal;
 
-    LadderType(String name, Material icon, boolean build, boolean isPartyFFASupported, List<String> description, Class<?> classInstance, List<SettingType> settingTypes) {
+    LadderType(String name, Material icon, boolean build, boolean isPartyFFASupported, List<String> description, Class<?> classInstance, List<SettingType> settingTypes, boolean bed, boolean portal) {
         this.name = name;
         this.icon = icon;
         this.build = build;
@@ -327,6 +354,8 @@ public enum LadderType {
         this.description = description;
         this.classInstance = classInstance;
         this.settingTypes = settingTypes;
+        this.bed = bed;
+        this.portal = portal;
     }
 
     public String getName() {

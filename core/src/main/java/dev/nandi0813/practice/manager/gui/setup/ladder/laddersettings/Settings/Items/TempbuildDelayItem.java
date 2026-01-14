@@ -21,7 +21,7 @@ public class TempbuildDelayItem extends SettingItem {
     @Override
     public void updateItemStack() {
         this.guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.TEMP-BUILD")
-                .replaceAll("%tempBuildDelay%", String.valueOf(tempBuild.getBuildDelay()));
+                .replace("%tempBuildDelay%", String.valueOf(tempBuild.getBuildDelay()));
     }
 
     @Override

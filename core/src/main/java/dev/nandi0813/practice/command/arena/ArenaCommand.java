@@ -1,7 +1,6 @@
 package dev.nandi0813.practice.command.arena;
 
 import dev.nandi0813.practice.command.arena.arguments.*;
-import dev.nandi0813.practice.command.arena.arguments.Set.BedArg;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.command.Command;
@@ -31,6 +30,9 @@ public class ArenaCommand implements CommandExecutor, TabCompleter {
                     break;
                 case "create":
                     CreateArg.run(player, label, args);
+                    break;
+                case "setup":
+                    SetupArg.run(player, label, args);
                     break;
                 case "delete":
                     DeleteArg.run(player, label, args);
@@ -72,6 +74,7 @@ public class ArenaCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             if (player.hasPermission("zpp.setup")) {
                 arguments.add("create");
+                arguments.add("setup");
                 arguments.add("delete");
                 arguments.add("info");
                 arguments.add("set");
@@ -85,35 +88,18 @@ public class ArenaCommand implements CommandExecutor, TabCompleter {
 
             StringUtil.copyPartialMatches(args[0], arguments, completion);
         } else {
-            switch (args[0]) {
-                case "bed":
-                    completion = BedArg.tabComplete(player, args);
-                    break;
-                case "delete":
-                    completion = DeleteArg.tabComplete(player, args);
-                    break;
-                case "freeze":
-                    completion = FreezeArg.tabComplete(player, args);
-                    break;
-                case "enable":
-                    completion = EnableArg.tabComplete(player, args);
-                    break;
-                case "disable":
-                    completion = DisableArg.tabComplete(player, args);
-                    break;
-                case "info":
-                    completion = InfoArg.tabComplete(player, args);
-                    break;
-                case "set":
-                    completion = SetArg.tabComplete(player, args);
-                    break;
-                case "stop":
-                    completion = StopArg.tabComplete(player, args);
-                    break;
-                case "teleport":
-                    completion = TeleportArg.tabComplete(player, args);
-                    break;
-            }
+            completion = switch (args[0]) {
+                case "delete" -> DeleteArg.tabComplete(player, args);
+                case "freeze" -> FreezeArg.tabComplete(player, args);
+                case "enable" -> EnableArg.tabComplete(player, args);
+                case "setup" -> SetupArg.tabComplete(player, args);
+                case "disable" -> DisableArg.tabComplete(player, args);
+                case "info" -> InfoArg.tabComplete(player, args);
+                case "set" -> SetArg.tabComplete(player, args);
+                case "stop" -> StopArg.tabComplete(player, args);
+                case "teleport" -> TeleportArg.tabComplete(player, args);
+                default -> completion;
+            };
         }
 
         Collections.sort(completion);

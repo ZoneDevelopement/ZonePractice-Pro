@@ -5,7 +5,7 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.gui.setup.ladder.LadderSetupManager;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
@@ -52,7 +52,7 @@ public enum DeleteArg {
 
         // Remove the ladder from the arenas and update the ladder GUI in the arena settings.
         ArenaManager.getInstance().removeLadder(ladder);
-        for (Map<GUIType, GUI> map : ArenaSetupManager.getInstance().getArenaSetupGUIs().values())
+        for (Map<GUIType, GUI> map : ArenaGUISetupManager.getInstance().getArenaSetupGUIs().values())
             map.get(GUIType.Arena_Ladders_Single).update();
 
         GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).update();

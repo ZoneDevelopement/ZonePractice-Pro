@@ -71,7 +71,7 @@ public class PlayerCustomKitSelector extends GUI {
             }
 
             GUIItem kitItem = KIT_ITEM.cloneItem();
-            kitItem.replaceAll("%kit%", customLadder.getDisplayName() != null ? customLadder.getDisplayName() : "Kit " + i);
+            kitItem.replace("%kit%", customLadder.getDisplayName() != null ? customLadder.getDisplayName() : "Kit " + i);
 
             int slot = slotsPerKitLimit.get(kitLimit).get(i);
             inventory.setItem(slot, kitItem.get());
@@ -110,7 +110,7 @@ public class PlayerCustomKitSelector extends GUI {
 
                     this.profile.getCustomLadders().set(index, newLadder);
                     newLadder.getMainGUI().open(player);
-                    Common.sendMMMessage(player, LanguageManager.getString("CUSTOM-PLAYER-KIT.COPYKIT.COPY-SUCCESS").replaceAll("%name%", copyCustomLadder.getDisplayName()));
+                    Common.sendMMMessage(player, LanguageManager.getString("CUSTOM-PLAYER-KIT.COPYKIT.COPY-SUCCESS").replace("%name%", copyCustomLadder.getDisplayName()));
                 }
             } else {
                 customLadder.getMainGUI().open(player);

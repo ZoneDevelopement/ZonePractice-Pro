@@ -16,7 +16,7 @@ public class StartCountdownItem extends SettingItem {
     @Override
     public void updateItemStack() {
         guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.START-COUNTDOWN")
-                .replaceAll("%startCountdown%", String.valueOf(ladder.getStartCountdown()));
+                .replace("%startCountdown%", String.valueOf(ladder.getStartCountdown()));
     }
 
     @Override

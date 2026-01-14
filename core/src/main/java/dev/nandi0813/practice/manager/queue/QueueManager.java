@@ -61,12 +61,12 @@ public class QueueManager implements Listener {
 
     public void createUnrankedQueue(Player player, NormalLadder ladder) {
         if (ladder.isFrozen()) {
-            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.UNRANKED.LADDER-FROZEN").replaceAll("%ladder%", ladder.getDisplayName()));
+            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.UNRANKED.LADDER-FROZEN").replace("%ladder%", ladder.getDisplayName()));
             return;
         }
 
         if (!ladder.isEnabled()) {
-            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.UNRANKED.LADDER-DISABLED").replaceAll("%ladder%", ladder.getDisplayName()));
+            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.UNRANKED.LADDER-DISABLED").replace("%ladder%", ladder.getDisplayName()));
             return;
         }
 
@@ -77,12 +77,12 @@ public class QueueManager implements Listener {
 
     public void createRankedQueue(Player player, NormalLadder ladder) {
         if (ladder.isFrozen()) {
-            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.RANKED.LADDER-FROZEN").replaceAll("%ladder%", ladder.getDisplayName()));
+            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.RANKED.LADDER-FROZEN").replace("%ladder%", ladder.getDisplayName()));
             return;
         }
 
         if (!ladder.isEnabled()) {
-            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.RANKED.LADDER-DISABLED").replaceAll("%ladder%", ladder.getDisplayName()));
+            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.RANKED.LADDER-DISABLED").replace("%ladder%", ladder.getDisplayName()));
             return;
         }
 
@@ -95,8 +95,8 @@ public class QueueManager implements Listener {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile.getRankedBan().isBanned()) {
             Common.sendMMMessage(player, LanguageManager.getString("QUEUES.RANKED.BANNED")
-                    .replaceAll("%banner%", profile.getRankedBan().getBanner() == null ? "Console" : profile.getRankedBan().getBanner().getPlayer().getName())
-                    .replaceAll("%reason%", profile.getRankedBan().getReason() == null ? LanguageManager.getString("QUEUES.RANKED.NO-REASON") : profile.getRankedBan().getReason()));
+                    .replace("%banner%", profile.getRankedBan().getBanner() == null ? "Console" : profile.getRankedBan().getBanner().getPlayer().getName())
+                    .replace("%reason%", profile.getRankedBan().getReason() == null ? LanguageManager.getString("QUEUES.RANKED.NO-REASON") : profile.getRankedBan().getReason()));
 
             player.closeInventory();
             return;

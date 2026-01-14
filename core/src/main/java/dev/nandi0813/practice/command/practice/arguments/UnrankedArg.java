@@ -26,7 +26,7 @@ public enum UnrankedArg {
 
             final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
             if (target == null) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.TARGET-OFFLINE").replaceAll("%target%", args[2]));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
             }
 
@@ -40,11 +40,11 @@ public enum UnrankedArg {
                 target.setUnrankedLeft(group.getUnrankedLimit());
 
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.RESET-DAILY-LIMIT")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%dailyUnrankedLimit%", String.valueOf(group.getUnrankedLimit()))
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%dailyUnrankedLimit%", String.valueOf(group.getUnrankedLimit()))
                 );
             } else
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.NO-GROUP").replaceAll("%target%", target.getPlayer().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.NO-GROUP").replace("%target%", target.getPlayer().getName()));
         } else if (args.length == 4 && args[1].equalsIgnoreCase("add")) {
             if (!player.hasPermission("zpp.practice.unranked.add")) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
@@ -71,14 +71,14 @@ public enum UnrankedArg {
             target.setUnrankedLeft(target.getUnrankedLeft() + extraUnranked);
 
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.ADD-EXTRA-UNRANKED")
-                    .replaceAll("%extraUnranked%", String.valueOf(extraUnranked))
-                    .replaceAll("%target%", target.getPlayer().getName())
-                    .replaceAll("%newUnranked%", String.valueOf(target.getUnrankedLeft()))
+                    .replace("%extraUnranked%", String.valueOf(extraUnranked))
+                    .replace("%target%", target.getPlayer().getName())
+                    .replace("%newUnranked%", String.valueOf(target.getUnrankedLeft()))
             );
         } else {
             if (player.hasPermission("zpp.practice.unranked.default") || player.hasPermission("zpp.practice.unranked.add")) {
                 for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.COMMAND-HELP"))
-                    Common.sendMMMessage(player, line.replaceAll("%label%", label));
+                    Common.sendMMMessage(player, line.replace("%label%", label));
             }
         }
     }
@@ -96,10 +96,10 @@ public enum UnrankedArg {
                 target.setUnrankedLeft(group.getUnrankedLimit());
 
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.RESET-DAILY-LIMIT")
-                        .replaceAll("%target%", target.getPlayer().getName())
-                        .replaceAll("%dailyUnrankedLimit%", String.valueOf(group.getUnrankedLimit())));
+                        .replace("%target%", target.getPlayer().getName())
+                        .replace("%dailyUnrankedLimit%", String.valueOf(group.getUnrankedLimit())));
             } else
-                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.NO-GROUP").replaceAll("%target%", target.getPlayer().getName()));
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.NO-GROUP").replace("%target%", target.getPlayer().getName()));
         } else if (args.length == 4 && args[1].equalsIgnoreCase("add")) {
             final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
             if (target == null) {
@@ -116,12 +116,12 @@ public enum UnrankedArg {
             target.setUnrankedLeft(target.getUnrankedLeft() + extraUnranked);
 
             Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.ADD-EXTRA-UNRANKED")
-                    .replaceAll("%extraUnranked%", String.valueOf(extraUnranked))
-                    .replaceAll("%target%", target.getPlayer().getName())
-                    .replaceAll("%newUnranked%", String.valueOf(target.getUnrankedLeft())));
+                    .replace("%extraUnranked%", String.valueOf(extraUnranked))
+                    .replace("%target%", target.getPlayer().getName())
+                    .replace("%newUnranked%", String.valueOf(target.getUnrankedLeft())));
         } else {
             for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.COMMAND-HELP"))
-                Common.sendConsoleMMMessage(line.replaceAll("%label%", label));
+                Common.sendConsoleMMMessage(line.replace("%label%", label));
         }
     }
 

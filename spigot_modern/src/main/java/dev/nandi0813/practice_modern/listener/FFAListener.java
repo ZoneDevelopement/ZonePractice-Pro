@@ -37,7 +37,7 @@ public class FFAListener extends dev.nandi0813.practice.manager.fight.ffa.FFALis
         }
 
         DeathCause cause = dev.nandi0813.practice_modern.listener.FightUtil.convert(damageSource.getDamageType());
-        ffa.killPlayer(player, killer, cause.getMessage().replaceAll("%killer%", killer != null ? killer.getName() : "Unknown"));
+        ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
         if (killer != null) {
             Statistic statistic = ffa.getStatistics().get(killer);

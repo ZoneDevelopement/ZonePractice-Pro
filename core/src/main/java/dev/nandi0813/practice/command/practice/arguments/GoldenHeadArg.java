@@ -42,7 +42,7 @@ public enum GoldenHeadArg {
 
             player.getInventory().addItem(itemStack);
         } else
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.GOLDENHEAD.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.GOLDENHEAD.COMMAND-HELP").replace("%label%", label));
     }
 
 }

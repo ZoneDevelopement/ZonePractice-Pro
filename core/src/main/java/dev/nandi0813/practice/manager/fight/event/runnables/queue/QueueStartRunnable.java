@@ -25,8 +25,8 @@ public class QueueStartRunnable extends Runnable {
                 seconds <= 5 &&
                         seconds != 0) {
             event.sendMessage(LanguageManager.getString("EVENT.QUEUE-START-COUNTDOWN")
-                            .replaceAll("%seconds%", String.valueOf(seconds))
-                            .replaceAll("%secondName%", (seconds == 1 ? LanguageManager.getString("SECOND-NAME.1SEC") : LanguageManager.getString("SECOND-NAME.1<SEC")))
+                            .replace("%seconds%", String.valueOf(seconds))
+                            .replace("%secondName%", (seconds == 1 ? LanguageManager.getString("SECOND-NAME.1SEC") : LanguageManager.getString("SECOND-NAME.1<SEC")))
                     , false);
         }
 

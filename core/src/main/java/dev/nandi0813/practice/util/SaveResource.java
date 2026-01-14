@@ -77,7 +77,7 @@ public class SaveResource {
             }
 
             try {
-                FileUtils.deleteDirectory(new File(practice.getDataFolder(), this.getVersionPath().replaceAll("/", "")));
+                FileUtils.deleteDirectory(new File(practice.getDataFolder(), this.getVersionPath().replace("/", "")));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

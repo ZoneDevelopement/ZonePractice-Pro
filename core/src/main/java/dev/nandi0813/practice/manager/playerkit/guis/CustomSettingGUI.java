@@ -60,11 +60,11 @@ public class CustomSettingGUI extends GUI {
         inventory.setItem(REGENERATION_SLOT, ladder.isRegen() ? StaticItems.REGEN_ITEM.getFirst() : StaticItems.REGEN_ITEM.getSecond());
         inventory.setItem(HUNGER_SLOT, ladder.isHunger() ? StaticItems.HUNGER_ITEM.getFirst() : StaticItems.HUNGER_ITEM.getSecond());
         inventory.setItem(BUILD_SLOT, ladder.isBuild() ? StaticItems.BUILD_ITEM.getFirst() : StaticItems.BUILD_ITEM.getSecond());
-        inventory.setItem(ROUNDS_SLOT, StaticItems.ROUNDS_ITEM.cloneItem().replaceAll("%rounds%", String.valueOf(ladder.getRounds())).get());
+        inventory.setItem(ROUNDS_SLOT, StaticItems.ROUNDS_ITEM.cloneItem().replace("%rounds%", String.valueOf(ladder.getRounds())).get());
         inventory.setItem(KNOCKBACK_SLOT, getKnockbackItem(ladder));
-        inventory.setItem(HITDELAY_SLOT, StaticItems.HITDELAY_ITEM.cloneItem().replaceAll("%hitdelay%", String.valueOf(ladder.getHitDelay())).get());
-        inventory.setItem(ENDERPEARL_SLOT, StaticItems.ENDERPEARL_ITEM.cloneItem().replaceAll("%epCooldown%", String.valueOf(ladder.getEnderPearlCooldown())).get());
-        inventory.setItem(GOLDENAPPLE_SLOT, StaticItems.GAPPLE_ITEM.cloneItem().replaceAll("%gaCooldown%", String.valueOf(ladder.getGoldenAppleCooldown())).get());
+        inventory.setItem(HITDELAY_SLOT, StaticItems.HITDELAY_ITEM.cloneItem().replace("%hitdelay%", String.valueOf(ladder.getHitDelay())).get());
+        inventory.setItem(ENDERPEARL_SLOT, StaticItems.ENDERPEARL_ITEM.cloneItem().replace("%epCooldown%", String.valueOf(ladder.getEnderPearlCooldown())).get());
+        inventory.setItem(GOLDENAPPLE_SLOT, StaticItems.GAPPLE_ITEM.cloneItem().replace("%gaCooldown%", String.valueOf(ladder.getGoldenAppleCooldown())).get());
 
         this.updatePlayers();
     }

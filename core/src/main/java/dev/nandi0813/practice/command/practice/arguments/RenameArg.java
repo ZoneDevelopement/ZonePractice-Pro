@@ -21,7 +21,7 @@ public enum RenameArg {
         }
 
         if (args.length <= 1) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RENAME.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RENAME.COMMAND-HELP").replace("%label%", label));
             return;
         }
 

@@ -176,15 +176,15 @@ public class GUIItem {
         return itemStack;
     }
 
-    public GUIItem replaceAll(String regex, String replacement) {
+    public GUIItem replace(String regex, String replacement) {
         if (name != null) {
-            this.setName(name.replaceAll(regex, replacement));
+            this.setName(name.replace(regex, replacement));
         }
 
         if (lore != null) {
             List<String> replacementLore = new ArrayList<>();
             for (String line : lore) {
-                replacementLore.add(line.replaceAll(regex, replacement));
+                replacementLore.add(line.replace(regex, replacement));
             }
             setLore(replacementLore);
         }

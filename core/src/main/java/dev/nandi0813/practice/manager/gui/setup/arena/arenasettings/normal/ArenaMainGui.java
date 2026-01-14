@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.gui.setup.arena.arenasettings.normal;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
+import dev.nandi0813.practice.manager.arena.setup.ArenaSetupManager;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
@@ -9,7 +10,7 @@ import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.confirmgui.ConfirmGuiType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupUtil;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSummaryGui;
 import dev.nandi0813.practice.util.Common;
@@ -89,36 +90,23 @@ public class ArenaMainGui extends GUI {
                 arenaSummaryGui.getBackToPage().remove(player);
                 break;
             case 10:
-                if (clickType.isLeftClick())
+                if (clickType.isLeftClick()) {
                     player.performCommand("arena info " + arena.getName());
-                else if (clickType.isRightClick())
-                    arena.teleport(player);
+                } else if (clickType.isRightClick()) {
+                    if (!ArenaSetupManager.getInstance().startSetup(player, arena)) {
+                        player.sendMessage(Common.colorize("&cYou can't edit an enabled arena."));
+                    }
+                }
                 break;
             case 11:
                 ArenaUtil.changeStatus(player, arena);
                 break;
             case 14:
                 if (arena.isBuild())
-                    ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Copy).open(player, 1);
+                    ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Copy).open(player, 1);
                 break;
             case 15:
-                ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Type).open(player, 1);
-                break;
-            case 16:
-                if (clickType.isLeftClick()) {
-                    if (arena.isEnabled()) {
-                        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.ARENA.CANT-EDIT-ENABLED"));
-                        return;
-                    }
-
-                    ItemStack markerItem = ArenaSetupUtil.getMarkerItem((arena));
-                    if (!ArenaSetupUtil.getArenaMarkerList().containsKey(markerItem))
-                        ArenaSetupUtil.getArenaMarkerList().put(markerItem, arena);
-
-                    player.getInventory().addItem(markerItem);
-                } else if (clickType.isRightClick()) {
-                    arena.teleport(player);
-                }
+                ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Type).open(player, 1);
                 break;
             case 34:
                 player.performCommand("arena freeze " + arena.getName());

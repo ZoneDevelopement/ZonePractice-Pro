@@ -78,7 +78,7 @@ public class ServerMatchesGui extends GUI {
                 // Left navigation
                 ItemStack left;
                 if (PageUtil.isPageValid(iconsList, page - 1, spaces))
-                    left = GUIFile.getGuiItem("GUIS.SETUP.SERVER.MATCHES.ICONS.GO-PAGE-LEFT").replaceAll("%page%", String.valueOf(page - 1)).get();
+                    left = GUIFile.getGuiItem("GUIS.SETUP.SERVER.MATCHES.ICONS.GO-PAGE-LEFT").replace("%page%", String.valueOf(page - 1)).get();
                 else
                     left = GUIFile.getGuiItem("GUIS.SETUP.SERVER.MATCHES.ICONS.BACK-TO").get();
                 inventory.setItem(45, left);
@@ -86,7 +86,7 @@ public class ServerMatchesGui extends GUI {
                 // Right navigation
                 ItemStack right;
                 if (PageUtil.isPageValid(iconsList, page + 1, spaces))
-                    right = GUIFile.getGuiItem("GUIS.SETUP.SERVER.MATCHES.ICONS.GO-PAGE-RIGHT").replaceAll("%page%", String.valueOf(page + 1)).get();
+                    right = GUIFile.getGuiItem("GUIS.SETUP.SERVER.MATCHES.ICONS.GO-PAGE-RIGHT").replace("%page%", String.valueOf(page + 1)).get();
                 else
                     right = GUIManager.getFILLER_ITEM();
                 inventory.setItem(53, right);
@@ -155,10 +155,10 @@ public class ServerMatchesGui extends GUI {
                         if (click.isLeftClick()) {
                             match.addSpectator(player, null, true, false);
                         } else if (click.isRightClick()) {
-                            match.sendMessage(LanguageManager.getString("COMMAND.SETUP.SERVER.MATCH-ENDED").replaceAll("%player%", player.getName()), true);
+                            match.sendMessage(LanguageManager.getString("COMMAND.SETUP.SERVER.MATCH-ENDED").replace("%player%", player.getName()), true);
                             match.endMatch();
 
-                            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.SERVER.PLAYER-ENDED-MATCH").replaceAll("%matchId%", match.getId()));
+                            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.SERVER.PLAYER-ENDED-MATCH").replace("%matchId%", match.getId()));
                             update();
                         }
                     } else {
@@ -178,16 +178,16 @@ public class ServerMatchesGui extends GUI {
                 GUIFile.getStringList("GUIS.SETUP.SERVER.MATCHES.ICONS.MATCH-ICON.LORE")
         );
         guiItem
-                .replaceAll("%matchType%", match.getType().getName(false))
-                .replaceAll("%matchId%", match.getId())
-                .replaceAll("%weightClass%", (match instanceof Duel && ((Duel) match).isRanked()) ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName())
-                .replaceAll("%matchType%", match.getType().getName(false))
-                .replaceAll("%ladder%", match.getLadder().getDisplayName())
-                .replaceAll("%arena%", match.getArena().getDisplayName())
-                .replaceAll("%duration%", match.getCurrentRound().getFormattedTime())
-                .replaceAll("%roundDuration%", match.getCurrentRound().getFormattedTime())
-                .replaceAll("%matchDuration%", match.getFormattedTime())
-                .replaceAll("%spectators%", String.valueOf(match.getSpectators().size()));
+                .replace("%matchType%", match.getType().getName(false))
+                .replace("%matchId%", match.getId())
+                .replace("%weightClass%", (match instanceof Duel && ((Duel) match).isRanked()) ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName())
+                .replace("%matchType%", match.getType().getName(false))
+                .replace("%ladder%", match.getLadder().getDisplayName())
+                .replace("%arena%", match.getArena().getDisplayName())
+                .replace("%duration%", match.getCurrentRound().getFormattedTime())
+                .replace("%roundDuration%", match.getCurrentRound().getFormattedTime())
+                .replace("%matchDuration%", match.getFormattedTime())
+                .replace("%spectators%", String.valueOf(match.getSpectators().size()));
 
         return guiItem.get();
     }

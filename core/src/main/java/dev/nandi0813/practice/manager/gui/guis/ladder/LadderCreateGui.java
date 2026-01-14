@@ -91,7 +91,7 @@ public class LadderCreateGui extends GUI {
             GUIManager.getInstance().searchGUI(GUIType.Ladder_Summary).update();
             GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
 
-            Common.sendMMMessage(player, LanguageManager.getString("LADDER.CREATE.LADDER-CREATED").replaceAll("%ladder%", ladderName));
+            Common.sendMMMessage(player, LanguageManager.getString("LADDER.CREATE.LADDER-CREATED").replace("%ladder%", ladderName));
 
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                     LadderSetupManager.getInstance().getLadderSetupGUIs().get(ladder).get(GUIType.Ladder_Main).open(player), 3L);

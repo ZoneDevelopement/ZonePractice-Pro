@@ -7,6 +7,8 @@ import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import dev.nandi0813.practice.ZonePractice;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -149,7 +151,15 @@ public abstract class EntityHider implements Listener {
 
             @EventHandler
             public void onPlayerQuit(PlayerQuitEvent e) {
-                removePlayer(e.getPlayer());
+                Player player = e.getPlayer();
+
+                Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+                    if (Bukkit.getPlayer(player.getUniqueId()) != null) {
+                        return;
+                    }
+
+                    removePlayer(player);
+                }, 1L);
             }
         };
     }

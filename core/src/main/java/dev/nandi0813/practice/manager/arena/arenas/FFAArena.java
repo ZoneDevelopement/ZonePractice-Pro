@@ -7,7 +7,7 @@ import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
@@ -147,7 +147,7 @@ public class FFAArena extends DisplayArena {
         List<NormalLadder> assignableLadders = this.getAssignableLadders();
         this.assignedLadders.removeIf(ladder -> !assignableLadders.contains(ladder));
 
-        GUI ladderGUI = ArenaSetupManager.getInstance().getArenaSetupGUIs().getOrDefault(this, new HashMap<>()).get(GUIType.Arena_Ladders_Single);
+        GUI ladderGUI = ArenaGUISetupManager.getInstance().getArenaSetupGUIs().getOrDefault(this, new HashMap<>()).get(GUIType.Arena_Ladders_Single);
         if (ladderGUI != null) {
             ladderGUI.update();
         }

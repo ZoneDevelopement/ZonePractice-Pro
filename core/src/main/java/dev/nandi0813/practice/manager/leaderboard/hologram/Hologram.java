@@ -147,8 +147,8 @@ public abstract class Hologram {
             case LADDER:
                 lines = new ArrayList<>(currentLB.getSecondaryType().getLadderLines());
                 if (currentLB.getLadder() != null) {
-                    lines.replaceAll(line -> line.replaceAll("%ladder_name%", currentLB.getLadder().getName()));
-                    lines.replaceAll(line -> line.replaceAll("%ladder_displayName%", currentLB.getLadder().getDisplayName()));
+                    lines.replaceAll(line -> line.replace("%ladder_name%", currentLB.getLadder().getName()));
+                    lines.replaceAll(line -> line.replace("%ladder_displayName%", currentLB.getLadder().getDisplayName()));
                 }
                 break;
         }

@@ -18,7 +18,7 @@ public enum EnableArg {
         }
 
         if (args.length != 1) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.ENABLE.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.ENABLE.COMMAND-HELP").replace("%label%", label));
             return;
         }
 

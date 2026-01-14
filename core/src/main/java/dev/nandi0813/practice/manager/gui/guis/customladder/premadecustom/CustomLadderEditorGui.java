@@ -101,10 +101,10 @@ public class CustomLadderEditorGui extends GUI {
             }
 
             ItemStack infoItem = GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.INFO")
-                    .replaceAll("%kit%", String.valueOf(this.kit))
-                    .replaceAll("%weightClass%", (ranked ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName()))
-                    .replaceAll("%ladder%", ladder.getDisplayName())
-                    .replaceAll("%ladderOriginal%", ladder.getName())
+                    .replace("%kit%", String.valueOf(this.kit))
+                    .replace("%weightClass%", (ranked ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName()))
+                    .replace("%ladder%", ladder.getDisplayName())
+                    .replace("%ladderOriginal%", ladder.getName())
                     .get();
             inventory.setItem(0, infoItem);
 
@@ -187,7 +187,7 @@ public class CustomLadderEditorGui extends GUI {
 
             if (PlayerCooldown.isActive(player, CooldownObject.CUSTOM_KIT_WEIGHTCLASS_CHANGE)) {
                 Common.sendMMMessage(player, LanguageManager.getString("LADDER.KIT-EDITOR.KIT-EDITOR.WEIGHT-CLASS-CHANGE-COOLDOWN")
-                        .replaceAll("%timeLeft%", String.valueOf(PlayerCooldown.getLeftInDouble(player, CooldownObject.CUSTOM_KIT_WEIGHTCLASS_CHANGE))));
+                        .replace("%timeLeft%", String.valueOf(PlayerCooldown.getLeftInDouble(player, CooldownObject.CUSTOM_KIT_WEIGHTCLASS_CHANGE))));
                 return;
             }
 
@@ -250,14 +250,14 @@ public class CustomLadderEditorGui extends GUI {
     private @Nullable ItemStack getRankedItem() {
         switch (ladder.getWeightClass()) {
             case UNRANKED:
-                return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.ONLY-UNRANKED").replaceAll("%weightClass%", WeightClass.UNRANKED.getName()).get();
+                return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.ONLY-UNRANKED").replace("%weightClass%", WeightClass.UNRANKED.getName()).get();
             case RANKED:
-                return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.ONLY-RANKED").replaceAll("%weightClass%", WeightClass.RANKED.getName()).get();
+                return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.ONLY-RANKED").replace("%weightClass%", WeightClass.RANKED.getName()).get();
             case UNRANKED_AND_RANKED:
                 if (this.ranked)
-                    return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.SWITCH-TO-UNRANKED").replaceAll("%weightClass%", WeightClass.UNRANKED.getName()).get();
+                    return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.SWITCH-TO-UNRANKED").replace("%weightClass%", WeightClass.UNRANKED.getName()).get();
                 else
-                    return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.SWITCH-TO-RANKED").replaceAll("%weightClass%", WeightClass.RANKED.getName()).get();
+                    return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.SWITCH-TO-RANKED").replace("%weightClass%", WeightClass.RANKED.getName()).get();
         }
         return GUIManager.getFILLER_ITEM();
     }

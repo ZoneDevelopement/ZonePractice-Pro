@@ -61,13 +61,13 @@ public class DuelRound extends Round implements PlayerWinner {
 
                         for (String reLine : LanguageManager.getList("MATCH.DUEL.MATCH-END.RANKED-EXTENSION")) {
                             rankedExtension.add(reLine
-                                    .replaceAll("%winner%", matchWinner.getName())
-                                    .replaceAll("%loser%", duel.getOppositePlayer(matchWinner).getName())
-                                    .replaceAll("%eloChange%", String.valueOf(eloChange))
-                                    .replaceAll("%winnerNewElo%", String.valueOf(wLadderStats.getElo()))
-                                    .replaceAll("%loserNewElo%", String.valueOf(lLadderStats.getElo()))
-                                    .replaceAll("%winnerOldElo%", String.valueOf(winnerOldElo))
-                                    .replaceAll("%loserOldElo%", String.valueOf(loserOldElo)));
+                                    .replace("%winner%", matchWinner.getName())
+                                    .replace("%loser%", duel.getOppositePlayer(matchWinner).getName())
+                                    .replace("%eloChange%", String.valueOf(eloChange))
+                                    .replace("%winnerNewElo%", String.valueOf(wLadderStats.getElo()))
+                                    .replace("%loserNewElo%", String.valueOf(lLadderStats.getElo()))
+                                    .replace("%winnerOldElo%", String.valueOf(winnerOldElo))
+                                    .replace("%loserOldElo%", String.valueOf(loserOldElo)));
                         }
                     }
                 }
@@ -84,8 +84,8 @@ public class DuelRound extends Round implements PlayerWinner {
             if (roundWinner != null) {
                 for (String line : LanguageManager.getList("MATCH.DUEL.MATCH-END-ROUND"))
                     duel.sendMessage(line
-                            .replaceAll("%player%", roundWinner.getName())
-                            .replaceAll("%round%", String.valueOf((match.getWinsNeeded() - duel.getWonRounds(roundWinner)))), true);
+                            .replace("%player%", roundWinner.getName())
+                            .replace("%round%", String.valueOf((match.getWinsNeeded() - duel.getWonRounds(roundWinner)))), true);
             } else {
                 for (String line : LanguageManager.getList("MATCH.DUEL.MATCH-END-ROUND-DRAW"))
                     duel.sendMessage(line, true);

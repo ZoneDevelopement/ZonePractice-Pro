@@ -35,6 +35,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -119,7 +120,12 @@ public class EntityHiderListener implements PacketListener, Listener {
 
     @Override
     public void onPacketSend(PacketSendEvent e) {
-        Player player = e.getPlayer();
+        @Nullable Player player = e.getPlayer();
+
+        //noinspection
+        if (player == null) {
+            return;
+        }
 
         if (!this.checkPlayer(player)) {
             effectTo.remove(player);

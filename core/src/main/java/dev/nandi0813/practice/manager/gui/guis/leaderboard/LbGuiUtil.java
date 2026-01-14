@@ -27,6 +27,7 @@ import java.util.Map;
 public enum LbGuiUtil {
     ;
 
+    // if it says not used don't listen to it, buggy
     public static ItemStack createProfileStatItem(Profile profile, Player opener) {
         String playerName = profile.getPlayer().getName();
         ItemStack itemStack = ClassImport.getClasses().getItemMaterialUtil().getPlayerHead(profile.getPlayer());
@@ -36,14 +37,14 @@ public enum LbGuiUtil {
         List<String> lore = new ArrayList<>();
         if (opener.equals(profile.getPlayer())) {
             for (String line : GUIFile.getStringList("GUIS.STATISTICS.SELECTOR.ICONS.OWN-PLAYER-STATS.LORE"))
-                lore.add(line.replaceAll("%player%", playerName));
+                lore.add(line.replace("%player%", playerName));
 
-            displayName = GUIFile.getString("GUIS.STATISTICS.SELECTOR.ICONS.OWN-PLAYER-STATS.NAME").replaceAll("%player%", playerName);
+            displayName = GUIFile.getString("GUIS.STATISTICS.SELECTOR.ICONS.OWN-PLAYER-STATS.NAME").replace("%player%", playerName);
         } else {
             for (String line : GUIFile.getStringList("GUIS.STATISTICS.SELECTOR.ICONS.PLAYER-STATS.LORE"))
-                lore.add(line.replaceAll("%target%", playerName));
+                lore.add(line.replace("%target%", playerName));
 
-            displayName = GUIFile.getString("GUIS.STATISTICS.SELECTOR.ICONS.PLAYER-STATS.NAME").replaceAll("%target%", playerName);
+            displayName = GUIFile.getString("GUIS.STATISTICS.SELECTOR.ICONS.PLAYER-STATS.NAME").replace("%target%", playerName);
         }
 
         itemMeta.setDisplayName(StringUtil.CC(displayName));
@@ -56,37 +57,31 @@ public enum LbGuiUtil {
     }
 
     public static GUIItem createLadderStatItem(Profile profile, NormalLadder ladder) {
-        GUIItem guiItem = null;
-        switch (ladder.getWeightClass()) {
-            case UNRANKED:
-                guiItem = GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.UNRANKED-LADDER-STATS");
-                break;
-            case RANKED:
-                guiItem = GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.RANKED-LADDER-STATS");
-                break;
-            case UNRANKED_AND_RANKED:
-                guiItem = GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.UNRANKED-RANKED-STATS");
-                break;
-        }
+        GUIItem guiItem = switch (ladder.getWeightClass()) {
+            case UNRANKED -> GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.UNRANKED-LADDER-STATS");
+            case RANKED -> GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.RANKED-LADDER-STATS");
+            case UNRANKED_AND_RANKED ->
+                    GUIFile.getGuiItem("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.UNRANKED-RANKED-STATS");
+        };
 
         switch (ladder.getWeightClass()) {
             case RANKED:
             case UNRANKED_AND_RANKED:
-                guiItem.replaceAll("%elo%", String.valueOf(profile.getStats().getLadderStat(ladder).getElo()));
+                guiItem.replace("%elo%", String.valueOf(profile.getStats().getLadderStat(ladder).getElo()));
                 break;
         }
 
         guiItem
-                .replaceAll("%ladder%", ladder.getDisplayName())
-                .replaceAll("%unranked_wins%", String.valueOf(profile.getStats().getLadderStat(ladder).getUnRankedWins()))
-                .replaceAll("%unranked_losses%", String.valueOf(profile.getStats().getLadderStat(ladder).getUnRankedLosses()))
-                .replaceAll("%unranked_w/l_ratio%", String.valueOf(profile.getStats().getLadderRatio(ladder, false)))
-                .replaceAll("%ranked_wins%", String.valueOf(profile.getStats().getLadderStat(ladder).getRankedWins()))
-                .replaceAll("%ranked_losses%", String.valueOf(profile.getStats().getLadderStat(ladder).getRankedLosses()))
-                .replaceAll("%ranked_w/l_ratio%", String.valueOf(profile.getStats().getLadderRatio(ladder, true)))
-                .replaceAll("%overall_w/l_ratio%", String.valueOf(profile.getStats().getOverallRatio(ladder)))
-                .replaceAll("%division%", (profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "&cN/A"))
-                .replaceAll("%division_short%", (profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "&cN/A"));
+                .replace("%ladder%", ladder.getDisplayName())
+                .replace("%unranked_wins%", String.valueOf(profile.getStats().getLadderStat(ladder).getUnRankedWins()))
+                .replace("%unranked_losses%", String.valueOf(profile.getStats().getLadderStat(ladder).getUnRankedLosses()))
+                .replace("%unranked_w/l_ratio%", String.valueOf(profile.getStats().getLadderRatio(ladder, false)))
+                .replace("%ranked_wins%", String.valueOf(profile.getStats().getLadderStat(ladder).getRankedWins()))
+                .replace("%ranked_losses%", String.valueOf(profile.getStats().getLadderStat(ladder).getRankedLosses()))
+                .replace("%ranked_w/l_ratio%", String.valueOf(profile.getStats().getLadderRatio(ladder, true)))
+                .replace("%overall_w/l_ratio%", String.valueOf(profile.getStats().getOverallRatio(ladder)))
+                .replace("%division%", (profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "&cN/A"))
+                .replace("%division_short%", (profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "&cN/A"));
 
         guiItem.setMaterial(ladder.getIcon().getType());
         guiItem.setDamage(ladder.getIcon().getDurability());
@@ -101,22 +96,22 @@ public enum LbGuiUtil {
 
         for (String line : GUIFile.getStringList("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.ALL-STAT.LORE")) {
             lore.add(line
-                    .replaceAll("%unranked_wins%", String.valueOf(profile.getStats().getWins(false)))
-                    .replaceAll("%unranked_losses%", String.valueOf(profile.getStats().getLosses(false)))
-                    .replaceAll("%unranked_w/l_ratio%", String.valueOf(profile.getStats().getRatio(false)))
-                    .replaceAll("%ranked_wins%", String.valueOf(profile.getStats().getWins(true)))
-                    .replaceAll("%ranked_losses%", String.valueOf(profile.getStats().getLosses(true)))
-                    .replaceAll("%ranked_w/l_ratio%", String.valueOf(profile.getStats().getRatio(true)))
-                    .replaceAll("%global_wins%", String.valueOf(profile.getStats().getGlobalWins()))
-                    .replaceAll("%global_losses%", String.valueOf(profile.getStats().getGlobalLosses()))
-                    .replaceAll("%w/l_ratio%", String.valueOf(profile.getStats().getGlobalRatio()))
-                    .replaceAll("%global_elo%", String.valueOf(profile.getStats().getGlobalElo()))
-                    .replaceAll("%division%", (profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "&cN/A"))
-                    .replaceAll("%division_short%", profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "&cN/A")
+                    .replace("%unranked_wins%", String.valueOf(profile.getStats().getWins(false)))
+                    .replace("%unranked_losses%", String.valueOf(profile.getStats().getLosses(false)))
+                    .replace("%unranked_w/l_ratio%", String.valueOf(profile.getStats().getRatio(false)))
+                    .replace("%ranked_wins%", String.valueOf(profile.getStats().getWins(true)))
+                    .replace("%ranked_losses%", String.valueOf(profile.getStats().getLosses(true)))
+                    .replace("%ranked_w/l_ratio%", String.valueOf(profile.getStats().getRatio(true)))
+                    .replace("%global_wins%", String.valueOf(profile.getStats().getGlobalWins()))
+                    .replace("%global_losses%", String.valueOf(profile.getStats().getGlobalLosses()))
+                    .replace("%w/l_ratio%", String.valueOf(profile.getStats().getGlobalRatio()))
+                    .replace("%global_elo%", String.valueOf(profile.getStats().getGlobalElo()))
+                    .replace("%division%", (profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "&cN/A"))
+                    .replace("%division_short%", profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "&cN/A")
             );
         }
 
-        itemMeta.setDisplayName(GUIFile.getString("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.ALL-STAT.NAME").replaceAll("%player%", profile.getPlayer().getName()));
+        itemMeta.setDisplayName(GUIFile.getString("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.ALL-STAT.NAME").replace("%player%", profile.getPlayer().getName()));
         itemMeta.setLore(StringUtil.CC(lore));
         itemStack.setItemMeta(itemMeta);
         return itemStack;
@@ -148,15 +143,15 @@ public enum LbGuiUtil {
                     int stat = list.get(target);
 
                     topStrings.add(StringUtil.CC(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.LADDER-LEADERBOARD.LORE.FORMAT")
-                            .replaceAll("%number%", String.valueOf(i))
-                            .replaceAll("%player%", target.getName())
-                            .replaceAll("%ladder_elo%", String.valueOf(stat))
-                            .replaceAll("%division%", (targetProfile.getStats().getDivision() != null ? Common.mmToNormal(targetProfile.getStats().getDivision().getFullName()) : ""))
-                            .replaceAll("%division_short%", (targetProfile.getStats().getDivision() != null ? Common.mmToNormal(targetProfile.getStats().getDivision().getShortName()) : ""))
+                            .replace("%number%", String.valueOf(i))
+                            .replace("%player%", target.getName())
+                            .replace("%ladder_elo%", String.valueOf(stat))
+                            .replace("%division%", (targetProfile.getStats().getDivision() != null ? Common.mmToNormal(targetProfile.getStats().getDivision().getFullName()) : ""))
+                            .replace("%division_short%", (targetProfile.getStats().getDivision() != null ? Common.mmToNormal(targetProfile.getStats().getDivision().getShortName()) : ""))
                     ));
                 } else
                     topStrings.add(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.LADDER-LEADERBOARD.LORE.FORMAT-NULL")
-                            .replaceAll("%number%", String.valueOf(i))
+                            .replace("%number%", String.valueOf(i))
                     );
             }
 
@@ -169,8 +164,8 @@ public enum LbGuiUtil {
         }
 
         return ClassImport.getClasses().getItemCreateUtil().createItem(ladder.getIcon(), GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.LADDER-LEADERBOARD.NAME")
-                        .replaceAll("%ladder%", ladder.getDisplayName())
-                        .replaceAll("%number%", String.valueOf(showPlayers))
+                        .replace("%ladder%", ladder.getDisplayName())
+                        .replace("%number%", String.valueOf(showPlayers))
                 , lore);
     }
 
@@ -201,15 +196,15 @@ public enum LbGuiUtil {
                     int stat = list.get(target);
 
                     topStrings.add(StringUtil.CC(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.LORE.FORMAT")
-                            .replaceAll("%number%", String.valueOf(i))
-                            .replaceAll("%division%", (division != null ? Common.mmToNormal(division.getFullName()) : ""))
-                            .replaceAll("%division_short%", (division != null ? Common.mmToNormal(division.getShortName()) : ""))
-                            .replaceAll("%player%", target.getName())
-                            .replaceAll("%global_elo%", String.valueOf(stat))
+                            .replace("%number%", String.valueOf(i))
+                            .replace("%division%", (division != null ? Common.mmToNormal(division.getFullName()) : ""))
+                            .replace("%division_short%", (division != null ? Common.mmToNormal(division.getShortName()) : ""))
+                            .replace("%player%", target.getName())
+                            .replace("%global_elo%", String.valueOf(stat))
                     ));
                 } else
                     topStrings.add(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.LORE.FORMAT-NULL")
-                            .replaceAll("%number%", String.valueOf(i))
+                            .replace("%number%", String.valueOf(i))
                     );
             }
 
@@ -221,7 +216,7 @@ public enum LbGuiUtil {
             }
         }
 
-        return ClassImport.getClasses().getItemCreateUtil().createItem(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.NAME").replaceAll("%number%", String.valueOf(showPlayers)), Material.valueOf(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.MATERIAL")), lore);
+        return ClassImport.getClasses().getItemCreateUtil().createItem(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.NAME").replace("%number%", String.valueOf(showPlayers)), Material.valueOf(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.MATERIAL")), lore);
     }
 
     public static ItemStack createWinLbItem(NormalLadder ladder) {
@@ -250,15 +245,15 @@ public enum LbGuiUtil {
                     int stat = list.get(target);
 
                     topStrings.add(StringUtil.CC(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.LADDER-LEADERBOARD.LORE.FORMAT")
-                            .replaceAll("%number%", String.valueOf(i))
-                            .replaceAll("%player%", target.getName())
-                            .replaceAll("%ladder_win%", String.valueOf(stat))
-                            .replaceAll("%division%", (targetProfile.getStats().getDivision() != null ? Common.mmToNormal(targetProfile.getStats().getDivision().getFullName()) : ""))
-                            .replaceAll("%division_short%", (targetProfile.getStats().getDivision() != null ? Common.mmToNormal(targetProfile.getStats().getDivision().getShortName()) : ""))
+                            .replace("%number%", String.valueOf(i))
+                            .replace("%player%", target.getName())
+                            .replace("%ladder_win%", String.valueOf(stat))
+                            .replace("%division%", (targetProfile.getStats().getDivision() != null ? Common.mmToNormal(targetProfile.getStats().getDivision().getFullName()) : ""))
+                            .replace("%division_short%", (targetProfile.getStats().getDivision() != null ? Common.mmToNormal(targetProfile.getStats().getDivision().getShortName()) : ""))
                     ));
                 } else
                     topStrings.add(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.LADDER-LEADERBOARD.LORE.FORMAT-NULL")
-                            .replaceAll("%number%", String.valueOf(i))
+                            .replace("%number%", String.valueOf(i))
                     );
             }
 
@@ -271,8 +266,8 @@ public enum LbGuiUtil {
         }
 
         return ClassImport.getClasses().getItemCreateUtil().createItem(ladder.getIcon(), GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.LADDER-LEADERBOARD.NAME")
-                        .replaceAll("%ladder%", ladder.getDisplayName())
-                        .replaceAll("%number%", String.valueOf(showPlayers))
+                        .replace("%ladder%", ladder.getDisplayName())
+                        .replace("%number%", String.valueOf(showPlayers))
                 , lore);
     }
 
@@ -303,15 +298,15 @@ public enum LbGuiUtil {
                     int stat = list.get(target);
 
                     topStrings.add(StringUtil.CC(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.LORE.FORMAT")
-                            .replaceAll("%number%", String.valueOf(i))
-                            .replaceAll("%division%", (division != null ? Common.mmToNormal(division.getFullName()) : ""))
-                            .replaceAll("%division_short%", (division != null ? Common.mmToNormal(division.getShortName()) : ""))
-                            .replaceAll("%player%", target.getName())
-                            .replaceAll("%global_win%", String.valueOf(stat))
+                            .replace("%number%", String.valueOf(i))
+                            .replace("%division%", (division != null ? Common.mmToNormal(division.getFullName()) : ""))
+                            .replace("%division_short%", (division != null ? Common.mmToNormal(division.getShortName()) : ""))
+                            .replace("%player%", target.getName())
+                            .replace("%global_win%", String.valueOf(stat))
                     ));
                 } else
                     topStrings.add(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.LORE.FORMAT-NULL")
-                            .replaceAll("%number%", String.valueOf(i))
+                            .replace("%number%", String.valueOf(i))
                     );
             }
 
@@ -323,7 +318,7 @@ public enum LbGuiUtil {
             }
         }
 
-        return ClassImport.getClasses().getItemCreateUtil().createItem(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.NAME").replaceAll("%number%", String.valueOf(showPlayers)), Material.valueOf(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.MATERIAL")), lore);
+        return ClassImport.getClasses().getItemCreateUtil().createItem(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.NAME").replace("%number%", String.valueOf(showPlayers)), Material.valueOf(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.MATERIAL")), lore);
     }
 
     public static ItemStack getRefreshItem() {

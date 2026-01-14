@@ -64,11 +64,11 @@ public enum QueueGuiUtil {
         int score = leaderboard.getList().get(player);
 
         return format
-                .replaceAll("%placement%", String.valueOf(placement))
-                .replaceAll("%player%", player.getName())
-                .replaceAll("%score%", String.valueOf(score))
-                .replaceAll("%division%", division != null ? division.getFullName() : "&cN/A")
-                .replaceAll("%division_short%", division != null ? division.getShortName() : "&cN/A");
+                .replace("%placement%", String.valueOf(placement))
+                .replace("%player%", player.getName())
+                .replace("%score%", String.valueOf(score))
+                .replace("%division%", division != null ? division.getFullName() : "&cN/A")
+                .replace("%division_short%", division != null ? division.getShortName() : "&cN/A");
     }
 
 }

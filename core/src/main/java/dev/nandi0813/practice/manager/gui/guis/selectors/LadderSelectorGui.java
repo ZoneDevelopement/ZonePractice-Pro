@@ -79,7 +79,7 @@ public class LadderSelectorGui extends GUI {
                 if (ladder.isEnabled() && ladder.isUnranked() && ladder.getMatchTypes().contains(matchType)) {
                     List<String> lore = new ArrayList<>();
                     for (String line : GUIFile.getStringList("GUIS.SELECTORS.LADDER-SELECTOR.ICONS.LADDER.LORE"))
-                        lore.add(line.replaceAll("%ladder%", ladder.getDisplayName()));
+                        lore.add(line.replace("%ladder%", ladder.getDisplayName()));
 
                     ItemStack icon = ClassImport.getClasses().getItemCreateUtil().createItem(ladder.getIcon(), GUIFile.getString("GUIS.SELECTORS.LADDER-SELECTOR.ICONS.LADDER.NAME").replace("%ladder%", ladder.getDisplayName()), lore);
 

@@ -3,14 +3,12 @@ package dev.nandi0813.practice.manager.ladder.type;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.BedFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.module.util.ClassImport;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -23,29 +21,10 @@ import org.jetbrains.annotations.NotNull;
 
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
-public class BedWars extends BedFight implements CustomConfig, LadderHandle {
+public class BedWars extends BedFight implements LadderHandle {
 
     public BedWars(String name, LadderType type) {
         super(name, type);
-    }
-
-    @Override
-    public void setCustomConfig(YamlConfiguration config) {
-        config.set("bed-respawn", this.respawnTime);
-        config.set("bedwars-respawn", null);
-    }
-
-    @Override
-    public void getCustomConfig(YamlConfiguration config) {
-        if (config.isInt("bedwars-respawn")) {
-            this.respawnTime = config.getInt("bedwars-respawn");
-        } else if (config.isInt("bed-respawn")) {
-            this.respawnTime = config.getInt("bed-respawn");
-        } else
-            this.respawnTime = 3;
-
-        if (this.respawnTime < 3 || this.respawnTime > 10)
-            this.respawnTime = 3;
     }
 
     @Override

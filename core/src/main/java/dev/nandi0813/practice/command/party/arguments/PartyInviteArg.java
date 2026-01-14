@@ -18,7 +18,7 @@ public enum PartyInviteArg {
 
     public static void InviteCommand(Player player, String label, String[] args) {
         if (args.length != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
@@ -35,7 +35,7 @@ public enum PartyInviteArg {
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.TARGET-OFFLINE").replaceAll("%target%", args[1]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.TARGET-OFFLINE").replace("%target%", args[1]));
             return;
         }
 
@@ -45,25 +45,25 @@ public enum PartyInviteArg {
         }
 
         if (party.getMembers().contains(target)) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.PLAYER-ALREADY-IN-PARTY").replaceAll("%target%", target.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.PLAYER-ALREADY-IN-PARTY").replace("%target%", target.getName()));
             return;
         }
 
         Profile targetProfile = ProfileManager.getInstance().getProfile(target);
         if (!targetProfile.isPartyInvites()) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.NO-INVITES").replaceAll("%target%", target.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.NO-INVITES").replace("%target%", target.getName()));
             return;
         }
 
         if (party.getInvites().containsKey(player) && (party.getInvites().get(player) + PartyManager.INVITE_COOLDOWN > System.currentTimeMillis())) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.ALREADY-INVITED").replaceAll("%target%", target.getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.ALREADY-INVITED").replace("%target%", target.getName()));
             return;
         }
 
         party.getInvites().put(target, System.currentTimeMillis());
 
-        party.sendMessage(LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.PLAYER-INVITED").replaceAll("%target%", target.getName()));
-        Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.PLAYER-GOT-INVITE").replaceAll("%inviter%", player.getName()));
+        party.sendMessage(LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.PLAYER-INVITED").replace("%target%", target.getName()));
+        Common.sendMMMessage(target, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.INVITE.PLAYER-GOT-INVITE").replace("%inviter%", player.getName()));
     }
 
     public static List<String> tabComplete(Player player, String[] args) {

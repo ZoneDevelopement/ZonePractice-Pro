@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.gui.setup.arena.arenasettings.ffa;
 
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
+import dev.nandi0813.practice.manager.arena.setup.ArenaSetupManager;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
@@ -10,8 +11,7 @@ import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.confirmgui.ConfirmGuiType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupUtil;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.entity.Player;
@@ -41,7 +41,7 @@ public class ArenaMainGui extends GUI {
         super(GUIType.Arena_Main);
 
         this.ffaArena = ffaArena;
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.FFA-ARENA.MAIN.TITLE").replaceAll("%arenaName%", ffaArena.getName()), 4));
+        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.FFA-ARENA.MAIN.TITLE").replace("%arenaName%", ffaArena.getName()), 4));
         this.ffaSettingsGui = new FFASettingsGui(ffaArena, this);
 
         this.build();
@@ -69,9 +69,9 @@ public class ArenaMainGui extends GUI {
         Inventory inventory = gui.get(1);
 
         inventory.setItem(10, NAME_ITEM.cloneItem()
-                .replaceAll("%arenaDisplayName%", ffaArena.getDisplayName())
-                .replaceAll("%arenaName%", ffaArena.getName())
-                .replaceAll("%arenaType%", ffaArena.getType().toString())
+                .replace("%arenaDisplayName%", ffaArena.getDisplayName())
+                .replace("%arenaName%", ffaArena.getName())
+                .replace("%arenaType%", ffaArena.getType().toString())
                 .setMaterial(ffaArena.getIcon() != null && ffaArena.getIcon().getType() != null ? ffaArena.getIcon().getType() : null)
                 .setDamage(ffaArena.getIcon() != null && ffaArena.getIcon().getDurability() != 0 ? ffaArena.getIcon().getDurability() : -1)
                 .get());
@@ -81,11 +81,11 @@ public class ArenaMainGui extends GUI {
         inventory.setItem(15, LADDER_ITEM);
 
         inventory.setItem(16, LOCATION_ITEM.cloneItem()
-                .replaceAll("%arenaName%", ffaArena.getName())
-                .replaceAll("%arenaDisplayName%", ffaArena.getDisplayName())
-                .replaceAll("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(ffaArena.getCorner1())))
-                .replaceAll("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(ffaArena.getCorner2())))
-                .replaceAll("%ffa_pos_num%", String.valueOf(ffaArena.getFfaPositions().size()))
+                .replace("%arenaName%", ffaArena.getName())
+                .replace("%arenaDisplayName%", ffaArena.getDisplayName())
+                .replace("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(ffaArena.getCorner1())))
+                .replace("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(ffaArena.getCorner2())))
+                .replace("%ffa_pos_num%", String.valueOf(ffaArena.getFfaPositions().size()))
                 .get());
 
         inventory.setItem(31, ffaArena.getFfa().isOpen() ? FFA_OPEN_ITEM : FFA_CLOSE_ITEM);
@@ -107,10 +107,13 @@ public class ArenaMainGui extends GUI {
 
         switch (slot) {
             case 10:
-                if (clickType.isLeftClick())
+                if (clickType.isLeftClick()) {
                     player.performCommand("arena info " + ffaArena.getName());
-                else if (clickType.isRightClick())
-                    ffaArena.teleport(player);
+                } else if (clickType.isRightClick()) {
+                    if (!ArenaSetupManager.getInstance().startSetup(player, ffaArena)) {
+                        player.sendMessage(Common.colorize("&cYou can't edit an enabled arena."));
+                    }
+                }
                 break;
             case 11:
                 if (ffaArena.isEnabled()) {
@@ -129,23 +132,7 @@ public class ArenaMainGui extends GUI {
                 this.ffaSettingsGui.open(player);
                 break;
             case 15:
-                ArenaSetupManager.getInstance().getArenaSetupGUIs().get(ffaArena).get(GUIType.Arena_Ladders_Single).open(player);
-                break;
-            case 16:
-                if (clickType.isLeftClick()) {
-                    if (ffaArena.isEnabled()) {
-                        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.ARENA.CANT-EDIT-ENABLED"));
-                        return;
-                    }
-
-                    ItemStack markerItem = ArenaSetupUtil.getMarkerItem((ffaArena));
-                    if (!ArenaSetupUtil.getArenaMarkerList().containsKey(markerItem))
-                        ArenaSetupUtil.getArenaMarkerList().put(markerItem, ffaArena);
-
-                    player.getInventory().addItem(markerItem);
-                } else if (clickType.isRightClick()) {
-                    ffaArena.teleport(player);
-                }
+                ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(ffaArena).get(GUIType.Arena_Ladders_Single).open(player);
                 break;
             case 27:
                 GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).open(player);

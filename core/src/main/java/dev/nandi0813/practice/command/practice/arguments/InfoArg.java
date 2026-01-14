@@ -24,18 +24,18 @@ public enum InfoArg {
         }
 
         if (args.length != 2) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.INFO.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.INFO.COMMAND-HELP").replace("%label%", label));
             return;
         }
 
         Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[1]));
         if (target == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.INFO.TARGET-NOT-FOUND").replaceAll("%target%", args[1]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.INFO.TARGET-NOT-FOUND").replace("%target%", args[1]));
             return;
         }
 
         if (!player.equals(target.getPlayer()) && target.getPlayer().isOp() && ConfigManager.getBoolean("ADMIN-SETTINGS.OP-BYPASS-INFOGUI")) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.INFO.TARGET-OP").replaceAll("%target%", target.getPlayer().getName()));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.INFO.TARGET-OP").replace("%target%", target.getPlayer().getName()));
             return;
         }
 

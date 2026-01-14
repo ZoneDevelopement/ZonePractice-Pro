@@ -165,7 +165,7 @@ public class PartySettingsGui extends GUI {
 
     public ItemStack getPlayerLimitItem(int limit) {
         return GUIFile.getGuiItem("GUIS.PARTY.PARTY-SETTINGS.ICONS.PLAYER-LIMIT")
-                .replaceAll("%limit%", String.valueOf(limit))
+                .replace("%limit%", String.valueOf(limit))
                 .get();
     }
 

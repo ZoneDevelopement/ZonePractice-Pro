@@ -79,7 +79,7 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
         }
 
         this.players.add(player);
-        this.sendMessage(LanguageManager.getString("EVENT.PLAYER-JOINED").replaceAll("%player%", player.getName()).replaceAll("%playerSize%", String.valueOf(players.size())).replaceAll("%maxPlayerSize%", String.valueOf(eventData.getMaxPlayer())), false);
+        this.sendMessage(LanguageManager.getString("EVENT.PLAYER-JOINED").replace("%player%", player.getName()).replace("%playerSize%", String.valueOf(players.size())).replace("%maxPlayerSize%", String.valueOf(eventData.getMaxPlayer())), false);
 
         InventoryManager.getInstance().setEventQueueInventory(player);
         ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.QUEUE);
@@ -103,7 +103,7 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
             this.getQueueRunnable().playerLeave();
 
             if (message) {
-                this.sendMessage(LanguageManager.getString("EVENT.PLAYER-QUIT").replaceAll("%player%", player.getName()), false);
+                this.sendMessage(LanguageManager.getString("EVENT.PLAYER-QUIT").replace("%player%", player.getName()), false);
             }
 
             InventoryManager.getInstance().setLobbyInventory(player, false);
@@ -111,7 +111,7 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
             this.killPlayer(player, false);
 
             if (message && !status.equals(EventStatus.END)) {
-                this.sendMessage(LanguageManager.getString("EVENT.PLAYER-QUIT").replaceAll("%player%", player.getName()), true);
+                this.sendMessage(LanguageManager.getString("EVENT.PLAYER-QUIT").replace("%player%", player.getName()), true);
             }
 
             if (status.equals(EventStatus.START) || status.equals(EventStatus.LIVE)) {
@@ -142,9 +142,9 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
 
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (starter instanceof Player starterPlayer)
-                Common.sendMMMessage(online, LanguageManager.getString("EVENT.EVENT-QUEUE-STARTED-PLAYER").replaceAll("%player%", starterPlayer.getName()).replaceAll("%event%", type.getName()));
+                Common.sendMMMessage(online, LanguageManager.getString("EVENT.EVENT-QUEUE-STARTED-PLAYER").replace("%player%", starterPlayer.getName()).replace("%event%", type.getName()));
             else
-                Common.sendMMMessage(online, LanguageManager.getString("EVENT.EVENT-QUEUE-STARTED-CONSOLE").replaceAll("%consoleName%", LanguageManager.getString("CONSOLE-NAME")).replaceAll("%event%", type.getName()));
+                Common.sendMMMessage(online, LanguageManager.getString("EVENT.EVENT-QUEUE-STARTED-CONSOLE").replace("%consoleName%", LanguageManager.getString("CONSOLE-NAME")).replace("%event%", type.getName()));
         }
 
         if (starter instanceof Player) {
@@ -209,7 +209,7 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
     public void forceEnd(final Player player) {
         if (player != null) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.EVENT.PLAYER-END-MSG"));
-            sendMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.EVENT.MATCH-END-MSG").replaceAll("%player%", player.getName()), true);
+            sendMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.EVENT.MATCH-END-MSG").replace("%player%", player.getName()), true);
         }
 
         if (!this.status.equals(EventStatus.COLLECTING)) {
@@ -241,7 +241,7 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
         }
 
         if (!status.equals(EventStatus.END))
-            sendMessage(LanguageManager.getString("EVENT.PLAYER-STOPPED-SPECTATING").replaceAll("%player%", player.getName()), true);
+            sendMessage(LanguageManager.getString("EVENT.PLAYER-STOPPED-SPECTATING").replace("%player%", player.getName()), true);
 
         InventoryManager.getInstance().setLobbyInventory(player, !status.equals(EventStatus.COLLECTING));
         SpectatorManager.getInstance().getSpectatorMenuGui().update();
@@ -267,9 +267,9 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
     @Override
     public GUIItem getSpectatorMenuItem() {
         return GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.EVENT-ICON")
-                .setMaterial(type.getIcon().getType()).setDamage(type.getIcon().getDurability()).replaceAll("%event_type%", type.getName())
-                .replaceAll("%event_duration%", this.getDurationRunnable().getFormattedTime())
-                .replaceAll("%players%", String.valueOf(players.size())).replaceAll("%spectators%", String.valueOf(spectators.size()));
+                .setMaterial(type.getIcon().getType()).setDamage(type.getIcon().getDurability()).replace("%event_type%", type.getName())
+                .replace("%event_duration%", this.getDurationRunnable().getFormattedTime())
+                .replace("%players%", String.valueOf(players.size())).replace("%spectators%", String.valueOf(spectators.size()));
 
     }
 

@@ -75,13 +75,13 @@ public class PlayerInvGui extends GUI {
 
     private ItemStack getHealthItem() {
         return GUIFile.getGuiItem("GUIS.PLAYER-INVENTORY.ICONS.HEALTH")
-                .replaceAll("%health%", String.valueOf(target.getHealth()))
+                .replace("%health%", String.valueOf(target.getHealth()))
                 .get();
     }
 
     private ItemStack getHungerItem() {
         return GUIFile.getGuiItem("GUIS.PLAYER-INVENTORY.ICONS.HUNGER")
-                .replaceAll("%hunger%", String.valueOf(target.getFoodLevel()))
+                .replace("%hunger%", String.valueOf(target.getFoodLevel()))
                 .get();
     }
 
@@ -90,9 +90,9 @@ public class PlayerInvGui extends GUI {
             List<String> effects = new ArrayList<>();
             for (PotionEffect potionEffect : target.getActivePotionEffects()) {
                 effects.add(GUIFile.getString("GUIS.PLAYER-INVENTORY.ICONS.EFFECT.FORMAT")
-                        .replaceAll("%name%", StringUtils.capitalize(potionEffect.getType().getName().replace("_", " ").toLowerCase()))
-                        .replaceAll("%amplifier%", String.valueOf(potionEffect.getAmplifier() + 1))
-                        .replaceAll("%time%", StringUtil.formatMillisecondsToMinutes((potionEffect.getDuration() / 20) * 1000L))
+                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getName().replace("_", " ").toLowerCase()))
+                        .replace("%amplifier%", String.valueOf(potionEffect.getAmplifier() + 1))
+                        .replace("%time%", StringUtil.formatMillisecondsToMinutes((potionEffect.getDuration() / 20) * 1000L))
                 );
             }
 

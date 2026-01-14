@@ -39,7 +39,7 @@ public class IgnoreQueueCommand implements CommandExecutor, TabExecutor {
 
         Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[0]));
         if (target == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.IGNORE-QUEUE.PLAYER-OFFLINE").replaceAll("%target%", args[0]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.IGNORE-QUEUE.PLAYER-OFFLINE").replace("%target%", args[0]));
             return false;
         }
 
@@ -50,10 +50,10 @@ public class IgnoreQueueCommand implements CommandExecutor, TabExecutor {
 
         if (!profile.getIgnoredPlayers().contains(target)) {
             profile.getIgnoredPlayers().add(target);
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.IGNORE-QUEUE.IGNORE-ON").replaceAll("%target%", args[0]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.IGNORE-QUEUE.IGNORE-ON").replace("%target%", args[0]));
         } else {
             profile.getIgnoredPlayers().remove(target);
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.IGNORE-QUEUE.IGNORE-OFF").replaceAll("%target%", args[0]));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.IGNORE-QUEUE.IGNORE-OFF").replace("%target%", args[0]));
         }
 
         return true;

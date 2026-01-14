@@ -31,7 +31,7 @@ import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.util.EntityHiderListener;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
@@ -121,7 +121,7 @@ public final class ZonePractice extends JavaPlugin {
 
             ArenaManager.getInstance().loadArenas(() ->
             {
-                ArenaSetupManager.getInstance().loadGUIs();
+                ArenaGUISetupManager.getInstance().loadGUIs();
                 startUpProgress.replace(StartUpTypes.ARENA_LOADING, true);
             });
 

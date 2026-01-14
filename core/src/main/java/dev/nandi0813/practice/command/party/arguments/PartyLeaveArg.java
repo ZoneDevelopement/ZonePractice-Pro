@@ -11,7 +11,7 @@ public enum PartyLeaveArg {
 
     public static void LeaveCommand(Player player, String label, String[] args) {
         if (args.length != 1) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.LEAVE.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PARTY.ARGUMENTS.LEAVE.COMMAND-HELP").replace("%label%", label));
             return;
         }
 

@@ -11,7 +11,6 @@ import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.enums.WeightClass;
 import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
-import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
@@ -78,27 +77,27 @@ public class Duel extends Match implements Team {
 
                 for (String line : LanguageManager.getList("MATCH.DUEL.MATCH-START-RANKED")) {
                     this.sendMessage(line
-                                    .replaceAll("%matchTypeName%", MatchType.DUEL.getName(true))
-                                    .replaceAll("%weightClassName%", WeightClass.RANKED.getMMName())
-                                    .replaceAll("%ladder%", ladder.getDisplayName())
-                                    .replaceAll("%arena%", arena.getDisplayName())
-                                    .replaceAll("%rounds%", String.valueOf(this.winsNeeded))
-                                    .replaceAll("%player1%", player1.getName())
-                                    .replaceAll("%player2%", player2.getName())
-                                    .replaceAll("%player1elo%", String.valueOf(playerProfiles.get(player1).getStats().getLadderStat(normalLadder).getElo()))
-                                    .replaceAll("%player1win%", String.valueOf(playerProfiles.get(player1).getStats().getLadderStat(normalLadder).getRankedWins()))
-                                    .replaceAll("%player2elo%", String.valueOf(playerProfiles.get(player2).getStats().getLadderStat(normalLadder).getElo()))
-                                    .replaceAll("%player2win%", String.valueOf(playerProfiles.get(player2).getStats().getLadderStat(normalLadder).getRankedWins()))
+                                    .replace("%matchTypeName%", MatchType.DUEL.getName(true))
+                                    .replace("%weightClassName%", WeightClass.RANKED.getMMName())
+                                    .replace("%ladder%", ladder.getDisplayName())
+                                    .replace("%arena%", arena.getDisplayName())
+                                    .replace("%rounds%", String.valueOf(this.winsNeeded))
+                                    .replace("%player1%", player1.getName())
+                                    .replace("%player2%", player2.getName())
+                                    .replace("%player1elo%", String.valueOf(playerProfiles.get(player1).getStats().getLadderStat(normalLadder).getElo()))
+                                    .replace("%player1win%", String.valueOf(playerProfiles.get(player1).getStats().getLadderStat(normalLadder).getRankedWins()))
+                                    .replace("%player2elo%", String.valueOf(playerProfiles.get(player2).getStats().getLadderStat(normalLadder).getElo()))
+                                    .replace("%player2win%", String.valueOf(playerProfiles.get(player2).getStats().getLadderStat(normalLadder).getRankedWins()))
                             , false);
                 }
             } else {
                 for (String line : LanguageManager.getList("MATCH.DUEL.MATCH-START-UNRANKED")) {
                     this.sendMessage(line
-                            .replaceAll("%matchTypeName%", MatchType.DUEL.getName(true))
-                            .replaceAll("%weightClassName%", WeightClass.UNRANKED.getMMName())
-                            .replaceAll("%ladder%", ladder.getDisplayName())
-                            .replaceAll("%arena%", arena.getDisplayName())
-                            .replaceAll("%rounds%", String.valueOf(this.winsNeeded)), false);
+                            .replace("%matchTypeName%", MatchType.DUEL.getName(true))
+                            .replace("%weightClassName%", WeightClass.UNRANKED.getMMName())
+                            .replace("%ladder%", ladder.getDisplayName())
+                            .replace("%arena%", arena.getDisplayName())
+                            .replace("%rounds%", String.valueOf(this.winsNeeded)), false);
                 }
             }
         }
@@ -131,7 +130,6 @@ public class Duel extends Match implements Team {
 
     @Override
     protected void killPlayer(Player player, String deathMessage) {
-        MatchFightPlayer matchFightPlayer = this.getMatchPlayers().get(player);
         DuelRound round = this.getCurrentRound();
         Player winnerPlayer = this.getOppositePlayer(player);
         boolean endRound = false;
@@ -160,14 +158,14 @@ public class Duel extends Match implements Team {
                 ClassImport.getClasses().getPlayerUtil().clearInventory(player);
                 player.setHealth(20);
                 break;
-            case BOXING:
-                break;
             case BRIDGES:
-                PlayerUtil.setFightPlayer(player);
-                matchFightPlayer.setKitChooserOrKit(this.getTeam(player));
-                this.teleportPlayer(player);
-
+                new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
                 SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
+
+                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                player.setHealth(20);
+                break;
+            case BOXING:
                 break;
             default:
                 this.getCurrentStat(player).end(true);

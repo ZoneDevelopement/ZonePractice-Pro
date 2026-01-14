@@ -63,7 +63,7 @@ public class EnchantGUI extends GUI {
 
             if (!disabled) {
                 icons.put(
-                        StaticItems.ENCHANT_GUI_ENCHANT_ICON.cloneItem().replaceAll("%enchantment%", StringUtil.getNormalizedName(enchantment.getName())).get(),
+                        StaticItems.ENCHANT_GUI_ENCHANT_ICON.cloneItem().replace("%enchantment%", StringUtil.getNormalizedName(enchantment.getName())).get(),
                         enchantment
                 );
             }
@@ -156,7 +156,7 @@ public class EnchantGUI extends GUI {
                             }
                         })
                         .text("#")
-                        .title(StaticItems.CUSTOM_DURABILITY_GUI_TITLE.replaceAll("%max%", String.valueOf(maxDurability)))
+                        .title(StaticItems.CUSTOM_DURABILITY_GUI_TITLE.replace("%max%", String.valueOf(maxDurability)))
                         .open(player);
                 break;
             case 53:
@@ -212,7 +212,7 @@ public class EnchantGUI extends GUI {
             if (enchantment.getMaxLevel() < currentLevel)
                 break;
 
-            inventory.setItem(i, StaticItems.ENCHANTMENT_LEVEL_MAP.get(i - 46).cloneItem().replaceAll("%enchantment%", StringUtil.getNormalizedName(enchantment.getName())).get());
+            inventory.setItem(i, StaticItems.ENCHANTMENT_LEVEL_MAP.get(i - 46).cloneItem().replace("%enchantment%", StringUtil.getNormalizedName(enchantment.getName())).get());
         }
     }
 

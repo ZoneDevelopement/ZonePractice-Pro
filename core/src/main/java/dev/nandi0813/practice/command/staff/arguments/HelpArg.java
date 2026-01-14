@@ -14,12 +14,12 @@ public enum HelpArg {
         }
 
         for (String line : LanguageManager.getList("COMMAND.STAFF.ARGUMENTS.HELP"))
-            Common.sendMMMessage(player, line.replaceAll("%label%", label));
+            Common.sendMMMessage(player, line.replace("%label%", label));
     }
 
     public static void run(String label) {
         for (String line : LanguageManager.getList("COMMAND.STAFF.ARGUMENTS.HELP"))
-            Common.sendConsoleMMMessage(line.replaceAll("%label%", label));
+            Common.sendConsoleMMMessage(line.replace("%label%", label));
     }
 
 }

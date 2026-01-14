@@ -63,7 +63,7 @@ public class ProfileSettingsGui extends GUI {
         inventory.setItem(14, getHidePlayersItem(profile.isHidePlayers()));
         inventory.setItem(15, getAllowSpectatorsItem(profile.isAllowSpectate()));
         inventory.setItem(16, GUIFile.getGuiItem("GUIS.PLAYER-SETTINGS.ICONS.SIDEBAR.WORLD-TIME")
-                .replaceAll("%worldTime%", profile.getWorldTime().getName())
+                .replace("%worldTime%", profile.getWorldTime().getName())
                 .get());
         inventory.setItem(22, getFlyingItem(profile.isFlying()));
 
@@ -85,7 +85,7 @@ public class ProfileSettingsGui extends GUI {
 
         if (e.getView().getTopInventory().getSize() > slot) {
             if (profile != this.profile) {
-                Common.sendMMMessage(player, LanguageManager.getString("PROFILE.CANT-CHANGE-TARGET-SETTINGS").replaceAll("%target%", this.getProfile().getPlayer().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("PROFILE.CANT-CHANGE-TARGET-SETTINGS").replace("%target%", this.getProfile().getPlayer().getName()));
                 return;
             }
 

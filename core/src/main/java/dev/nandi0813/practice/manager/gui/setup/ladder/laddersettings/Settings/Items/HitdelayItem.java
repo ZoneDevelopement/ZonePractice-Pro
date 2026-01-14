@@ -16,7 +16,7 @@ public class HitdelayItem extends SettingItem {
     @Override
     public void updateItemStack() {
         guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.HITDELAY")
-                .replaceAll("%hitdelay%", String.valueOf(ladder.getHitDelay()));
+                .replace("%hitdelay%", String.valueOf(ladder.getHitDelay()));
     }
 
     @Override

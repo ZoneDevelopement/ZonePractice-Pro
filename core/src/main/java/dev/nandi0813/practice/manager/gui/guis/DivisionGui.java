@@ -85,22 +85,22 @@ public class DivisionGui extends GUI {
 
         if (division == profile.getStats().getDivision()) {
             guiItem = CURRENT_DIVISION_ITEM.cloneItem();
-            guiItem.replaceAll("%progress_bar%", StatisticUtil.getProgressBar(100.0));
-            guiItem.replaceAll("%progress_percent%", "100.0");
+            guiItem.replace("%progress_bar%", StatisticUtil.getProgressBar(100.0));
+            guiItem.replace("%progress_percent%", "100.0");
         } else if (division.getExperience() < profile.getStats().getExperience() && division.getWin() < profile.getStats().getGlobalWins()) {
             guiItem = PAST_DIVISION_ITEM.cloneItem();
-            guiItem.replaceAll("%progress_bar%", StatisticUtil.getProgressBar(100.0));
-            guiItem.replaceAll("%progress_percent%", "100.0");
+            guiItem.replace("%progress_bar%", StatisticUtil.getProgressBar(100.0));
+            guiItem.replace("%progress_percent%", "100.0");
         } else {
             guiItem = NEXT_DIVISION_ITEM.cloneItem();
-            guiItem.replaceAll("%current_wins%", String.valueOf(profile.getStats().getGlobalWins()));
-            guiItem.replaceAll("%current_elo%", String.valueOf(profile.getStats().getGlobalElo()));
-            guiItem.replaceAll("%current_exp%", String.valueOf(profile.getStats().getExperience()));
-            guiItem.replaceAll("%win_progress_percent%", String.valueOf(DivisionUtil.getWinProgress(profile, division)));
-            guiItem.replaceAll("%elo_progress_percent%", String.valueOf(DivisionUtil.getEloProgress(profile, division)));
-            guiItem.replaceAll("%exp_progress_percent%", String.valueOf(DivisionUtil.getExperienceProgress(profile, division)));
-            guiItem.replaceAll("%progress_bar%", StatisticUtil.getProgressBar(DivisionUtil.getDivisionProgress(profile, division)));
-            guiItem.replaceAll("%progress_percent%", String.valueOf(DivisionUtil.getDivisionProgress(profile, division)));
+            guiItem.replace("%current_wins%", String.valueOf(profile.getStats().getGlobalWins()));
+            guiItem.replace("%current_elo%", String.valueOf(profile.getStats().getGlobalElo()));
+            guiItem.replace("%current_exp%", String.valueOf(profile.getStats().getExperience()));
+            guiItem.replace("%win_progress_percent%", String.valueOf(DivisionUtil.getWinProgress(profile, division)));
+            guiItem.replace("%elo_progress_percent%", String.valueOf(DivisionUtil.getEloProgress(profile, division)));
+            guiItem.replace("%exp_progress_percent%", String.valueOf(DivisionUtil.getExperienceProgress(profile, division)));
+            guiItem.replace("%progress_bar%", StatisticUtil.getProgressBar(DivisionUtil.getDivisionProgress(profile, division)));
+            guiItem.replace("%progress_percent%", String.valueOf(DivisionUtil.getDivisionProgress(profile, division)));
         }
 
         if (guiItem.getMaterial() == null)
@@ -116,12 +116,12 @@ public class DivisionGui extends GUI {
 
     private static GUIItem replacePlaceholders(final GUIItem guiItem, final Division division) {
         return guiItem
-                .replaceAll("%fullName%", division.getFullName())
-                .replaceAll("%shortName%", division.getShortName())
-                .replaceAll("%color%", String.valueOf(division.getColor()))
-                .replaceAll("%required_wins%", String.valueOf(division.getWin()))
-                .replaceAll("%required_elo%", String.valueOf(division.getElo()))
-                .replaceAll("%required_exp%", String.valueOf(division.getExperience()))
+                .replace("%fullName%", division.getFullName())
+                .replace("%shortName%", division.getShortName())
+                .replace("%color%", String.valueOf(division.getColor()))
+                .replace("%required_wins%", String.valueOf(division.getWin()))
+                .replace("%required_elo%", String.valueOf(division.getElo()))
+                .replace("%required_exp%", String.valueOf(division.getExperience()))
                 .replaceMMtoNormal();
     }
 

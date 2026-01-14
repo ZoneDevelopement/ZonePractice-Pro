@@ -80,20 +80,20 @@ public abstract class PlayersVsPlayers extends Match implements Team {
                 player.setHealth(20);
                 break;
             case BATTLE_RUSH:
-                new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
-                SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
-
                 ClassImport.getClasses().getPlayerUtil().clearInventory(player);
                 player.setHealth(20);
-                break;
-            case BOXING:
+
+                new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
+                SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
                 break;
             case BRIDGES:
-                PlayerUtil.setFightPlayer(player);
-                this.teleportPlayer(player);
-                this.getMatchPlayers().get(player).setKitChooserOrKit(this.getTeam(player));
+                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                player.setHealth(20);
 
+                new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
                 SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
+                break;
+            case BOXING:
                 break;
             default:
                 this.getCurrentStat(player).end(true);

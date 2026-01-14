@@ -151,4 +151,12 @@ public abstract class NormalArena extends BasicArena implements DisplayName {
         return portalLocations;
     }
 
+    public boolean isBedSet() {
+        return bedLoc1 != null && bedLoc2 != null;
+    }
+
+    public boolean isPortalSet() {
+        return portalLoc1 != null && portalLoc2 != null;
+    }
+
 }

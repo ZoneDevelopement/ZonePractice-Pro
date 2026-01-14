@@ -21,7 +21,7 @@ public class FireballCooldownItem extends SettingItem {
     @Override
     public void updateItemStack() {
         this.guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.FIREBALL-COOLDOWN")
-                .replaceAll("%cooldown%", String.valueOf(fireballFight.getFireballCooldown()));
+                .replace("%cooldown%", String.valueOf(fireballFight.getFireballCooldown()));
     }
 
     @Override

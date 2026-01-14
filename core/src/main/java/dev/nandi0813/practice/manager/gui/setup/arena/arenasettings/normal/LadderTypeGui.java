@@ -8,7 +8,7 @@ import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
@@ -79,7 +79,7 @@ public class LadderTypeGui extends GUI {
                     item.setDamage((short) 0);
                 }
 
-                item.replaceAll("%ladderTypeName%", ladderType.getName());
+                item.replace("%ladderTypeName%", ladderType.getName());
 
                 int slot = inventory.firstEmpty();
                 inventory.setItem(slot, item.get());
@@ -89,7 +89,7 @@ public class LadderTypeGui extends GUI {
             int slot = inventory.firstEmpty();
             inventory.setItem(slot,
                     GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-LADDERS-TYPE.ICONS.CUSTOM-KIT-ICONS.ICON")
-                            .replaceAll("%status%", arena.isAllowCustomKitOnMap() ? "&aEnabled" : "&cDisabled")
+                            .replace("%status%", arena.isAllowCustomKitOnMap() ? "&aEnabled" : "&cDisabled")
                             .get());
             customKitSlot = slot;
 
@@ -110,9 +110,9 @@ public class LadderTypeGui extends GUI {
         if (item == null) return;
 
         if (slot == 18) {
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).open(player);
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Main).open(player);
         } else if (slot == 26) {
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Single).open(player);
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Single).open(player);
         } else if (ladderTypeSlots.containsKey(slot)) {
             LadderType ladderType = ladderTypeSlots.get(slot);
             if (arena.getAssignedLadderTypes().contains(ladderType)) {
@@ -121,13 +121,25 @@ public class LadderTypeGui extends GUI {
                     arena.getAssignedLadders().removeIf(ladder -> ladder.getType().equals(ladderType));
 
                     this.update();
-                    ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Single).update();
+                    ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Single).update();
                     GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
                 } else
                     Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.ARENA.CANT-REMOVE-LADDER-TYPE"));
             } else {
                 if (arena.isBuild() == ladderType.isBuild()) {
+                    if (arena.isEnabled()) {
+                        if (ladderType.isBed() && !arena.isBedSet()) {
+                            Common.sendMMMessage(player, "<red>You can't assign bed related ladder to the arena because it's enabled and it doesn't have the beds set up.");
+                            return;
+                        }
+                        if (ladderType.isPortal() && !arena.isPortalSet()) {
+                            Common.sendMMMessage(player, "<red>You can't assign portal related ladder to the arena because it's enabled and it doesn't have the portals set up.");
+                            return;
+
+                        }
+                    }
                     arena.getAssignedLadderTypes().add(ladderType);
+
                     for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
                         if (ladder.isEnabled() && ladder.getType().equals(ladderType)) {
                             arena.getAssignedLadders().add(ladder);
@@ -135,7 +147,7 @@ public class LadderTypeGui extends GUI {
                     }
 
                     this.update();
-                    ArenaSetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Single).update();
+                    ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Single).update();
                     GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
                 } else
                     Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.ARENA.CANT-ASSIGN-BUILD-DIFF"));

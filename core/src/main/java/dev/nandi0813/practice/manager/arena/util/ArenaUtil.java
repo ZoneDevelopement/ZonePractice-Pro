@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.arena.arenas.ArenaCopy;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
+import dev.nandi0813.practice.manager.arena.setup.ArenaSetupManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
@@ -88,12 +89,12 @@ public enum ArenaUtil {
             }
 
             if (arena instanceof Arena) {
-                if (isArenaBedRelated((Arena) arena) && (arena.getBedLoc1() == null || arena.getBedLoc2() == null)) {
+                if (isArenaBedRelated((Arena) arena) && !arena.isBedSet()) {
                     Common.sendMMMessage(player, LanguageManager.getString("ARENA.STATUS-CHANGE.NO-BED"));
                     returnVal = false;
                 }
 
-                if (isArenaPortalRelated((Arena) arena) && (arena.getPortalLoc1() == null || arena.getPortalLoc2() == null)) {
+                if (isArenaPortalRelated((Arena) arena) && !arena.isPortalSet()) {
                     Common.sendMMMessage(player, LanguageManager.getString("ARENA.STATUS-CHANGE.NO-PORTAL"));
                     returnVal = false;
                 }
@@ -122,6 +123,16 @@ public enum ArenaUtil {
 
         if (!returnVal) {
             return false;
+        }
+
+        if (!arena.isEnabled()) {
+            ArenaSetupManager setupManager = ArenaSetupManager.getInstance();
+
+            List<Player> editors = new ArrayList<>(setupManager.getPlayersSettingUpArena(arena));
+            for (Player editor : editors) {
+                setupManager.stopSetup(editor);
+                editor.sendMessage(Common.colorize("&cSetup mode force ended because the arena has been &aENABLED&c!"));
+            }
         }
 
         if (arena instanceof FFAArena) {

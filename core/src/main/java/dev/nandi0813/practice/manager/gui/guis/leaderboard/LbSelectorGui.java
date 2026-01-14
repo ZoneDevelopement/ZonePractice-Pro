@@ -102,22 +102,22 @@ public class LbSelectorGui extends GUI {
             guiItem = GUIFile.getGuiItem("GUIS.STATISTICS.SELECTOR.ICONS.VIEW-DIVISIONS.HAS-NEXT");
 
             guiItem
-                    .replaceAll("%nextDivision_fullName%", Common.mmToNormal(nextDivision.getFullName()))
-                    .replaceAll("%nextDivision_shortName%", Common.mmToNormal(nextDivision.getShortName()))
-                    .replaceAll("%nextDivision_exp%", String.valueOf(nextDivision.getExperience()))
-                    .replaceAll("%nextDivision_wins%", String.valueOf(nextDivision.getWin()))
-                    .replaceAll("%progress_bar%", StatisticUtil.getProgressBar(DivisionUtil.getDivisionProgress(profile, nextDivision)))
-                    .replaceAll("%progress_percent%", String.valueOf(DivisionUtil.getDivisionProgress(profile, nextDivision)));
+                    .replace("%nextDivision_fullName%", Common.mmToNormal(nextDivision.getFullName()))
+                    .replace("%nextDivision_shortName%", Common.mmToNormal(nextDivision.getShortName()))
+                    .replace("%nextDivision_exp%", String.valueOf(nextDivision.getExperience()))
+                    .replace("%nextDivision_wins%", String.valueOf(nextDivision.getWin()))
+                    .replace("%progress_bar%", StatisticUtil.getProgressBar(DivisionUtil.getDivisionProgress(profile, nextDivision)))
+                    .replace("%progress_percent%", String.valueOf(DivisionUtil.getDivisionProgress(profile, nextDivision)));
         } else {
             guiItem = GUIFile.getGuiItem("GUIS.STATISTICS.SELECTOR.ICONS.VIEW-DIVISIONS.NO-NEXT");
         }
 
         guiItem
-                .replaceAll("%division_fullName%", Common.mmToNormal(division.getFullName()))
-                .replaceAll("%division_shortName%", Common.mmToNormal(division.getShortName()))
-                .replaceAll("%exp%", String.valueOf(profile.getStats().getExperience()))
-                .replaceAll("%elo%", String.valueOf(profile.getStats().getGlobalElo()))
-                .replaceAll("%wins%", String.valueOf(profile.getStats().getGlobalWins()));
+                .replace("%division_fullName%", Common.mmToNormal(division.getFullName()))
+                .replace("%division_shortName%", Common.mmToNormal(division.getShortName()))
+                .replace("%exp%", String.valueOf(profile.getStats().getExperience()))
+                .replace("%elo%", String.valueOf(profile.getStats().getGlobalElo()))
+                .replace("%wins%", String.valueOf(profile.getStats().getGlobalWins()));
 
         return guiItem.get();
     }

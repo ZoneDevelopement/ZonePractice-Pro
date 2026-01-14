@@ -159,7 +159,7 @@ public class MainGUI extends GUI {
                     }
 
                     for (String line : LanguageManager.getList("CUSTOM-PLAYER-KIT.CUSTOM-KIT-SHARE")) {
-                        Common.sendMMMessage(player, line.replaceAll("%code%", code != null ? code : "N/A"));
+                        Common.sendMMMessage(player, line.replace("%code%", code != null ? code : "N/A"));
                     }
                     break;
                 case 17:

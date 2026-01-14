@@ -19,7 +19,7 @@ public enum VanishArg {
         }
 
         if (args.length != 1) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.VANISH.COMMAND-HELP").replaceAll("%label%", label));
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.VANISH.COMMAND-HELP").replace("%label%", label));
             return;
         }
 

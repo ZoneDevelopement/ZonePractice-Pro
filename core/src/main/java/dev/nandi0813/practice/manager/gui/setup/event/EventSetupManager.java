@@ -100,10 +100,10 @@ public class EventSetupManager implements Listener {
         try {
             if (action.equals(Action.LEFT_CLICK_BLOCK)) {
                 eventData.setCuboidLoc1(block.getLocation());
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.EVENT.SET-FIRST-CORNER").replaceAll("%event%", eventData.getType().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.EVENT.SET-FIRST-CORNER").replace("%event%", eventData.getType().getName()));
             } else {
                 eventData.setCuboidLoc2(block.getLocation());
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.EVENT.SET-SECOND-CORNER").replaceAll("%event%", eventData.getType().getName()));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.EVENT.SET-SECOND-CORNER").replace("%event%", eventData.getType().getName()));
             }
         } catch (Exception exception) {
             Common.sendMMMessage(player, "<red>" + exception.getMessage());

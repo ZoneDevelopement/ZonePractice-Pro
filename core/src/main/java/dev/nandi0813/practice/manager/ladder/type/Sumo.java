@@ -40,9 +40,9 @@ public class Sumo extends NormalLadder implements LadderHandle {
 
         Material block = player.getLocation().getBlock().getType();
         if (block.equals(Material.WATER) || block.equals(ClassImport.getClasses().getItemMaterialUtil().getWater())) {
-            match.killPlayer(player, null, DeathCause.SPLEEF.getMessage());
+            match.killPlayer(player, null, DeathCause.SUMO.getMessage());
         } else if (block.equals(Material.LAVA) || block.equals(ClassImport.getClasses().getItemMaterialUtil().getLava())) {
-            match.killPlayer(player, null, DeathCause.SPLEEF.getMessage());
+            match.killPlayer(player, null, DeathCause.SUMO.getMessage());
         }
     }
 

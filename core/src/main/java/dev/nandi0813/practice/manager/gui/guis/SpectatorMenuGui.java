@@ -50,7 +50,7 @@ public class SpectatorMenuGui extends GUI {
         for (int page = 1; page < 20; page++) {
             if (PageUtil.isPageValid(iconsList, page, spaces) || page == 1) {
                 if (!gui.containsKey(page))
-                    gui.put(page, InventoryUtil.createInventory(GUIFile.getString("GUIS.SPECTATOR-MENU.TITLE").replaceAll("%page%", String.valueOf(page)), 5));
+                    gui.put(page, InventoryUtil.createInventory(GUIFile.getString("GUIS.SPECTATOR-MENU.TITLE").replace("%page%", String.valueOf(page)), 5));
 
                 Inventory inventory = gui.get(page);
                 inventory.clear();
@@ -69,7 +69,7 @@ public class SpectatorMenuGui extends GUI {
                 ItemStack left;
                 if (PageUtil.isPageValid(iconsList, page - 1, spaces)) {
                     left = GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.PAGE-LEFT")
-                            .replaceAll("%page%", String.valueOf(page - 1))
+                            .replace("%page%", String.valueOf(page - 1))
                             .get();
                 } else
                     left = GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.CLOSE").get();
@@ -79,7 +79,7 @@ public class SpectatorMenuGui extends GUI {
                 ItemStack right;
                 if (PageUtil.isPageValid(iconsList, page + 1, spaces)) {
                     right = GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.PAGE-RIGHT")
-                            .replaceAll("%page%", String.valueOf(page + 1))
+                            .replace("%page%", String.valueOf(page + 1))
                             .get();
                 } else
                     right = fillerItem;

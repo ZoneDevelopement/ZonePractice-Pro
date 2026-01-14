@@ -75,7 +75,15 @@ public class SidebarManager extends ConfigFile implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        unLoadSidebar(e.getPlayer());
+        Player player = e.getPlayer();
+
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            if (Bukkit.getPlayer(player.getUniqueId()) != null) {
+                return;
+            }
+
+            unLoadSidebar(player);
+        }, 1L);
     }
 
     public void loadSidebar(Player player) {
@@ -113,7 +121,11 @@ public class SidebarManager extends ConfigFile implements Listener {
     }
 
     public void close() {
-        if (scoreboardLibrary != null)
-            scoreboardLibrary.close();
+        try {
+            if (scoreboardLibrary != null) {
+                scoreboardLibrary.close();
+            }
+        } catch (IllegalStateException ignored) {
+        }
     }
 }

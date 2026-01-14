@@ -5,6 +5,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -64,6 +65,11 @@ public enum Common {
         String normalized = normalString.replace('&', LegacyComponentSerializer.SECTION_CHAR);
         Component component = LegacyComponentSerializer.legacySection().deserialize(normalized);
         return ZonePractice.getMiniMessage().serialize(component);
+    }
+
+    public static String colorize(String message) {
+        if (message == null) return "";
+        return ChatColor.translateAlternateColorCodes('&', message);
     }
 
     public static List<String> mmToNormal(List<String> list) {

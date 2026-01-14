@@ -81,8 +81,8 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
 
         // Send the player a message that they have started queueing
         Common.sendMMMessage(player, LanguageManager.getString("QUEUES.QUEUE-START")
-                .replaceAll("%weightClass%", (ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName()))
-                .replaceAll("%ladder%", ladder.getDisplayName())
+                .replace("%weightClass%", (ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName()))
+                .replace("%ladder%", ladder.getDisplayName())
         );
 
         // Start the queue based on the queue type
@@ -138,12 +138,12 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
         }
 
         queue.endQueue(true, LanguageManager.getString("QUEUES.QUEUE-STOPPED")
-                .replaceAll("%weightClass%", (ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName()))
-                .replaceAll("%ladder%", ladder.getDisplayName()));
+                .replace("%weightClass%", (ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName()))
+                .replace("%ladder%", ladder.getDisplayName()));
 
         this.endQueue(true, LanguageManager.getString("QUEUES.QUEUE-STOPPED")
-                .replaceAll("%weightClass%", (ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName()))
-                .replaceAll("%ladder%", ladder.getDisplayName()));
+                .replace("%weightClass%", (ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName()))
+                .replace("%ladder%", ladder.getDisplayName()));
 
         Duel duel = new Duel(ladder, arena, Arrays.asList(player, queue.getPlayer()), ranked, ladder.getRounds());
         duel.startMatch();
@@ -185,7 +185,7 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
     @Override
     public void run() {
         if (ladder.isFrozen() || !ladder.isEnabled()) {
-            this.endQueue(false, LanguageManager.getString("QUEUES.LADDER-FROZEN").replaceAll("%ladder%", ladder.getDisplayName()));
+            this.endQueue(false, LanguageManager.getString("QUEUES.LADDER-FROZEN").replace("%ladder%", ladder.getDisplayName()));
             return;
         }
 
@@ -197,7 +197,7 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
         }
 
         if (seconds >= maxQueueTime) {
-            this.endQueue(false, LanguageManager.getString("QUEUES.NO-MATCH-IN-TIME").replaceAll("%maxTime%", String.valueOf(maxQueueTime)));
+            this.endQueue(false, LanguageManager.getString("QUEUES.NO-MATCH-IN-TIME").replace("%maxTime%", String.valueOf(maxQueueTime)));
             return;
         }
 

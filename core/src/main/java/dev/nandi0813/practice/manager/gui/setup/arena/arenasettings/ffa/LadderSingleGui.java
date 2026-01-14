@@ -7,7 +7,7 @@ import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupManager;
+import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.util.Common;
@@ -33,7 +33,7 @@ public class LadderSingleGui extends GUI {
     public LadderSingleGui(FFAArena ffaArena) {
         super(GUIType.Arena_Ladders_Single);
 
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.FFA-ARENA.ARENA-LADDERS-SINGLE.TITLE").replaceAll("%arenaName%", ffaArena.getName()), 6));
+        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.FFA-ARENA.ARENA-LADDERS-SINGLE.TITLE").replace("%arenaName%", ffaArena.getName()), 6));
         this.ffaArena = ffaArena;
 
         this.build();
@@ -90,7 +90,7 @@ public class LadderSingleGui extends GUI {
         if (item == null) return;
 
         if (slot == 45) {
-            ArenaSetupManager.getInstance().getArenaSetupGUIs().get(ffaArena).get(GUIType.Arena_Main).open(player);
+            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(ffaArena).get(GUIType.Arena_Main).open(player);
         } else if (ladderSlots.containsKey(slot)) {
             NormalLadder ladder = LadderManager.getInstance().getLadder(ladderSlots.get(slot));
             if (ladder != null) {
@@ -117,9 +117,9 @@ public class LadderSingleGui extends GUI {
 
     private static GUIItem replacePlaceholders(GUIItem guiItem, NormalLadder ladder) {
         return guiItem.cloneItem()
-                .replaceAll("%ladderName%", ladder.getName())
-                .replaceAll("%ladderDisplayName%", ladder.getDisplayName())
-                .replaceAll("%ladderType%", ladder.getType().getName());
+                .replace("%ladderName%", ladder.getName())
+                .replace("%ladderDisplayName%", ladder.getDisplayName())
+                .replace("%ladderType%", ladder.getType().getName());
     }
 
 }

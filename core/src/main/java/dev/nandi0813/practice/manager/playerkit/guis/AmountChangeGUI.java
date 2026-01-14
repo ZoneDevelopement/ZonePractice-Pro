@@ -101,7 +101,7 @@ public class AmountChangeGUI extends GUI {
                             }
                         })
                         .text("#")
-                        .title(StaticItems.CHANGE_CUSTOM_AMOUNT_TITLE.replaceAll("%max%", String.valueOf(maxStackSize)))
+                        .title(StaticItems.CHANGE_CUSTOM_AMOUNT_TITLE.replace("%max%", String.valueOf(maxStackSize)))
                         .open(player);
                 break;
             default:
