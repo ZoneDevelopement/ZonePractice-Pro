@@ -205,8 +205,8 @@ MATCH-SETTINGS:
         HORIZONTAL: 1.9
         VERTICAL: 2.1
       FIREBALL:
-        HORIZONTAL: 1.9
-        VERTICAL: 2.1
+        HORIZONTAL: 1.7
+        VERTICAL: 1.7
   PARTY:
     SPLIT-TEAM-DAMAGE: false # In party split games, players with the same team can't hurt each other (if false).
     PARTY-VS-PARTY-TEAM-DAMAGE: false # In party vs party games, players with the same party can't hurt each other (if false).

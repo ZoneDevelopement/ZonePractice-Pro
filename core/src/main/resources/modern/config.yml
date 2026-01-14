@@ -204,8 +204,8 @@ MATCH-SETTINGS:
         HORIZONTAL: 1.9
         VERTICAL: 2.1
       FIREBALL:
-        HORIZONTAL: 1.9
-        VERTICAL: 2.1
+        HORIZONTAL: 1.8
+        VERTICAL: 1.7
   BOXING:
     CUSTOM-ATTACK-COOLDOWN:
       ENABLED: true
