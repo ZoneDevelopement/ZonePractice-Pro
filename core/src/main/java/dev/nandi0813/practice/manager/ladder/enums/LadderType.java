@@ -271,6 +271,7 @@ public enum LadderType {
                             SettingType.ROUNDS,
                             SettingType.MAX_DURATION,
                             SettingType.START_COUNTDOWN,
+                            SettingType.RESPAWN_TIME,
                             SettingType.TNT_FUSE_TIME,
                             SettingType.HEALTH_BELOW_NAME
                     )

@@ -1350,6 +1350,9 @@ MATCH:
       BATTLE-RUSH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
+      BRIDGES:
+        RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
+        PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
     MATCH-START-UNRANKED:
       - "<gray><st>----------------------------------------"
       - "%matchTypeName% <gray>- %weightClassName%"
@@ -1455,6 +1458,9 @@ MATCH:
       BATTLE-RUSH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
+      BRIDGES:
+        RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
+        PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
     MATCH-START:
       - "<gray><st>----------------------------------------"
       - "%matchTypeName%"
@@ -1513,7 +1519,8 @@ MATCH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
       BRIDGES:
-        PLAYER-DIED: "%teamColor%%player% <yellow>has <red>died<yellow>."
+        RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
+        PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
     MATCH-START:
       - "<gray><st>----------------------------------------"
       - "%matchTypeName%"

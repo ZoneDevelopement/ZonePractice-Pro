@@ -11,7 +11,6 @@ import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.enums.WeightClass;
 import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
-import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
@@ -131,7 +130,6 @@ public class Duel extends Match implements Team {
 
     @Override
     protected void killPlayer(Player player, String deathMessage) {
-        MatchFightPlayer matchFightPlayer = this.getMatchPlayers().get(player);
         DuelRound round = this.getCurrentRound();
         Player winnerPlayer = this.getOppositePlayer(player);
         boolean endRound = false;
@@ -160,14 +158,11 @@ public class Duel extends Match implements Team {
                 ClassImport.getClasses().getPlayerUtil().clearInventory(player);
                 player.setHealth(20);
                 break;
-            case BOXING:
-                break;
             case BRIDGES:
-                PlayerUtil.setFightPlayer(player);
-                matchFightPlayer.setKitChooserOrKit(this.getTeam(player));
-                this.teleportPlayer(player);
-
+                new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
                 SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
+                break;
+            case BOXING:
                 break;
             default:
                 this.getCurrentStat(player).end(true);

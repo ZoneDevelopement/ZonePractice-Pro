@@ -13,6 +13,7 @@ settings:
   epcooldown: 12
   gacooldown: 0
   startcountdown: 3
+  respawntime: 3
   knockback: DEFAULT
   matchtypes:
     - DUEL

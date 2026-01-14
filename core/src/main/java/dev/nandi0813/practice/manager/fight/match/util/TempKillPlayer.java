@@ -54,6 +54,9 @@ public class TempKillPlayer extends BukkitRunnable {
             case BATTLE_RUSH:
                 languagePath = "MATCH." + match.getType().getPathName() + ".LADDER-SPECIFIC.BATTLE-RUSH";
                 break;
+            case BRIDGES:
+                languagePath = "MATCH." + match.getType().getPathName() + ".LADDER-SPECIFIC.BRIDGES";
+                break;
             default:
                 languagePath = null;
         }

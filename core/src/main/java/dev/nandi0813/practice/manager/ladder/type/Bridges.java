@@ -2,8 +2,11 @@ package dev.nandi0813.practice.manager.ladder.type;
 
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempDead;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.PortalFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -17,7 +20,11 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class Bridges extends PortalFight implements LadderHandle {
+public class Bridges extends PortalFight implements LadderHandle, TempDead {
+
+    @Getter
+    @Setter
+    private int respawnTime;
 
     public Bridges(String name, LadderType type) {
         super(name, type);

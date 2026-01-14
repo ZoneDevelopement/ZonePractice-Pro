@@ -19,10 +19,10 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetbrains.annotations.NotNull;
 
-@Setter
-@Getter
 public abstract class BedFight extends NormalLadder implements TempDead {
 
+    @Setter
+    @Getter
     protected int respawnTime;
 
     protected BedFight(String name, LadderType type) {

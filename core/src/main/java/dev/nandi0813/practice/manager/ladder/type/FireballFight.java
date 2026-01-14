@@ -53,7 +53,6 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 public class FireballFight extends BedFight implements CustomConfig, LadderHandle {
 
     private double fireballCooldown;
-    private static final String BED_RESPAWN_PATH = "bed-respawn";
     private static final String FIREBALL_COOLDOWN_PATH = "fireball-cooldown";
 
     public FireballFight(String name, LadderType type) {
@@ -62,19 +61,11 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
     @Override
     public void setCustomConfig(YamlConfiguration config) {
-        config.set(BED_RESPAWN_PATH, respawnTime);
         config.set(FIREBALL_COOLDOWN_PATH, fireballCooldown);
     }
 
     @Override
     public void getCustomConfig(YamlConfiguration config) {
-        if (config.isInt(BED_RESPAWN_PATH)) {
-            this.respawnTime = config.getInt(BED_RESPAWN_PATH);
-            if (this.respawnTime < 3 || this.respawnTime > 10)
-                this.respawnTime = 3;
-        } else
-            this.respawnTime = 3;
-
         if (config.isDouble(FIREBALL_COOLDOWN_PATH)) {
             this.fireballCooldown = config.getDouble(FIREBALL_COOLDOWN_PATH);
             if (this.fireballCooldown < 0.5 || this.fireballCooldown > 15)
