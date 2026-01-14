@@ -161,6 +161,9 @@ public class Duel extends Match implements Team {
             case BRIDGES:
                 new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
                 SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
+
+                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                player.setHealth(20);
                 break;
             case BOXING:
                 break;

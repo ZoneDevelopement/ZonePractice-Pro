@@ -68,9 +68,6 @@ public class TempKillPlayer extends BukkitRunnable {
         if (round.getTempKill(player) != null) return;
         if (running) return;
 
-        running = true;
-        this.runTaskTimer(ZonePractice.getInstance(), 0, 20L);
-
         /*
          * Battle rush remove blocks so the players don't get them unnecessarily
          */
@@ -84,6 +81,9 @@ public class TempKillPlayer extends BukkitRunnable {
         player.setGameMode(GameMode.SPECTATOR);
         player.setAllowFlight(true);
         player.setFlying(true);
+
+        running = true;
+        this.runTaskTimer(ZonePractice.getInstance(), 0, 20L);
     }
 
     public void cancel(boolean setPlayer) {
@@ -97,7 +97,7 @@ public class TempKillPlayer extends BukkitRunnable {
         if (!setPlayer) return;
         if (!match.getPlayers().contains(player)) return;
 
-        if (languagePath != null)
+        if (languagePath != null && respawnTime > 0)
             match.sendMessage(replaceTeamNames(LanguageManager.getString(languagePath + ".PLAYER-RESPAWNED"), player, playerTeam), true);
 
         match.teleportPlayer(player);

@@ -89,12 +89,12 @@ public enum ArenaUtil {
             }
 
             if (arena instanceof Arena) {
-                if (isArenaBedRelated((Arena) arena) && (arena.getBedLoc1() == null || arena.getBedLoc2() == null)) {
+                if (isArenaBedRelated((Arena) arena) && !arena.isBedSet()) {
                     Common.sendMMMessage(player, LanguageManager.getString("ARENA.STATUS-CHANGE.NO-BED"));
                     returnVal = false;
                 }
 
-                if (isArenaPortalRelated((Arena) arena) && (arena.getPortalLoc1() == null || arena.getPortalLoc2() == null)) {
+                if (isArenaPortalRelated((Arena) arena) && !arena.isPortalSet()) {
                     Common.sendMMMessage(player, LanguageManager.getString("ARENA.STATUS-CHANGE.NO-PORTAL"));
                     returnVal = false;
                 }

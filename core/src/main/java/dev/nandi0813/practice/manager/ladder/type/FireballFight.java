@@ -270,7 +270,12 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
             if (!(mv.value() instanceof Match match)) return;
             if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) return;
 
-            e.blockList().removeIf(block -> !ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block));
+            e.blockList().removeIf(block ->
+                    !ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block) &&
+                            !block.getType().equals(Material.TNT) &&
+                            !block.hasMetadata(PLACED_IN_FIGHT)
+            );
+
             for (Block block : e.blockList())
                 BlockUtil.breakBlock(match, block);
         }

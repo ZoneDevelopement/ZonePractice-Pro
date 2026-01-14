@@ -187,7 +187,7 @@ public class LadderFile extends ConfigFile {
         if (ladder instanceof TempDead tempDead) {
             if (config.isInt("settings.respawntime")) {
                 int respawnTime = config.getInt("settings.respawntime");
-                if (respawnTime < 2 || respawnTime > 10) respawnTime = 3;
+                if (respawnTime < 0 || respawnTime > 10) respawnTime = 3;
                 tempDead.setRespawnTime(respawnTime);
             } else
                 tempDead.setRespawnTime(3);

@@ -127,7 +127,19 @@ public class LadderTypeGui extends GUI {
                     Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.ARENA.CANT-REMOVE-LADDER-TYPE"));
             } else {
                 if (arena.isBuild() == ladderType.isBuild()) {
+                    if (arena.isEnabled()) {
+                        if (ladderType.isBed() && !arena.isBedSet()) {
+                            Common.sendMMMessage(player, "<red>You can't assign bed related ladder to the arena because it's enabled and it doesn't have the beds set up.");
+                            return;
+                        }
+                        if (ladderType.isPortal() && !arena.isPortalSet()) {
+                            Common.sendMMMessage(player, "<red>You can't assign portal related ladder to the arena because it's enabled and it doesn't have the portals set up.");
+                            return;
+
+                        }
+                    }
                     arena.getAssignedLadderTypes().add(ladderType);
+
                     for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
                         if (ladder.isEnabled() && ladder.getType().equals(ladderType)) {
                             arena.getAssignedLadders().add(ladder);

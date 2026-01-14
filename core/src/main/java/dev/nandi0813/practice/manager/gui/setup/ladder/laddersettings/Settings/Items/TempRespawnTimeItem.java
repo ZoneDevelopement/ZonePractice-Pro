@@ -30,7 +30,7 @@ public class TempRespawnTimeItem extends SettingItem {
 
         int respawnTime = tempDead.getRespawnTime();
 
-        if (click.isLeftClick() && respawnTime > 3)
+        if (click.isLeftClick() && respawnTime > 0)
             tempDead.setRespawnTime(respawnTime - 1);
         else if (click.isRightClick() && respawnTime < 10)
             tempDead.setRespawnTime(respawnTime + 1);

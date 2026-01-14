@@ -1,4 +1,4 @@
-VERSION: 10
+VERSION: 11
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."

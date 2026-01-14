@@ -154,7 +154,7 @@ public class PlayerUtil implements dev.nandi0813.practice.module.interfaces.Play
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
             double distance = playerLoc.distance(tntLoc);
 
-            double impactRadius = yield * 2.0;
+            double impactRadius = yield * 1.3;
             double factor = 1.0 - (distance / impactRadius);
 
             if (factor <= 0.1) return;
