@@ -17,7 +17,6 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class BelowNameManager implements PacketListener {
 
@@ -46,8 +45,19 @@ public class BelowNameManager implements PacketListener {
                     continue;
                 }
 
-                int hp = (int) Math.floor(ClassImport.getClasses().getPlayerUtil().getPlayerHealth(otherPlayer));
-                entry.getValue().sendPacket(new WrapperPlayServerUpdateScore(otherPlayer.getName(), WrapperPlayServerUpdateScore.Action.CREATE_OR_UPDATE_ITEM, objectiveName, Optional.of(hp)));
+                double health = ClassImport.getClasses().getPlayerUtil().getPlayerHealth(otherPlayer);
+                int hp = (int) Math.round(health * 10);
+
+                Component formattedHealth = Component.text(String.format("%.1f", health));
+
+                entry.getValue().sendPacket(new WrapperPlayServerUpdateScore(
+                        otherPlayer.getName(),
+                        WrapperPlayServerUpdateScore.Action.CREATE_OR_UPDATE_ITEM,
+                        objectiveName,
+                        hp,
+                        formattedHealth,
+                        null
+                ));
             }
         }
     };
@@ -62,7 +72,13 @@ public class BelowNameManager implements PacketListener {
         }
 
         User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
-        user.sendPacket(new WrapperPlayServerScoreboardObjective(objectiveName, WrapperPlayServerScoreboardObjective.ObjectiveMode.CREATE, displayName, null));
+        user.sendPacket(new WrapperPlayServerScoreboardObjective(
+                objectiveName,
+                WrapperPlayServerScoreboardObjective.ObjectiveMode.CREATE,
+                displayName,
+                WrapperPlayServerScoreboardObjective.RenderType.INTEGER,
+                null
+        ));
         user.sendPacket(new WrapperPlayServerDisplayScoreboard(2, objectiveName));
         registeredUsers.put(player, user);
     }

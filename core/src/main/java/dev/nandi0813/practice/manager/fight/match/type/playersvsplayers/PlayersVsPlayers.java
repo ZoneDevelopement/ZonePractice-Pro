@@ -14,7 +14,7 @@ import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempDead;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.module.util.ClassImport;
@@ -59,13 +59,23 @@ public abstract class PlayersVsPlayers extends Match implements Team {
         boolean endRound = false;
         PlayersVsPlayersRound round = this.getCurrentRound();
 
-        switch (ladder.getType()) {
-            case BEDWARS:
-            case FIREBALL_FIGHT:
-                if (round.getBedStatus().get(this.getTeam(player))) {
-                    new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
+        // Use the Match helper method to handle ladder-specific death behavior
+        DeathResult result = handleLadderDeath(player);
+
+        switch (result) {
+            case TEMPORARY_DEATH:
+                // Ladder supports respawning - create temp kill
+                asRespawnableLadder().ifPresent(respawnableLadder -> {
+                    new TempKillPlayer(round, player, respawnableLadder.getRespawnTime());
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_TEMP_DEATH).play(this.getPeople());
-                } else {
+                });
+                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                player.setHealth(20);
+                break;
+
+            case ELIMINATED:
+                if (isRespawnableLadder()) {
+                    // Respawnable ladder but player is eliminated (e.g., bed destroyed)
                     this.getCurrentStat(player).end(true);
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
 
@@ -74,58 +84,49 @@ public abstract class PlayersVsPlayers extends Match implements Team {
                         endRound = true;
                     else
                         MatchPlayerUtil.hidePlayerPartyGames(player, this.players);
-                }
 
-                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
-                player.setHealth(20);
-                break;
-            case BATTLE_RUSH:
-                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
-                player.setHealth(20);
-
-                new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
-                SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
-                break;
-            case BRIDGES:
-                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
-                player.setHealth(20);
-
-                new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
-                SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
-                break;
-            case BOXING:
-                break;
-            default:
-                this.getCurrentStat(player).end(true);
-                SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
-
-                PlayerUtil.setFightPlayer(player);
-
-                if (ladder.isDropInventoryPartyGames())
-                    addEntityChange(ClassImport.getClasses().getPlayerUtil().dropPlayerInventory(player));
-                else
                     ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                    player.setHealth(20);
+                } else if (isScoringLadder()) {
+                    // Scoring ladder (like Boxing) - death doesn't end round
+                    return;
+                } else {
+                    // Default death behavior for standard ladders
+                    this.getCurrentStat(player).end(true);
+                    SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
 
-                if (this.getLanguagePath() != null) {
-                    String teamDeathMSG = LanguageManager.getString(this.getLanguagePath() + ".PLAYER-DIE");
-                    if (teamDeathMSG != null) {
-                        this.sendMessage(TeamUtil.replaceTeamNames(
-                                teamDeathMSG.replace("%playerTeamLeft%", String.valueOf(this.getTeamAlivePlayers(this.getTeam(player)).size())),
-                                player,
-                                this.getTeam(player)
-                        ), true);
+                    PlayerUtil.setFightPlayer(player);
+
+                    if (ladder.isDropInventoryPartyGames())
+                        addEntityChange(ClassImport.getClasses().getPlayerUtil().dropPlayerInventory(player));
+                    else
+                        ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+
+                    if (this.getLanguagePath() != null) {
+                        String teamDeathMSG = LanguageManager.getString(this.getLanguagePath() + ".PLAYER-DIE");
+                        if (teamDeathMSG != null) {
+                            this.sendMessage(TeamUtil.replaceTeamNames(
+                                    teamDeathMSG.replace("%playerTeamLeft%", String.valueOf(this.getTeamAlivePlayers(this.getTeam(player)).size())),
+                                    player,
+                                    this.getTeam(player)
+                            ), true);
+                        }
                     }
+
+                    winnerTeam = this.getWinnerTeam();
+                    if (winnerTeam != null)
+                        endRound = true;
+                    else
+                        MatchPlayerUtil.hidePlayerPartyGames(player, this.players);
+
+                    ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                    player.setHealth(20);
                 }
-
-                winnerTeam = this.getWinnerTeam();
-                if (winnerTeam != null)
-                    endRound = true;
-                else
-                    MatchPlayerUtil.hidePlayerPartyGames(player, this.players);
-
-                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
-                player.setHealth(20);
                 break;
+
+            case NO_ACTION:
+                // Ladder handled everything
+                return;
         }
 
         if (endRound) {

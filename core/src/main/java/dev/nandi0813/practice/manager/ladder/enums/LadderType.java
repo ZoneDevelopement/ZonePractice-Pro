@@ -8,324 +8,175 @@ import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import org.bukkit.Material;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Enum defining all available ladder types in the practice plugin.
+ * Uses LadderTypeConfig builder for cleaner configuration.
+ */
 public enum LadderType {
 
-    BASIC(
-            LanguageManager.getString("LADDER.LADDER-TYPES.BASIC.NAME"),
+    BASIC(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.BASIC.NAME",
             Material.DIRT,
-            false,
-            true,
-            LanguageManager.getList("LADDER.LADDER-TYPES.BASIC.DESCRIPTION"),
-            Basic.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.START_MOVING,
-                            SettingType.DROP_INVENTORY_TEAM,
-                            SettingType.EDITABLE,
-                            SettingType.ENDER_PEARL_COOLDOWN,
-                            SettingType.GOLDEN_APPLE_COOLDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.HUNGER,
-                            SettingType.KNOCKBACK,
-                            SettingType.MULTI_ROUND_START_COUNTDOWN,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.REGENERATION,
-                            SettingType.ROUNDS,
-                            SettingType.MAX_DURATION,
-                            SettingType.START_COUNTDOWN,
-                            SettingType.HEALTH_BELOW_NAME
-                    )
-            ),
-            false,
-            false
+                    "LADDER.LADDER-TYPES.BASIC.DESCRIPTION",
+                    Basic.class
+            )
+            .withMovementSettings()
+            .withTeamSettings()
+            .withCommonSettings()
+            .withPearlSettings()
     ),
-    BUILD(
-            LanguageManager.getString("LADDER.LADDER-TYPES.BUILD.NAME"),
+
+    BUILD(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.BUILD.NAME",
             Material.STONE_PICKAXE,
-            true,
-            true,
-            LanguageManager.getList("LADDER.LADDER-TYPES.BUILD.DESCRIPTION"),
-            Build.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.START_MOVING,
-                            SettingType.DROP_INVENTORY_TEAM,
-                            SettingType.EDITABLE,
-                            SettingType.ENDER_PEARL_COOLDOWN,
-                            SettingType.GOLDEN_APPLE_COOLDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.HUNGER,
-                            SettingType.KNOCKBACK,
-                            SettingType.MULTI_ROUND_START_COUNTDOWN,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.REGENERATION,
-                            SettingType.ROUNDS,
-                            SettingType.MAX_DURATION,
-                            SettingType.START_COUNTDOWN,
-                            SettingType.TNT_FUSE_TIME,
-                            SettingType.HEALTH_BELOW_NAME
-                    )
-            ),
-            false,
-            false
+                    "LADDER.LADDER-TYPES.BUILD.DESCRIPTION",
+                    Build.class
+            )
+            .withBuild()
+            .withMovementSettings()
+            .withTeamSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withBuildSettings()
     ),
-    SUMO(
-            LanguageManager.getString("LADDER.LADDER-TYPES.SUMO.NAME"),
+
+    SUMO(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.SUMO.NAME",
             Material.STICK,
-            false,
-            true,
-            LanguageManager.getList("LADDER.LADDER-TYPES.SUMO.DESCRIPTION"),
-            Sumo.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.DROP_INVENTORY_TEAM,
-                            SettingType.EDITABLE,
-                            SettingType.ENDER_PEARL_COOLDOWN,
-                            SettingType.GOLDEN_APPLE_COOLDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.HUNGER,
-                            SettingType.KNOCKBACK,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.REGENERATION,
-                            SettingType.ROUNDS,
-                            SettingType.MAX_DURATION,
-                            SettingType.START_COUNTDOWN,
-                            SettingType.HEALTH_BELOW_NAME
-                    )
-            ),
-            false,
-            false
+                    "LADDER.LADDER-TYPES.SUMO.DESCRIPTION",
+                    Sumo.class
+            )
+            .withTeamSettings()
+            .withCommonSettings()
+            .withPearlSettings()
     ),
-    BOXING(
-            LanguageManager.getString("LADDER.LADDER-TYPES.BOXING.NAME"),
+
+    BOXING(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.BOXING.NAME",
             Material.DIAMOND_CHESTPLATE,
-            false,
-            true,
-            LanguageManager.getList("LADDER.LADDER-TYPES.BOXING.DESCRIPTION"),
-            Boxing.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.START_MOVING,
-                            SettingType.EDITABLE,
-                            SettingType.ENDER_PEARL_COOLDOWN,
-                            SettingType.GOLDEN_APPLE_COOLDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.HUNGER,
-                            SettingType.KNOCKBACK,
-                            SettingType.MULTI_ROUND_START_COUNTDOWN,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.REGENERATION,
-                            SettingType.ROUNDS,
-                            SettingType.START_COUNTDOWN,
-                            SettingType.MAX_DURATION,
-                            SettingType.BOXING_HITS
-                    )
-            ),
-            false,
-            false
+                    "LADDER.LADDER-TYPES.BOXING.DESCRIPTION",
+                    Boxing.class
+            )
+            .withMovementSettings()
+            .withTeamSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withSetting(SettingType.BOXING_HITS)
     ),
-    PEARL_FIGHT(
-            LanguageManager.getString("LADDER.LADDER-TYPES.PEARL-FIGHT.NAME"),
+
+    PEARL_FIGHT(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.PEARL-FIGHT.NAME",
             Material.ENDER_PEARL,
-            true,
-            true,
-            LanguageManager.getList("LADDER.LADDER-TYPES.PEARL-FIGHT.DESCRIPTION"),
-            PearlFight.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.START_MOVING,
-                            SettingType.EDITABLE,
-                            SettingType.GOLDEN_APPLE_COOLDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.HUNGER,
-                            SettingType.KNOCKBACK,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.REGENERATION,
-                            SettingType.ROUNDS,
-                            SettingType.START_COUNTDOWN,
-                            SettingType.MAX_DURATION,
-                            SettingType.TEMP_BUILD_DELAY,
-                            SettingType.TNT_FUSE_TIME
-                    )
-            ),
-            false,
-            false
+                    "LADDER.LADDER-TYPES.PEARL-FIGHT.DESCRIPTION",
+                    PearlFight.class
+            )
+            .withBuild()
+            .withMovementSettings()
+            .withCommonSettings()
+            .withSettings(
+                    SettingType.GOLDEN_APPLE_COOLDOWN,
+                    SettingType.TEMP_BUILD_DELAY
+            )
+            .withBuildSettings()
     ),
-    SPLEEF(
-            LanguageManager.getString("LADDER.LADDER-TYPES.SPLEEF.NAME"),
+
+    SPLEEF(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.SPLEEF.NAME",
             ClassImport.getClasses().getItemMaterialUtil().getIronShovel(),
-            true,
-            true,
-            LanguageManager.getList("LADDER.LADDER-TYPES.SPLEEF.DESCRIPTION"),
-            Spleef.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.START_MOVING,
-                            SettingType.REGENERATION,
-                            SettingType.HUNGER,
-                            SettingType.MULTI_ROUND_START_COUNTDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.KNOCKBACK,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.ROUNDS,
-                            SettingType.MAX_DURATION,
-                            SettingType.START_COUNTDOWN
-                    )
-            ),
-            false,
-            false
+                    "LADDER.LADDER-TYPES.SPLEEF.DESCRIPTION",
+                    Spleef.class
+            )
+            .withBuild()
+            .withMovementSettings()
+            .withSettings(
+                    SettingType.REGENERATION,
+                    SettingType.HUNGER,
+                    SettingType.MULTI_ROUND_START_COUNTDOWN,
+                    SettingType.HIT_DELAY,
+                    SettingType.KNOCKBACK,
+                    SettingType.WEIGHT_CLASS,
+                    SettingType.ROUNDS,
+                    SettingType.MAX_DURATION,
+                    SettingType.START_COUNTDOWN
+            )
     ),
-    SKYWARS(
-            LanguageManager.getString("LADDER.LADDER-TYPES.SKYWARS.NAME"),
+
+    SKYWARS(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.SKYWARS.NAME",
             ClassImport.getClasses().getItemMaterialUtil().getEyeOfEnder(),
-            true,
-            true,
-            LanguageManager.getList("LADDER.LADDER-TYPES.SKYWARS.DESCRIPTION"),
-            SkyWars.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.MULTI_ROUND_START_COUNTDOWN,
-                            SettingType.DROP_INVENTORY_TEAM,
-                            SettingType.EDITABLE,
-                            SettingType.ENDER_PEARL_COOLDOWN,
-                            SettingType.GOLDEN_APPLE_COOLDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.HUNGER,
-                            SettingType.KNOCKBACK,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.REGENERATION,
-                            SettingType.ROUNDS,
-                            SettingType.START_COUNTDOWN,
-                            SettingType.MAX_DURATION,
-                            SettingType.SKYWARS_LOOT,
-                            SettingType.TNT_FUSE_TIME,
-                            SettingType.HEALTH_BELOW_NAME
-                    )
-            ),
-            false,
-            false
+                    "LADDER.LADDER-TYPES.SKYWARS.DESCRIPTION",
+                    SkyWars.class
+            )
+            .withBuild()
+            .withTeamSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withBuildSettings()
+            .withSetting(SettingType.SKYWARS_LOOT)
     ),
-    BEDWARS(
-            LanguageManager.getString("LADDER.LADDER-TYPES.BEDWARS.NAME"),
+
+    BEDWARS(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.BEDWARS.NAME",
             ClassImport.getClasses().getItemMaterialUtil().getRedBed(),
-            true,
-            false,
-            LanguageManager.getList("LADDER.LADDER-TYPES.BEDWARS.DESCRIPTION"),
-            BedWars.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.MULTI_ROUND_START_COUNTDOWN,
-                            SettingType.EDITABLE,
-                            SettingType.ENDER_PEARL_COOLDOWN,
-                            SettingType.GOLDEN_APPLE_COOLDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.HUNGER,
-                            SettingType.KNOCKBACK,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.REGENERATION,
-                            SettingType.ROUNDS,
-                            SettingType.START_COUNTDOWN,
-                            SettingType.MAX_DURATION,
-                            SettingType.RESPAWN_TIME,
-                            SettingType.TNT_FUSE_TIME,
-                            SettingType.HEALTH_BELOW_NAME
-                    )
-            ),
-            true,
-            false
+                    "LADDER.LADDER-TYPES.BEDWARS.DESCRIPTION",
+                    BedWars.class
+            )
+            .withBuild()
+            .withBed()
+            .noPartyFFA()
+            .withRespawnSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withBuildSettings()
     ),
-    FIREBALL_FIGHT(
-            LanguageManager.getString("LADDER.LADDER-TYPES.FIREBALL-FIGHT.NAME"),
+
+    FIREBALL_FIGHT(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.FIREBALL-FIGHT.NAME",
             ClassImport.getClasses().getItemMaterialUtil().getFireball(),
-            true,
-            false,
-            LanguageManager.getList("LADDER.LADDER-TYPES.FIREBALL-FIGHT.DESCRIPTION"),
-            FireballFight.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.MULTI_ROUND_START_COUNTDOWN,
-                            SettingType.EDITABLE,
-                            SettingType.ENDER_PEARL_COOLDOWN,
-                            SettingType.GOLDEN_APPLE_COOLDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.HUNGER,
-                            SettingType.KNOCKBACK,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.REGENERATION,
-                            SettingType.ROUNDS,
-                            SettingType.START_COUNTDOWN,
-                            SettingType.RESPAWN_TIME,
-                            SettingType.MAX_DURATION,
-                            SettingType.FIREBALL_COOLDOWN,
-                            SettingType.TNT_FUSE_TIME,
-                            SettingType.HEALTH_BELOW_NAME
-                    )
-            ),
-            true,
-            false
+                    "LADDER.LADDER-TYPES.FIREBALL-FIGHT.DESCRIPTION",
+                    FireballFight.class
+            )
+            .withBuild()
+            .withBed()
+            .noPartyFFA()
+            .withRespawnSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withBuildSettings()
+            .withSetting(SettingType.FIREBALL_COOLDOWN)
     ),
-    BRIDGES(
-            LanguageManager.getString("LADDER.LADDER-TYPES.BRIDGES.NAME"),
+
+    BRIDGES(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.BRIDGES.NAME",
             ClassImport.getClasses().getItemMaterialUtil().getStainedClay(),
-            true,
-            false,
-            LanguageManager.getList("LADDER.LADDER-TYPES.BRIDGES.DESCRIPTION"),
-            Bridges.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.MULTI_ROUND_START_COUNTDOWN,
-                            SettingType.EDITABLE,
-                            SettingType.ENDER_PEARL_COOLDOWN,
-                            SettingType.GOLDEN_APPLE_COOLDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.HUNGER,
-                            SettingType.KNOCKBACK,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.REGENERATION,
-                            SettingType.ROUNDS,
-                            SettingType.MAX_DURATION,
-                            SettingType.START_COUNTDOWN,
-                            SettingType.RESPAWN_TIME,
-                            SettingType.TNT_FUSE_TIME,
-                            SettingType.HEALTH_BELOW_NAME
-                    )
-            ),
-            false,
-            true
+                    "LADDER.LADDER-TYPES.BRIDGES.DESCRIPTION",
+                    Bridges.class
+            )
+            .withBuild()
+            .withPortal()
+            .noPartyFFA()
+            .withRespawnSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withBuildSettings()
     ),
-    BATTLE_RUSH(
-            LanguageManager.getString("LADDER.LADDER-TYPES.BATTLE-RUSH.NAME"),
+
+    BATTLE_RUSH(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.BATTLE-RUSH.NAME",
             ClassImport.getClasses().getItemMaterialUtil().getLilyPad(),
-            true,
-            false,
-            LanguageManager.getList("LADDER.LADDER-TYPES.BATTLE-RUSH.DESCRIPTION"),
-            BattleRush.class,
-            new ArrayList<>(
-                    Arrays.asList(
-                            SettingType.MULTI_ROUND_START_COUNTDOWN,
-                            SettingType.EDITABLE,
-                            SettingType.ENDER_PEARL_COOLDOWN,
-                            SettingType.GOLDEN_APPLE_COOLDOWN,
-                            SettingType.HIT_DELAY,
-                            SettingType.HUNGER,
-                            SettingType.KNOCKBACK,
-                            SettingType.WEIGHT_CLASS,
-                            SettingType.REGENERATION,
-                            SettingType.ROUNDS,
-                            SettingType.START_COUNTDOWN,
-                            SettingType.RESPAWN_TIME,
-                            SettingType.MAX_DURATION,
-                            SettingType.TEMP_BUILD_DELAY,
-                            SettingType.TNT_FUSE_TIME,
-                            SettingType.HEALTH_BELOW_NAME
-                    )
-            ),
-            false,
-            true
+                    "LADDER.LADDER-TYPES.BATTLE-RUSH.DESCRIPTION",
+                    BattleRush.class
+            )
+            .withBuild()
+            .withPortal()
+            .noPartyFFA()
+            .withRespawnSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withBuildSettings()
+            .withSetting(SettingType.TEMP_BUILD_DELAY)
     );
 
     private final String name;
@@ -346,16 +197,16 @@ public enum LadderType {
     @Getter
     private final boolean portal;
 
-    LadderType(String name, Material icon, boolean build, boolean isPartyFFASupported, List<String> description, Class<?> classInstance, List<SettingType> settingTypes, boolean bed, boolean portal) {
-        this.name = name;
-        this.icon = icon;
-        this.build = build;
-        this.isPartyFFASupported = isPartyFFASupported;
-        this.description = description;
-        this.classInstance = classInstance;
-        this.settingTypes = settingTypes;
-        this.bed = bed;
-        this.portal = portal;
+    LadderType(LadderTypeConfig config) {
+        this.name = LanguageManager.getString(config.getNameKey());
+        this.icon = config.getIcon();
+        this.build = config.isBuild();
+        this.isPartyFFASupported = config.isPartyFFASupported();
+        this.description = LanguageManager.getList(config.getDescriptionKey());
+        this.classInstance = config.getClassInstance();
+        this.settingTypes = config.getSettingTypes();
+        this.bed = config.isHasBed();
+        this.portal = config.isHasPortal();
     }
 
     public String getName() {

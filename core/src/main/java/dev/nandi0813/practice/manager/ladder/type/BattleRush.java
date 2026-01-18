@@ -1,10 +1,12 @@
 package dev.nandi0813.practice.manager.ladder.type;
 
 import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.match.Round;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.RespawnableLadder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuild;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempDead;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.PortalFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import lombok.Getter;
@@ -19,7 +21,7 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class BattleRush extends PortalFight implements LadderHandle, TempBuild, TempDead {
+public class BattleRush extends PortalFight implements LadderHandle, TempBuild, RespawnableLadder {
 
     @Getter
     @Setter
@@ -31,6 +33,17 @@ public class BattleRush extends PortalFight implements LadderHandle, TempBuild, 
 
     public BattleRush(String name, LadderType type) {
         super(name, type);
+    }
+
+    @Override
+    public DeathResult handlePlayerDeath(Player player, Match match, Round round) {
+        // BattleRush always respawns players - they only get eliminated by portal score
+        return DeathResult.TEMPORARY_DEATH;
+    }
+
+    @Override
+    public String getRespawnLanguagePath() {
+        return "BATTLE-RUSH";
     }
 
     @Override

@@ -15,7 +15,7 @@ import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempDead;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.playerdisplay.nametag.NametagManager;
 import dev.nandi0813.practice.manager.profile.Profile;
@@ -134,51 +134,47 @@ public class Duel extends Match implements Team {
         Player winnerPlayer = this.getOppositePlayer(player);
         boolean endRound = false;
 
-        switch (ladder.getType()) {
-            case BEDWARS:
-            case FIREBALL_FIGHT:
-                if (round.getBedStatus().get(this.getTeam(player))) {
-                    new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
+        // Use the Match helper method to handle ladder-specific death behavior
+        DeathResult result = handleLadderDeath(player);
+
+        switch (result) {
+            case TEMPORARY_DEATH:
+                // Ladder supports respawning - create temp kill
+                asRespawnableLadder().ifPresent(respawnableLadder -> {
+                    new TempKillPlayer(round, player, respawnableLadder.getRespawnTime());
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_TEMP_DEATH).play(this.getPeople());
-                } else {
+                });
+                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                player.setHealth(20);
+                break;
+
+            case ELIMINATED:
+                if (isRespawnableLadder()) {
+                    // Respawnable ladder but player is eliminated (e.g., bed destroyed)
                     this.getCurrentStat(player).end(true);
                     this.teleportPlayer(player);
-
                     endRound = true;
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
+                    ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                    player.setHealth(20);
+                } else if (isScoringLadder()) {
+                    // Scoring ladder (like Boxing) - death doesn't end round
+                    return;
+                } else {
+                    // Default death behavior for standard ladders
+                    this.getCurrentStat(player).end(true);
+                    PlayerUtil.setFightPlayer(player);
+                    addEntityChange(ClassImport.getClasses().getPlayerUtil().dropPlayerInventory(player));
+                    ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                    player.setHealth(20);
+                    SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
+                    endRound = true;
                 }
-
-                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
-                player.setHealth(20);
                 break;
-            case BATTLE_RUSH:
-                new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
-                SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
 
-                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
-                player.setHealth(20);
-                break;
-            case BRIDGES:
-                new TempKillPlayer(round, player, ((TempDead) ladder).getRespawnTime());
-                SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
-
-                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
-                player.setHealth(20);
-                break;
-            case BOXING:
-                break;
-            default:
-                this.getCurrentStat(player).end(true);
-
-                PlayerUtil.setFightPlayer(player);
-                addEntityChange(ClassImport.getClasses().getPlayerUtil().dropPlayerInventory(player));
-
-                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
-                player.setHealth(20);
-                SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
-
-                endRound = true;
-                break;
+            case NO_ACTION:
+                // Ladder handled everything
+                return;
         }
 
         if (endRound) {

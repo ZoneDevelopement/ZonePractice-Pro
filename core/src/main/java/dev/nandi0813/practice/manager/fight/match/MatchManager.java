@@ -5,11 +5,13 @@ import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
 import dev.nandi0813.practice.manager.fight.belowname.BelowNameManager;
-import dev.nandi0813.practice.manager.fight.match.listener.LadderSettingListener;
+import dev.nandi0813.practice.manager.fight.match.listener.MatchEventListener;
+import dev.nandi0813.practice.manager.fight.match.listener.MatchLifecycleListener;
 import dev.nandi0813.practice.manager.fight.match.listener.StartListener;
 import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
 import dev.nandi0813.practice.manager.fight.match.util.RematchRequest;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
+import dev.nandi0813.practice.manager.ladder.settings.CentralizedSettingListener;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import lombok.Getter;
@@ -38,7 +40,17 @@ public class MatchManager {
 
     private MatchManager() {
         ZonePractice practice = ZonePractice.getInstance();
-        Bukkit.getPluginManager().registerEvents(new LadderSettingListener(), practice);
+
+        // Register match lifecycle listener (start/end events)
+        Bukkit.getPluginManager().registerEvents(new MatchLifecycleListener(), practice);
+
+        // Register match event listener (teleport, projectile, kit selection, etc.)
+        Bukkit.getPluginManager().registerEvents(new MatchEventListener(), practice);
+
+        // Register centralized setting listener (all setting handlers)
+        Bukkit.getPluginManager().registerEvents(new CentralizedSettingListener(), practice);
+
+        // Register start command listener
         Bukkit.getPluginManager().registerEvents(new StartListener(), practice);
 
         this.belowNameManager = BelowNameManager.getInstance();

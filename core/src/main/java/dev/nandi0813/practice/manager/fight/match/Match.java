@@ -21,6 +21,9 @@ import dev.nandi0813.practice.manager.gui.guis.MatchStatsGui;
 import dev.nandi0813.practice.manager.inventory.Inventory;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.RespawnableLadder;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.ScoringLadder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -236,6 +239,75 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     public Statistic getCurrentStat(Player player) {
         return this.getCurrentRound().getStatistics().getOrDefault(
                 ProfileManager.getInstance().getUuids().get(player), null);
+    }
+
+    /*
+     * Ladder behavior helper methods
+     * These methods provide convenient access to ladder-specific behaviors
+     * through the new interface system.
+     */
+
+    /**
+     * Checks if the current ladder supports player respawning.
+     *
+     * @return true if the ladder implements RespawnableLadder
+     */
+    public boolean isRespawnableLadder() {
+        return ladder instanceof RespawnableLadder;
+    }
+
+    /**
+     * Checks if the current ladder has custom scoring mechanics.
+     *
+     * @return true if the ladder implements ScoringLadder
+     */
+    public boolean isScoringLadder() {
+        return ladder instanceof ScoringLadder;
+    }
+
+    /**
+     * Gets the ladder as a RespawnableLadder if applicable.
+     *
+     * @return Optional containing the RespawnableLadder, or empty if not applicable
+     */
+    public Optional<RespawnableLadder> asRespawnableLadder() {
+        return ladder instanceof RespawnableLadder r ? Optional.of(r) : Optional.empty();
+    }
+
+    /**
+     * Gets the ladder as a ScoringLadder if applicable.
+     *
+     * @return Optional containing the ScoringLadder, or empty if not applicable
+     */
+    public Optional<ScoringLadder> asScoringLadder() {
+        return ladder instanceof ScoringLadder s ? Optional.of(s) : Optional.empty();
+    }
+
+    /**
+     * Handles player death using the ladder's respawn mechanics.
+     * Returns the death result which indicates how the death should be processed.
+     *
+     * @param player The player who died
+     * @return DeathResult indicating the outcome, or ELIMINATED if ladder doesn't support respawning
+     */
+    public DeathResult handleLadderDeath(Player player) {
+        if (ladder instanceof RespawnableLadder respawnableLadder) {
+            return respawnableLadder.handlePlayerDeath(player, this, getCurrentRound());
+        }
+        return DeathResult.ELIMINATED;
+    }
+
+    /**
+     * Checks if the round should end based on ladder-specific scoring.
+     *
+     * @param triggerPlayer The player who triggered the scoring check
+     * @return true if the round should end based on scoring conditions
+     */
+    public boolean shouldEndRoundByScoring(Player triggerPlayer) {
+        if (ladder instanceof ScoringLadder scoringLadder) {
+            return scoringLadder.shouldEndRound(this, getCurrentRound(), triggerPlayer);
+        }
+        return false;
     }
 
     /*

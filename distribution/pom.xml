@@ -16,7 +16,33 @@
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <server.path.old>./target</server.path.old>
+        <server.path.modern>./target</server.path.modern>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>dev.nandi0813</groupId>
+            <artifactId>practice-core</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.nandi0813</groupId>
+            <artifactId>practice-spigot_modern</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.nandi0813</groupId>
+            <artifactId>practice-spigot_1_8_8</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <defaultGoal>clean install</defaultGoal>
@@ -72,27 +98,41 @@
         </plugins>
     </build>
 
-    <dependencies>
-        <dependency>
-            <groupId>dev.nandi0813</groupId>
-            <artifactId>practice-core</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
+    <profiles>
+        <profile>
+            <id>auto-deploy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>copy-jar-to-test-servers</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <echo message="Copying plugins for the test servers..." />
 
-        <dependency>
-            <groupId>dev.nandi0813</groupId>
-            <artifactId>practice-spigot_modern</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
+                                        <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                              tofile="${server.path.old}/plugins/ZPP.jar"
+                                              overwrite="true" failonerror="false" />
 
-        <dependency>
-            <groupId>dev.nandi0813</groupId>
-            <artifactId>practice-spigot_1_8_8</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
-    
+                                        <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                              tofile="${server.path.modern}/plugins/ZPP.jar"
+                                              overwrite="true" failonerror="false" />
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

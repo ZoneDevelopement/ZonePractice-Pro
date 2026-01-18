@@ -53,6 +53,80 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
 public abstract class LadderTypeListener implements Listener {
 
+    // ========== HELPER METHODS ==========
+
+    /**
+     * Gets the match for a player if they are in MATCH status.
+     *
+     * @return Match or null if player is not in a match
+     */
+    protected Match getPlayerMatch(Player player) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (!profile.getStatus().equals(ProfileStatus.MATCH)) return null;
+        return MatchManager.getInstance().getLiveMatchByPlayer(player);
+    }
+
+    /**
+     * Validates if a block placement/break is within build limits.
+     * Sends appropriate error messages to the player.
+     *
+     * @return true if within limits, false otherwise
+     */
+    protected boolean isWithinBuildLimits(Block block, Match match, Player player) {
+        // Check height limit
+        if (block.getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(match.getArena())) {
+            Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OVER-LIMIT"));
+            return false;
+        }
+
+        // Check side build limit
+        if (match.getSideBuildLimit() != null && !match.getSideBuildLimit().contains(block)) {
+            Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OVER-LIMIT"));
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Tracks a placed block and its metadata, including the block underneath if it's dirt.
+     */
+    protected void trackPlacedBlock(Block block, Match match) {
+        match.addBlockChange(ClassImport.createChangeBlock(block));
+
+        Block underBlock = block.getLocation().subtract(0, 1, 0).getBlock();
+        if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock)) {
+            match.addBlockChange(ClassImport.createChangeBlock(underBlock));
+        }
+    }
+
+    /**
+     * Extracts match from item metadata.
+     */
+    protected Match getMatchFromItemMetadata(Item item) {
+        if (!item.hasMetadata(HIDDEN_ITEM)) return null;
+
+        MetadataValue metadataValue = BlockUtil.getMetadata(item, HIDDEN_ITEM);
+        if (ListenerUtil.checkMetaData(metadataValue)) return null;
+        if (!(metadataValue.value() instanceof Match)) return null;
+
+        return (Match) metadataValue.value();
+    }
+
+    /**
+     * Delegates event to ladder handle if available.
+     *
+     * @return true if event was handled by ladder
+     */
+    protected boolean delegateToLadderHandle(org.bukkit.event.Event event, Match match) {
+        if (match.getLadder() instanceof LadderHandle ladderHandle) {
+            return ladderHandle.handleEvents(event, match);
+        }
+        return false;
+    }
+
+    // ========== EVENT HANDLERS ==========
+
     protected static void arrowDisplayHearth(Player shooter, Player target, double finalDamage) {
         if (!PermanentConfig.DISPLAY_ARROW_HIT) return;
         if (shooter == null || target == null) return;
@@ -107,10 +181,7 @@ public abstract class LadderTypeListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         Player player = e.getPlayer();
-        Profile profile = ProfileManager.getInstance().getProfile(player);
-
-        if (!profile.getStatus().equals(ProfileStatus.MATCH)) return;
-        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+        Match match = getPlayerMatch(player);
         if (match == null) return;
 
         if (match.getCurrentStat(player).isSet()) {
@@ -131,19 +202,14 @@ public abstract class LadderTypeListener implements Listener {
             }
         }
 
-        if (match.getLadder() instanceof LadderHandle ladderHandle) {
-            ladderHandle.handleEvents(e, match);
-        }
+        delegateToLadderHandle(e, match);
     }
 
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         Player player = e.getPlayer();
-        Profile profile = ProfileManager.getInstance().getProfile(player);
-
-        if (!profile.getStatus().equals(ProfileStatus.MATCH)) return;
-        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+        Match match = getPlayerMatch(player);
         if (match == null) return;
 
         if (!match.getLadder().isBuild()) {
@@ -160,21 +226,12 @@ public abstract class LadderTypeListener implements Listener {
             return;
         }
 
-        if (e.getBlock().getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(match.getArena())) {
-            Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OVER-LIMIT"));
-
-            e.setCancelled(true);
-            return;
-        } else if (match.getSideBuildLimit() != null && !match.getSideBuildLimit().contains(e.getBlock())) {
-            Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OVER-LIMIT"));
-
+        if (!isWithinBuildLimits(e.getBlock(), match, player)) {
             e.setCancelled(true);
             return;
         }
 
-        if (match.getLadder() instanceof LadderHandle ladderHandle) {
-            ladderHandle.handleEvents(e, match);
-        }
+        delegateToLadderHandle(e, match);
 
         if (e.isCancelled()) return;
 
@@ -194,12 +251,7 @@ public abstract class LadderTypeListener implements Listener {
         }
 
         if (!e.isCancelled()) {
-            match.addBlockChange(ClassImport.createChangeBlock(block));
-
-            Block underBlock = block.getLocation().subtract(0, 1, 0).getBlock();
-            if (underBlock.getType() == Material.DIRT) {
-                match.addBlockChange(ClassImport.createChangeBlock(underBlock));
-            }
+            trackPlacedBlock(block, match);
         }
     }
 
@@ -207,11 +259,7 @@ public abstract class LadderTypeListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         Player player = e.getPlayer();
-
-        Profile profile = ProfileManager.getInstance().getProfile(player);
-        if (!profile.getStatus().equals(ProfileStatus.MATCH)) return;
-
-        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+        Match match = getPlayerMatch(player);
         if (match == null) return;
 
         Ladder ladder = match.getLadder();
@@ -228,27 +276,17 @@ public abstract class LadderTypeListener implements Listener {
         Block block = e.getBlockPlaced();
         if (!match.getArena().getCuboid().contains(block.getLocation())) {
             Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OUTSIDE-ARENA"));
-
             e.setCancelled(true);
             return;
         }
 
-        if (block.getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(match.getArena())) {
-            Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OVER-LIMIT"));
-
-            e.setCancelled(true);
-            return;
-        } else if (match.getSideBuildLimit() != null && !match.getSideBuildLimit().contains(e.getBlock())) {
-            Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OVER-LIMIT"));
-
+        if (!isWithinBuildLimits(block, match, player)) {
             e.setCancelled(true);
             return;
         }
 
-        if (match.getLadder() instanceof LadderHandle ladderHandle) {
-            if (ladderHandle.handleEvents(e, match)) {
-                return;
-            }
+        if (delegateToLadderHandle(e, match)) {
+            return;
         }
 
         if (!e.isCancelled()) {
@@ -277,21 +315,13 @@ public abstract class LadderTypeListener implements Listener {
             return;
         }
 
-        if (match.getLadder() instanceof LadderHandle ladderHandle) {
-            ladderHandle.handleEvents(e, match);
-
-            if (e.isCancelled()) return;
-        }
+        delegateToLadderHandle(e, match);
+        if (e.isCancelled()) return;
 
         Block toBlock = e.getToBlock();
         if (!toBlock.getType().isSolid()) {
             toBlock.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), match));
-            match.addBlockChange(ClassImport.createChangeBlock(toBlock));
-
-            Block underBlock = toBlock.getLocation().subtract(0, 1, 0).getBlock();
-            if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock)) {
-                match.addBlockChange(ClassImport.createChangeBlock(underBlock));
-            }
+            trackPlacedBlock(toBlock, match);
         }
     }
 
@@ -299,10 +329,7 @@ public abstract class LadderTypeListener implements Listener {
     @EventHandler
     public void onBucketEmpty(PlayerBucketEmptyEvent e) {
         Player player = e.getPlayer();
-        Profile profile = ProfileManager.getInstance().getProfile(player);
-
-        if (!profile.getStatus().equals(ProfileStatus.MATCH)) return;
-        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+        Match match = getPlayerMatch(player);
         if (match == null) return;
 
         Ladder ladder = match.getLadder();
@@ -320,27 +347,16 @@ public abstract class LadderTypeListener implements Listener {
 
         if (!match.getArena().getCuboid().contains(block.getLocation())) {
             Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OUTSIDE-ARENA"));
-
             e.setCancelled(true);
             return;
         }
 
-        if (block.getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(match.getArena())) {
-            Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OVER-LIMIT"));
-
-            e.setCancelled(true);
-            return;
-        } else if (match.getSideBuildLimit() != null && !match.getSideBuildLimit().contains(block)) {
-            Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OVER-LIMIT"));
-
+        if (!isWithinBuildLimits(block, match, player)) {
             e.setCancelled(true);
             return;
         }
 
-        if (match.getLadder() instanceof LadderHandle ladderHandle) {
-            ladderHandle.handleEvents(e, match);
-        }
-
+        delegateToLadderHandle(e, match);
         if (e.isCancelled()) return;
 
         block.getRelative(e.getBlockFace()).setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), match));
@@ -351,11 +367,7 @@ public abstract class LadderTypeListener implements Listener {
                 if (ListenerUtil.checkMetaData(mv) || relative.getType().isSolid()) continue;
 
                 relative.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), match));
-                match.addBlockChange(ClassImport.createChangeBlock(relative));
-
-                Block underBlock = relative.getLocation().subtract(0, 1, 0).getBlock();
-                if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock))
-                    match.addBlockChange(ClassImport.createChangeBlock(underBlock));
+                trackPlacedBlock(relative, match);
             }
         }
     }
@@ -364,10 +376,7 @@ public abstract class LadderTypeListener implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         Player player = e.getPlayer();
-        Profile profile = ProfileManager.getInstance().getProfile(player);
-
-        if (!profile.getStatus().equals(ProfileStatus.MATCH)) return;
-        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+        Match match = getPlayerMatch(player);
         if (match == null) return;
 
         RoundStatus roundStatus = match.getCurrentRound().getRoundStatus();
@@ -411,20 +420,14 @@ public abstract class LadderTypeListener implements Listener {
             }
         }
 
-        if (match.getLadder() instanceof LadderHandle ladderHandle) {
-            ladderHandle.handleEvents(e, match);
-        }
+        delegateToLadderHandle(e, match);
     }
 
 
     @EventHandler
     public void onCraft(CraftItemEvent e) {
         Player player = (Player) e.getWhoClicked();
-
-        Profile profile = ProfileManager.getInstance().getProfile(player);
-        if (!profile.getStatus().equals(ProfileStatus.MATCH)) return;
-
-        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+        Match match = getPlayerMatch(player);
         if (match == null) return;
 
         if (!match.getLadder().getType().equals(LadderType.BUILD) || !match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
@@ -433,10 +436,7 @@ public abstract class LadderTypeListener implements Listener {
             return;
         }
 
-        Ladder ladder = match.getLadder();
-        if (ladder instanceof LadderHandle ladderHandle) {
-            ladderHandle.handleEvents(e, match);
-        }
+        delegateToLadderHandle(e, match);
     }
 
 
@@ -454,11 +454,8 @@ public abstract class LadderTypeListener implements Listener {
             return;
         }
 
-        Ladder ladder = match.getLadder();
-        if (ladder instanceof LadderHandle ladderHandle) {
-            if (ladderHandle.handleEvents(e, match)) {
-                return;
-            }
+        if (delegateToLadderHandle(e, match)) {
+            return;
         }
 
         Entity entity = e.getItemDrop();
@@ -468,29 +465,11 @@ public abstract class LadderTypeListener implements Listener {
 
     @EventHandler
     public void onTarget(EntityTargetEvent e) {
-        if (!(e.getEntity() instanceof Item item1)) {
-            return;
-        }
+        if (!(e.getEntity() instanceof Item item1)) return;
+        if (!(e.getTarget() instanceof Item item2)) return;
 
-        if (!(e.getTarget() instanceof Item item2)) {
-            return;
-        }
-
-        Match match1 = null;
-        if (item1.hasMetadata(HIDDEN_ITEM)) {
-            MetadataValue metadataValue = BlockUtil.getMetadata(item1, HIDDEN_ITEM);
-            if (!ListenerUtil.checkMetaData(metadataValue) && metadataValue.value() instanceof Match) {
-                match1 = (Match) metadataValue.value();
-            }
-        }
-
-        Match match2 = null;
-        if (item2.hasMetadata(HIDDEN_ITEM)) {
-            MetadataValue metadataValue = BlockUtil.getMetadata(item2, HIDDEN_ITEM);
-            if (!ListenerUtil.checkMetaData(metadataValue) && metadataValue.value() instanceof Match) {
-                match2 = (Match) metadataValue.value();
-            }
-        }
+        Match match1 = getMatchFromItemMetadata(item1);
+        Match match2 = getMatchFromItemMetadata(item2);
 
         if (match1 != match2) {
             e.setCancelled(true);
@@ -513,10 +492,7 @@ public abstract class LadderTypeListener implements Listener {
             return;
         }
 
-        Ladder ladder = match.getLadder();
-        if (ladder instanceof LadderHandle ladderHandle) {
-            ladderHandle.handleEvents(e, match);
-        }
+        delegateToLadderHandle(e, match);
     }
 
     @EventHandler
@@ -529,10 +505,7 @@ public abstract class LadderTypeListener implements Listener {
         ItemStack item = e.getItem();
         if (item == null) return;
 
-        Ladder ladder = match.getLadder();
-        if (ladder instanceof LadderHandle ladderHandle) {
-            ladderHandle.handleEvents(e, match);
-        }
+        delegateToLadderHandle(e, match);
     }
 
     @EventHandler

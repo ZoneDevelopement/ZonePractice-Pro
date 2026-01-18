@@ -2,8 +2,8 @@ package dev.nandi0813.practice.manager.ladder.abstraction.normal;
 
 import dev.nandi0813.practice.manager.backend.ConfigFile;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.RespawnableLadder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuild;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempDead;
 import dev.nandi0813.practice.manager.ladder.enums.WeightClassType;
 import dev.nandi0813.practice.manager.ladder.util.LadderFileUtil;
 import dev.nandi0813.practice.util.BasicItem;
@@ -50,8 +50,8 @@ public class LadderFile extends ConfigFile {
         config.set("settings.tntfusetime", ladder.getTntFuseTime());
         config.set("settings.healthbelowname", ladder.isHealthBelowName());
 
-        if (ladder instanceof TempDead tempDead) {
-            config.set("settings.respawntime", tempDead.getRespawnTime());
+        if (ladder instanceof RespawnableLadder respawnableLadder) {
+            config.set("settings.respawntime", respawnableLadder.getRespawnTime());
         }
 
         if (ladder instanceof TempBuild tempBuild) {
@@ -184,13 +184,13 @@ public class LadderFile extends ConfigFile {
         } else
             ladder.setTntFuseTime(4);
 
-        if (ladder instanceof TempDead tempDead) {
+        if (ladder instanceof RespawnableLadder respawnableLadder) {
             if (config.isInt("settings.respawntime")) {
                 int respawnTime = config.getInt("settings.respawntime");
                 if (respawnTime < 0 || respawnTime > 10) respawnTime = 3;
-                tempDead.setRespawnTime(respawnTime);
+                respawnableLadder.setRespawnTime(respawnTime);
             } else
-                tempDead.setRespawnTime(3);
+                respawnableLadder.setRespawnTime(3);
         }
 
         if (ladder instanceof TempBuild tempBuild) {

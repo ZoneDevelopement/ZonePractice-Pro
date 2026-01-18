@@ -28,6 +28,11 @@ public class BedWars extends BedFight implements LadderHandle {
     }
 
     @Override
+    public String getRespawnLanguagePath() {
+        return "BED-WARS";
+    }
+
+    @Override
     public boolean handleEvents(Event e, Match match) {
         if (e instanceof EntityDamageEvent) {
             onPlayerDamage((EntityDamageEvent) e, match);

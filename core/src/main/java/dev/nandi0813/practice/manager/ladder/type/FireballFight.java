@@ -60,6 +60,11 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
     }
 
     @Override
+    public String getRespawnLanguagePath() {
+        return "FIREBALL-FIGHT";
+    }
+
+    @Override
     public void setCustomConfig(YamlConfiguration config) {
         config.set(FIREBALL_COOLDOWN_PATH, fireballCooldown);
     }

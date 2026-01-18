@@ -88,34 +88,35 @@ public class PartyFFA extends Match {
 
     @Override
     protected void killPlayer(Player player, String deathMessage) {
-        switch (ladder.getType()) {
-            case BEDWARS:
-            case FIREBALL_FIGHT:
-            case BATTLE_RUSH:
-            case BOXING:
-            case BRIDGES:
-                break;
-            default:
-                this.getCurrentStat(player).end(true);
-                SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
-
-                PlayerUtil.setFightPlayer(player);
-
-                if (ladder.isDropInventoryPartyGames())
-                    addEntityChange(ClassImport.getClasses().getPlayerUtil().dropPlayerInventory(player));
-                else
-                    ClassImport.getClasses().getPlayerUtil().clearInventory(player);
-
-                PartyFfaRound round = this.getCurrentRound();
-                Player winnerPlayer = this.getWinnerPlayer();
-                if (winnerPlayer != null) {
-                    round.setRoundWinner(winnerPlayer);
-                    round.endRound();
-                } else
-                    MatchPlayerUtil.hidePlayerPartyGames(player, this.players);
-
-                break;
+        // Check if this ladder supports FFA mode using the Match helper methods
+        // Respawnable ladders don't support standard FFA death mechanics
+        if (isRespawnableLadder()) {
+            return; // Respawnable ladders (Bridges, BedWars, etc.) don't support FFA
         }
+
+        // Scoring ladders (like Boxing) have special win conditions
+        if (isScoringLadder()) {
+            return;
+        }
+
+        // Default death behavior for standard ladders in FFA
+        this.getCurrentStat(player).end(true);
+        SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
+
+        PlayerUtil.setFightPlayer(player);
+
+        if (ladder.isDropInventoryPartyGames())
+            addEntityChange(ClassImport.getClasses().getPlayerUtil().dropPlayerInventory(player));
+        else
+            ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+
+        PartyFfaRound round = this.getCurrentRound();
+        Player winnerPlayer = this.getWinnerPlayer();
+        if (winnerPlayer != null) {
+            round.setRoundWinner(winnerPlayer);
+            round.endRound();
+        } else
+            MatchPlayerUtil.hidePlayerPartyGames(player, this.players);
     }
 
     @Override

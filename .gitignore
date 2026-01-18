@@ -110,6 +110,7 @@ buildNumber.properties
 
 # Common working directory
 run/
+test_servers/
 
 # Local scripts
 reset-dev.sh

@@ -9,6 +9,7 @@ import dev.nandi0813.practice.manager.fight.match.interfaces.PlayerWinner;
 import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersVsPlayers;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.ScoringLadder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import lombok.Getter;
@@ -24,13 +25,30 @@ import java.util.List;
 
 @Setter
 @Getter
-public class Boxing extends NormalLadder implements CustomConfig, LadderHandle {
+public class Boxing extends NormalLadder implements CustomConfig, LadderHandle, ScoringLadder {
 
     private int boxingWinHit;
     private static final String BOXING_WINHIT_PATH = "boxing-winhit";
 
     public Boxing(String name, LadderType type) {
         super(name, type);
+    }
+
+    @Override
+    public boolean shouldEndRound(Match match, Round round, Player player) {
+        // Check if the player has reached the required hits
+        int requiredStrokes = boxingWinHit - 1;
+        return match.getCurrentStat(player).getHit() == requiredStrokes;
+    }
+
+    @Override
+    public String getWinConditionMessage() {
+        return "reached " + boxingWinHit + " hits";
+    }
+
+    @Override
+    public String getScoringDisplayName() {
+        return "Hits";
     }
 
     @Override
