@@ -46,7 +46,7 @@ public enum SettingHandlerRegistry {
      */
     private static void register(SettingType type, SettingHandler<?> handler) {
         HANDLERS.put(type, handler);
-        LOGGER.info("Registered handler for " + type.name() + ": " + handler.getClass().getSimpleName());
+        // LOGGER.info("Registered handler for " + type.name() + ": " + handler.getClass().getSimpleName());
     }
 
     /**

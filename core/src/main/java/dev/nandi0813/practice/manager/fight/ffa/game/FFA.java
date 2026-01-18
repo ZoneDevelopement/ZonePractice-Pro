@@ -22,7 +22,7 @@ import dev.nandi0813.practice.manager.spectator.SpectatorManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
-import dev.nandi0813.practice.util.fightmapchange.FightChange;
+import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
@@ -69,7 +69,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         this.open = true;
 
         if (this.build) {
-            this.buildRollback = new BuildRollback(new FightChange(arena.getCuboid()));
+            this.buildRollback = new BuildRollback(new FightChangeOptimized(arena.getCuboid()));
             this.buildRollback.begin();
         }
 
@@ -193,7 +193,8 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         }
     }
 
-    public FightChange getFightChange() {
+    @Override
+    public FightChangeOptimized getFightChange() {
         if (this.getBuildRollback() == null)
             return null;
         return this.getBuildRollback().getFightChange();

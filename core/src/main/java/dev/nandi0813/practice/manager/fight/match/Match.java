@@ -35,7 +35,7 @@ import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
-import dev.nandi0813.practice.util.fightmapchange.FightChange;
+import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
@@ -79,7 +79,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     protected final List<Player> spectators = new ArrayList<>(); // List of the spectators
 
     // Fight change
-    private final FightChange fightChange;
+    private final FightChangeOptimized fightChange;
 
     @Setter
     protected MatchStatus status;
@@ -94,7 +94,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             this.matchPlayers.put(player, new MatchFightPlayer(player, this));
             this.addPlayerToBelowName(player);
         }
-        this.fightChange = new FightChange(arena.getCuboid());
+        this.fightChange = new FightChangeOptimized(arena.getCuboid());
 
         if (arena.getSideBuildLimit() > 0)
             this.sideBuildLimit = MatchUtil.getSideBuildLimitCube(this.arena.getCuboid().clone(), arena.getSideBuildLimit());
@@ -159,7 +159,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             } else if (spectators.contains(player)) {
                 for (Entity entity : arena.getCuboid().getEntities()) {
                     if (!(entity instanceof Player)) {
-                        if (fightChange.getEntityChange().contains(entity))
+                        if (fightChange.containsEntity(entity))
                             ClassImport.getClasses().getEntityHider().showEntity(player, entity);
                         else
                             ClassImport.getClasses().getEntityHider().hideEntity(player, entity);

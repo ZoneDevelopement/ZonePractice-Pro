@@ -18,7 +18,7 @@ import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.cooldown.CooldownObject;
 import dev.nandi0813.practice.util.cooldown.GoldenAppleRunnable;
 import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
-import dev.nandi0813.practice.util.fightmapchange.FightChange;
+import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -129,7 +129,7 @@ public abstract class FFAListener implements Listener {
         if (ffa == null) return;
         if (!ffa.isBuild()) return;
 
-        FightChange fightChange = ffa.getFightChange();
+        FightChangeOptimized fightChange = ffa.getFightChange();
         if (fightChange == null) return;
 
         fightChange.addEntityChange(e.getEntity());

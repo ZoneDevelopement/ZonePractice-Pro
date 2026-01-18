@@ -10,7 +10,6 @@ import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.RespawnableLadder;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
-import dev.nandi0813.practice.util.fightmapchange.TempBlockChange;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -75,9 +74,9 @@ public class TempKillPlayer extends BukkitRunnable {
         /*
          * Battle rush remove blocks so the players don't get them unnecessarily
          */
-        for (TempBlockChange tempBlockChange : match.getFightChange().getTempBuildPlacedBlocks().values()) {
-            if (tempBlockChange.getPlayer().equals(player)) {
-                tempBlockChange.setReturnItem(false);
+        for (var entry : match.getFightChange().getBlocks().values()) {
+            if (entry.getTempData() != null && entry.getTempData().getPlayer().equals(player)) {
+                entry.getTempData().setReturnItem(false);
             }
         }
 

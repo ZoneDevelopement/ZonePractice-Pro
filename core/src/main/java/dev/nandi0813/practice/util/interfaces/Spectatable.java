@@ -2,7 +2,7 @@ package dev.nandi0813.practice.util.interfaces;
 
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.util.Cuboid;
-import dev.nandi0813.practice.util.fightmapchange.FightChange;
+import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -23,6 +23,6 @@ public interface Spectatable {
 
     void sendMessage(String message, boolean spectate);
 
-    FightChange getFightChange();
+    FightChangeOptimized getFightChange();
 
 }

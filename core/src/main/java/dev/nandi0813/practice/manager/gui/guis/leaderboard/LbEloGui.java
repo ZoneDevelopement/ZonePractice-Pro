@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
 import dev.nandi0813.practice.manager.gui.GUI;
+import dev.nandi0813.practice.manager.gui.GUICache;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
@@ -21,6 +22,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+
 public class LbEloGui extends GUI {
 
     private final GUI backTo;
@@ -35,7 +38,8 @@ public class LbEloGui extends GUI {
 
     @Override
     public void build() {
-        update();
+        // Use cache-aware update
+        update(false);
     }
 
     @Override
@@ -68,7 +72,26 @@ public class LbEloGui extends GUI {
             inventory.setItem(53, LbGuiUtil.getRefreshItem());
 
             updatePlayers();
+
+            // Cache the result after building
+            if (GUICache.shouldCache(type)) {
+                GUICache.putCache(type, gui);
+            }
         });
+    }
+
+    @Override
+    public void open(Player player, int page) {
+        // Try to load from cache first before opening
+        if (GUICache.shouldCache(type) && GUICache.isCacheValid(type)) {
+            Map<Integer, Inventory> cached = GUICache.getCached(type);
+            if (cached != null) {
+                gui.clear();
+                gui.putAll(cached);
+            }
+        }
+
+        super.open(player, page);
     }
 
     @Override
@@ -87,8 +110,12 @@ public class LbEloGui extends GUI {
                 return;
             }
 
-            update();
+            // Invalidate cache and force refresh
+            GUICache.invalidate(type);
+            update(); // Force refresh
             PlayerCooldown.addCooldown(player, CooldownObject.LEADERBOARD_GUI_REFRESH, 30);
+
+            Common.sendMMMessage(player, "<green>Leaderboard refreshed! Data will be cached for 5 minutes.");
         }
     }
 

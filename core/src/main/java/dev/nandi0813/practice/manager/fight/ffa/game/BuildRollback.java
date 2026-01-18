@@ -1,7 +1,7 @@
 package dev.nandi0813.practice.manager.fight.ffa.game;
 
 import dev.nandi0813.practice.manager.backend.ConfigManager;
-import dev.nandi0813.practice.util.fightmapchange.FightChange;
+import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Runnable;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -11,9 +11,9 @@ public class BuildRollback extends Runnable {
 
     private static final int ROLLBACK_SECONDS = ConfigManager.getInt("FFA.ROLLBACK.SECONDS");
 
-    private final FightChange fightChange;
+    private final FightChangeOptimized fightChange;
 
-    public BuildRollback(FightChange fightChange) {
+    public BuildRollback(FightChangeOptimized fightChange) {
         super(20L, 20L, false);
         this.fightChange = fightChange;
         this.seconds = ROLLBACK_SECONDS;

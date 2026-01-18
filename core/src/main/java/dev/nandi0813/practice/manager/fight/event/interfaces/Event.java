@@ -19,7 +19,7 @@ import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
-import dev.nandi0813.practice.util.fightmapchange.FightChange;
+import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -38,7 +38,7 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
     @Getter
     protected final List<Player> players;
     @Getter
-    protected final FightChange fightChange;
+    protected final FightChangeOptimized fightChange;
     // Runnable
     @Getter
     protected final QueueRunnable queueRunnable;
@@ -61,7 +61,7 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
 
         this.players = new ArrayList<>();
         this.spectators = new ArrayList<>();
-        this.fightChange = new FightChange(eventData.getCuboid());
+        this.fightChange = new FightChangeOptimized(eventData.getCuboid());
 
         this.queueRunnable = new QueueRunnable(this);
         this.endRunnable = new EndRunnable(this);

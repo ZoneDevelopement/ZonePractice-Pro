@@ -5,8 +5,8 @@ import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
 import dev.nandi0813.practice.module.util.ClassImport;
-import dev.nandi0813.practice.util.fightmapchange.FightChange;
-import dev.nandi0813.practice.util.fightmapchange.TempBlockChange;
+import dev.nandi0813.practice.util.fightmapchange.BlockPosition;
+import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -69,7 +69,7 @@ public interface TempBuild {
 
         Block block = e.getBlock();
         Location location = block.getLocation();
-        FightChange fightChange = match.getFightChange();
+        FightChangeOptimized fightChange = match.getFightChange();
 
         if (!block.hasMetadata(PLACED_IN_FIGHT)) return;
 
@@ -79,15 +79,15 @@ public interface TempBuild {
             return;
         }
 
-        if (fightChange.getTempBuildPlacedBlocks().containsKey(location)) {
-            TempBlockChange tempBlockChange = fightChange.getTempBuildPlacedBlocks().get(location);
-            Player player = tempBlockChange.getPlayer();
+        long pos = BlockPosition.encode(location);
+        FightChangeOptimized.BlockChangeEntry entry = fightChange.getBlocks().get(pos);
+        if (entry != null && entry.getTempData() != null) {
+            FightChangeOptimized.TempBlockData tempData = entry.getTempData();
+            Player player = tempData.getPlayer();
 
             if (match.getPlayers().contains(player) && !match.getCurrentStat(player).isSet()) {
                 e.setCancelled(true);
-
-                tempBlockChange.reset();
-                fightChange.getTempBuildPlacedBlocks().remove(location);
+                tempData.reset(fightChange, entry.getChangedBlock(), pos);
             }
         }
     }
