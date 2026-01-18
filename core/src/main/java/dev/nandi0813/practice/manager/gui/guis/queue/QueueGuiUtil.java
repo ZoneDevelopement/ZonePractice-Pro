@@ -7,6 +7,7 @@ import dev.nandi0813.practice.manager.leaderboard.LeaderboardManager;
 import dev.nandi0813.practice.manager.leaderboard.types.LbMainType;
 import dev.nandi0813.practice.manager.leaderboard.types.LbSecondaryType;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.Profile;
 import org.bukkit.OfflinePlayer;
 
 import java.util.ArrayList;
