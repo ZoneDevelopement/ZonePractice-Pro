@@ -60,7 +60,13 @@ public enum QueueGuiUtil {
         }
 
         OfflinePlayer player = players.get(placement - 1);
-        Division division = ProfileManager.getInstance().getProfile(player).getStats().getDivision();
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        Division division;
+        if (profile != null) {
+            Division division = profile.getStats().getDivision();
+        }
+        
         int score = leaderboard.getList().get(player);
 
         return format
