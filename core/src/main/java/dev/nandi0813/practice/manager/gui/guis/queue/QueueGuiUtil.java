@@ -64,7 +64,7 @@ public enum QueueGuiUtil {
 
         Division division;
         if (profile != null) {
-            Division division = profile.getStats().getDivision();
+            division = profile.getStats().getDivision();
         }
         
         int score = leaderboard.getList().get(player);
