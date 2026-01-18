@@ -33,6 +33,8 @@ public interface ItemMaterialUtil {
 
     Material getGoldSword();
 
+    Material getClock();
+
     EntityType getTNTMineCart();
 
     ItemStack getPlayerHead(OfflinePlayer player);

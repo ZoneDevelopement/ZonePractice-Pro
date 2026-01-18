@@ -38,7 +38,7 @@ public abstract class GUI {
      *
      * @param forceRefresh If true, bypass cache and rebuild
      */
-    public void update(boolean forceRefresh) {
+    public boolean update(boolean forceRefresh) {
         // If this GUI type should be cached and we're not forcing refresh
         if (!forceRefresh && GUICache.shouldCache(type)) {
             // Check if we have valid cached data
@@ -49,7 +49,7 @@ public abstract class GUI {
                     gui.clear();
                     gui.putAll(cached);
                     updatePlayers();
-                    return;
+                    return false;
                 }
             }
         }
@@ -61,6 +61,8 @@ public abstract class GUI {
         if (GUICache.shouldCache(type)) {
             GUICache.putCache(type, gui);
         }
+
+        return true;
     }
 
     public void open(Player player, int page) {

@@ -13,6 +13,7 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StatisticUtil;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -23,12 +24,15 @@ public class LbSelectorGui extends GUI {
 
     private static final ItemStack FILLER_ITEM = GUIFile.getGuiItem("GUIS.STATISTICS.SELECTOR.ICONS.FILLER-ITEM").get();
 
+    @Getter
+    private static LbEloGui sharedLbEloGui;
+    @Getter
+    private static LbWinGui sharedLbWinGui;
+
     private final Player opener;
     private final Profile profile;
 
     private final LbProfileStatGui lbProfileStatGui;
-    private final LbEloGui lbEloGui;
-    private final LbWinGui lbWinGui;
 
     public LbSelectorGui(Player opener, Profile profile) {
         super(GUIType.Leaderboard_Selector);
@@ -38,8 +42,13 @@ public class LbSelectorGui extends GUI {
         this.profile = profile;
 
         this.lbProfileStatGui = new LbProfileStatGui(profile, this);
-        this.lbEloGui = new LbEloGui(this);
-        this.lbWinGui = new LbWinGui(this);
+
+        if (sharedLbEloGui == null) {
+            sharedLbEloGui = new LbEloGui(this);
+        }
+        if (sharedLbWinGui == null) {
+            sharedLbWinGui = new LbWinGui(this);
+        }
 
         build();
     }
@@ -82,13 +91,13 @@ public class LbSelectorGui extends GUI {
                 lbProfileStatGui.open(player);
                 break;
             case 20:
-                lbEloGui.open(player);
+                sharedLbEloGui.open(player);
                 break;
             case 22:
                 new DivisionGui(profile, this).open(player);
                 break;
             case 24:
-                lbWinGui.open(player);
+                sharedLbWinGui.open(player);
                 break;
         }
     }

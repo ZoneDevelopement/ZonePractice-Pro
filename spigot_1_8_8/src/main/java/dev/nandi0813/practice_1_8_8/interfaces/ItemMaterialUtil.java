@@ -74,6 +74,11 @@ public class ItemMaterialUtil implements dev.nandi0813.practice.module.interface
     }
 
     @Override
+    public Material getClock() {
+        return Material.WATCH;
+    }
+
+    @Override
     public EntityType getTNTMineCart() {
         return EntityType.MINECART_TNT;
     }

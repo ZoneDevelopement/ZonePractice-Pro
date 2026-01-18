@@ -321,8 +321,21 @@ public enum LbGuiUtil {
         return ClassImport.getClasses().getItemCreateUtil().createItem(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.NAME").replace("%number%", String.valueOf(showPlayers)), Material.valueOf(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.MATERIAL")), lore);
     }
 
-    public static ItemStack getRefreshItem() {
-        return GUIFile.getGuiItem("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.REFRESH-ITEM").get();
+    public static ItemStack getCacheInfoItem() {
+        List<String> lore = new ArrayList<>();
+        lore.add("&8&m------------------------");
+        lore.add("&7This leaderboard automatically");
+        lore.add("&7updates every &e5 minutes&7.");
+        lore.add("");
+        lore.add("&7Last update: &aRecently");
+        lore.add("&7Next update: &eWithin 5 minutes");
+        lore.add("&8&m------------------------");
+
+        return ClassImport.getClasses().getItemCreateUtil().createItem(
+                "&eAuto-Update Info",
+                ClassImport.getClasses().getItemMaterialUtil().getClock(),
+                lore
+        );
     }
 
 }
