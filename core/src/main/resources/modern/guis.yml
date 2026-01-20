@@ -1296,7 +1296,7 @@ GUIS:
               - "&7&l/arena set icon %arenaName% &7command."
               - ""
               - "&c&lNote: &7You have to hold the item in your hand"
-              - "&7and name it first with the &7&l/rename &7command."
+              - "&7and name it first with the &7&l/prac rename &7command."
           SETTINGS:
             NAME: "&5Settings"
             MATERIAL: REDSTONE
@@ -1550,7 +1550,7 @@ GUIS:
               - "&7You can set the arenas icon by using the"
               - "&7&l/arena set icon %arenaName% &7command."
               - "&c&lNote: &7You have to hold the item in your hand"
-              - "&7and name it first with the &7&l/rename &7command."
+              - "&7and name it first with the &7&l/prac rename &7command."
           STATUS:
             ENABLED:
               NAME: "&7Status: &aEnabled"
@@ -1789,7 +1789,7 @@ GUIS:
               - "&7&l/ladder set icon %ladder% &7command."
               - ""
               - "&b&lNote: &7You have to hold the item in your hand and"
-              - "&7you have to name it first with the &l/rename &7command."
+              - "&7you have to name it first with the &l/prac rename &7command."
           STATUS:
             ENABLED:
               NAME: "&7Status: &aEnabled"
