@@ -116,10 +116,12 @@ public enum LadderUtil {
 
         Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
         {
+            /*
             for (Arena arena : ArenaManager.getInstance().getNormalArenas()) {
                 if (arena.getAssignedLadderTypes().contains(ladder.getType()))
                     arena.getAssignedLadders().add(ladder);
             }
+             */
 
             // Update ladder setup GUIs
             for (Map<GUIType, GUI> map : HologramSetupManager.getInstance().getHologramSetupGUIs().values())
