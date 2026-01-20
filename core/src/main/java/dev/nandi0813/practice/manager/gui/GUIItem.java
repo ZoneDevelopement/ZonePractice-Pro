@@ -32,6 +32,8 @@ public class GUIItem {
     private List<String> lore = new ArrayList<>();
     @Getter
     private boolean glowing = false;
+    @Getter
+    private boolean unbreakable = false;
     private final List<ItemFlag> itemFlags = new ArrayList<>();
     private final Map<Enchantment, Integer> enchantments = new HashMap<>();
     private int durability = -1;
@@ -101,6 +103,11 @@ public class GUIItem {
         return this;
     }
 
+    public GUIItem setUnbreakable(boolean unbreakable) {
+        this.unbreakable = unbreakable;
+        return this;
+    }
+
 
     public ItemStack get() {
         if (material == null) return null;
@@ -130,6 +137,11 @@ public class GUIItem {
 
             if (glowing && enchantments.isEmpty()) {
                 itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+            }
+
+            // Apply unbreakable status if set (for modern versions to prevent durability bars)
+            if (unbreakable) {
+                itemMeta = ClassImport.getClasses().getLadderUtil().setUnbreakable(itemMeta, true);
             }
 
             if (!itemFlags.isEmpty()) {
@@ -240,6 +252,7 @@ public class GUIItem {
         guiItem.setDamage(this.damage);
         guiItem.setMaterial(this.material);
         guiItem.setGlowing(this.glowing);
+        guiItem.setUnbreakable(this.unbreakable);
         guiItem.setAmount(this.amount);
         guiItem.setDurability(this.durability);
         guiItem.itemFlags.addAll(this.itemFlags);

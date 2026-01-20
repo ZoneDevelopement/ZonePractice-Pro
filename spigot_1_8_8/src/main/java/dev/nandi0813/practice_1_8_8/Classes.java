@@ -26,6 +26,7 @@ public class Classes implements dev.nandi0813.practice.module.util.Classes {
     public BedUtil bedUtil = new dev.nandi0813.practice_1_8_8.interfaces.BedUtil();
     public EntityHider entityHider = new dev.nandi0813.practice_1_8_8.interfaces.EntityHider(ZonePractice.getInstance(), EntityHider.Policy.BLACKLIST);
     public StatisticListener statisticListener = new dev.nandi0813.practice_1_8_8.interfaces.StatisticListener();
+    public ConfigItemProvider configItemProvider = new dev.nandi0813.practice_1_8_8.interfaces.LegacyConfigItemProvider();
 
     public Class<?> changedBlockClass = dev.nandi0813.practice_1_8_8.interfaces.ChangedBlock.class;
     public Class<?> kitDataClass = dev.nandi0813.practice_1_8_8.interfaces.KitData.class;

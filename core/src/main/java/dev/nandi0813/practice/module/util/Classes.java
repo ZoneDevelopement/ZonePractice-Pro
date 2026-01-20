@@ -26,6 +26,8 @@ public interface Classes {
 
     ArenaCopyUtil getArenaCopyUtil();
 
+    ConfigItemProvider getConfigItemProvider();
+
     Class<?> getKitDataClass();
 
     Class<?> getActionBarClass();
