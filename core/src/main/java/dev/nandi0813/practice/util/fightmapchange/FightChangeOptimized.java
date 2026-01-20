@@ -296,12 +296,14 @@ public class FightChangeOptimized {
                     isRunning = false;
                     blocks.clear(); // Clear the map
 
+                    /*
                     // Log completion metrics
                     long duration = System.currentTimeMillis() - startTime;
                     Common.sendConsoleMMMessage(String.format(
                             "<green>Arena rollback complete: %d blocks in %dms (%.1f blocks/ms, %d chunks unloaded)",
                             processedBlocks, duration, (double) processedBlocks / Math.max(duration, 1), skippedUnloaded
                     ));
+                     */
                 }
             } catch (Exception e) {
                 this.cancel();
