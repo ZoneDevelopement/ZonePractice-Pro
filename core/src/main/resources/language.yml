@@ -17,7 +17,7 @@ SECOND-NAME:
   1SEC: "second"
   1<SEC: "seconds"
 GENERAL-CHAT:
-  SERVER-CHAT: "%division% <dark_gray>| <reset><gray>%%player%%: <white>%%message%%" # Group chat overwrites this.
+  SERVER-CHAT: "%%division%% <dark_gray>| <reset><gray>%%player%%: <white>%%message%%" # Group chat overwrites this.
   PARTY-CHAT: "<dark_gray>[<dark_aqua><bold>Party<dark_gray>] <reset><aqua>%%player%%<white>: <gray>%%message%%"
   STAFF-CHAT: "<dark_gray>[<yellow>StaffChat<dark_gray>] <reset><gray>%%player%%: <white>%%message%%"
 COMMAND:
