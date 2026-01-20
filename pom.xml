@@ -6,7 +6,7 @@
 
     <groupId>dev.nandi0813</groupId>
     <artifactId>practice-parent</artifactId>
-    <version>6.23-SNAPSHOT</version>
+    <version>6.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ZonePractice Pro</name>
