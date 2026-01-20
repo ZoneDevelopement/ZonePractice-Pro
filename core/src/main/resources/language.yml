@@ -1,9 +1,10 @@
-VERSION: 11
+VERSION: 12
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
 RELOAD-DISABLED: "<red>Reload is disabled. Please completely restart the server."
 STARTUP-NOT-READY: "<red>ZonePractice has not yet loaded all the necessary data."
+PLUGIN-LOADING-MESSAGE: "<red>The server is still loading, please wait..."
 CANT-READ-DATABASE-FILE: "<red>Could not read database setup file"
 CANT-USE-COMMAND: "<red>You can't use this command right now."
 WAIT-FOR-COOLDOWN: "<red>You have to wait <yellow>%seconds% %secondName% <red>before using this again."

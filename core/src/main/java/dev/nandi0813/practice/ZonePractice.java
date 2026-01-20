@@ -71,6 +71,9 @@ public final class ZonePractice extends JavaPlugin {
     @Getter
     private static MiniMessage miniMessage;
 
+    @Getter
+    private static volatile boolean fullyLoaded = false;
+
     private Metrics metrics;
 
     @Override
@@ -142,6 +145,9 @@ public final class ZonePractice extends JavaPlugin {
                     startUpProgress.replace(StartUpTypes.SIDEBAR_LOADING, true);
 
                     this.loadPlaceholderAPI();
+
+                    // Mark plugin as fully loaded
+                    fullyLoaded = true;
                 });
             });
         });
@@ -324,6 +330,7 @@ public final class ZonePractice extends JavaPlugin {
      * It registers all the events that are used in the plugin
      */
     private void registerListeners(PluginManager pm) {
+        pm.registerEvents(new PlayerPreLogin(), this);
         pm.registerEvents(new PlayerJoin(), this);
         pm.registerEvents(new PlayerQuit(), this);
         pm.registerEvents(new PlayerInteract(), this);
