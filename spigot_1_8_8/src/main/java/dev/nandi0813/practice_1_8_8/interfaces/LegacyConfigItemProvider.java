@@ -46,7 +46,7 @@ public class LegacyConfigItemProvider implements ConfigItemProvider {
 
         // In 1.8, DAMAGE is used for item data (colors, variants, etc.)
         if (config.isInt(loc + ".DAMAGE")) {
-            short damage = Short.parseShort(String.valueOf(config.getInt(loc + ".DAMAGE")));
+            short damage = (short) config.getInt(loc + ".DAMAGE");
 
             if (damage != 0) {
                 guiItem.setDamage(damage);

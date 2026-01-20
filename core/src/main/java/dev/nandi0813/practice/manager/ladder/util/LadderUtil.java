@@ -142,8 +142,10 @@ public enum LadderUtil {
                 // Set the custom ladder kits
                 if (ladder.isEditable()) {
                     profile.getUnrankedCustomKits().put(ladder, new HashMap<>());
-                    if (ladder.isRanked())
+
+                    if (ladder.isRanked()) {
                         profile.getRankedCustomKits().put(ladder, new HashMap<>());
+                    }
                 }
             }
 
