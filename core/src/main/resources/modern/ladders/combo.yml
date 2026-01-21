@@ -26,13 +26,6 @@ effects:
     ambient: false
     has-particles: true
     has-icon: true
-  - ==: PotionEffect
-    effect: 5
-    duration: 9600
-    amplifier: 1
-    ambient: false
-    has-particles: true
-    has-icon: true
 icon:
   ==: org.bukkit.inventory.ItemStack
   v: 3337

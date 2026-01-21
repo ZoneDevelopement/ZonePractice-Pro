@@ -25,12 +25,6 @@ effects:
   amplifier: 1
   ambient: false
   has-particles: true
-- ==: PotionEffect
-  effect: 5
-  duration: 9600
-  amplifier: 1
-  ambient: false
-  has-particles: true
 icon:
   ==: org.bukkit.inventory.ItemStack
   type: RAW_FISH
