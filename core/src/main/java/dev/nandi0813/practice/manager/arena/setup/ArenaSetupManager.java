@@ -144,17 +144,17 @@ public class ArenaSetupManager {
 
         if (arena instanceof FFAArena a) {
             modes.add(SetupMode.FFA_POSITIONS);
+            modes.add(SetupMode.DEAD_ZONE);
 
             if (a.isBuild()) {
                 modes.add(SetupMode.BUILD_MAX);
-                modes.add(SetupMode.DEAD_ZONE);
             }
         } else if (arena instanceof Arena a) {
             modes.add(SetupMode.POSITIONS);
+            modes.add(SetupMode.DEAD_ZONE);
 
             if (a.isBuild()) {
                 modes.add(SetupMode.BUILD_MAX);
-                modes.add(SetupMode.DEAD_ZONE);
                 modes.add(SetupMode.BED_LOCATIONS);
                 modes.add(SetupMode.PORTALS);
             }
