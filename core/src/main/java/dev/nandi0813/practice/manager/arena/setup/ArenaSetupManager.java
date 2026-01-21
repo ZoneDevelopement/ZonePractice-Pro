@@ -61,8 +61,7 @@ public class ArenaSetupManager {
 
         if (arena.getCuboid() != null && !arena.getCuboid().contains(player.getLocation())) {
             arena.teleport(player);
-        }
-        if (player.getWorld().equals(ArenaWorldUtil.getArenasWorld())) {
+        } else if (!player.getWorld().equals(ArenaWorldUtil.getArenasWorld())) {
             player.setAllowFlight(true);
             player.setFlying(true);
             player.teleport(ArenaWorldUtil.getArenasWorld().getSpawnLocation());
