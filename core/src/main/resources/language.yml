@@ -1203,6 +1203,7 @@ EVENT:
     POSITION-MARKERS-DELETED: "<red>The position markers have been deleted!"
     ALREADY-SCANNING: "<red>The <yellow>%event% <red>event's map is already being scanned."
     ENDERPEARL-COOLDOWN: "<red>You cannot use this for another <yellow>%seconds% <red>%secondName%."
+    FIREWORK-ROCKET-COOLDOWN: "<red>You cannot use firework rockets for another <yellow>%seconds% <red>%secondName%."
 PARTY:
   NO-PERMISSION: "<red>You don't have permission."
   ALREADY-PARTY: "<red>You are already in a different party."

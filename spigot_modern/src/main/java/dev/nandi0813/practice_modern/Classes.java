@@ -4,10 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.module.interfaces.*;
 import dev.nandi0813.practice_modern.interfaces.MatchTntListener;
 import dev.nandi0813.practice_modern.interfaces.PlayerHiderUtil;
-import dev.nandi0813.practice_modern.listener.ArenaListener;
-import dev.nandi0813.practice_modern.listener.EPCountdownListener;
-import dev.nandi0813.practice_modern.listener.FFAListener;
-import dev.nandi0813.practice_modern.listener.MatchListener;
+import dev.nandi0813.practice_modern.listener.*;
 import dev.nandi0813.practice_modern.modern_version.BlockExplode;
 import dev.nandi0813.practice_modern.modern_version.ItemOffHand;
 import lombok.Getter;
@@ -47,6 +44,7 @@ public class Classes implements dev.nandi0813.practice.module.util.Classes {
         Bukkit.getServer().getPluginManager().registerEvents(new ArenaListener(), ZonePractice.getInstance());
 
         Bukkit.getServer().getPluginManager().registerEvents(new EPCountdownListener(), ZonePractice.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new FireworkRocketCooldownListener(), ZonePractice.getInstance());
     }
 
 }
