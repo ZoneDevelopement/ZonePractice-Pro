@@ -7,6 +7,9 @@ import dev.nandi0813.practice.util.BasicItem;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.ArenaUtil {
 
@@ -45,6 +48,23 @@ public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.Arena
                 }
             }
         }
+    }
+
+    @Override
+    public void setArmorStandItemInHand(ArmorStand armorStand, ItemStack item, boolean rightHand) {
+        if (armorStand == null) return;
+
+        if (rightHand) {
+            armorStand.setItem(EquipmentSlot.HAND, item);
+        } else {
+            armorStand.setItem(EquipmentSlot.OFF_HAND, item);
+        }
+    }
+
+    @Override
+    public void setArmorStandInvulnerable(ArmorStand armorStand) {
+        if (armorStand == null) return;
+        armorStand.setInvulnerable(true);
     }
 
 }

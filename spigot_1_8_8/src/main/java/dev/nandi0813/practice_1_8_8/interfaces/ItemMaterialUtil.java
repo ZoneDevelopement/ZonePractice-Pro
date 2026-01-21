@@ -1,9 +1,11 @@
 package dev.nandi0813.practice_1_8_8.interfaces;
 
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 public class ItemMaterialUtil implements dev.nandi0813.practice.module.interfaces.ItemMaterialUtil {
@@ -90,5 +92,33 @@ public class ItemMaterialUtil implements dev.nandi0813.practice.module.interface
         skull.setOwner(player.getName());
         item.setItemMeta(skull);
         return item;
+    }
+
+    @Override
+    public ItemStack getSword() {
+        return new ItemStack(Material.DIAMOND_SWORD);
+    }
+
+    @Override
+    public ItemStack getRedBlock() {
+        // In 1.8.8, use red wool (damage value 14)
+        return new ItemStack(Material.WOOL, 1, (short) 14);
+    }
+
+    @Override
+    public ItemStack getDefaultPlayerHead() {
+        // In 1.8.8, use Steve head (skull with damage 3, no owner)
+        return new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+    }
+
+    @Override
+    public ItemStack getRedBoots() {
+        ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
+        LeatherArmorMeta meta = (LeatherArmorMeta) boots.getItemMeta();
+        if (meta != null) {
+            meta.setColor(Color.RED);
+            boots.setItemMeta(meta);
+        }
+        return boots;
     }
 }

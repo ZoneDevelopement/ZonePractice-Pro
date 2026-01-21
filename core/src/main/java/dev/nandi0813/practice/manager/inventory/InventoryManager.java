@@ -96,7 +96,10 @@ public class InventoryManager extends ConfigFile {
                 profile.isFlying(),
                 true);
 
-        InventoryUtil.setLobbyNametag(player, profile);
+        // Delay nametag setting by 1 tick to ensure player is fully loaded
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+            InventoryUtil.setLobbyNametag(player, profile);
+        });
 
         if (teleport) {
             player.closeInventory();

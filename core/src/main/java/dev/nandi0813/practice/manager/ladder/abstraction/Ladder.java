@@ -46,6 +46,8 @@ public abstract class Ladder {
     protected int enderPearlCooldown = ConfigManager.getInt("MATCH-SETTINGS.ENDERPEARL.COOLDOWN");
     @Setter
     protected int goldenAppleCooldown = 0;
+    @Setter
+    protected int fireworkRocketCooldown = ConfigManager.getInt("MATCH-SETTINGS.FIREWORK-ROCKET.COOLDOWN");
 
     protected List<MatchType> matchTypes = new ArrayList<>();
 
@@ -90,6 +92,7 @@ public abstract class Ladder {
         this.rounds = ladder.getRounds();
         this.enderPearlCooldown = ladder.getEnderPearlCooldown();
         this.goldenAppleCooldown = ladder.getGoldenAppleCooldown();
+        this.fireworkRocketCooldown = ladder.getFireworkRocketCooldown();
         this.matchTypes = new ArrayList<>(ladder.getMatchTypes());
         this.startCountdown = ladder.getStartCountdown();
         this.tntFuseTime = ladder.getTntFuseTime();

@@ -11,13 +11,14 @@ public enum SetupMode {
     }),
 
     POSITIONS("Spawn Points (Standard)", new String[]{
-            "&b Left Click: &fSet Position 1 (Blue)",
-            "&b Right Click: &fSet Position 2 (Red)"
+            "&b Left Click Block: &fSet Position 1 (Blue)",
+            "&b Right Click Block: &fSet Position 2 (Red)"
     }),
 
     FFA_POSITIONS("Spawn Points (FFA)", new String[]{
-            "&b Right Click: &fAdd Spawn Point",
-            "&b Left Click: &fRemove Last Spawn"
+            "&b Right Click Block: &fAdd Spawn Point",
+            "&b Right Click Armor Stand: &fRemove That Spawn",
+            "&b Left Click (Anywhere): &fRemove Last Spawn"
     }),
 
     BUILD_MAX("Build Height Limit", new String[]{

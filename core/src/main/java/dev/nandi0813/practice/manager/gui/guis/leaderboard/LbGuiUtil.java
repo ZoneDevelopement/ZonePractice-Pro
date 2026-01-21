@@ -129,7 +129,7 @@ public enum LbGuiUtil {
             Map<OfflinePlayer, Integer> list = leaderboard.getList();
 
             for (OfflinePlayer player : list.keySet()) {
-                if (topPlayers.size() <= showPlayers)
+                if (topPlayers.size() < showPlayers)
                     topPlayers.add(player);
                 else
                     break;
@@ -181,7 +181,7 @@ public enum LbGuiUtil {
             Map<OfflinePlayer, Integer> list = leaderboard.getList();
 
             for (OfflinePlayer player : list.keySet()) {
-                if (topPlayers.size() <= showPlayers)
+                if (topPlayers.size() < showPlayers)
                     topPlayers.add(player);
                 else
                     break;
@@ -231,7 +231,7 @@ public enum LbGuiUtil {
             Map<OfflinePlayer, Integer> list = leaderboard.getList();
 
             for (OfflinePlayer player : list.keySet()) {
-                if (topPlayers.size() <= showPlayers)
+                if (topPlayers.size() < showPlayers)
                     topPlayers.add(player);
                 else
                     break;
@@ -283,7 +283,7 @@ public enum LbGuiUtil {
             Map<OfflinePlayer, Integer> list = leaderboard.getList();
 
             for (OfflinePlayer player : list.keySet()) {
-                if (topPlayers.size() <= showPlayers)
+                if (topPlayers.size() < showPlayers)
                     topPlayers.add(player);
                 else
                     break;

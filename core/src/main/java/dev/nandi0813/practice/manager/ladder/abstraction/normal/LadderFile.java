@@ -43,6 +43,7 @@ public class LadderFile extends ConfigFile {
         config.set("settings.maxduration", ladder.getMaxDuration());
         config.set("settings.epcooldown", ladder.getEnderPearlCooldown());
         config.set("settings.gacooldown", ladder.getGoldenAppleCooldown());
+        config.set("settings.fireworkcooldown", ladder.getFireworkRocketCooldown());
         config.set("settings.startcountdown", ladder.getStartCountdown());
         config.set("settings.startmove", ladder.isStartMove());
         config.set("settings.matchtypes", LadderFileUtil.getMatchTypeNames(ladder.getMatchTypes()));
@@ -168,6 +169,12 @@ public class LadderFile extends ConfigFile {
             int gaCooldown = config.getInt("settings.gacooldown");
             if (gaCooldown < 0 || gaCooldown > 30) gaCooldown = 0;
             ladder.setGoldenAppleCooldown(gaCooldown);
+        }
+
+        if (config.isInt("settings.fireworkcooldown")) {
+            int fireworkCooldown = config.getInt("settings.fireworkcooldown");
+            if (fireworkCooldown < 0 || fireworkCooldown > 30) fireworkCooldown = 1;
+            ladder.setFireworkRocketCooldown(fireworkCooldown);
         }
 
         if (config.isInt("settings.startcountdown")) {

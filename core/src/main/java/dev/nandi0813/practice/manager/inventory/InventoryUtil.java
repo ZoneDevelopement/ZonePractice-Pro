@@ -20,7 +20,7 @@ public enum InventoryUtil {
         } else {
             Group group = profile.getGroup();
             Component prefix = Component.empty(), suffix = Component.empty();
-            NamedTextColor nameColor = NamedTextColor.WHITE;
+            NamedTextColor nameColor = NamedTextColor.GRAY;
             int sortPriority = 10;
 
             if (group != null) {

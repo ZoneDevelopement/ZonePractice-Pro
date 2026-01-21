@@ -107,8 +107,12 @@ public class SidebarManager extends ConfigFile implements Listener {
     public void update() {
         Bukkit.getScheduler().runTaskTimerAsynchronously(ZonePractice.getInstance(), () ->
         {
-            for (PracticeSidebar practiceSidebar : new ArrayList<>(boards.values()))
+            for (PracticeSidebar practiceSidebar : new ArrayList<>(boards.values())) {
+                if (practiceSidebar == null || practiceSidebar.getSidebar() == null || practiceSidebar.getSidebar().closed()) {
+                    continue;
+                }
                 practiceSidebar.update();
+            }
         }, 20L, ConfigManager.getInt("SIDEBAR.UPDATE-TIME"));
     }
 

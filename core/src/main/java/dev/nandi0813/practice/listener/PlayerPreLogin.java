@@ -2,6 +2,7 @@ package dev.nandi0813.practice.listener;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.util.StringUtil;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,9 +19,9 @@ public class PlayerPreLogin implements Listener {
         if (!ZonePractice.isFullyLoaded()) {
             String message = LanguageManager.getString("PLUGIN-LOADING-MESSAGE");
             if (message == null || message.isEmpty()) {
-                message = "§cThe server is still loading, please wait...";
+                message = "<red>The server is still loading, please wait...";
             }
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, message);
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtil.CC(message));
         }
     }
 }

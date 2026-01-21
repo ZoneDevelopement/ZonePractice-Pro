@@ -2,6 +2,7 @@ package dev.nandi0813.practice.command.arena.arguments;
 
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
+import dev.nandi0813.practice.manager.arena.setup.SpawnMarkerManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.util.Common;
@@ -35,6 +36,9 @@ public enum DeleteArg {
             Common.sendMMMessage(player, LanguageManager.getString("command.arena.arguments.delete.arena-enabled").replace("%arena%", arena.getName()));
             return;
         }
+
+        // Clear spawn markers before deleting the arena
+        SpawnMarkerManager.getInstance().clearMarkers(arena);
 
         if (arena.deleteData()) {
             ArenaManager.getInstance().getArenaList().remove(arena);
