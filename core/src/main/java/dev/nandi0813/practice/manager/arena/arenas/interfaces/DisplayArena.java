@@ -6,6 +6,7 @@ import dev.nandi0813.practice.manager.arena.ArenaType;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.ArenaCopy;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
+import dev.nandi0813.practice.manager.arena.setup.SpawnMarkerManager;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
@@ -88,13 +89,18 @@ public abstract class DisplayArena extends NormalArena {
             }
         }
 
-        if (enabled && ArenaManager.LOAD_CHUNKS) {
-            this.loadChunks();
+        if (enabled) {
+            // Clear spawn markers when arena is enabled
+            SpawnMarkerManager.getInstance().clearMarkers(this);
 
-            if (this instanceof Arena arena) {
-                if (arena.getCopies() != null && !arena.getCopies().isEmpty()) {
-                    for (ArenaCopy copy : arena.getCopies()) {
-                        copy.loadChunks();
+            if (ArenaManager.LOAD_CHUNKS) {
+                this.loadChunks();
+
+                if (this instanceof Arena arena) {
+                    if (arena.getCopies() != null && !arena.getCopies().isEmpty()) {
+                        for (ArenaCopy copy : arena.getCopies()) {
+                            copy.loadChunks();
+                        }
                     }
                 }
             }

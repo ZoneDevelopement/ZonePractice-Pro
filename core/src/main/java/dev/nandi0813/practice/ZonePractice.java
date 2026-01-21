@@ -24,6 +24,7 @@ import dev.nandi0813.practice.command.statistics.StatisticsCommand;
 import dev.nandi0813.practice.listener.*;
 import dev.nandi0813.practice.manager.arena.ArenaListener;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
+import dev.nandi0813.practice.manager.arena.setup.SpawnMarkerManager;
 import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.*;
 import dev.nandi0813.practice.manager.division.DivisionManager;
@@ -165,6 +166,10 @@ public final class ZonePractice extends JavaPlugin {
     @Override
     public void onDisable() {
         PacketEvents.getAPI().terminate();
+
+        // Clear all spawn markers to prevent them persisting after server restart
+        SpawnMarkerManager.getInstance().clearAllMarkers();
+
         MatchManager.getInstance().endMatches();
         FFAManager.getInstance().endFFAs();
         HologramManager.getInstance().saveHolograms();

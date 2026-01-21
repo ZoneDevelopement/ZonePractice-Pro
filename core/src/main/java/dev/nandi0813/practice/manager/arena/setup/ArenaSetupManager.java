@@ -4,6 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
+import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,8 +58,21 @@ public class ArenaSetupManager {
         }
 
         setupSessions.put(player, new SetupSession(arena));
-        arena.teleport(player);
+
+        if (arena.getCuboid() != null && !arena.getCuboid().contains(player.getLocation())) {
+            arena.teleport(player);
+        }
+        if (player.getWorld().equals(ArenaWorldUtil.getArenasWorld())) {
+            player.setAllowFlight(true);
+            player.setFlying(true);
+            player.teleport(ArenaWorldUtil.getArenasWorld().getSpawnLocation());
+        }
+
         updateWand(player);
+
+        // Show spawn position markers
+        SpawnMarkerManager.getInstance().showMarkers(arena);
+
         player.sendMessage(Common.colorize("&aSetup mode started for arena: &e" + arena.getName() + "&a."));
         return true;
     }
@@ -74,6 +88,11 @@ public class ArenaSetupManager {
             if (isSetupWand(item)) {
                 player.getInventory().clear(i);
             }
+        }
+
+        // Clear markers if no one else is setting up this arena
+        if (getPlayersSettingUpArena(arena).isEmpty()) {
+            SpawnMarkerManager.getInstance().clearMarkers(arena);
         }
 
         player.sendMessage(Common.colorize("&cSetup mode ended for arena: &c" + arena.getName() + "."));

@@ -1,9 +1,11 @@
 package dev.nandi0813.practice_modern.interfaces;
 
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 public class ItemMaterialUtil implements dev.nandi0813.practice.module.interfaces.ItemMaterialUtil {
@@ -91,5 +93,32 @@ public class ItemMaterialUtil implements dev.nandi0813.practice.module.interface
         item.setItemMeta(meta);
 
         return item;
+    }
+
+    @Override
+    public ItemStack getSword() {
+        return new ItemStack(Material.DIAMOND_SWORD);
+    }
+
+    @Override
+    public ItemStack getRedBlock() {
+        return new ItemStack(Material.RED_CONCRETE);
+    }
+
+    @Override
+    public ItemStack getDefaultPlayerHead() {
+        // Return a default Steve head (no specific player)
+        return new ItemStack(Material.PLAYER_HEAD);
+    }
+
+    @Override
+    public ItemStack getRedBoots() {
+        ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
+        LeatherArmorMeta meta = (LeatherArmorMeta) boots.getItemMeta();
+        if (meta != null) {
+            meta.setColor(Color.RED);
+            boots.setItemMeta(meta);
+        }
+        return boots;
     }
 }
