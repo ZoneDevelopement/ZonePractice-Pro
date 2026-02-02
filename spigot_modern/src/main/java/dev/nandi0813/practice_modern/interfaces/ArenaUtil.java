@@ -65,6 +65,9 @@ public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.Arena
     public void setArmorStandInvulnerable(ArmorStand armorStand) {
         if (armorStand == null) return;
         armorStand.setInvulnerable(true);
+        // Make armor stands non-persistent so they don't survive server restarts
+        // This prevents orphaned armor stands (markers and holograms) from appearing after restart
+        armorStand.setPersistent(false);
     }
 
 }

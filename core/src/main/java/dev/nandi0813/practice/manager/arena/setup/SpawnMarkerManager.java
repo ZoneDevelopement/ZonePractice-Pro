@@ -171,10 +171,15 @@ public class SpawnMarkerManager {
         List<ArmorStand> markers = arenaMarkers.remove(arena);
         if (markers != null) {
             for (ArmorStand marker : markers) {
-                if (marker != null && marker.isValid()) {
+                if (marker != null) {
+                    // Always clean up tracking data
                     markerStandIds.remove(marker.getUniqueId());
                     markerToSpawnIndex.remove(marker.getUniqueId()); // Clean up spawn index mapping
-                    marker.remove();
+
+                    // Attempt to remove the armor stand if it's still valid
+                    if (marker.isValid()) {
+                        marker.remove();
+                    }
                 }
             }
         }
@@ -187,10 +192,15 @@ public class SpawnMarkerManager {
         for (List<ArmorStand> markers : arenaMarkers.values()) {
             if (markers != null) {
                 for (ArmorStand marker : markers) {
-                    if (marker != null && marker.isValid()) {
+                    if (marker != null) {
+                        // Always clean up tracking data
                         markerStandIds.remove(marker.getUniqueId());
                         markerToSpawnIndex.remove(marker.getUniqueId()); // Clean up spawn index mapping
-                        marker.remove();
+
+                        // Attempt to remove the armor stand if it's still valid
+                        if (marker.isValid()) {
+                            marker.remove();
+                        }
                     }
                 }
             }
@@ -296,5 +306,49 @@ public class SpawnMarkerManager {
         armorStand.remove();
 
         return true;
+    }
+
+    /**
+     * Removes all orphaned marker armor stands from a world.
+     * This is useful for cleaning up armor stands that persisted after server restart
+     * or were not properly removed due to timing issues.
+     * <p>
+     * Orphaned markers are identified by:
+     * - Having a custom name starting with "&c&l" (our marker naming pattern)
+     * - Being in the arenas world
+     * - Not being tracked in our current marker lists
+     *
+     * @param world The world to clean up
+     * @return The number of orphaned markers removed
+     */
+    public int cleanupOrphanedMarkers(org.bukkit.World world) {
+        if (world == null) return 0;
+
+        int removed = 0;
+        List<org.bukkit.entity.Entity> toRemove = new ArrayList<>();
+
+        // Find all armor stands in the world
+        for (org.bukkit.entity.Entity entity : world.getEntities()) {
+            if (entity instanceof ArmorStand armorStand) {
+                // Check if this looks like one of our markers but isn't tracked
+                if (armorStand.getCustomName() != null &&
+                        !markerStandIds.contains(armorStand.getUniqueId())) {
+
+                    String customName = armorStand.getCustomName();
+                    // Check if it matches our marker naming patterns
+                    if (customName.contains("Spawn") || customName.contains("Right-click to remove")) {
+                        toRemove.add(armorStand);
+                    }
+                }
+            }
+        }
+
+        // Remove the orphaned markers
+        for (org.bukkit.entity.Entity entity : toRemove) {
+            entity.remove();
+            removed++;
+        }
+
+        return removed;
     }
 }

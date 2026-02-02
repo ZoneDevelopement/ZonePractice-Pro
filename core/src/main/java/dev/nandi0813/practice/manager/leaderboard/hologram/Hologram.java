@@ -11,6 +11,7 @@ import dev.nandi0813.practice.manager.leaderboard.types.LbSecondaryType;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.group.Group;
+import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
@@ -281,6 +282,9 @@ public abstract class Hologram {
         stand.setVisible(false);
         stand.setGravity(false);
         stand.setCustomNameVisible(true);
+
+        // Set invulnerable and non-persistent (in modern versions) to prevent issues
+        ClassImport.getClasses().getArenaUtil().setArmorStandInvulnerable(stand);
 
         return stand;
     }
