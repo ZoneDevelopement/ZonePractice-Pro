@@ -444,11 +444,19 @@ public class ArenaSetupListener implements Listener {
         if (!arena.getFfaPositions().isEmpty()) {
             arena.getFfaPositions().removeIf(location -> !cuboid.contains(location));
         }
-        // Clean BuildMax
-        if (arena.isBuildMax() && (cuboid.getLowerY() > arena.getBuildMaxValue() || arena.getBuildMaxValue() > cuboid.getUpperY())) {
-            arena.setBuildMaxValue(ConfigManager.getInt("MATCH-SETTINGS.BUILD-LIMIT-DEFAULT"));
-            arena.setBuildMax(false);
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.CORNER.BUILD-MAX-REMOVED").replace("%arena%", arena.getName()));
+        // Adjust BuildMax if outside cuboid bounds
+        if (arena.isBuildMax()) {
+            int buildMaxValue = arena.getBuildMaxValue();
+            if (buildMaxValue < cuboid.getLowerY() || buildMaxValue > cuboid.getUpperY()) {
+                // Clamp build max to cuboid bounds instead of resetting to relative mode
+                int clampedValue = Math.max(cuboid.getLowerY(), Math.min(buildMaxValue, cuboid.getUpperY()));
+                arena.setBuildMaxValue(clampedValue);
+                // Keep it in absolute mode (buildMax stays true)
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.CORNER.BUILD-MAX-ADJUSTED")
+                        .replace("%arena%", arena.getName())
+                        .replace("%old%", String.valueOf(buildMaxValue))
+                        .replace("%new%", String.valueOf(clampedValue)));
+            }
         }
         // Clean DeadZone
         if (arena.isDeadZone() && (cuboid.getLowerY() > arena.getDeadZoneValue() || arena.getDeadZoneValue() > cuboid.getUpperY())) {

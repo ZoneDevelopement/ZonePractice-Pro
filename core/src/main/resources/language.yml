@@ -1,4 +1,4 @@
-VERSION: 12
+VERSION: 13
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -174,6 +174,7 @@ COMMAND:
         SAVED-CORNER: "<green>You saved the <yellow>%corner% <green>corner for arena <gold>%arena%<green>."
         POSITION-REMOVED: "<red>Position <yellow>%position% <red>got removed from arena %arena% <red>because it was out of the arena cube."
         BUILD-MAX-REMOVED: "<red>BuildMax Y level has been removed from arena %arena% because it was no longer inside the arena cube."
+        BUILD-MAX-ADJUSTED: "<yellow>BuildMax for arena %arena% has been adjusted from Y=%old% to Y=%new% to fit within arena bounds."
         DEAD-ZONE-REMOVED: "<red>DeadZone Y level has been removed from arena %arena% because it was no longer inside the arena cube."
         BED-REMOVED: "<red>Bed location %bed% got removed from arena %arena% <red>because it was out of the arena cube."
       POSITION:

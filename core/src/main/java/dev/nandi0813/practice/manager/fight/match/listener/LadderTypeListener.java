@@ -74,7 +74,7 @@ public abstract class LadderTypeListener implements Listener {
      */
     protected boolean isWithinBuildLimits(Block block, Match match, Player player) {
         // Check height limit
-        if (block.getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(match.getArena())) {
+        if (block.getLocation().getY() > ListenerUtil.getCalculatedBuildLimit(match.getArena())) {
             Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-BUILD-OVER-LIMIT"));
             return false;
         }
