@@ -19,7 +19,8 @@ public class PartyVsPartyRound extends PlayersVsPlayersRound {
         if (endMatch) {
             TeamEnum matchWinner = this.getMatch().getMatchWinner();
             if (matchWinner != null) {
-                for (String message : EndMessageUtil.getEndMessage(partyVsParty, matchWinner, partyVsParty.getTeamPlayers(matchWinner), partyVsParty.getTeamPlayers(TeamUtil.getOppositeTeam(matchWinner))))
+                // Use getOriginalTeamPlayers to include all players who started the match (including those who left)
+                for (String message : EndMessageUtil.getEndMessage(partyVsParty, matchWinner, partyVsParty.getOriginalTeamPlayers(matchWinner), partyVsParty.getOriginalTeamPlayers(TeamUtil.getOppositeTeam(matchWinner))))
                     this.match.sendMessage(message, true);
             } else {
                 for (String line : LanguageManager.getList("MATCH.PARTY-VS-PARTY.MATCH-END-DRAW"))

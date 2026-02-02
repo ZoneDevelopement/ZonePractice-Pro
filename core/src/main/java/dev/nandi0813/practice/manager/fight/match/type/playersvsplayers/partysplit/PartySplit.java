@@ -30,11 +30,13 @@ public class PartySplit extends PlayersVsPlayers {
         for (Player player : players) {
             if (team2PlayerCount > team1PlayerCount) {
                 this.teams.get(TeamEnum.TEAM1).add(player);
+                this.originalTeams.get(TeamEnum.TEAM1).add(player); // Track original team members
                 NametagManager.getInstance().setNametag(player, TeamEnum.TEAM1.getPrefix(), TeamEnum.TEAM1.getNameColor(), TeamEnum.TEAM1.getSuffix(), 20);
 
                 team1PlayerCount++;
             } else {
                 this.teams.get(TeamEnum.TEAM2).add(player);
+                this.originalTeams.get(TeamEnum.TEAM2).add(player); // Track original team members
                 NametagManager.getInstance().setNametag(player, TeamEnum.TEAM2.getPrefix(), TeamEnum.TEAM2.getNameColor(), TeamEnum.TEAM2.getSuffix(), 21);
 
                 team2PlayerCount++;

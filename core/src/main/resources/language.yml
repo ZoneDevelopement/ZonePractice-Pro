@@ -1489,6 +1489,7 @@ MATCH:
     MATCH-END:
       WINNER-PLAYER-FORMAT: "<hover:show_text:'<green>Click to view inventory of <gold>%player%<green>.'><click:run_command:'/matchinv %matchId% %player_uuid% 1'><yellow>%player%</click></hover><gray>"
       LOSER-PLAYER-FORMAT: "<hover:show_text:'<green>Click to view inventory of <gold>%player%<green>.'><click:run_command:'/matchinv %matchId% %player_uuid% 1'><yellow>%player%</click></hover><gray>"
+      LEFT-PLAYER-FORMAT: "<gray><st>%player%</st></gray>"
       SPECTATOR-EXTENSION:
         - "<aqua>Spectators (%size%): <gray>%spectators%"
       MESSAGE:
@@ -1549,6 +1550,7 @@ MATCH:
     MATCH-END:
       WINNER-PLAYER-FORMAT: "<hover:show_text:'<green>Click to view inventory of <gold>%player%<green>.'><click:run_command:'/matchinv %matchId% %player_uuid% 1'><yellow>%player%</click></hover><gray>"
       LOSER-PLAYER-FORMAT: "<hover:show_text:'<green>Click to view inventory of <gold>%player%<green>.'><click:run_command:'/matchinv %matchId% %player_uuid% 1'><yellow>%player%</click></hover><gray>"
+      LEFT-PLAYER-FORMAT: "<gray><st>%player%</st></gray>"
       SPECTATOR-EXTENSION:
         - "<aqua>Spectators (%size%): <gray>%spectators%"
       MESSAGE:

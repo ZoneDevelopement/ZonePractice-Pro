@@ -31,6 +31,8 @@ import java.util.Map;
 public abstract class PlayersVsPlayers extends Match implements Team {
 
     protected final Map<TeamEnum, List<Player>> teams = new EnumMap<>(TeamEnum.class);
+    // Track original team members (including those who left) for end messages
+    protected final Map<TeamEnum, List<Player>> originalTeams = new EnumMap<>(TeamEnum.class);
     protected TeamEnum matchWinner;
 
     protected PlayersVsPlayers(Ladder ladder, Arena arena, List<Player> players, int winsNeeded) {
@@ -38,6 +40,8 @@ public abstract class PlayersVsPlayers extends Match implements Team {
 
         this.teams.put(TeamEnum.TEAM1, new ArrayList<>());
         this.teams.put(TeamEnum.TEAM2, new ArrayList<>());
+        this.originalTeams.put(TeamEnum.TEAM1, new ArrayList<>());
+        this.originalTeams.put(TeamEnum.TEAM2, new ArrayList<>());
     }
 
     @Override
@@ -233,6 +237,14 @@ public abstract class PlayersVsPlayers extends Match implements Team {
 
     public List<Player> getTeamPlayers(TeamEnum team) {
         return teams.get(team);
+    }
+
+    /**
+     * Get all players who originally started on this team, including those who left.
+     * Used for end messages to show all participants.
+     */
+    public List<Player> getOriginalTeamPlayers(TeamEnum team) {
+        return originalTeams.get(team);
     }
 
     public List<Player> getTeamAlivePlayers(TeamEnum team) {
