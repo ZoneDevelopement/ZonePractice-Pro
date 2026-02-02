@@ -152,7 +152,7 @@ public class MatchTntListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler ( priority = org.bukkit.event.EventPriority.MONITOR, ignoreCancelled = true )
     public void onBlockForm(org.bukkit.event.block.BlockFormEvent e) {
         Block block = e.getBlock();
 
@@ -165,27 +165,38 @@ public class MatchTntListener implements Listener {
         if (!match.getLadder().isBuild()) return;
 
         // Track cobblestone/obsidian/ice formation from water/lava
-        block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), match));
-        match.addBlockChange(ClassImport.createChangeBlock(block));
+        // We need to capture the ORIGINAL state before the block forms
+        // Schedule for next tick to ensure the formed block is tracked properly
+        org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+            if (block.hasMetadata(PLACED_IN_FIGHT)) return; // Already tracked
+
+            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), match));
+            match.addBlockChange(ClassImport.createChangeBlock(block));
+        });
     }
 
-    @EventHandler
+    @EventHandler ( priority = org.bukkit.event.EventPriority.MONITOR, ignoreCancelled = true )
     public void onBlockSpread(org.bukkit.event.block.BlockSpreadEvent e) {
-        Block block = e.getBlock();
+        // The NEW block that was created by spreading
+        Block newBlock = e.getNewState().getBlock();
+        Block source = e.getSource();
 
         Match match = MatchManager.getInstance().getLiveMatches().stream()
-                .filter(m -> m.getCuboid().contains(block.getLocation()))
+                .filter(m -> m.getCuboid().contains(newBlock.getLocation()))
                 .findFirst()
                 .orElse(null);
 
         if (match == null) return;
         if (!match.getLadder().isBuild()) return;
 
-        // Track spread blocks (fire, etc.)
-        Block source = e.getSource();
+        // Track spread blocks (fire, mushrooms, etc.) if they came from a tracked source
         if (source.hasMetadata(PLACED_IN_FIGHT)) {
-            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), match));
-            match.addBlockChange(ClassImport.createChangeBlock(block));
+            org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+                if (newBlock.hasMetadata(PLACED_IN_FIGHT)) return; // Already tracked
+
+                newBlock.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), match));
+                match.addBlockChange(ClassImport.createChangeBlock(newBlock));
+            });
         }
     }
 
