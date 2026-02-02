@@ -55,7 +55,6 @@ public abstract class Hologram {
         this.leaderboardType = LbSecondaryType.ELO;
     }
 
-    // Loading the hologram from the config.
     public Hologram(String name, HologramType hologramType) {
         this.name = name;
         this.hologramType = hologramType;
@@ -65,11 +64,6 @@ public abstract class Hologram {
 
         if (!this.isReadyToEnable())
             enabled = false;
-
-        if (enabled)
-            hologramRunnable.begin();
-        else
-            setSetupHologram(SetupHologramType.SETUP);
     }
 
     public void getData() {
@@ -124,6 +118,12 @@ public abstract class Hologram {
     public abstract Leaderboard getNextLeaderboard();
 
     public void updateContent() {
+        // Safety check to prevent errors if location is invalid
+        if (baseLocation == null || baseLocation.getWorld() == null) {
+            setEnabled(false);
+            return;
+        }
+
         deleteHologram(false);
 
         Leaderboard leaderboard = this.getNextLeaderboard();
@@ -223,6 +223,10 @@ public abstract class Hologram {
     }
 
     public void setSetupHologram(SetupHologramType setupHologram) {
+        if (baseLocation == null || baseLocation.getWorld() == null) {
+            return;
+        }
+
         Location location = baseLocation.clone();
 
         switch (setupHologram) {
@@ -241,10 +245,24 @@ public abstract class Hologram {
     }
 
     public synchronized void deleteHologram(boolean all) {
-        Collection<Entity> entities = baseLocation.getWorld().getNearbyEntities(baseLocation, 0, 6, 0);
+        if (baseLocation == null || baseLocation.getWorld() == null) {
+            if (all) {
+                hologramRunnable.cancel(false);
+                HologramManager.getInstance().getHolograms().remove(this);
+                HologramSetupManager.getInstance().removeHologramGUIs(this);
+                config.set("holograms." + name, null);
+                BackendManager.save();
+            }
+            return;
+        }
+
+        Collection<Entity> entities = baseLocation.getWorld().getNearbyEntities(baseLocation, 1, 6, 1);
         for (Entity entity : entities) {
             if (entity.getType().equals(EntityType.ARMOR_STAND)) {
-                entity.remove();
+                ArmorStand stand = (ArmorStand) entity;
+                if (!stand.isVisible()) {
+                    entity.remove();
+                }
             }
         }
 
