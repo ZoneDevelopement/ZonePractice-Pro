@@ -102,6 +102,14 @@
             <artifactId>ZonePracticePro-Api</artifactId>
             <version>2.0.0</version>
         </dependency>
+
+        <!-- TAB API -->
+        <dependency>
+            <groupId>com.github.NEZNAMY</groupId>
+            <artifactId>TAB-API</artifactId>
+            <version>5.5.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>

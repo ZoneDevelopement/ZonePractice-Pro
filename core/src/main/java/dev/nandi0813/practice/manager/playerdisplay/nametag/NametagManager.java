@@ -140,6 +140,11 @@ public class NametagManager {
     }
 
     public void sendTeams(Player player) {
+        // Don't send team packets if TAB is managing teams
+        if (TeamPacketBlocker.getInstance().isNametagSystemDisabled()) {
+            return;
+        }
+
         for (FakeTeam fakeTeam : TEAMS.values()) {
             new Packet(fakeTeam.getName(), fakeTeam.getPrefix(), fakeTeam.getNameColor(), fakeTeam.getSuffix(), fakeTeam.getMembers()).send(player);
         }
