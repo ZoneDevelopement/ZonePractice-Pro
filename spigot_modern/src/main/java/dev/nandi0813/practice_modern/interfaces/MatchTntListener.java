@@ -155,24 +155,51 @@ public class MatchTntListener implements Listener {
     @EventHandler ( priority = org.bukkit.event.EventPriority.MONITOR, ignoreCancelled = true )
     public void onBlockForm(org.bukkit.event.block.BlockFormEvent e) {
         Block block = e.getBlock();
+        Location location = block.getLocation();
 
         Match match = MatchManager.getInstance().getLiveMatches().stream()
-                .filter(m -> m.getCuboid().contains(block.getLocation()))
+                .filter(m -> m.getCuboid().contains(location))
                 .findFirst()
                 .orElse(null);
 
         if (match == null) return;
         if (!match.getLadder().isBuild()) return;
 
-        // Track cobblestone/obsidian/ice formation from water/lava
-        // We need to capture the ORIGINAL state before the block forms
-        // Schedule for next tick to ensure the formed block is tracked properly
-        org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
-            if (block.hasMetadata(PLACED_IN_FIGHT)) return; // Already tracked
+        // Track cobblestone/obsidian/ice/concrete formation from water/lava/concrete powder
+        // Schedule for 2 ticks to ensure the block has DEFINITELY formed
+        org.bukkit.Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            // Get the block directly from the world at this location
+            Block formedBlock = location.getBlock();
 
-            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), match));
-            match.addBlockChange(ClassImport.createChangeBlock(block));
-        });
+            // Skip if air or if already tracked
+            if (formedBlock.getType() == Material.AIR) return;
+            if (formedBlock.hasMetadata(PLACED_IN_FIGHT)) return;
+
+            formedBlock.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), match));
+            match.addBlockChange(ClassImport.createChangeBlock(formedBlock));
+        }, 2L); // Wait 2 ticks instead of running immediately
+    }
+
+    @EventHandler ( priority = org.bukkit.event.EventPriority.MONITOR, ignoreCancelled = true )
+    public void onBlockFromTo(org.bukkit.event.block.BlockFromToEvent e) {
+        Block fromBlock = e.getBlock();
+        Block toBlock = e.getToBlock();
+
+        // Check if this flow is happening within a match area
+        Match match = MatchManager.getInstance().getLiveMatches().stream()
+                .filter(m -> m.getCuboid().contains(fromBlock.getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (match == null) return;
+        if (!match.getLadder().isBuild()) return;
+
+        // Track the destination block where liquid flows to
+        // This ensures ALL flowing lava/water within match boundaries is tracked
+        if (!toBlock.hasMetadata(PLACED_IN_FIGHT)) {
+            toBlock.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), match));
+            match.addBlockChange(ClassImport.createChangeBlock(toBlock));
+        }
     }
 
     @EventHandler ( priority = org.bukkit.event.EventPriority.MONITOR, ignoreCancelled = true )
