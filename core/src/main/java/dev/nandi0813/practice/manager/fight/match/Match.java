@@ -94,7 +94,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             this.matchPlayers.put(player, new MatchFightPlayer(player, this));
             this.addPlayerToBelowName(player);
         }
-        this.fightChange = new FightChangeOptimized(arena.getCuboid());
+        this.fightChange = new FightChangeOptimized(this);
 
         if (arena.getSideBuildLimit() > 0)
             this.sideBuildLimit = MatchUtil.getSideBuildLimitCube(this.arena.getCuboid().clone(), arena.getSideBuildLimit());

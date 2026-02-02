@@ -272,7 +272,9 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
             MetadataValue mv = BlockUtil.getMetadata(entity, FIREBALL_FIGHT_TNT);
             if (ListenerUtil.checkMetaData(mv)) return;
 
-            if (!(mv.value() instanceof Match match)) return;
+            // Support both Match and other Spectatable types (Event, FFA)
+            if (!(mv.value() instanceof Match)) return;
+            Match match = (Match) mv.value();
             if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) return;
 
             e.blockList().removeIf(block ->

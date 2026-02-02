@@ -6,7 +6,6 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
-import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.manager.fight.match.runnable.game.BridgeArrowRunnable;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
@@ -36,7 +35,6 @@ import org.bukkit.entity.ThrownExpBottle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
@@ -302,30 +300,10 @@ public abstract class LadderTypeListener implements Listener {
     }
 
 
-    @EventHandler
-    public void onLiquidFlow(BlockFromToEvent e) {
-        Block block = e.getBlock();
-
-        if (!block.hasMetadata(PLACED_IN_FIGHT)) return;
-        MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
-
-        if (ListenerUtil.checkMetaData(mv)) return;
-        if (!(mv.value() instanceof Match match)) return;
-
-        if (match.getStatus().equals(MatchStatus.END)) {
-            e.setCancelled(true);
-            return;
-        }
-
-        delegateToLadderHandle(e, match);
-        if (e.isCancelled()) return;
-
-        Block toBlock = e.getToBlock();
-        if (!toBlock.getType().isSolid()) {
-            toBlock.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), match));
-            trackPlacedBlock(toBlock, match);
-        }
-    }
+    // REMOVED: onLiquidFlow - Now handled by MatchTntListener.onBlockFromTo()
+    // The old implementation had a bug where it only tracked non-solid blocks (!toBlock.getType().isSolid())
+    // This caused cobblestone/obsidian from lava+water to not be tracked
+    // The new MatchTntListener.onBlockFromTo() properly tracks ALL liquid flows
 
 
     @EventHandler

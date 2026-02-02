@@ -4,6 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.module.interfaces.ChangedBlock;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
+import dev.nandi0813.practice.util.interfaces.Spectatable;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.World;
@@ -38,6 +39,12 @@ public class FightChangeOptimized {
     private final World world;
     private final Cuboid cuboid;
 
+    /**
+     * The Spectatable instance (Match, Event, or FFA) for metadata caching.
+     * Used to store the fight context in block metadata for efficient lookup.
+     */
+    private final Spectatable spectatable;
+
     // Single map replaces blockChange + tempBuildPlacedBlocks
     // Using ConcurrentHashMap to prevent ConcurrentModificationException during rollback
     @Getter
@@ -52,7 +59,26 @@ public class FightChangeOptimized {
     // Reusable rollback task
     private RollbackTask rollbackTask;
 
+    /**
+     * Constructor for all fight types (Match, Event, FFA).
+     *
+     * @param spectatable The Spectatable instance (provides cuboid and is stored in metadata)
+     */
+    public FightChangeOptimized(Spectatable spectatable) {
+        this.spectatable = spectatable;
+        this.cuboid = spectatable.getCuboid();
+        this.world = cuboid.getWorld();
+    }
+
+    /**
+     * Legacy constructor for backwards compatibility (e.g., tests or special cases).
+     *
+     * @param cuboid The arena cuboid
+     * @deprecated Use FightChangeOptimized(Spectatable) instead
+     */
+    @Deprecated
     public FightChangeOptimized(Cuboid cuboid) {
+        this.spectatable = null;
         this.cuboid = cuboid;
         this.world = cuboid.getWorld();
     }
@@ -72,9 +98,10 @@ public class FightChangeOptimized {
         BlockChangeEntry existing = blocks.putIfAbsent(pos, new BlockChangeEntry(change));
 
         // Mark the physical block with metadata for tracking
-        if (existing == null) {
+        // Store Spectatable (Match/Event/FFA) for efficient metadata caching in BlockFromToEvent
+        if (existing == null && spectatable != null) {
             Block block = change.getLocation().getBlock();
-            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), true));
+            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), spectatable));
         }
     }
 

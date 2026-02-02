@@ -61,7 +61,7 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
 
         this.players = new ArrayList<>();
         this.spectators = new ArrayList<>();
-        this.fightChange = new FightChangeOptimized(eventData.getCuboid());
+        this.fightChange = new FightChangeOptimized(this);
 
         this.queueRunnable = new QueueRunnable(this);
         this.endRunnable = new EndRunnable(this);

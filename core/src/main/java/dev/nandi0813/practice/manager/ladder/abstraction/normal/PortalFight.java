@@ -122,7 +122,10 @@ public abstract class PortalFight extends NormalLadder {
         MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
         if (mv == null) return;
         if (mv.value() == null) return;
-        if (!(mv.value() instanceof Match match)) return;
+
+        // Check for Match specifically (portal fights are only in matches)
+        if (!(mv.value() instanceof Match)) return;
+        Match match = (Match) mv.value();
 
         NormalArena arena = match.getArena();
 

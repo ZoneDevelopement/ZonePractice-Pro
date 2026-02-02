@@ -2,6 +2,7 @@ package dev.nandi0813.practice_1_8_8.interfaces;
 
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.module.util.ClassImport;
@@ -148,17 +149,47 @@ public class MatchTntListener implements Listener {
         Block fromBlock = e.getBlock();
         Block toBlock = e.getToBlock();
 
-        // Check if this flow is happening within a match area
-        Match match = MatchManager.getInstance().getLiveMatches().stream()
-                .filter(m -> m.getCuboid().contains(fromBlock.getLocation()))
-                .findFirst()
-                .orElse(null);
+        Match match = null;
 
-        if (match == null) return;
-        if (!match.getLadder().isBuild()) return;
+        // Try to get match from source block metadata (fast path - O(1))
+        if (fromBlock.hasMetadata(PLACED_IN_FIGHT)) {
+            org.bukkit.metadata.MetadataValue mv = fromBlock.getMetadata(PLACED_IN_FIGHT).get(0);
+            if (mv.value() instanceof Match) {
+                match = (Match) mv.value();
+            }
+        }
 
-        // Track the destination block where liquid flows to
-        // This ensures ALL flowing lava/water within match boundaries is tracked
+        // If source doesn't have metadata, search for match (slow path - only for natural flows)
+        if (match == null) {
+            match = MatchManager.getInstance().getLiveMatches().stream()
+                    .filter(m -> m.getCuboid().contains(fromBlock.getLocation()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (match == null) return;
+            if (!match.getLadder().isBuild()) return;
+
+            // Mark source block for future flows from it
+            fromBlock.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(dev.nandi0813.practice.ZonePractice.getInstance(), match));
+            match.addBlockChange(ClassImport.createChangeBlock(fromBlock));
+        }
+
+        // Cancel liquid flow if match has ended
+        if (match.getStatus().equals(MatchStatus.END)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        // Delegate to ladder-specific handler if needed
+        dev.nandi0813.practice.manager.ladder.abstraction.Ladder ladder = match.getLadder();
+        if (ladder instanceof dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle) {
+            ((dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle) ladder).handleEvents(e, match);
+        }
+
+        // If event was cancelled by ladder handler, don't track
+        if (e.isCancelled()) return;
+
+        // Always track the destination block
         if (!toBlock.hasMetadata(PLACED_IN_FIGHT)) {
             toBlock.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(dev.nandi0813.practice.ZonePractice.getInstance(), match));
             match.addBlockChange(ClassImport.createChangeBlock(toBlock));

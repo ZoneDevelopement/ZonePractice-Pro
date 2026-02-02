@@ -3,9 +3,11 @@ package dev.nandi0813.practice_modern.interfaces;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -25,7 +27,37 @@ import java.util.Objects;
 
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
+@SuppressWarnings ( "deprecation" )
+// FixedMetadataValue is deprecated in Paper but still the standard way to set block metadata
 public class MatchTntListener implements Listener {
+
+    // Performance tracking for BlockFromToEvent metadata cache
+    private int metadataHits = 0;
+    private int metadataMisses = 0;
+    private long lastLogTime = System.currentTimeMillis();
+
+    /**
+     * Logs performance statistics for metadata cache hit rate.
+     * Called periodically to track how often we use cached metadata vs searching.
+     */
+    private void logPerformanceStats() {
+        long currentTime = System.currentTimeMillis();
+        // Log every 30 seconds
+        if (currentTime - lastLogTime >= 30000) {
+            int total = metadataHits + metadataMisses;
+            if (total > 0) {
+                double hitRate = (metadataHits * 100.0) / total;
+                ZonePractice.getInstance().getLogger().info(String.format(
+                        "[BlockFromTo Performance] Metadata hits: %d | Searches: %d | Cache hit rate: %.1f%% | Total events: %d",
+                        metadataHits, metadataMisses, hitRate, total
+                ));
+                // Reset counters for next interval
+                metadataHits = 0;
+                metadataMisses = 0;
+            }
+            lastLogTime = currentTime;
+        }
+    }
 
     private void handleExplosion(Event event, List<Block> blockList, Match match) {
         if (match == null) {
@@ -185,20 +217,69 @@ public class MatchTntListener implements Listener {
         Block fromBlock = e.getBlock();
         Block toBlock = e.getToBlock();
 
-        // Check if this flow is happening within a match area
-        Match match = MatchManager.getInstance().getLiveMatches().stream()
-                .filter(m -> m.getCuboid().contains(fromBlock.getLocation()))
-                .findFirst()
-                .orElse(null);
+        Spectatable spectatable = null;
+        Match match = null;
 
-        if (match == null) return;
-        if (!match.getLadder().isBuild()) return;
+        // Try to get Spectatable (Match/Event/FFA) from source block metadata (fast path - O(1))
+        if (fromBlock.hasMetadata(PLACED_IN_FIGHT)) {
+            org.bukkit.metadata.MetadataValue mv = fromBlock.getMetadata(PLACED_IN_FIGHT).get(0);
+            if (mv.value() instanceof Spectatable) {
+                spectatable = (Spectatable) mv.value();
+                if (spectatable instanceof Match) {
+                    match = (Match) spectatable;
+                }
+                metadataHits++; // Track successful metadata lookup
+            }
+        }
 
-        // Track the destination block where liquid flows to
-        // This ensures ALL flowing lava/water within match boundaries is tracked
+        // If source doesn't have metadata, search for match (slow path - only for natural flows)
+        if (spectatable == null) {
+            metadataMisses++; // Track when we have to search
+
+            match = MatchManager.getInstance().getLiveMatches().stream()
+                    .filter(m -> m.getCuboid().contains(fromBlock.getLocation()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (match == null) {
+                logPerformanceStats(); // Log before returning
+                return;
+            }
+
+            spectatable = match;
+
+            if (!match.getLadder().isBuild()) {
+                logPerformanceStats(); // Log before returning
+                return;
+            }
+
+            // Mark source block for future flows from it
+            fromBlock.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+            match.addBlockChange(ClassImport.createChangeBlock(fromBlock));
+        }
+
+        // Log performance stats periodically
+        logPerformanceStats();
+
+        // Only proceed with Match-specific logic if it's a Match
+        if (match != null) {
+            // Cancel liquid flow if match has ended
+            if (match.getStatus().equals(MatchStatus.END)) {
+                e.setCancelled(true);
+                return;
+            }
+
+            // Delegate to ladder-specific handler if needed
+            Ladder ladder = match.getLadder();
+            if (ladder instanceof LadderHandle) {
+                ((LadderHandle) ladder).handleEvents(e, match);
+            }
+        }
+
+        // Always track the destination block
         if (!toBlock.hasMetadata(PLACED_IN_FIGHT)) {
-            toBlock.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), match));
-            match.addBlockChange(ClassImport.createChangeBlock(toBlock));
+            toBlock.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+            spectatable.getFightChange().addBlockChange(ClassImport.createChangeBlock(toBlock));
         }
     }
 
