@@ -7,6 +7,7 @@ import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
 import dev.nandi0813.practice.util.Common;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -31,7 +32,7 @@ public class TeamPacketBlocker extends PacketListenerAbstract {
     // Whether blocking is enabled
     private boolean blockingEnabled = false;
 
-    // Track if TAB plugin is present
+    @Getter
     private boolean tabPluginPresent = false;
 
     private TeamPacketBlocker() {
@@ -116,17 +117,4 @@ public class TeamPacketBlocker extends PacketListenerAbstract {
         event.setCancelled(true);
     }
 
-    /**
-     * @return true if TAB plugin is detected
-     */
-    public boolean isTabPluginPresent() {
-        return tabPluginPresent;
-    }
-
-    /**
-     * @return true if packet blocking is active
-     */
-    public boolean isBlockingEnabled() {
-        return blockingEnabled;
-    }
 }
