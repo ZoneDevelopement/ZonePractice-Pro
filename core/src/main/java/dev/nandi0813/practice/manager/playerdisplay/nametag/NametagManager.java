@@ -24,6 +24,23 @@ public class NametagManager {
     private final Map<String, FakeTeam> CACHED_FAKE_TEAMS = new ConcurrentHashMap<>();
 
     /**
+     * Initialize the NametagManager and register the TeamPacketBlocker.
+     * Should be called on plugin enable.
+     */
+    public void initialize() {
+        // Register packet blocker to prevent TAB plugin conflicts
+        TeamPacketBlocker.getInstance().register();
+    }
+
+    /**
+     * Shutdown the NametagManager.
+     * Should be called on plugin disable.
+     */
+    public void shutdown() {
+        TeamPacketBlocker.getInstance().unregister();
+    }
+
+    /**
      * Gets the current team given a prefix and suffix
      * If there is no team similar to this, then a new
      * team is created.
@@ -51,6 +68,10 @@ public class NametagManager {
             joining = new FakeTeam(prefix, namedTextColor, suffix, sortPriority);
             joining.addMember(player);
             TEAMS.put(joining.getName(), joining);
+
+            // Register this team with the packet blocker so our packets aren't blocked
+            TeamPacketBlocker.getInstance().registerOurTeam(joining.getName());
+
             addTeamPackets(joining);
         }
 
@@ -83,6 +104,9 @@ public class NametagManager {
             if (delete) {
                 removeTeamPackets(fakeTeam);
                 TEAMS.remove(fakeTeam.getName());
+
+                // Unregister this team from the packet blocker
+                TeamPacketBlocker.getInstance().unregisterOurTeam(fakeTeam.getName());
             }
         }
 
@@ -121,16 +145,6 @@ public class NametagManager {
         }
     }
 
-    /*
-    void reset() {
-        for (FakeTeam fakeTeam : TEAMS.values()) {
-            removePlayerFromTeamPackets(fakeTeam, fakeTeam.getMembers());
-            removeTeamPackets(fakeTeam);
-        }
-        CACHED_FAKE_TEAMS.clear();
-        TEAMS.clear();
-    }
-     */
 
     // ==============================================================
     // Below are private methods to construct a new Scoreboard packet

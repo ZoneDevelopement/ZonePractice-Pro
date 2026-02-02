@@ -38,6 +38,7 @@ import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.leaderboard.LeaderboardManager;
 import dev.nandi0813.practice.manager.leaderboard.hologram.HologramManager;
+import dev.nandi0813.practice.manager.playerdisplay.nametag.NametagManager;
 import dev.nandi0813.practice.manager.playerdisplay.tab.TabListManager;
 import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -117,6 +118,7 @@ public final class ZonePractice extends JavaPlugin {
         InventoryManager.getInstance().loadInventories();
         PlayerKitManager.getInstance().load();
         TabListManager.getInstance().start();
+        NametagManager.getInstance().initialize(); // Initialize after all plugins loaded to detect TAB conflicts
 
         LadderManager.getInstance().loadLadders(() ->
         {
@@ -166,6 +168,9 @@ public final class ZonePractice extends JavaPlugin {
     @Override
     public void onDisable() {
         PacketEvents.getAPI().terminate();
+
+        // Shutdown nametag manager and unregister packet blocker
+        NametagManager.getInstance().shutdown();
 
         // Clear all spawn markers to prevent them persisting after server restart
         SpawnMarkerManager.getInstance().clearAllMarkers();
