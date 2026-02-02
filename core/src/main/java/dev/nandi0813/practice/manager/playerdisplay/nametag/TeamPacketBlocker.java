@@ -6,7 +6,6 @@ import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
-import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -60,9 +59,6 @@ public class TeamPacketBlocker extends PacketListenerAbstract {
             blockingEnabled = true;
             PacketEvents.getAPI().getEventManager().registerListener(this);
             registered = true;
-
-            Common.sendConsoleMMMessage("<yellow>[ZonePracticePro] <green>TAB plugin detected - Team packet blocking enabled.");
-            Common.sendConsoleMMMessage("<yellow>[ZonePracticePro] <gray>ZonePracticePro will manage all scoreboard teams to prevent conflicts.");
         }
     }
 

@@ -133,12 +133,7 @@ public final class ZonePractice extends JavaPlugin {
                 // Clean up any orphaned marker armor stands from previous server sessions
                 org.bukkit.World arenasWorld = ArenaWorldUtil.getArenasWorld();
                 if (arenasWorld != null) {
-                    int removed = dev.nandi0813.practice.manager.arena.setup.SpawnMarkerManager.getInstance()
-                            .cleanupOrphanedMarkers(arenasWorld);
-                    if (removed > 0) {
-                        dev.nandi0813.practice.util.Common.sendConsoleMMMessage(
-                                "<yellow>Removed " + removed + " orphaned arena marker armor stands.");
-                    }
+                    SpawnMarkerManager.getInstance().cleanupOrphanedMarkers(arenasWorld);
                 }
             });
 
