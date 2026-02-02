@@ -59,16 +59,19 @@ public class ChangedBlock extends dev.nandi0813.practice.module.interfaces.Chang
             return;
         }
 
-        block.setType(material);
-        block.setBlockData(blockData);
-        block.getState().setType(material);
-        block.getState().setBlockData(blockData);
-        block.getState().update();
+        Block currentBlock = location.getBlock();
 
-        if (chestInventory != null && block instanceof Chest) {
-            Chest chest = (Chest) block.getState();
-            chest.getInventory().setContents(chestInventory);
-            chest.update();
+        currentBlock.setType(material);
+        currentBlock.setBlockData(blockData);
+        currentBlock.getState().setType(material);
+        currentBlock.getState().setBlockData(blockData);
+        currentBlock.getState().update();
+
+        if (chestInventory != null) {
+            if (currentBlock.getState() instanceof Chest chest) {
+                chest.getInventory().setContents(chestInventory);
+                chest.update();
+            }
         }
     }
 

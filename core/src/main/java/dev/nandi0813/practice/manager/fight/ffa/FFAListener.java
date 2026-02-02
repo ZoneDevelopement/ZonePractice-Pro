@@ -422,5 +422,94 @@ public abstract class FFAListener implements Listener {
         handleExplosion(e.blockList(), ffa);
     }
 
+    @EventHandler
+    public void onBlockPistonExtend(BlockPistonExtendEvent e) {
+        FFA ffa = FFAManager.getInstance().getOpenFFAs().stream()
+                .filter(m -> m.getCuboid().contains(e.getBlock().getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (ffa == null) return;
+
+        if (!ffa.isBuild()) {
+            e.setCancelled(true);
+            return;
+        }
+
+        // Track all blocks being pushed
+        for (Block block : e.getBlocks()) {
+            block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), ffa));
+            ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(block));
+
+            // Track the destination block
+            Block destination = block.getRelative(e.getDirection());
+            destination.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), ffa));
+            ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(destination));
+        }
+    }
+
+    @EventHandler
+    public void onBlockPistonRetract(BlockPistonRetractEvent e) {
+        FFA ffa = FFAManager.getInstance().getOpenFFAs().stream()
+                .filter(m -> m.getCuboid().contains(e.getBlock().getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (ffa == null) return;
+
+        if (!ffa.isBuild()) {
+            e.setCancelled(true);
+            return;
+        }
+
+        // Track all blocks being pulled
+        for (Block block : e.getBlocks()) {
+            block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), ffa));
+            ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(block));
+
+            // Track the destination block
+            Block destination = block.getRelative(e.getDirection());
+            destination.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), ffa));
+            ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(destination));
+        }
+    }
+
+    @EventHandler
+    public void onBlockForm(BlockFormEvent e) {
+        Block block = e.getBlock();
+
+        FFA ffa = FFAManager.getInstance().getOpenFFAs().stream()
+                .filter(m -> m.getCuboid().contains(block.getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (ffa == null) return;
+        if (!ffa.isBuild()) return;
+
+        // Track cobblestone/obsidian/ice formation from water/lava
+        block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), ffa));
+        ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(block));
+    }
+
+    @EventHandler
+    public void onBlockSpread(BlockSpreadEvent e) {
+        Block block = e.getBlock();
+
+        FFA ffa = FFAManager.getInstance().getOpenFFAs().stream()
+                .filter(m -> m.getCuboid().contains(block.getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (ffa == null) return;
+        if (!ffa.isBuild()) return;
+
+        // Track spread blocks (fire, etc.)
+        Block source = e.getSource();
+        if (source.hasMetadata(PLACED_IN_FIGHT)) {
+            block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), ffa));
+            ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(block));
+        }
+    }
+
 
 }

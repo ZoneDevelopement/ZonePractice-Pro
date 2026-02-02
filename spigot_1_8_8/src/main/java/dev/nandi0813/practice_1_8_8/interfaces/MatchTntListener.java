@@ -64,4 +64,91 @@ public class MatchTntListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onBlockPistonExtend(org.bukkit.event.block.BlockPistonExtendEvent e) {
+        Match match = MatchManager.getInstance().getLiveMatches().stream()
+                .filter(m -> m.getCuboid().contains(e.getBlock().getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (match == null) return;
+        if (!match.getLadder().isBuild()) {
+            e.setCancelled(true);
+            return;
+        }
+
+        // Track all blocks being pushed
+        for (Block block : e.getBlocks()) {
+            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(dev.nandi0813.practice.ZonePractice.getInstance(), match));
+            match.addBlockChange(ClassImport.createChangeBlock(block));
+
+            // Track the destination block
+            Block destination = block.getRelative(e.getDirection());
+            destination.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(dev.nandi0813.practice.ZonePractice.getInstance(), match));
+            match.addBlockChange(ClassImport.createChangeBlock(destination));
+        }
+    }
+
+    @EventHandler
+    public void onBlockPistonRetract(org.bukkit.event.block.BlockPistonRetractEvent e) {
+        Match match = MatchManager.getInstance().getLiveMatches().stream()
+                .filter(m -> m.getCuboid().contains(e.getBlock().getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (match == null) return;
+        if (!match.getLadder().isBuild()) {
+            e.setCancelled(true);
+            return;
+        }
+
+        // Track all blocks being pulled
+        for (Block block : e.getBlocks()) {
+            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(dev.nandi0813.practice.ZonePractice.getInstance(), match));
+            match.addBlockChange(ClassImport.createChangeBlock(block));
+
+            // Track the destination block
+            Block destination = block.getRelative(e.getDirection());
+            destination.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(dev.nandi0813.practice.ZonePractice.getInstance(), match));
+            match.addBlockChange(ClassImport.createChangeBlock(destination));
+        }
+    }
+
+    @EventHandler
+    public void onBlockForm(org.bukkit.event.block.BlockFormEvent e) {
+        Block block = e.getBlock();
+
+        Match match = MatchManager.getInstance().getLiveMatches().stream()
+                .filter(m -> m.getCuboid().contains(block.getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (match == null) return;
+        if (!match.getLadder().isBuild()) return;
+
+        // Track cobblestone/obsidian/ice formation from water/lava
+        block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(dev.nandi0813.practice.ZonePractice.getInstance(), match));
+        match.addBlockChange(ClassImport.createChangeBlock(block));
+    }
+
+    @EventHandler
+    public void onBlockSpread(org.bukkit.event.block.BlockSpreadEvent e) {
+        Block block = e.getBlock();
+
+        Match match = MatchManager.getInstance().getLiveMatches().stream()
+                .filter(m -> m.getCuboid().contains(block.getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (match == null) return;
+        if (!match.getLadder().isBuild()) return;
+
+        // Track spread blocks (fire, etc.)
+        Block source = e.getSource();
+        if (source.hasMetadata(PLACED_IN_FIGHT)) {
+            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(dev.nandi0813.practice.ZonePractice.getInstance(), match));
+            match.addBlockChange(ClassImport.createChangeBlock(block));
+        }
+    }
+
 }
