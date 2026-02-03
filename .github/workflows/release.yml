@@ -70,8 +70,8 @@ jobs:
         run: |
           VERSION="${{ steps.check_version.outputs.version }}"
           
-          # Get the previous tag
-          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          # Get the previous tag (not just from HEAD^, but the actual last tag)
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           
           # Initialize categories
           BUG_FIXES=""
