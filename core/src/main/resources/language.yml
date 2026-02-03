@@ -648,7 +648,7 @@ COMMAND:
           - " <aqua>Party Members (%maxPlayerLimit%/%memberSize%)<gray>: <white>%members%"
           - "<gray><st>------------------------------------------------"
       INVITE:
-        COMMAND-HELP: "<red>/%label> invite <player>"
+        COMMAND-HELP: "<red>/%label% invite <player>"
         NO-PARTY: "<red>You are not in a party."
         CANT-INVITE: "<red>You can't invite players to the party."
         TARGET-OFFLINE: "<red>Player is not online."
