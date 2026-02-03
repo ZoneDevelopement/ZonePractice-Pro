@@ -101,7 +101,9 @@ public enum ArenaSetupUtil {
                     .replace("%bed2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getBedLoc2())))
                     .replace("%portal1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPortalLoc1())))
                     .replace("%portal2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPortalLoc2())))
-                    .replace("%sideBuildLimit%", String.valueOf(arena.getSideBuildLimit()));
+                    .replace("%sideBuildLimit%", String.valueOf(arena.getSideBuildLimit()))
+                    .replace("%buildMaxY%", arena.isBuildMax() ? String.valueOf(arena.getBuildMaxValue()) : "&cNot Set")
+                    .replace("%deathZoneY%", arena.isDeadZone() ? String.valueOf(arena.getDeadZoneValue()) : "&cNot Set");
         } else {
             guiItem = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MAIN.ICONS.LOCATION.NOT-BUILD")
                     .replace("%arenaName%", arena.getName())
@@ -109,7 +111,8 @@ public enum ArenaSetupUtil {
                     .replace("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getCorner1())))
                     .replace("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getCorner2())))
                     .replace("%position1%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition1())))
-                    .replace("%position2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition2())));
+                    .replace("%position2%", Common.mmToNormal(ArenaUtil.convertLocation(arena.getPosition2())))
+                    .replace("%deathZoneY%", arena.isDeadZone() ? String.valueOf(arena.getDeadZoneValue()) : "&cNot Set");
         }
 
         return guiItem.get();
