@@ -2,6 +2,7 @@ package dev.nandi0813.practice.module.interfaces;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
+import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -68,6 +69,15 @@ public abstract class StatisticListener implements Listener {
                         defenderStats.setLongestCombo(CURRENT_COMBO.get(defender));
                     }
                     CURRENT_COMBO.put(defender, 0);
+                }
+
+                // Immediately update scoreboards for real-time hit counter display
+                // Schedule on main thread since scoreboard updates must be on main thread
+                if (attacker != null && defender != null) {
+                    ZonePractice.getInstance().getServer().getScheduler().runTask(
+                            ZonePractice.getInstance(),
+                            () -> SidebarManager.getInstance().updatePlayersSidebar(attacker, defender)
+                    );
                 }
             }
         };

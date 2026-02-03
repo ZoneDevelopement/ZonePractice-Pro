@@ -104,6 +104,34 @@ public class SidebarManager extends ConfigFile implements Listener {
         }
     }
 
+    /**
+     * Immediately updates a specific player's scoreboard
+     * This is useful for real-time updates (e.g., hit counter)
+     *
+     * @param player the player whose scoreboard should be updated
+     */
+    public void updatePlayerSidebar(Player player) {
+        if (!boards.containsKey(player))
+            return;
+
+        PracticeSidebar sidebar = boards.get(player);
+        if (sidebar != null && sidebar.getSidebar() != null && !sidebar.getSidebar().closed()) {
+            sidebar.update();
+        }
+    }
+
+    /**
+     * Immediately updates multiple players' scoreboards
+     * This is useful for real-time updates involving multiple players
+     *
+     * @param players the players whose scoreboards should be updated
+     */
+    public void updatePlayersSidebar(Player... players) {
+        for (Player player : players) {
+            updatePlayerSidebar(player);
+        }
+    }
+
     public void update() {
         Bukkit.getScheduler().runTaskTimerAsynchronously(ZonePractice.getInstance(), () ->
         {
