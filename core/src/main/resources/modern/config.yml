@@ -45,7 +45,7 @@ QUEUE:
           FIREBALL: 15
           GAPPLE: 16
           NODEBUFF: 20
-          COMBO: 21
+          MACE: 21
           SUMO: 22
           BUILDUHC: 23
           PEARLFIGHT: 24
@@ -82,7 +82,7 @@ QUEUE:
           FIREBALL: 15
           GAPPLE: 16
           NODEBUFF: 20
-          COMBO: 21
+          MACE: 21
           SUMO: 22
           BUILDUHC: 23
           PEARLFIGHT: 24
