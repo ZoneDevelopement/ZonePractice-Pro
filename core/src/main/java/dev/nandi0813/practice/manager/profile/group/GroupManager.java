@@ -85,7 +85,7 @@ public class GroupManager extends ConfigFile {
             } catch (Exception e) {
                 Common.sendConsoleMMMessage("<red>Failed to set group for " + profile.getPlayer().getName() + "! Error: " + e.getMessage());
             }
-            return null;
+            return profile.getGroup();
         }
 
         Group currentGroup = profile.getGroup();

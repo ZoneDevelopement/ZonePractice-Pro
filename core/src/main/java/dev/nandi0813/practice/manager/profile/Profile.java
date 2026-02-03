@@ -156,7 +156,7 @@ public class Profile {
         // If newGroup is null (shouldn't happen with our fix, but safety check)
         // or if the group has changed, update it
         if (newGroup == null) {
-            Common.sendConsoleMMMessage("<red>Warning: Could not determine group for " + online.getName());
+            Common.sendConsoleMMMessage("<red>Warning: Could not determine group for " + online.getName() + ". Assigning default (lowest weighted) group to them.");
             return;
         }
 
