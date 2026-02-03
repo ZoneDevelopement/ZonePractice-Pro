@@ -184,4 +184,10 @@ public class PlayerUtil implements dev.nandi0813.practice.module.interfaces.Play
         }, 1L);
     }
 
+    @Override
+    public void setAttackSpeed(Player player, int hitDelay) {
+        // No-op for 1.8.8 - attack speed attribute doesn't exist
+        // Hit delay is handled by setMaximumNoDamageTicks in the core
+    }
+
 }

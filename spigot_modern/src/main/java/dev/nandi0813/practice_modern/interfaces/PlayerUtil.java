@@ -182,4 +182,38 @@ public class PlayerUtil implements dev.nandi0813.practice.module.interfaces.Play
         }, 1L);
     }
 
+    @Override
+    public void setAttackSpeed(Player player, int hitDelay) {
+        // In modern versions (1.9+), we need to set the ATTACK_SPEED attribute
+        // to control attack cooldown in addition to setMaximumNoDamageTicks
+
+        org.bukkit.attribute.AttributeInstance attackSpeed =
+                player.getAttribute(org.bukkit.attribute.Attribute.ATTACK_SPEED);
+
+        if (attackSpeed != null) {
+            // Remove any existing modifiers
+            attackSpeed.getModifiers().forEach(attackSpeed::removeModifier);
+
+            // Calculate attack speed based on hit delay
+            // hitDelay of 0 = instant attacks (very high attack speed, e.g., 100)
+            // hitDelay of 20 = 1 second cooldown (vanilla is 4.0)
+            double attackSpeedValue;
+
+            if (hitDelay <= 0) {
+                // Instant attacks - set very high attack speed for spam clicking
+                attackSpeedValue = 100.0;
+            } else if (hitDelay >= 20) {
+                // Standard vanilla or slower
+                attackSpeedValue = 4.0;
+            } else {
+                // Scale between 4.0 and 100.0 based on hit delay
+                // Lower hitDelay = higher attack speed
+                attackSpeedValue = 4.0 + ((20.0 - hitDelay) / 20.0) * 96.0;
+            }
+
+            // Set the base value
+            attackSpeed.setBaseValue(attackSpeedValue);
+        }
+    }
+
 }
