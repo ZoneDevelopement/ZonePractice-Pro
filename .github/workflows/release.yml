@@ -39,25 +39,28 @@ jobs:
       - name: Check for Version Change
         id: check_version
         run: |
-          # Get current version (-N = non-recursive, only main pom)
+          # Get current version from pom.xml
           NEW_VERSION=$(mvn -N help:evaluate -Dexpression=project.version -q -DforceStdout)
           
-          # Get previous version (save previous pom to a temp file)
-          git show HEAD^:pom.xml > pom_old.xml
-          OLD_VERSION=$(mvn -N -f pom_old.xml help:evaluate -Dexpression=project.version -q -DforceStdout)
-          rm pom_old.xml
+          echo "Current version in pom.xml: $NEW_VERSION"
           
-          echo "Previous version: $OLD_VERSION"
-          echo "Current version:  $NEW_VERSION"
-          
-          # Compare versions
-          if [ "$NEW_VERSION" != "$OLD_VERSION" ]; then
+          # Check if a tag for this version already exists
+          if git rev-parse "v${NEW_VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${NEW_VERSION} already exists. Skipping release."
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v${NEW_VERSION} does not exist. Creating new release."
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-            echo "Version change detected! ($OLD_VERSION -> $NEW_VERSION)"
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "Version number did not change. Skipping release."
+            
+            # Get the latest tag for changelog comparison
+            LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            if [ -n "$LATEST_TAG" ]; then
+              echo "Latest existing tag: $LATEST_TAG"
+              echo "Will generate changelog from $LATEST_TAG to HEAD"
+            else
+              echo "No previous tags found. Will generate changelog from all commits."
+            fi
           fi
 
       - name: Build with Maven
