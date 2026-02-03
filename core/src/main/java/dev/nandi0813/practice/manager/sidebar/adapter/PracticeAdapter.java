@@ -213,8 +213,8 @@ public class PracticeAdapter implements SidebarAdapter {
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%team1boxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM1)))).build())
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%team2boxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM2)))).build());
                                     case BEDWARS, FIREBALL_FIGHT -> component
-                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team1BedStatus%").replacement(round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")).build())
-                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team2BedStatus%").replacement(round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")).build());
+                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team1BedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build())
+                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team2BedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build());
                                     default -> component;
                                 };
 
@@ -462,8 +462,8 @@ public class PracticeAdapter implements SidebarAdapter {
                                     case BEDWARS:
                                     case FIREBALL_FIGHT:
                                         line = line
-                                                .replace("%team1BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
-                                                .replace("%team2BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
+                                                .replace("%team1BedStatus%", (round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
+                                                .replace("%team2BedStatus%", (round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
                                         break;
                                 }
 
