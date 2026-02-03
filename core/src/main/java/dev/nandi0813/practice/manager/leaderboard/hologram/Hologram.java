@@ -130,13 +130,11 @@ public abstract class Hologram {
 
         Leaderboard leaderboard = this.getNextLeaderboard();
         if (leaderboard == null) {
-            clearHologram();
             setSetupHologram(SetupHologramType.SETUP);
             return;
         }
 
         if (leaderboard.isEmpty()) {
-            clearHologram();
             setSetupHologram(SetupHologramType.NO_DISPLAY);
             return;
         }
@@ -285,7 +283,7 @@ public abstract class Hologram {
         return placementStrings;
     }
 
-    public void setSetupHologram(SetupHologramType setupHologram) {
+    public synchronized void setSetupHologram(SetupHologramType setupHologram) {
         if (baseLocation == null || baseLocation.getWorld() == null) {
             return;
         }
