@@ -31,8 +31,7 @@ public class PlayerPreLogin implements Listener {
         // Check for duplicate username (different UUID, same name)
         String joiningPlayerName = event.getName();
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            if (onlinePlayer.getName().equalsIgnoreCase(joiningPlayerName) &&
-                    !onlinePlayer.getUniqueId().equals(event.getUniqueId())) {
+            if (onlinePlayer.getName().equalsIgnoreCase(joiningPlayerName)) {
                 String message = LanguageManager.getString("DUPLICATE-USERNAME-KICK");
                 if (message == null || message.isEmpty()) {
                     message = "<red>A player with your username is already logged in!";
