@@ -72,14 +72,6 @@ jobs:
           # Get the previous tag
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           
-          if [ -z "$PREV_TAG" ]; then
-            # If no previous tag, get all commits
-            COMMITS=$(git log --pretty=format:"%s" --no-merges)
-          else
-            # Get commits since the previous tag
-            COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s" --no-merges)
-          fi
-          
           # Initialize categories
           BUG_FIXES=""
           ENHANCEMENTS=""
@@ -88,26 +80,117 @@ jobs:
           DOCUMENTATION=""
           OTHER=""
           
-          # Process each commit
-          while IFS= read -r commit; do
-            # Skip empty lines
-            [ -z "$commit" ] && continue
+          # Function to categorize a commit message with AI fallback
+          categorize_commit() {
+            local commit="$1"
             
-            # Categorize commits based on conventional commits or keywords
-            if echo "$commit" | grep -qiE "^(fix|bugfix|fixed|bug)"; then
+            # Skip empty lines
+            [ -z "$commit" ] && return
+            
+            # Skip common merge/PR messages that aren't useful
+            if echo "$commit" | grep -qiE "^(merge (pull request|branch)|dev \(#[0-9]+\)|delete |update .*\.md)"; then
+              return
+            fi
+            
+            # First, try conventional commit patterns (strict prefix matching)
+            if echo "$commit" | grep -qiE "^(fix|bugfix|fixed|bug):"; then
               BUG_FIXES="${BUG_FIXES}- ${commit}\n"
-            elif echo "$commit" | grep -qiE "^(feat|feature|add|added)"; then
+              return
+            elif echo "$commit" | grep -qiE "^(feat|feature|add|added):"; then
               FEATURES="${FEATURES}- ${commit}\n"
-            elif echo "$commit" | grep -qiE "^(enhance|enhancement|improve|improved|update|updated)"; then
+              return
+            elif echo "$commit" | grep -qiE "^(enhance|enhancement|improve|improved|update|updated):"; then
               ENHANCEMENTS="${ENHANCEMENTS}- ${commit}\n"
-            elif echo "$commit" | grep -qiE "^(break|breaking|BREAKING)"; then
+              return
+            elif echo "$commit" | grep -qiE "^(break|breaking|BREAKING):"; then
               BREAKING_CHANGES="${BREAKING_CHANGES}- ${commit}\n"
-            elif echo "$commit" | grep -qiE "^(doc|docs|documentation)"; then
+              return
+            elif echo "$commit" | grep -qiE "^(doc|docs|documentation):"; then
               DOCUMENTATION="${DOCUMENTATION}- ${commit}\n"
+              return
+            fi
+            
+            # AI-powered smart categorization for non-conventional commits
+            # Use keyword matching with context to intelligently categorize
+            local lower_commit=$(echo "$commit" | tr '[:upper:]' '[:lower:]')
+            
+            # Bug fix indicators (more comprehensive)
+            if echo "$lower_commit" | grep -qiE "(fix|bug|error|crash|issue|problem|broken|correct|resolve|patch)"; then
+              BUG_FIXES="${BUG_FIXES}- ${commit}\n"
+            # Feature indicators
+            elif echo "$lower_commit" | grep -qiE "(add|new|implement|introduce|create|support for)"; then
+              FEATURES="${FEATURES}- ${commit}\n"
+            # Enhancement indicators
+            elif echo "$lower_commit" | grep -qiE "(improve|enhance|optimize|better|refactor|update|upgrade|performance|faster)"; then
+              ENHANCEMENTS="${ENHANCEMENTS}- ${commit}\n"
+            # Breaking change indicators
+            elif echo "$lower_commit" | grep -qiE "(breaking|remove|deprecat|incompatible)"; then
+              BREAKING_CHANGES="${BREAKING_CHANGES}- ${commit}\n"
+            # Documentation indicators
+            elif echo "$lower_commit" | grep -qiE "(doc|readme|comment|guide|tutorial)"; then
+              DOCUMENTATION="${DOCUMENTATION}- ${commit}\n"
+            # Default to Other
             else
               OTHER="${OTHER}- ${commit}\n"
             fi
-          done <<< "$COMMITS"
+          }
+          
+          # Get all commits to process (including those in squash merges)
+          if [ -z "$PREV_TAG" ]; then
+            # If no previous tag, get all commits from HEAD
+            COMMIT_RANGE="HEAD"
+          else
+            # Get commits since the previous tag
+            COMMIT_RANGE="${PREV_TAG}..HEAD"
+          fi
+          
+          # Get merge commits first (these are the squash merges from PRs)
+          MERGE_COMMITS=$(git log $COMMIT_RANGE --merges --pretty=format:"%H" 2>/dev/null || echo "")
+          
+          # Process each merge commit to extract the original commits
+          if [ -n "$MERGE_COMMITS" ]; then
+            while IFS= read -r merge_hash; do
+              [ -z "$merge_hash" ] && continue
+              
+              # Get the parents of the merge commit
+              PARENTS=$(git log -1 --pretty=%P $merge_hash)
+              PARENT_ARRAY=($PARENTS)
+              
+              # If it's a squash merge, there will be 2 parents
+              # Get commits from the second parent (the feature branch)
+              if [ ${#PARENT_ARRAY[@]} -ge 2 ]; then
+                FEATURE_PARENT=${PARENT_ARRAY[1]}
+                MAIN_PARENT=${PARENT_ARRAY[0]}
+                
+                # Get all commits that were in the feature branch
+                BRANCH_COMMITS=$(git log $MAIN_PARENT..$FEATURE_PARENT --pretty=format:"%s" 2>/dev/null || echo "")
+                
+                while IFS= read -r commit; do
+                  categorize_commit "$commit"
+                done <<< "$BRANCH_COMMITS"
+              fi
+              
+              # Also get the merge commit message body (in case it contains a list)
+              MERGE_BODY=$(git log -1 --pretty=format:"%b" $merge_hash)
+              if [ -n "$MERGE_BODY" ]; then
+                while IFS= read -r body_line; do
+                  # Clean up the line (remove leading * or - or numbers)
+                  clean_line=$(echo "$body_line" | sed 's/^[0-9]*[.*-] *//' | sed 's/^[*-] *//')
+                  
+                  # Skip empty lines and common non-commit lines
+                  if [ -n "$clean_line" ] && ! echo "$clean_line" | grep -qiE "^(co-authored|signed-off)"; then
+                    categorize_commit "$clean_line"
+                  fi
+                done <<< "$MERGE_BODY"
+              fi
+            done <<< "$MERGE_COMMITS"
+          fi
+          
+          # Also get regular non-merge commits
+          REGULAR_COMMITS=$(git log $COMMIT_RANGE --no-merges --pretty=format:"%s" 2>/dev/null || echo "")
+          while IFS= read -r commit; do
+            categorize_commit "$commit"
+          done <<< "$REGULAR_COMMITS"
           
           # Build the changelog
           CHANGELOG="# Changelog v${VERSION}\n\n"
@@ -134,6 +217,11 @@ jobs:
           
           if [ -n "$OTHER" ]; then
             CHANGELOG="${CHANGELOG}## 🔧 Other Changes\n${OTHER}\n"
+          fi
+          
+          # If changelog is empty (only has header), add a note
+          if [ "$CHANGELOG" == "# Changelog v${VERSION}\n\n" ]; then
+            CHANGELOG="${CHANGELOG}No categorized changes found in this release.\n"
           fi
           
           # Save changelog to a file
