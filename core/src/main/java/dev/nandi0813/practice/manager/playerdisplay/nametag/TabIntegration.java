@@ -61,18 +61,23 @@ public class TabIntegration {
             String prefixStr = prefix != null ? componentToLegacy(prefix) : "";
             String suffixStr = suffix != null ? componentToLegacy(suffix) : "";
 
+            // Check if the original prefix was empty (before we add color codes)
+            boolean originalPrefixEmpty = prefixStr.isEmpty();
+
             // CRITICAL FIX: Apply the name color to the prefix
             // In TAB, the "team color" is set via the prefix's last color code
             // So we need to ensure the prefix ends with the desired name color
+            String colorCode = null;
             if (nameColor != null) {
-                String colorCode = getColorCode(nameColor);
+                colorCode = getColorCode(nameColor);
 
                 // Check if prefix already ends with a color code (case-insensitive)
                 // Pattern matches: §0-9, §a-f, §A-F, §k-o, §K-O, §r, §R
                 boolean endsWithColor = prefixStr.matches(".*§[0-9a-fA-Fk-oK-OrR]$");
 
-                // If prefix is empty OR doesn't end with a color code, append our name color
-                if (prefixStr.isEmpty() || !endsWithColor) {
+                // Only append color code to prefix if it's NOT empty and doesn't already end with a color
+                // For 1.8 compatibility: If prefix is empty, we'll handle coloring via setName instead
+                if (!prefixStr.isEmpty() && !endsWithColor) {
                     prefixStr = prefixStr + colorCode;
                 }
             }
@@ -81,7 +86,14 @@ public class TabIntegration {
             NameTagManager nameTagManager = tabAPI.getNameTagManager();
             if (nameTagManager != null) {
                 // Set temporary prefix and suffix using TAB API for nametag
-                nameTagManager.setPrefix(tabPlayer, prefixStr);
+                // FIX: Only set prefix if it's not empty OR if it has actual content beyond just a color code
+                // This prevents the unwanted space in 1.8 when only a color is applied
+                if (!originalPrefixEmpty) {
+                    nameTagManager.setPrefix(tabPlayer, prefixStr);
+                } else {
+                    // If original prefix was empty, set it to empty string to avoid the 1.8 space bug
+                    nameTagManager.setPrefix(tabPlayer, "");
+                }
                 nameTagManager.setSuffix(tabPlayer, suffixStr);
             }
 
@@ -90,15 +102,21 @@ public class TabIntegration {
             try {
                 var tabListFormatManager = tabAPI.getTabListFormatManager();
                 if (tabListFormatManager != null) {
-                    // Set prefix and suffix for tablist
-                    tabListFormatManager.setPrefix(tabPlayer, prefixStr);
+                    // FIX: Same logic for tablist - only set prefix if it had actual content
+                    if (!originalPrefixEmpty) {
+                        tabListFormatManager.setPrefix(tabPlayer, prefixStr);
+                    } else {
+                        tabListFormatManager.setPrefix(tabPlayer, "");
+                    }
                     tabListFormatManager.setSuffix(tabPlayer, suffixStr);
 
-                    // Optionally set the name with color for the tablist
+                    // Set the name with color for the tablist
                     // This ensures the player name itself is colored in the tablist
                     if (nameColor != null) {
-                        String colorCode = getColorCode(nameColor);
                         tabListFormatManager.setName(tabPlayer, colorCode + player.getName());
+                    } else {
+                        // Reset to default name if no color
+                        tabListFormatManager.setName(tabPlayer, null);
                     }
                 }
             } catch (Exception e) {

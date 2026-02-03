@@ -39,7 +39,6 @@ import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.leaderboard.LeaderboardManager;
 import dev.nandi0813.practice.manager.leaderboard.hologram.HologramManager;
 import dev.nandi0813.practice.manager.playerdisplay.nametag.NametagManager;
-import dev.nandi0813.practice.manager.playerdisplay.tab.TabListManager;
 import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
@@ -117,7 +116,6 @@ public final class ZonePractice extends JavaPlugin {
         ServerManager.getInstance().loadLobby();
         InventoryManager.getInstance().loadInventories();
         PlayerKitManager.getInstance().load();
-        TabListManager.getInstance().start();
         NametagManager.getInstance().initialize(); // Initialize after all plugins loaded to detect TAB conflicts
 
         LadderManager.getInstance().loadLadders(() ->
