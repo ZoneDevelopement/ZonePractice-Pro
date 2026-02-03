@@ -4,6 +4,7 @@ on:
   push:
     branches: [ "master", "main" ]
     paths: [ "pom.xml" ]
+  workflow_dispatch:
 
 jobs:
   check-and-release:
