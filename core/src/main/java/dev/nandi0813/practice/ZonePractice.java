@@ -38,7 +38,7 @@ import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.leaderboard.LeaderboardManager;
 import dev.nandi0813.practice.manager.leaderboard.hologram.HologramManager;
-import dev.nandi0813.practice.manager.playerdisplay.nametag.NametagManager;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.server.ServerManager;

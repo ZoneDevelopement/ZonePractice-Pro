@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.manager.playerdisplay.nametag;
+package dev.nandi0813.practice.manager.nametag;
 
 import dev.nandi0813.practice.module.util.VersionChecker;
 import lombok.Data;

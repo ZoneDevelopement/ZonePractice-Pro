@@ -7,7 +7,7 @@ import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersVsPlayers;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.party.Party;
-import dev.nandi0813.practice.manager.playerdisplay.nametag.NametagManager;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
 import org.bukkit.entity.Player;

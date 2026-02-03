@@ -14,7 +14,7 @@ import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.party.Party;
-import dev.nandi0813.practice.manager.playerdisplay.nametag.NametagManager;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.module.util.ClassImport;

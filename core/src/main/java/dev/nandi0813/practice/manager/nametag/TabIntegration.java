@@ -1,5 +1,6 @@
-package dev.nandi0813.practice.manager.playerdisplay.nametag;
+package dev.nandi0813.practice.manager.nametag;
 
+import lombok.Getter;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
 import me.neznamy.tab.api.nametag.NameTagManager;
@@ -18,6 +19,7 @@ import org.bukkit.entity.Player;
 public class TabIntegration {
 
     private final TabAPI tabAPI;
+    @Getter
     private final boolean available;
 
     public TabIntegration() {
@@ -36,10 +38,6 @@ public class TabIntegration {
         this.available = isAvailable;
     }
 
-    public boolean isAvailable() {
-        return available;
-    }
-
     /**
      * Sets a player's nametag using TAB API.
      *
@@ -49,7 +47,6 @@ public class TabIntegration {
      * @param suffix       The suffix component
      * @param sortPriority The sort priority (currently unused in TAB integration)
      */
-    @SuppressWarnings ( "unused" )
     public void setNametag(Player player, Component prefix, NamedTextColor nameColor, Component suffix, int sortPriority) {
         if (!available) return;
 
@@ -85,45 +82,94 @@ public class TabIntegration {
             // TAB API 5.x uses the NameTagManager to set temporary values for NAMETAG (above head)
             NameTagManager nameTagManager = tabAPI.getNameTagManager();
             if (nameTagManager != null) {
-                // Set temporary prefix and suffix using TAB API for nametag
-                // FIX: Only set prefix if it's not empty OR if it has actual content beyond just a color code
-                // This prevents the unwanted space in 1.8 when only a color is applied
+                // Handle prefix setting based on whether there's actual content or just color
                 if (!originalPrefixEmpty) {
+                    // Has actual prefix text (possibly with color appended)
                     nameTagManager.setPrefix(tabPlayer, prefixStr);
+                } else if (colorCode != null) {
+                    // No prefix text, but we have a color to apply
+                    // Set the color code as prefix so the name gets colored
+                    nameTagManager.setPrefix(tabPlayer, colorCode);
                 } else {
-                    // If original prefix was empty, set it to empty string to avoid the 1.8 space bug
+                    // No prefix and no color
                     nameTagManager.setPrefix(tabPlayer, "");
                 }
                 nameTagManager.setSuffix(tabPlayer, suffixStr);
             }
 
-            // CRITICAL: Also set TABLIST formatting (player list when pressing Tab)
-            // TAB has separate managers for nametag and tablist
+            // NOTE: We do NOT modify tablist formatting here
+            // Tablist should remain as configured by TAB (group-based formatting from lobby)
+            // Only the nametag (above head) changes during matches
+
+        } catch (Exception e) {
+            // Silently fail - TAB integration is optional
+        }
+    }
+
+    /**
+     * Sets a player's tablist name using TAB API.
+     * This is used for lobby nametag formatting where we want to show the full formatted name in tablist.
+     *
+     * @param player The player
+     * @param listName The full formatted component to display in tablist (prefix + colored name + suffix)
+     */
+    public void setTabListName(Player player, Component listName) {
+        if (!available) return;
+
+        try {
+            TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());
+            if (tabPlayer == null) return;
+
+            // Convert Component to legacy string for TAB
+            String fullListName = componentToLegacy(listName);
+
+            // TAB API 5.x uses TabListFormatManager to set tablist formatting
             try {
                 var tabListFormatManager = tabAPI.getTabListFormatManager();
                 if (tabListFormatManager != null) {
-                    // FIX: Same logic for tablist - only set prefix if it had actual content
-                    if (!originalPrefixEmpty) {
-                        tabListFormatManager.setPrefix(tabPlayer, prefixStr);
-                    } else {
-                        tabListFormatManager.setPrefix(tabPlayer, "");
-                    }
-                    tabListFormatManager.setSuffix(tabPlayer, suffixStr);
+                    // We need to split the formatted name into prefix, name, and suffix
+                    // The listName contains: prefix + playerName + suffix
+                    // We need to find where the player's actual name is in the string
 
-                    // Set the name with color for the tablist
-                    // This ensures the player name itself is colored in the tablist
-                    if (nameColor != null) {
-                        tabListFormatManager.setName(tabPlayer, colorCode + player.getName());
+                    String playerName = player.getName();
+                    int nameIndex = fullListName.indexOf(playerName);
+
+                    if (nameIndex >= 0) {
+                        // Found the player name in the formatted string
+                        // Extract prefix (everything before the name, may include color codes)
+                        String prefix = fullListName.substring(0, nameIndex);
+
+                        // Extract the name portion (may have color code before it)
+                        // Find the last color code before the name
+                        String nameWithColor = playerName;
+                        int lastColorBeforeName = prefix.lastIndexOf('§');
+                        if (lastColorBeforeName >= 0 && lastColorBeforeName + 1 < prefix.length()) {
+                            // Extract the color code and apply it to the name
+                            String colorCode = prefix.substring(lastColorBeforeName);
+                            nameWithColor = colorCode + playerName;
+                            // Remove the trailing color code from prefix (it's now part of the name)
+                            prefix = prefix.substring(0, lastColorBeforeName);
+                        }
+
+                        // Extract suffix (everything after the name)
+                        String suffix = fullListName.substring(nameIndex + playerName.length());
+
+                        // Set the components through TAB API
+                        tabListFormatManager.setPrefix(tabPlayer, prefix);
+                        tabListFormatManager.setName(tabPlayer, nameWithColor);
+                        tabListFormatManager.setSuffix(tabPlayer, suffix);
                     } else {
-                        // Reset to default name if no color
-                        tabListFormatManager.setName(tabPlayer, null);
+                        // Fallback: couldn't parse, set the whole thing as prefix + name
+                        // This handles cases where the name might be modified or not found
+                        tabListFormatManager.setPrefix(tabPlayer, "");
+                        tabListFormatManager.setName(tabPlayer, fullListName);
+                        tabListFormatManager.setSuffix(tabPlayer, "");
                     }
                 }
             } catch (Exception e) {
                 // TabListFormatManager might not be available in older TAB versions
                 // Silently ignore
             }
-
         } catch (Exception e) {
             // Silently fail - TAB integration is optional
         }
@@ -134,7 +180,6 @@ public class TabIntegration {
      *
      * @param player The player
      */
-    @SuppressWarnings ( "unused" )
     public void resetNametag(Player player) {
         if (!available) return;
 
@@ -150,19 +195,8 @@ public class TabIntegration {
                 nameTagManager.setSuffix(tabPlayer, null);
             }
 
-            // Also reset TABLIST formatting
-            try {
-                var tabListFormatManager = tabAPI.getTabListFormatManager();
-                if (tabListFormatManager != null) {
-                    // Reset tablist prefix, name, and suffix to defaults
-                    tabListFormatManager.setPrefix(tabPlayer, null);
-                    tabListFormatManager.setSuffix(tabPlayer, null);
-                    tabListFormatManager.setName(tabPlayer, null);
-                }
-            } catch (Exception e) {
-                // TabListFormatManager might not be available in older TAB versions
-                // Silently ignore
-            }
+            // NOTE: We do NOT reset tablist formatting here
+            // Tablist should remain as configured by TAB (group-based formatting from lobby)
 
         } catch (Exception e) {
             // Silently fail

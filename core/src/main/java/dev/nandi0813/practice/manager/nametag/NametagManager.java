@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.manager.playerdisplay.nametag;
+package dev.nandi0813.practice.manager.nametag;
 
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
 import net.kyori.adventure.text.Component;

@@ -152,7 +152,15 @@ public class Profile {
         if (online == null || !online.isOnline()) return;
 
         Group newGroup = GroupManager.getInstance().getGroup(online);
-        if (newGroup == null || group == newGroup) return;
+
+        // If newGroup is null (shouldn't happen with our fix, but safety check)
+        // or if the group has changed, update it
+        if (newGroup == null) {
+            Common.sendConsoleMMMessage("<red>Warning: Could not determine group for " + online.getName());
+            return;
+        }
+
+        if (group == newGroup) return;
 
         try {
             this.setGroup(newGroup);

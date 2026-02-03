@@ -17,7 +17,7 @@ import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
-import dev.nandi0813.practice.manager.playerdisplay.nametag.NametagManager;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;

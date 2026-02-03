@@ -1,11 +1,10 @@
-package dev.nandi0813.practice.manager.playerdisplay.nametag;
+package dev.nandi0813.practice.manager.nametag;
 
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
-import java.util.logging.Logger;
 
 /**
  * Detects TAB plugin and manages conflict resolution.
@@ -20,7 +19,6 @@ import java.util.logging.Logger;
  */
 public class TeamPacketBlocker {
 
-    private static final Logger LOGGER = Bukkit.getLogger();
     private static TeamPacketBlocker instance;
 
     @Getter
@@ -55,41 +53,24 @@ public class TeamPacketBlocker {
         tabPluginPresent = tabPlugin != null && tabPlugin.isEnabled();
 
         if (!tabPluginPresent) {
-            LOGGER.info("[ZonePractice] TAB plugin not detected. Using internal nametag system.");
+            // TAB not present; use internal nametag system.
             return;
         }
-
-        LOGGER.warning("╔════════════════════════════════════════════════════════════╗");
-        LOGGER.warning("║  TAB PLUGIN DETECTED - NAMETAG CONFLICT PREVENTION ACTIVE  ║");
-        LOGGER.warning("╚════════════════════════════════════════════════════════════╝");
 
         // Check if TAB's scoreboard-teams feature is enabled
         tabScoreboardTeamsEnabled = checkTabScoreboardTeamsEnabled(tabPlugin);
 
         if (tabScoreboardTeamsEnabled) {
             nametagSystemDisabled = true;
-            LOGGER.warning("[ZonePractice] TAB's scoreboard-teams feature is ENABLED.");
-            LOGGER.warning("[ZonePractice] Disabling internal nametag system to prevent Network Protocol Errors.");
-            LOGGER.warning("[ZonePractice] Team nametags will be managed by TAB instead.");
 
             // Try to initialize TAB API integration
             try {
                 tabIntegration = new TabIntegration();
-                if (tabIntegration.isAvailable()) {
-                    LOGGER.info("[ZonePractice] TAB API integration enabled. Using TAB API for nametags.");
-                } else {
-                    LOGGER.warning("[ZonePractice] TAB API not available. Nametag features disabled.");
-                }
+                // If available, TAB API will be used externally; otherwise nametag features remain disabled.
             } catch (Throwable e) {
-                LOGGER.warning("[ZonePractice] Failed to initialize TAB API integration: " + e.getMessage());
-                LOGGER.warning("[ZonePractice] Nametag features will be disabled.");
+                // Initialization failed; nametag features will remain disabled.
             }
-        } else {
-            LOGGER.info("[ZonePractice] TAB's scoreboard-teams feature is DISABLED.");
-            LOGGER.info("[ZonePractice] Using internal nametag system safely.");
         }
-
-        LOGGER.warning("════════════════════════════════════════════════════════════");
     }
 
     /**
@@ -99,7 +80,7 @@ public class TeamPacketBlocker {
         try {
             File tabConfigFile = new File(tabPlugin.getDataFolder(), "config.yml");
             if (!tabConfigFile.exists()) {
-                LOGGER.warning("[ZonePractice] Could not find TAB config.yml. Assuming scoreboard-teams is enabled.");
+                // Could not find TAB config; assume enabled to be safe.
                 return true; // Assume enabled to be safe
             }
 
@@ -121,8 +102,7 @@ public class TeamPacketBlocker {
             return true;
 
         } catch (Exception e) {
-            LOGGER.warning("[ZonePractice] Error reading TAB config: " + e.getMessage());
-            LOGGER.warning("[ZonePractice] Assuming scoreboard-teams is enabled to be safe.");
+            // Error reading TAB config; assume enabled to be safe.
             return true; // Assume enabled to be safe
         }
     }
