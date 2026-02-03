@@ -30,10 +30,6 @@ public class NametagManager {
     public void initialize() {
         // Detect TAB plugin and manage conflict resolution
         TeamPacketBlocker.getInstance().register();
-
-        if (TeamPacketBlocker.getInstance().isNametagSystemDisabled()) {
-            Bukkit.getLogger().warning("[ZonePractice] NametagManager: Internal team system disabled due to TAB conflict.");
-        }
     }
 
     /**
