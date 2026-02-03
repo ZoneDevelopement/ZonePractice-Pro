@@ -24,19 +24,28 @@ public class PracticeSidebar {
     }
 
     public void update() {
-        if (sidebar.closed()) return;
+        // Check if player is still online and sidebar is not closed
+        if (!player.isOnline() || sidebar.closed()) return;
 
-        SidebarAdapter sidebarAdapter = sidebarManager.getSidebarAdapter();
-        SidebarComponent.Builder lines = SidebarComponent.builder();
+        try {
+            SidebarAdapter sidebarAdapter = sidebarManager.getSidebarAdapter();
+            SidebarComponent.Builder lines = SidebarComponent.builder();
 
-        SidebarComponent title = SidebarComponent.staticLine(sidebarAdapter.getTitle(player));
+            SidebarComponent title = SidebarComponent.staticLine(sidebarAdapter.getTitle(player));
 
-        for (Component component : sidebarAdapter.getLines(player)) {
-            lines.addStaticLine(component);
+            for (Component component : sidebarAdapter.getLines(player)) {
+                lines.addStaticLine(component);
+            }
+
+            ComponentSidebarLayout componentSidebarLayout = new ComponentSidebarLayout(title, lines.build());
+
+            // Double-check before applying in case sidebar was closed during processing
+            if (!sidebar.closed()) {
+                componentSidebarLayout.apply(sidebar);
+            }
+        } catch (IllegalStateException e) {
+            // Sidebar was closed during update, ignore
         }
-
-        ComponentSidebarLayout componentSidebarLayout = new ComponentSidebarLayout(title, lines.build());
-        componentSidebarLayout.apply(sidebar);
     }
 
 }

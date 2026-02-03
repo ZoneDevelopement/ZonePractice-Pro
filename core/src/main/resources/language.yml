@@ -1,10 +1,11 @@
-VERSION: 12
+VERSION: 13
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
 RELOAD-DISABLED: "<red>Reload is disabled. Please completely restart the server."
 STARTUP-NOT-READY: "<red>ZonePractice has not yet loaded all the necessary data."
 PLUGIN-LOADING-MESSAGE: "<red>The server is still loading, please wait..."
+DUPLICATE-USERNAME-KICK: "<red>A player with your username is already logged in on this server!"
 CANT-READ-DATABASE-FILE: "<red>Could not read database setup file"
 CANT-USE-COMMAND: "<red>You can't use this command right now."
 WAIT-FOR-COOLDOWN: "<red>You have to wait <yellow>%seconds% %secondName% <red>before using this again."
@@ -174,6 +175,7 @@ COMMAND:
         SAVED-CORNER: "<green>You saved the <yellow>%corner% <green>corner for arena <gold>%arena%<green>."
         POSITION-REMOVED: "<red>Position <yellow>%position% <red>got removed from arena %arena% <red>because it was out of the arena cube."
         BUILD-MAX-REMOVED: "<red>BuildMax Y level has been removed from arena %arena% because it was no longer inside the arena cube."
+        BUILD-MAX-ADJUSTED: "<yellow>BuildMax for arena %arena% has been adjusted from Y=%old% to Y=%new% to fit within arena bounds."
         DEAD-ZONE-REMOVED: "<red>DeadZone Y level has been removed from arena %arena% because it was no longer inside the arena cube."
         BED-REMOVED: "<red>Bed location %bed% got removed from arena %arena% <red>because it was out of the arena cube."
       POSITION:
@@ -646,7 +648,7 @@ COMMAND:
           - " <aqua>Party Members (%maxPlayerLimit%/%memberSize%)<gray>: <white>%members%"
           - "<gray><st>------------------------------------------------"
       INVITE:
-        COMMAND-HELP: "<red>/%label> invite <player>"
+        COMMAND-HELP: "<red>/%label% invite <player>"
         NO-PARTY: "<red>You are not in a party."
         CANT-INVITE: "<red>You can't invite players to the party."
         TARGET-OFFLINE: "<red>Player is not online."
@@ -1203,6 +1205,7 @@ EVENT:
     POSITION-MARKERS-DELETED: "<red>The position markers have been deleted!"
     ALREADY-SCANNING: "<red>The <yellow>%event% <red>event's map is already being scanned."
     ENDERPEARL-COOLDOWN: "<red>You cannot use this for another <yellow>%seconds% <red>%secondName%."
+    FIREWORK-ROCKET-COOLDOWN: "<red>You cannot use firework rockets for another <yellow>%seconds% <red>%secondName%."
 PARTY:
   NO-PERMISSION: "<red>You don't have permission."
   ALREADY-PARTY: "<red>You are already in a different party."
@@ -1488,6 +1491,7 @@ MATCH:
     MATCH-END:
       WINNER-PLAYER-FORMAT: "<hover:show_text:'<green>Click to view inventory of <gold>%player%<green>.'><click:run_command:'/matchinv %matchId% %player_uuid% 1'><yellow>%player%</click></hover><gray>"
       LOSER-PLAYER-FORMAT: "<hover:show_text:'<green>Click to view inventory of <gold>%player%<green>.'><click:run_command:'/matchinv %matchId% %player_uuid% 1'><yellow>%player%</click></hover><gray>"
+      LEFT-PLAYER-FORMAT: "<gray><st>%player%</st></gray>"
       SPECTATOR-EXTENSION:
         - "<aqua>Spectators (%size%): <gray>%spectators%"
       MESSAGE:
@@ -1548,6 +1552,7 @@ MATCH:
     MATCH-END:
       WINNER-PLAYER-FORMAT: "<hover:show_text:'<green>Click to view inventory of <gold>%player%<green>.'><click:run_command:'/matchinv %matchId% %player_uuid% 1'><yellow>%player%</click></hover><gray>"
       LOSER-PLAYER-FORMAT: "<hover:show_text:'<green>Click to view inventory of <gold>%player%<green>.'><click:run_command:'/matchinv %matchId% %player_uuid% 1'><yellow>%player%</click></hover><gray>"
+      LEFT-PLAYER-FORMAT: "<gray><st>%player%</st></gray>"
       SPECTATOR-EXTENSION:
         - "<aqua>Spectators (%size%): <gray>%spectators%"
       MESSAGE:

@@ -104,47 +104,58 @@ public class LeaderboardManager implements Listener {
     public void createLB(final LbMainType mainType, final LbSecondaryType secondaryType, final NormalLadder ladder, final LeaderboardCallback callback) {
         Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
         {
-            HashMap<OfflinePlayer, Integer> unsorted = new HashMap<>();
+            // Use UUID as key to prevent duplicate players
+            HashMap<UUID, ProfileData> tempMap = new HashMap<>();
 
             switch (mainType) {
                 case GLOBAL:
                     switch (secondaryType) {
                         case ELO:
-                            for (Profile profile : ProfileManager.getInstance().getProfiles().values())
-                                unsorted.put(profile.getPlayer(), profile.getStats().getGlobalElo());
+                            for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), profile.getStats().getGlobalElo()));
+                            }
                             break;
                         case WIN:
-                            for (Profile profile : ProfileManager.getInstance().getProfiles().values())
-                                unsorted.put(profile.getPlayer(), profile.getStats().getGlobalWins());
+                            for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), profile.getStats().getGlobalWins()));
+                            }
                             break;
                         case KILLS:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
-                                unsorted.put(profile.getPlayer(), profile.getStats().getKills());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), profile.getStats().getKills()));
                             }
                             break;
                         case DEATHS:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
-                                unsorted.put(profile.getPlayer(), profile.getStats().getDeaths());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), profile.getStats().getDeaths()));
                             }
                             break;
                         case WIN_STREAK:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
-                                unsorted.put(profile.getPlayer(), profile.getStats().getWinStreak());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), profile.getStats().getWinStreak()));
                             }
                             break;
                         case LOSE_STREAK:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
-                                unsorted.put(profile.getPlayer(), profile.getStats().getLoseStreak());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), profile.getStats().getLoseStreak()));
                             }
                             break;
                         case BEST_WIN_STREAK:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
-                                unsorted.put(profile.getPlayer(), profile.getStats().getBestWinStreak());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), profile.getStats().getBestWinStreak()));
                             }
                             break;
                         case BEST_LOSE_STREAK:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
-                                unsorted.put(profile.getPlayer(), profile.getStats().getBestLoseStreak());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), profile.getStats().getBestLoseStreak()));
                             }
                             break;
                     }
@@ -158,66 +169,83 @@ public class LeaderboardManager implements Listener {
                             if (ladder.isRanked()) {
                                 for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
                                     LadderStats ladderStat = profile.getStats().getLadderStat(ladder);
-
-                                    unsorted.put(profile.getPlayer(), ladderStat.getElo());
+                                    UUID uuid = profile.getPlayer().getUniqueId();
+                                    tempMap.put(uuid, new ProfileData(profile.getPlayer(), ladderStat.getElo()));
                                 }
                             }
                             break;
                         case WIN:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
                                 LadderStats ladderStat = profile.getStats().getLadderStat(ladder);
-
-                                unsorted.put(profile.getPlayer(), ladderStat.getUnRankedWins() + ladderStat.getRankedWins());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), ladderStat.getUnRankedWins() + ladderStat.getRankedWins()));
                             }
                             break;
                         case KILLS:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
                                 LadderStats ladderStat = profile.getStats().getLadderStat(ladder);
-
-                                unsorted.put(profile.getPlayer(), ladderStat.getKills());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), ladderStat.getKills()));
                             }
                             break;
                         case DEATHS:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
                                 LadderStats ladderStat = profile.getStats().getLadderStat(ladder);
-
-                                unsorted.put(profile.getPlayer(), ladderStat.getDeaths());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), ladderStat.getDeaths()));
                             }
                             break;
                         case WIN_STREAK:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
                                 LadderStats ladderStat = profile.getStats().getLadderStat(ladder);
-
-                                unsorted.put(profile.getPlayer(), ladderStat.getUnRankedWinStreak() + ladderStat.getRankedWinStreak());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), ladderStat.getUnRankedWinStreak() + ladderStat.getRankedWinStreak()));
                             }
                             break;
                         case LOSE_STREAK:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
                                 LadderStats ladderStat = profile.getStats().getLadderStat(ladder);
-
-                                unsorted.put(profile.getPlayer(), ladderStat.getUnRankedLoseStreak() + ladderStat.getRankedLoseStreak());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), ladderStat.getUnRankedLoseStreak() + ladderStat.getRankedLoseStreak()));
                             }
                             break;
                         case BEST_WIN_STREAK:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
                                 LadderStats ladderStat = profile.getStats().getLadderStat(ladder);
-
-                                unsorted.put(profile.getPlayer(), ladderStat.getUnRankedBestWinStreak() + ladderStat.getRankedBestWinStreak());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), ladderStat.getUnRankedBestWinStreak() + ladderStat.getRankedBestWinStreak()));
                             }
                             break;
                         case BEST_LOSE_STREAK:
                             for (Profile profile : ProfileManager.getInstance().getProfiles().values()) {
                                 LadderStats ladderStat = profile.getStats().getLadderStat(ladder);
-
-                                unsorted.put(profile.getPlayer(), ladderStat.getUnRankedBestLoseStreak() + ladderStat.getRankedBestLoseStreak());
+                                UUID uuid = profile.getPlayer().getUniqueId();
+                                tempMap.put(uuid, new ProfileData(profile.getPlayer(), ladderStat.getUnRankedBestLoseStreak() + ladderStat.getRankedBestLoseStreak()));
                             }
                             break;
                     }
                     break;
             }
 
+            // Convert tempMap to final map with OfflinePlayer as key
+            HashMap<OfflinePlayer, Integer> unsorted = new HashMap<>();
+            for (ProfileData data : tempMap.values()) {
+                unsorted.put(data.player, data.value);
+            }
+
             Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> callback.onLeaderboardBuildDone(sortByValue(unsorted)));
         });
+    }
+
+    // Helper class to store player data temporarily
+    private static class ProfileData {
+        final OfflinePlayer player;
+        final int value;
+
+        ProfileData(OfflinePlayer player, int value) {
+            this.player = player;
+            this.value = value;
+        }
     }
 
     /**

@@ -39,4 +39,12 @@ public interface ItemMaterialUtil {
 
     ItemStack getPlayerHead(OfflinePlayer player);
 
+    ItemStack getSword();
+
+    ItemStack getRedBlock();
+
+    ItemStack getDefaultPlayerHead();
+
+    ItemStack getRedBoots();
+
 }

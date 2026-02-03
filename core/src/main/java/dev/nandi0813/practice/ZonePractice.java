@@ -24,6 +24,7 @@ import dev.nandi0813.practice.command.statistics.StatisticsCommand;
 import dev.nandi0813.practice.listener.*;
 import dev.nandi0813.practice.manager.arena.ArenaListener;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
+import dev.nandi0813.practice.manager.arena.setup.SpawnMarkerManager;
 import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.*;
 import dev.nandi0813.practice.manager.division.DivisionManager;
@@ -37,7 +38,7 @@ import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.leaderboard.LeaderboardManager;
 import dev.nandi0813.practice.manager.leaderboard.hologram.HologramManager;
-import dev.nandi0813.practice.manager.playerdisplay.tab.TabListManager;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
@@ -115,7 +116,7 @@ public final class ZonePractice extends JavaPlugin {
         ServerManager.getInstance().loadLobby();
         InventoryManager.getInstance().loadInventories();
         PlayerKitManager.getInstance().load();
-        TabListManager.getInstance().start();
+        NametagManager.getInstance().initialize(); // Initialize after all plugins loaded to detect TAB conflicts
 
         LadderManager.getInstance().loadLadders(() ->
         {
@@ -126,6 +127,12 @@ public final class ZonePractice extends JavaPlugin {
             {
                 ArenaGUISetupManager.getInstance().loadGUIs();
                 startUpProgress.replace(StartUpTypes.ARENA_LOADING, true);
+
+                // Clean up any orphaned marker armor stands from previous server sessions
+                org.bukkit.World arenasWorld = ArenaWorldUtil.getArenasWorld();
+                if (arenasWorld != null) {
+                    SpawnMarkerManager.getInstance().cleanupOrphanedMarkers(arenasWorld);
+                }
             });
 
             ProfileManager.getInstance().loadProfiles(() ->
@@ -165,6 +172,13 @@ public final class ZonePractice extends JavaPlugin {
     @Override
     public void onDisable() {
         PacketEvents.getAPI().terminate();
+
+        // Shutdown nametag manager and unregister packet blocker
+        NametagManager.getInstance().shutdown();
+
+        // Clear all spawn markers to prevent them persisting after server restart
+        SpawnMarkerManager.getInstance().clearAllMarkers();
+
         MatchManager.getInstance().endMatches();
         FFAManager.getInstance().endFFAs();
         HologramManager.getInstance().saveHolograms();

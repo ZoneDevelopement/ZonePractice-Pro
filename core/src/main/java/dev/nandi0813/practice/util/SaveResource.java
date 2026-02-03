@@ -18,14 +18,17 @@ import java.util.Objects;
 
 public class SaveResource {
 
-    private static final String[] LADDER_NAMES = {
+    // Ladders common to all versions
+    private static final String[] COMMON_LADDER_NAMES = {
             "archer.yml",
             "axe.yml",
+            "battlerush.yml",
             "bedwars.yml",
             "boxing.yml",
+            "bridges.yml",
             "builduhc.yml",
-            "combo.yml",
             "debuff.yml",
+            "fireball.yml",
             "gapple.yml",
             "nodebuff.yml",
             "pearlfight.yml",
@@ -34,11 +37,50 @@ public class SaveResource {
             "soup.yml",
             "spleef.yml",
             "sumo.yml",
-            "vanilla.yml",
-            "fireball.yml",
-            "bridges.yml",
-            "battlerush.yml"
+            "vanilla.yml"
     };
+
+    // Ladders exclusive to 1.8.8
+    private static final String[] LEGACY_ONLY_LADDER_NAMES = {
+            "combo.yml"
+    };
+
+    // Ladders exclusive to modern versions (1.20+)
+    private static final String[] MODERN_ONLY_LADDER_NAMES = {
+            "mace.yml"
+    };
+
+    /**
+     * Gets the appropriate ladder list for the current server version
+     *
+     * @return Array of ladder file names to save
+     */
+    private String[] getLadderNames() {
+        VersionChecker.BukkitVersion version = VersionChecker.getBukkitVersion();
+        if (version == null) {
+            Common.sendConsoleMMMessage("<yellow>Could not detect version, using common ladders only.");
+            return COMMON_LADDER_NAMES;
+        }
+
+        // Combine common ladders with version-specific ones
+        if (version == VersionChecker.BukkitVersion.v1_8_R3) {
+            // 1.8.8: Common + Legacy-only
+            return combineArrays(COMMON_LADDER_NAMES, LEGACY_ONLY_LADDER_NAMES);
+        } else {
+            // Modern versions: Common + Modern-only
+            return combineArrays(COMMON_LADDER_NAMES, MODERN_ONLY_LADDER_NAMES);
+        }
+    }
+
+    /**
+     * Combines two string arrays into one
+     */
+    private String[] combineArrays(String[] array1, String[] array2) {
+        String[] result = new String[array1.length + array2.length];
+        System.arraycopy(array1, 0, result, 0, array1.length);
+        System.arraycopy(array2, 0, result, array1.length, array2.length);
+        return result;
+    }
 
     public void saveResources(ZonePractice practice) {
         saveResource(
@@ -72,7 +114,8 @@ public class SaveResource {
                 Common.sendConsoleMMMessage("<red>Couldn't create ladders folder.");
             }
 
-            for (String ladder : LADDER_NAMES) {
+            // Use version-specific ladder list
+            for (String ladder : getLadderNames()) {
                 saveLadder(practice, this.getVersionPath(), ladder);
             }
 

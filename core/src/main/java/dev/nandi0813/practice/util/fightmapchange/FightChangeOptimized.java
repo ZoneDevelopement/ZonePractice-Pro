@@ -4,6 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.module.interfaces.ChangedBlock;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
+import dev.nandi0813.practice.util.interfaces.Spectatable;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.World;
@@ -13,7 +14,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
@@ -35,9 +39,16 @@ public class FightChangeOptimized {
     private final World world;
     private final Cuboid cuboid;
 
+    /**
+     * The Spectatable instance (Match, Event, or FFA) for metadata caching.
+     * Used to store the fight context in block metadata for efficient lookup.
+     */
+    private final Spectatable spectatable;
+
     // Single map replaces blockChange + tempBuildPlacedBlocks
+    // Using ConcurrentHashMap to prevent ConcurrentModificationException during rollback
     @Getter
-    private final Map<Long, BlockChangeEntry> blocks = new HashMap<>();
+    private final Map<Long, BlockChangeEntry> blocks = new java.util.concurrent.ConcurrentHashMap<>();
 
     // Cached entity references for fast cleanup (no lookup needed!)
     private final List<Entity> trackedEntities = new ArrayList<>();
@@ -48,19 +59,50 @@ public class FightChangeOptimized {
     // Reusable rollback task
     private RollbackTask rollbackTask;
 
+    /**
+     * Constructor for all fight types (Match, Event, FFA).
+     *
+     * @param spectatable The Spectatable instance (provides cuboid and is stored in metadata)
+     */
+    public FightChangeOptimized(Spectatable spectatable) {
+        this.spectatable = spectatable;
+        this.cuboid = spectatable.getCuboid();
+        this.world = cuboid.getWorld();
+    }
+
+    /**
+     * Legacy constructor for backwards compatibility (e.g., tests or special cases).
+     *
+     * @param cuboid The arena cuboid
+     * @deprecated Use FightChangeOptimized(Spectatable) instead
+     */
+    @Deprecated
     public FightChangeOptimized(Cuboid cuboid) {
+        this.spectatable = null;
         this.cuboid = cuboid;
         this.world = cuboid.getWorld();
     }
 
     /**
      * Adds a block change for rollback.
+     * NOTE: Uses putIfAbsent to preserve the ORIGINAL state before any changes.
+     * This ensures proper rollback even if the same block is modified multiple times.
      */
     public void addBlockChange(ChangedBlock change) {
         if (change == null) return;
 
         long pos = BlockPosition.encode(change.getLocation());
-        blocks.putIfAbsent(pos, new BlockChangeEntry(change));
+
+        // Only store if this block hasn't been changed before
+        // This preserves the original state for rollback
+        BlockChangeEntry existing = blocks.putIfAbsent(pos, new BlockChangeEntry(change));
+
+        // Mark the physical block with metadata for tracking
+        // Store Spectatable (Match/Event/FFA) for efficient metadata caching in BlockFromToEvent
+        if (existing == null && spectatable != null) {
+            Block block = change.getLocation().getBlock();
+            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+        }
     }
 
     /**
@@ -108,22 +150,29 @@ public class FightChangeOptimized {
 
     /**
      * Ticks all temp blocks, removing expired ones.
+     * Thread-safe iteration over ConcurrentHashMap.
      */
     private void tickTempBlocks() {
         boolean hasTempBlocks = false;
+        List<Long> toRemove = new ArrayList<>();
 
-        Iterator<BlockChangeEntry> iterator = blocks.values().iterator();
-        while (iterator.hasNext()) {
-            BlockChangeEntry entry = iterator.next();
-            if (entry.tempData != null) {
-                entry.tempData.ticksRemaining--;
-                if (entry.tempData.ticksRemaining <= 0) {
-                    removeTempBlock(entry);
-                    iterator.remove();
+        // Iterate over entries safely
+        for (Map.Entry<Long, BlockChangeEntry> entry : blocks.entrySet()) {
+            BlockChangeEntry blockEntry = entry.getValue();
+            if (blockEntry.tempData != null) {
+                blockEntry.tempData.ticksRemaining--;
+                if (blockEntry.tempData.ticksRemaining <= 0) {
+                    removeTempBlock(blockEntry);
+                    toRemove.add(entry.getKey());
                 } else {
                     hasTempBlocks = true;
                 }
             }
+        }
+
+        // Remove expired blocks
+        for (Long pos : toRemove) {
+            blocks.remove(pos);
         }
 
         // Stop ticker if no more temp blocks

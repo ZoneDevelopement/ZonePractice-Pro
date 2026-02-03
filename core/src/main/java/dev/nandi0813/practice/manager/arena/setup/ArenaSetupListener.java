@@ -18,13 +18,14 @@ import dev.nandi0813.practice.util.Cuboid;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,8 @@ public class ArenaSetupListener implements Listener {
         boolean isAirAllowed = (
                 currentMode == SetupMode.BUILD_MAX ||
                         currentMode == SetupMode.DEAD_ZONE ||
-                        currentMode == SetupMode.TOGGLE_STATUS
+                        currentMode == SetupMode.TOGGLE_STATUS ||
+                        currentMode == SetupMode.FFA_POSITIONS // Allow air clicks for FFA (left-click anywhere to remove last)
         );
 
         if (!isAirAllowed) {
@@ -139,14 +141,25 @@ public class ArenaSetupListener implements Listener {
         }
 
         if (action == Action.LEFT_CLICK_BLOCK) {
+            // Check minimum distance from position 2
+            if (arena.getPosition2() != null && arena.getPosition2().distance(loc) < 1.0) {
+                player.sendMessage(Common.colorize("&cSpawn positions must be at least 1 block apart!"));
+                return;
+            }
             arena.setPosition1(loc);
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.POSITION.SAVED-POSITION")
                     .replace("%arena%", arena.getName()).replace("%position%", "1."));
         } else {
+            // Check minimum distance from position 1
+            if (arena.getPosition1() != null && arena.getPosition1().distance(loc) < 1.0) {
+                player.sendMessage(Common.colorize("&cSpawn positions must be at least 1 block apart!"));
+                return;
+            }
             arena.setPosition2(loc);
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.POSITION.SAVED-POSITION")
                     .replace("%arena%", arena.getName()).replace("%position%", "2."));
         }
+        SpawnMarkerManager.getInstance().updateMarkers(arena);
         updateGui(arena);
     }
 
@@ -154,7 +167,7 @@ public class ArenaSetupListener implements Listener {
         if (isEditBlocked(player, ffaArena)) return;
 
         if (action == Action.RIGHT_CLICK_BLOCK) {
-            // Add Spawn
+            // Add new spawn
             if (isRegionMissing(player, ffaArena)) return;
 
             Location loc = getSnappedLocation(event.getClickedBlock(), player);
@@ -165,17 +178,28 @@ public class ArenaSetupListener implements Listener {
                 return;
             }
 
+            // Check minimum distance from all existing spawns (must be at least 1 block apart)
+            for (Location existingSpawn : ffaArena.getFfaPositions()) {
+                if (existingSpawn.distance(loc) < 1.0) {
+                    player.sendMessage(Common.colorize("&cSpawn positions must be at least 1 block apart from each other!"));
+                    player.sendMessage(Common.colorize("&7Too close to an existing spawn position."));
+                    return;
+                }
+            }
+
             ffaArena.getFfaPositions().add(loc);
+            SpawnMarkerManager.getInstance().updateMarkers(ffaArena);
             updateGui(ffaArena);
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.FFA-POSITIONS.SET-FFAPOS")
                     .replace("%arena%", ffaArena.getName())
                     .replace("%posCount%", String.valueOf(ffaArena.getFfaPositions().size())));
 
-        } else {
-            // Remove Spawn
+        } else if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
+            // Left-click anywhere: Remove last spawn
             if (!ffaArena.getFfaPositions().isEmpty()) {
                 int index = ffaArena.getFfaPositions().size() - 1;
                 ffaArena.getFfaPositions().remove(index);
+                SpawnMarkerManager.getInstance().updateMarkers(ffaArena);
                 updateGui(ffaArena);
                 player.sendMessage(Common.colorize("&cRemoved last FFA spawn point. Remaining: " + index));
             } else {
@@ -420,11 +444,19 @@ public class ArenaSetupListener implements Listener {
         if (!arena.getFfaPositions().isEmpty()) {
             arena.getFfaPositions().removeIf(location -> !cuboid.contains(location));
         }
-        // Clean BuildMax
-        if (arena.isBuildMax() && (cuboid.getLowerY() > arena.getBuildMaxValue() || arena.getBuildMaxValue() > cuboid.getUpperY())) {
-            arena.setBuildMaxValue(ConfigManager.getInt("MATCH-SETTINGS.BUILD-LIMIT-DEFAULT"));
-            arena.setBuildMax(false);
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.CORNER.BUILD-MAX-REMOVED").replace("%arena%", arena.getName()));
+        // Adjust BuildMax if outside cuboid bounds
+        if (arena.isBuildMax()) {
+            int buildMaxValue = arena.getBuildMaxValue();
+            if (buildMaxValue < cuboid.getLowerY() || buildMaxValue > cuboid.getUpperY()) {
+                // Clamp build max to cuboid bounds instead of resetting to relative mode
+                int clampedValue = Math.max(cuboid.getLowerY(), Math.min(buildMaxValue, cuboid.getUpperY()));
+                arena.setBuildMaxValue(clampedValue);
+                // Keep it in absolute mode (buildMax stays true)
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.CORNER.BUILD-MAX-ADJUSTED")
+                        .replace("%arena%", arena.getName())
+                        .replace("%old%", String.valueOf(buildMaxValue))
+                        .replace("%new%", String.valueOf(clampedValue)));
+            }
         }
         // Clean DeadZone
         if (arena.isDeadZone() && (cuboid.getLowerY() > arena.getDeadZoneValue() || arena.getDeadZoneValue() > cuboid.getUpperY())) {
@@ -445,6 +477,120 @@ public class ArenaSetupListener implements Listener {
             }
         }
 
+        // Update spawn markers after cleanup to remove markers for deleted positions
+        SpawnMarkerManager.getInstance().updateMarkers(arena);
+
         updateGui(arena);
     }
+
+    // Prevent players from manipulating marker armor stands
+    @EventHandler ( priority = EventPriority.HIGHEST )
+    public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
+        ArmorStand armorStand = event.getRightClicked();
+
+        if (SpawnMarkerManager.getInstance().isMarker(armorStand)) {
+            event.setCancelled(true);
+        }
+    }
+
+    // Handle right-clicking armor stand markers to remove them (FFA ONLY)
+    @EventHandler ( priority = EventPriority.HIGHEST )
+    public void onArmorStandInteract(PlayerInteractAtEntityEvent event) {
+        if (!(event.getRightClicked() instanceof ArmorStand armorStand)) return;
+
+        Player player = event.getPlayer();
+
+        // Check if this is a spawn marker
+        if (!SpawnMarkerManager.getInstance().isMarker(armorStand)) return;
+
+        event.setCancelled(true);
+
+        // Check if player is in setup mode
+        if (!setupManager.isSettingUp(player)) {
+            player.sendMessage(Common.colorize("&cYou must be in setup mode to remove spawn markers."));
+            return;
+        }
+
+        // Find which arena this marker belongs to
+        DisplayArena arena = SpawnMarkerManager.getInstance().getArenaForMarker(armorStand);
+        if (arena == null) {
+            player.sendMessage(Common.colorize("&cCould not find arena for this marker."));
+            return;
+        }
+
+        // ONLY allow for FFA arenas
+        if (!(arena instanceof FFAArena)) {
+            player.sendMessage(Common.colorize("&cDirect armor stand removal only works for FFA arenas."));
+            player.sendMessage(Common.colorize("&7Use left/right click on blocks to set standard arena spawn positions."));
+            return;
+        }
+
+        // Check if player is setting up this arena
+        ArenaSetupManager.SetupSession session = setupManager.getSession(player);
+        if (session == null || !session.getArena().equals(arena)) {
+            player.sendMessage(Common.colorize("&cYou are not currently setting up this arena."));
+            return;
+        }
+
+        // Check if in correct mode
+        if (session.getCurrentMode() != SetupMode.FFA_POSITIONS) {
+            player.sendMessage(Common.colorize("&cSwitch to FFA Positions mode to remove spawn markers."));
+            return;
+        }
+
+        // Remove the marker and its spawn position
+        boolean removed = SpawnMarkerManager.getInstance().removeMarker(armorStand, arena);
+        if (removed) {
+            SpawnMarkerManager.getInstance().updateMarkers(arena);
+            updateGui(arena);
+
+            FFAArena ffaArena = (FFAArena) arena;
+            player.sendMessage(Common.colorize("&cRemoved FFA spawn. Remaining: " + ffaArena.getFfaPositions().size()));
+        } else {
+            player.sendMessage(Common.colorize("&cFailed to remove spawn marker."));
+        }
+    }
+
+    // Prevent damage to marker armor stands AND handle left-click removal
+    @EventHandler ( priority = EventPriority.HIGHEST )
+    public void onArmorStandDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof ArmorStand armorStand)) return;
+
+        if (!SpawnMarkerManager.getInstance().isMarker(armorStand)) return;
+
+        // Cancel damage in all cases
+        event.setCancelled(true);
+
+        // Check if the damager is a player (left-click)
+        if (!(event.getDamager() instanceof Player player)) return;
+
+        // Check if player is in setup mode
+        if (!setupManager.isSettingUp(player)) return;
+
+        // Find which arena this marker belongs to
+        DisplayArena arena = SpawnMarkerManager.getInstance().getArenaForMarker(armorStand);
+        if (arena == null) return;
+
+        // ONLY allow left-click removal for FFA arenas
+        if (!(arena instanceof FFAArena ffaArena)) return;
+
+        // Check if player is setting up this arena
+        ArenaSetupManager.SetupSession session = setupManager.getSession(player);
+        if (session == null || !session.getArena().equals(arena)) return;
+
+        // Check if in correct mode
+        if (session.getCurrentMode() != SetupMode.FFA_POSITIONS) return;
+
+        // Left-click on armor stand = Remove last spawn (same as left-click on block)
+        if (!ffaArena.getFfaPositions().isEmpty()) {
+            int index = ffaArena.getFfaPositions().size() - 1;
+            ffaArena.getFfaPositions().remove(index);
+            SpawnMarkerManager.getInstance().updateMarkers(ffaArena);
+            updateGui(ffaArena);
+            player.sendMessage(Common.colorize("&cRemoved last FFA spawn point. Remaining: " + index));
+        } else {
+            player.sendMessage(Common.colorize("&cNo spawn points to remove."));
+        }
+    }
 }
+

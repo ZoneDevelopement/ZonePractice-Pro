@@ -7,7 +7,7 @@ import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersVsPlayers;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.party.Party;
-import dev.nandi0813.practice.manager.playerdisplay.nametag.NametagManager;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -30,11 +30,13 @@ public class PartyVsParty extends PlayersVsPlayers {
 
         for (Player party1Player : party1.getMembers()) {
             this.teams.get(TeamEnum.TEAM1).add(party1Player);
+            this.originalTeams.get(TeamEnum.TEAM1).add(party1Player); // Track original team members
             NametagManager.getInstance().setNametag(party1Player, TeamEnum.TEAM1.getPrefix(), TeamEnum.TEAM1.getNameColor(), TeamEnum.TEAM1.getSuffix(), 20);
         }
 
         for (Player party2Player : party2.getMembers()) {
             this.teams.get(TeamEnum.TEAM2).add(party2Player);
+            this.originalTeams.get(TeamEnum.TEAM2).add(party2Player); // Track original team members
             NametagManager.getInstance().setNametag(party2Player, TeamEnum.TEAM2.getPrefix(), TeamEnum.TEAM2.getNameColor(), TeamEnum.TEAM2.getSuffix(), 21);
         }
 

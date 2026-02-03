@@ -1,7 +1,9 @@
 package dev.nandi0813.practice.manager.inventory;
 
 import dev.nandi0813.practice.manager.backend.ConfigManager;
-import dev.nandi0813.practice.manager.playerdisplay.nametag.NametagManager;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
+import dev.nandi0813.practice.manager.nametag.TabIntegration;
+import dev.nandi0813.practice.manager.nametag.TeamPacketBlocker;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.module.util.ClassImport;
@@ -20,7 +22,7 @@ public enum InventoryUtil {
         } else {
             Group group = profile.getGroup();
             Component prefix = Component.empty(), suffix = Component.empty();
-            NamedTextColor nameColor = NamedTextColor.WHITE;
+            NamedTextColor nameColor = NamedTextColor.GRAY;
             int sortPriority = 10;
 
             if (group != null) {
@@ -63,7 +65,15 @@ public enum InventoryUtil {
                     .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
                     .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build());
 
-            ClassImport.getClasses().getPlayerUtil().setPlayerListName(player, listName);
+            // Check if TAB integration is available and use it, otherwise use direct API
+            TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
+            if (tabIntegration != null && tabIntegration.isAvailable()) {
+                // Use TAB API to set tablist name
+                tabIntegration.setTabListName(player, listName);
+            } else {
+                // Use direct Bukkit API
+                ClassImport.getClasses().getPlayerUtil().setPlayerListName(player, listName);
+            }
 
             NametagManager.getInstance().setNametag(player, prefix, nameColor, suffix, sortPriority);
         }

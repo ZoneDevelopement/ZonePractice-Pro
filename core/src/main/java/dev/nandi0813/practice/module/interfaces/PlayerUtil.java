@@ -48,4 +48,14 @@ public interface PlayerUtil {
 
     void applyTntKnockback(Player player, TNTPrimed tnt);
 
+    /**
+     * Sets the player's attack speed based on hit delay.
+     * For 1.8.8: Does nothing (uses setMaximumNoDamageTicks only)
+     * For Modern (1.9+): Modifies GENERIC_ATTACK_SPEED attribute
+     *
+     * @param player   The player
+     * @param hitDelay The hit delay in ticks (0 = instant, 20 = 1 second delay)
+     */
+    void setAttackSpeed(Player player, int hitDelay);
+
 }

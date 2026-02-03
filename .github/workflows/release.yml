@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0  # Fetch full history for accurate changelog generation
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -63,13 +63,96 @@ jobs:
         if: steps.check_version.outputs.changed == 'true'
         run: mvn -B clean install --file pom.xml
 
+      - name: Generate Changelog
+        if: steps.check_version.outputs.changed == 'true'
+        id: changelog
+        run: |
+          VERSION="${{ steps.check_version.outputs.version }}"
+          
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -z "$PREV_TAG" ]; then
+            # If no previous tag, get all commits
+            COMMITS=$(git log --pretty=format:"%s" --no-merges)
+          else
+            # Get commits since the previous tag
+            COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s" --no-merges)
+          fi
+          
+          # Initialize categories
+          BUG_FIXES=""
+          ENHANCEMENTS=""
+          FEATURES=""
+          BREAKING_CHANGES=""
+          DOCUMENTATION=""
+          OTHER=""
+          
+          # Process each commit
+          while IFS= read -r commit; do
+            # Skip empty lines
+            [ -z "$commit" ] && continue
+            
+            # Categorize commits based on conventional commits or keywords
+            if echo "$commit" | grep -qiE "^(fix|bugfix|fixed|bug)"; then
+              BUG_FIXES="${BUG_FIXES}- ${commit}\n"
+            elif echo "$commit" | grep -qiE "^(feat|feature|add|added)"; then
+              FEATURES="${FEATURES}- ${commit}\n"
+            elif echo "$commit" | grep -qiE "^(enhance|enhancement|improve|improved|update|updated)"; then
+              ENHANCEMENTS="${ENHANCEMENTS}- ${commit}\n"
+            elif echo "$commit" | grep -qiE "^(break|breaking|BREAKING)"; then
+              BREAKING_CHANGES="${BREAKING_CHANGES}- ${commit}\n"
+            elif echo "$commit" | grep -qiE "^(doc|docs|documentation)"; then
+              DOCUMENTATION="${DOCUMENTATION}- ${commit}\n"
+            else
+              OTHER="${OTHER}- ${commit}\n"
+            fi
+          done <<< "$COMMITS"
+          
+          # Build the changelog
+          CHANGELOG="# Changelog v${VERSION}\n\n"
+          
+          if [ -n "$BREAKING_CHANGES" ]; then
+            CHANGELOG="${CHANGELOG}## ⚠️ Breaking Changes\n${BREAKING_CHANGES}\n"
+          fi
+          
+          if [ -n "$FEATURES" ]; then
+            CHANGELOG="${CHANGELOG}## ✨ New Features\n${FEATURES}\n"
+          fi
+          
+          if [ -n "$ENHANCEMENTS" ]; then
+            CHANGELOG="${CHANGELOG}## 🚀 Enhancements\n${ENHANCEMENTS}\n"
+          fi
+          
+          if [ -n "$BUG_FIXES" ]; then
+            CHANGELOG="${CHANGELOG}## 🐛 Bug Fixes\n${BUG_FIXES}\n"
+          fi
+          
+          if [ -n "$DOCUMENTATION" ]; then
+            CHANGELOG="${CHANGELOG}## 📝 Documentation\n${DOCUMENTATION}\n"
+          fi
+          
+          if [ -n "$OTHER" ]; then
+            CHANGELOG="${CHANGELOG}## 🔧 Other Changes\n${OTHER}\n"
+          fi
+          
+          # Save changelog to a file
+          echo -e "$CHANGELOG" > CHANGELOG.md
+          
+          # Also output for GitHub (escape newlines for GitHub Actions)
+          {
+            echo 'changelog<<EOF'
+            echo -e "$CHANGELOG"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release
         if: steps.check_version.outputs.changed == 'true'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.check_version.outputs.version }}
-          name: ZonePractice v${{ steps.check_version.outputs.version }}
+          name: ZonePractice Pro v${{ steps.check_version.outputs.version }}
+          body: ${{ steps.changelog.outputs.changelog }}
           files: |
             distribution/target/*.jar
             !distribution/target/original-*.jar
-          generate_release_notes: true

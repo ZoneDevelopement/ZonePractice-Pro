@@ -35,7 +35,9 @@ public enum Common {
     }
 
     public static void sendMMMessage(Player player, String line) {
-        if (line.contains("&") || line.contains("§")) line = StringUtil.legacyColorToMiniMessage(line);
+        if (line.contains("&") || line.contains("§")) {
+            line = StringUtil.legacyColorToMiniMessage(line);
+        }
 
         if (SoftDependUtil.isPAPI_ENABLED) {
             line = PlaceholderAPI.setPlaceholders(player, line);
@@ -57,7 +59,10 @@ public enum Common {
     }
 
     public static String mmToNormal(String line) {
-        if (line.contains("&") || line.contains("§")) line = StringUtil.legacyColorToMiniMessage(line);
+        if (line.contains("&") || line.contains("§")) {
+            line = StringUtil.legacyColorToMiniMessage(line);
+        }
+
         return StringUtil.CC(serializeComponentToLegacyString(deserializeMiniMessage(line)));
     }
 

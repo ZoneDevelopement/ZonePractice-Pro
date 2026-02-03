@@ -69,7 +69,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         this.open = true;
 
         if (this.build) {
-            this.buildRollback = new BuildRollback(new FightChangeOptimized(arena.getCuboid()));
+            this.buildRollback = new BuildRollback(new FightChangeOptimized(this));
             this.buildRollback.begin();
         }
 

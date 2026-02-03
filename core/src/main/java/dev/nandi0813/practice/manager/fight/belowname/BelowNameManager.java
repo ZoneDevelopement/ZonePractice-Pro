@@ -46,7 +46,7 @@ public class BelowNameManager implements PacketListener {
                 }
 
                 double health = ClassImport.getClasses().getPlayerUtil().getPlayerHealth(otherPlayer);
-                int hp = (int) Math.round(health * 10);
+                int hp = (int) Math.round(health);
 
                 Component formattedHealth = Component.text(String.format("%.1f", health));
 

@@ -11,6 +11,7 @@ import dev.nandi0813.practice.manager.leaderboard.types.LbSecondaryType;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.group.Group;
+import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
@@ -47,6 +48,9 @@ public abstract class Hologram {
 
     protected Leaderboard currentLB;
 
+    // Track existing armor stands to prevent flickering during updates
+    protected final List<ArmorStand> armorStands = new ArrayList<>();
+
     public Hologram(String name, Location baseLocation, HologramType hologramType) {
         this.name = name;
         this.baseLocation = baseLocation.subtract(0, 2, 0);
@@ -55,7 +59,6 @@ public abstract class Hologram {
         this.leaderboardType = LbSecondaryType.ELO;
     }
 
-    // Loading the hologram from the config.
     public Hologram(String name, HologramType hologramType) {
         this.name = name;
         this.hologramType = hologramType;
@@ -65,11 +68,6 @@ public abstract class Hologram {
 
         if (!this.isReadyToEnable())
             enabled = false;
-
-        if (enabled)
-            hologramRunnable.begin();
-        else
-            setSetupHologram(SetupHologramType.SETUP);
     }
 
     public void getData() {
@@ -124,7 +122,11 @@ public abstract class Hologram {
     public abstract Leaderboard getNextLeaderboard();
 
     public void updateContent() {
-        deleteHologram(false);
+        // Safety check to prevent errors if location is invalid
+        if (baseLocation == null || baseLocation.getWorld() == null) {
+            setEnabled(false);
+            return;
+        }
 
         Leaderboard leaderboard = this.getNextLeaderboard();
         if (leaderboard == null) {
@@ -154,31 +156,90 @@ public abstract class Hologram {
         }
         Collections.reverse(lines);
 
-        this.spawnHologram(lines, this.getPlacementStrings());
+        this.updateHologram(lines, this.getPlacementStrings());
     }
 
-    private synchronized void spawnHologram(final List<String> lines, final List<String> placements) {
-        Location location = baseLocation.clone();
+    /**
+     * Updates hologram by modifying existing armor stands instead of recreating them.
+     * This prevents flickering during leaderboard updates.
+     */
+    private synchronized void updateHologram(final List<String> lines, final List<String> placements) {
+        // Build the complete list of text lines to display with their spacing
+        List<String> allLines = new ArrayList<>();
+        List<Double> allSpacings = new ArrayList<>();
 
-        for (String line : lines) {
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
             if (line.isEmpty()) line = " ";
 
             if (line.contains("%top%")) {
+                // Add all placement lines with standard spacing
                 for (String topString : placements) {
-                    ArmorStand stand = getHologram(location, currentLB.getSecondaryType().getLineSpacing());
-                    stand.setCustomName(topString);
+                    allLines.add(topString);
+                    allSpacings.add(currentLB.getSecondaryType().getLineSpacing());
                 }
             } else {
-                ArmorStand stand;
-                if (lines.indexOf(line) == lines.size() - 1) {
-                    stand = getHologram(location, currentLB.getSecondaryType().getTitleLineSpacing());
+                allLines.add(Common.mmToNormal(line));
+                // Title line (last in reversed list) gets different spacing
+                if (i == lines.size() - 1) {
+                    allSpacings.add(currentLB.getSecondaryType().getTitleLineSpacing());
                 } else {
-                    stand = getHologram(location, currentLB.getSecondaryType().getLineSpacing());
+                    allSpacings.add(currentLB.getSecondaryType().getLineSpacing());
                 }
-
-                stand.setCustomName(Common.mmToNormal(line));
             }
         }
+
+        // Remove invalid armor stands (dead or from wrong world)
+        armorStands.removeIf(stand -> stand == null || stand.isDead() || !stand.isValid());
+
+        int currentSize = armorStands.size();
+        int requiredSize = allLines.size();
+
+        // If we need more armor stands, create them
+        if (requiredSize > currentSize) {
+            Location location = baseLocation.clone();
+
+            // Calculate location after existing armor stands
+            for (int i = 0; i < currentSize && i < allSpacings.size(); i++) {
+                location.subtract(0, -allSpacings.get(i), 0);
+            }
+
+            // Create new armor stands for additional lines
+            for (int i = currentSize; i < requiredSize; i++) {
+                double spacing = allSpacings.get(i);
+                ArmorStand stand = createArmorStand(location, spacing);
+                armorStands.add(stand);
+            }
+        }
+        // If we have too many armor stands, remove the extras
+        else if (requiredSize < currentSize) {
+            for (int i = currentSize - 1; i >= requiredSize; i--) {
+                ArmorStand stand = armorStands.remove(i);
+                if (stand != null && !stand.isDead()) {
+                    stand.remove();
+                }
+            }
+        }
+
+        // Update the text on all armor stands
+        for (int i = 0; i < allLines.size() && i < armorStands.size(); i++) {
+            ArmorStand stand = armorStands.get(i);
+            if (stand != null && !stand.isDead()) {
+                stand.setCustomName(allLines.get(i));
+            }
+        }
+    }
+
+    /**
+     * Clears all tracked armor stands (used when switching to setup hologram)
+     */
+    private synchronized void clearHologram() {
+        for (ArmorStand stand : armorStands) {
+            if (stand != null && !stand.isDead()) {
+                stand.remove();
+            }
+        }
+        armorStands.clear();
     }
 
     private synchronized List<String> getPlacementStrings() {
@@ -222,31 +283,58 @@ public abstract class Hologram {
         return placementStrings;
     }
 
-    public void setSetupHologram(SetupHologramType setupHologram) {
+    public synchronized void setSetupHologram(SetupHologramType setupHologram) {
+        if (baseLocation == null || baseLocation.getWorld() == null) {
+            return;
+        }
+
+        // Clear existing hologram armor stands first
+        clearHologram();
+
         Location location = baseLocation.clone();
 
         switch (setupHologram) {
             case SETUP:
-                ArmorStand stand1 = getHologram(location, 0.3);
+                ArmorStand stand1 = createArmorStand(location, 0.3);
                 stand1.setCustomName(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.SETUP-HOLO.TITLE"));
+                armorStands.add(stand1);
 
-                ArmorStand stand2 = getHologram(location, 0.3);
+                ArmorStand stand2 = createArmorStand(location, 0.3);
                 stand2.setCustomName(StringUtil.CC(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.SETUP-HOLO.LINE").replaceAll("%name%", name)));
+                armorStands.add(stand2);
                 break;
             case NO_DISPLAY:
-                ArmorStand stand3 = getHologram(location, 0.3);
+                ArmorStand stand3 = createArmorStand(location, 0.3);
                 stand3.setCustomName(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.NOTHING-TO-DISPLAY"));
+                armorStands.add(stand3);
                 break;
         }
     }
 
     public synchronized void deleteHologram(boolean all) {
-        Collection<Entity> entities = baseLocation.getWorld().getNearbyEntities(baseLocation, 0, 6, 0);
+        if (baseLocation == null || baseLocation.getWorld() == null) {
+            if (all) {
+                hologramRunnable.cancel(false);
+                HologramManager.getInstance().getHolograms().remove(this);
+                HologramSetupManager.getInstance().removeHologramGUIs(this);
+                config.set("holograms." + name, null);
+                BackendManager.save();
+            }
+            return;
+        }
+
+        Collection<Entity> entities = baseLocation.getWorld().getNearbyEntities(baseLocation, 1, 6, 1);
         for (Entity entity : entities) {
             if (entity.getType().equals(EntityType.ARMOR_STAND)) {
-                entity.remove();
+                ArmorStand stand = (ArmorStand) entity;
+                if (!stand.isVisible()) {
+                    entity.remove();
+                }
             }
         }
+
+        // Clear the tracked armor stands list
+        armorStands.clear();
 
         if (all) {
             hologramRunnable.cancel(false);
@@ -257,12 +345,18 @@ public abstract class Hologram {
         }
     }
 
-    private static ArmorStand getHologram(@NotNull Location location, double lineHeight) {
+    /**
+     * Creates a new armor stand at the specified location with proper settings
+     */
+    private static ArmorStand createArmorStand(@NotNull Location location, double lineHeight) {
         ArmorStand stand = (ArmorStand) location.getWorld().spawnEntity(location.subtract(0, -lineHeight, 0), EntityType.ARMOR_STAND);
 
         stand.setVisible(false);
         stand.setGravity(false);
         stand.setCustomNameVisible(true);
+
+        // Set invulnerable and non-persistent (in modern versions) to prevent issues
+        ClassImport.getClasses().getArenaUtil().setArmorStandInvulnerable(stand);
 
         return stand;
     }
@@ -271,7 +365,6 @@ public abstract class Hologram {
         if (!enabled) {
             this.hologramRunnable.cancel(true);
             this.hologramRunnable = new HologramRunnable(this);
-            this.deleteHologram(false);
         } else {
             this.hologramRunnable.cancel(false);
             this.hologramRunnable = new HologramRunnable(this);

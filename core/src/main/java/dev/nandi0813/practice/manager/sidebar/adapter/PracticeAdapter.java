@@ -143,8 +143,11 @@ public class PracticeAdapter implements SidebarAdapter {
                 Round round;
                 LadderType ladderType = ladder.getType();
 
-                String path = "MATCH.LADDER." + ladder.getName().toUpperCase() + "." + match.getType().name().toUpperCase();
-                if (config.isList(path)) {
+                String path = "MATCH.LADDER." + ladder.getName().toUpperCase() + "." + match.getType().name();
+                List<String> configLines = config.getStringList(path);
+                boolean useLadderSpecificConfig = config.isList(path) && !configLines.isEmpty();
+
+                if (useLadderSpecificConfig) {
                     switch (match.getType()) {
                         case DUEL:
                             Duel duel = (Duel) match;
@@ -210,8 +213,8 @@ public class PracticeAdapter implements SidebarAdapter {
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%team1boxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM1)))).build())
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%team2boxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM2)))).build());
                                     case BEDWARS, FIREBALL_FIGHT -> component
-                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team1BedStatus%").replacement(round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")).build())
-                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team2BedStatus%").replacement(round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")).build());
+                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team1BedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build())
+                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team2BedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build());
                                     default -> component;
                                 };
 
@@ -243,7 +246,7 @@ public class PracticeAdapter implements SidebarAdapter {
                             break;
                     }
                 } else {
-                    for (String line : config.getStringList("MATCH." + match.getType().name().toUpperCase())) {
+                    for (String line : config.getStringList("MATCH." + match.getType().name())) {
                         sidebar.add(AdapterUtil.replaceMatchPlaceholders(player, PAPIUtil.runThroughFormat(player, line), match));
                     }
                 }
@@ -372,8 +375,12 @@ public class PracticeAdapter implements SidebarAdapter {
                 LadderType ladderType = match.getLadder().getType();
                 Round round;
 
-                String path = "SPECTATE.MATCH.LADDER." + match.getLadder().getName().toUpperCase() + "." + match.getType().name().toUpperCase();
-                if (config.isList(path)) {
+                String path = "SPECTATE.MATCH.LADDER." + match.getLadder().getName().toUpperCase() + "." + match.getType().name();
+                // Check if ladder-specific config exists AND is non-empty, otherwise use generic match type config
+                List<String> configLines = config.getStringList(path);
+                boolean useLadderSpecificConfig = config.isList(path) && !configLines.isEmpty();
+
+                if (useLadderSpecificConfig) {
                     switch (match.getType()) {
                         case DUEL:
                             Duel duel = (Duel) match;
@@ -455,8 +462,8 @@ public class PracticeAdapter implements SidebarAdapter {
                                     case BEDWARS:
                                     case FIREBALL_FIGHT:
                                         line = line
-                                                .replace("%team1BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
-                                                .replace("%team2BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
+                                                .replace("%team1BedStatus%", (round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
+                                                .replace("%team2BedStatus%", (round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
                                         break;
                                 }
 
@@ -487,7 +494,7 @@ public class PracticeAdapter implements SidebarAdapter {
                             break;
                     }
                 } else {
-                    for (String line : config.getStringList("SPECTATE.MATCH." + match.getType().name().toUpperCase())) {
+                    for (String line : config.getStringList("SPECTATE.MATCH." + match.getType().name())) {
                         sidebar.add(AdapterUtil.replaceMatchSpectatePlaceholders(PAPIUtil.runThroughFormat(player, line), match));
                     }
                 }

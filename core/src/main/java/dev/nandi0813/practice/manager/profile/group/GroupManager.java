@@ -85,20 +85,28 @@ public class GroupManager extends ConfigFile {
             } catch (Exception e) {
                 Common.sendConsoleMMMessage("<red>Failed to set group for " + profile.getPlayer().getName() + "! Error: " + e.getMessage());
             }
-            return null;
+            return profile.getGroup();
         }
 
         Group currentGroup = profile.getGroup();
-        if (currentGroup != null && !player.hasPermission(currentGroup.getPermission())) {
+
+        // If player is not OP and has a current group, validate they still have permission for it
+        if (currentGroup != null && currentGroup.getPermission() != null && !player.hasPermission(currentGroup.getPermission())) {
             currentGroup = null;
         }
 
+        // Find the highest weight group the player has permission for
         for (Group group : groups) {
             if (currentGroup != null && currentGroup.getWeight() > group.getWeight()) continue;
             if (group.getPermission() == null) continue;
 
             if (player.hasPermission(group.getPermission()))
                 currentGroup = group;
+        }
+
+        // If player has no permissions for any group, assign them to the lowest weighted group (default)
+        if (currentGroup == null && !groups.isEmpty()) {
+            currentGroup = groups.get(0); // First group in sorted list = lowest weight
         }
 
         return currentGroup;

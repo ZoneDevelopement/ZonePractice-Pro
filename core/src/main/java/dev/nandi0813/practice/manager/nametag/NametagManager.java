@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.manager.playerdisplay.nametag;
+package dev.nandi0813.practice.manager.nametag;
 
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
 import net.kyori.adventure.text.Component;
@@ -22,6 +22,83 @@ public class NametagManager {
 
     private final Map<String, FakeTeam> TEAMS = new ConcurrentHashMap<>();
     private final Map<String, FakeTeam> CACHED_FAKE_TEAMS = new ConcurrentHashMap<>();
+
+    /**
+     * Initialize the NametagManager and detect TAB plugin conflicts.
+     * Should be called on plugin enable.
+     */
+    public void initialize() {
+        // Detect TAB plugin and manage conflict resolution
+        TeamPacketBlocker.getInstance().register();
+    }
+
+    /**
+     * Shutdown the NametagManager.
+     * Should be called on plugin disable.
+     */
+    public void shutdown() {
+        TeamPacketBlocker.getInstance().unregister();
+    }
+
+    // ==============================================================
+    // TAB Integration Helper Methods
+    // ==============================================================
+
+    /**
+     * Checks if TAB plugin is managing teams instead of our internal system.
+     *
+     * @return true if TAB is active and managing teams
+     */
+    private boolean isUsingTabSystem() {
+        return TeamPacketBlocker.getInstance().isNametagSystemDisabled();
+    }
+
+    /**
+     * Gets the TAB integration instance if available.
+     *
+     * @return TabIntegration instance or null
+     */
+    private TabIntegration getTabIntegration() {
+        if (!isUsingTabSystem()) return null;
+
+        TabIntegration integration = TeamPacketBlocker.getInstance().getTabIntegration();
+        return (integration != null && integration.isAvailable()) ? integration : null;
+    }
+
+    /**
+     * Attempts to set a nametag via TAB API.
+     *
+     * @return true if handled by TAB, false if should use internal system
+     */
+    private boolean trySetViaTab(Player player, Component prefix, NamedTextColor nameColor, Component suffix, int sortPriority) {
+        TabIntegration tab = getTabIntegration();
+        if (tab != null) {
+            tab.setNametag(player, prefix, nameColor, suffix, sortPriority);
+            return true;
+        }
+        return isUsingTabSystem(); // Return true if TAB is active but API unavailable (skip internal system)
+    }
+
+    /**
+     * Attempts to reset a nametag via TAB API.
+     *
+     * @return true if handled by TAB, false if should use internal system
+     */
+    private boolean tryResetViaTab(String playerName) {
+        TabIntegration tab = getTabIntegration();
+        if (tab != null) {
+            Player player = Bukkit.getPlayerExact(playerName);
+            if (player != null) {
+                tab.resetNametag(player);
+                return true;
+            }
+        }
+        return isUsingTabSystem(); // Return true if TAB is active but API unavailable (skip internal system)
+    }
+
+    // ==============================================================
+    // Team Management (Internal System)
+    // ==============================================================
 
     /**
      * Gets the current team given a prefix and suffix
@@ -51,6 +128,10 @@ public class NametagManager {
             joining = new FakeTeam(prefix, namedTextColor, suffix, sortPriority);
             joining.addMember(player);
             TEAMS.put(joining.getName(), joining);
+
+            // Register this team with the packet blocker so our packets aren't blocked
+            TeamPacketBlocker.getInstance().registerOurTeam(joining.getName());
+
             addTeamPackets(joining);
         }
 
@@ -65,11 +146,23 @@ public class NametagManager {
         }
     }
 
+    /**
+     * Resets a player's nametag to default.
+     * Automatically uses TAB API if available, otherwise uses internal system.
+     */
     public FakeTeam reset(String player) {
-        return reset(player, decache(player));
+        if (tryResetViaTab(player)) {
+            return null; // Handled by TAB or TAB is active (skip internal)
+        }
+
+        return resetInternal(player, decache(player));
     }
 
-    private FakeTeam reset(String player, FakeTeam fakeTeam) {
+    /**
+     * Internal method to reset nametag using our packet system.
+     * Only called when TAB is not managing teams.
+     */
+    private FakeTeam resetInternal(String player, FakeTeam fakeTeam) {
         if (fakeTeam != null && fakeTeam.getMembers().remove(player)) {
             boolean delete;
             Player removing = Bukkit.getPlayerExact(player);
@@ -83,6 +176,9 @@ public class NametagManager {
             if (delete) {
                 removeTeamPackets(fakeTeam);
                 TEAMS.remove(fakeTeam.getName());
+
+                // Unregister this team from the packet blocker
+                TeamPacketBlocker.getInstance().unregisterOurTeam(fakeTeam.getName());
             }
         }
 
@@ -105,32 +201,45 @@ public class NametagManager {
     }
 
     // ==============================================================
-    // Below are public methods to modify certain data
+    // Public API Methods
     // ==============================================================
+
+    /**
+     * Sets a player's nametag with prefix, color, and suffix.
+     * Automatically uses TAB API if available, otherwise uses internal system.
+     */
     public void setNametag(Player player, Component prefix, NamedTextColor namedTextColor, Component suffix, int sortPriority) {
-        setNametag(player.getName(), prefix, namedTextColor, suffix, sortPriority);
+        if (trySetViaTab(player, prefix, namedTextColor, suffix, sortPriority)) {
+            return; // Handled by TAB or TAB is active (skip internal)
+        }
+
+        setNametagInternal(player.getName(), prefix, namedTextColor, suffix, sortPriority);
     }
 
-    void setNametag(String player, Component prefix, NamedTextColor namedTextColor, Component suffix, int sortPriority) {
-        addPlayerToTeam(player, prefix != null ? prefix : Component.empty(), namedTextColor, suffix != null ? suffix : Component.empty(), sortPriority);
+    /**
+     * Internal method to set nametag using our packet system.
+     * Only called when TAB is not managing teams.
+     */
+    private void setNametagInternal(String player, Component prefix, NamedTextColor namedTextColor, Component suffix, int sortPriority) {
+        Component finalPrefix = prefix != null ? prefix : Component.empty();
+        Component finalSuffix = suffix != null ? suffix : Component.empty();
+        addPlayerToTeam(player, finalPrefix, namedTextColor, finalSuffix, sortPriority);
     }
 
+    /**
+     * Sends all current teams to a player (for when they join).
+     * Skips if TAB is managing teams.
+     */
     public void sendTeams(Player player) {
+        if (isUsingTabSystem()) {
+            return; // TAB handles this
+        }
+
         for (FakeTeam fakeTeam : TEAMS.values()) {
             new Packet(fakeTeam.getName(), fakeTeam.getPrefix(), fakeTeam.getNameColor(), fakeTeam.getSuffix(), fakeTeam.getMembers()).send(player);
         }
     }
 
-    /*
-    void reset() {
-        for (FakeTeam fakeTeam : TEAMS.values()) {
-            removePlayerFromTeamPackets(fakeTeam, fakeTeam.getMembers());
-            removeTeamPackets(fakeTeam);
-        }
-        CACHED_FAKE_TEAMS.clear();
-        TEAMS.clear();
-    }
-     */
 
     // ==============================================================
     // Below are private methods to construct a new Scoreboard packet

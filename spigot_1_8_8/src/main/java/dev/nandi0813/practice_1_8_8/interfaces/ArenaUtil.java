@@ -7,6 +7,7 @@ import dev.nandi0813.practice.util.BasicItem;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
 
 public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.ArenaUtil {
@@ -47,6 +48,21 @@ public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.Arena
                 }
             }
         }
+    }
+
+    @Override
+    public void setArmorStandItemInHand(ArmorStand armorStand, ItemStack item, boolean rightHand) {
+        if (armorStand == null) return;
+
+        // In 1.8.8, there's only one hand (right hand)
+        armorStand.setItemInHand(item);
+    }
+
+    @Override
+    public void setArmorStandInvulnerable(ArmorStand armorStand) {
+        // 1.8.8 doesn't have setInvulnerable or setPersistent methods
+        // We'll handle invulnerability through event cancellation instead
+        // Armor stands in 1.8.8 are already non-persistent by default
     }
 
 }

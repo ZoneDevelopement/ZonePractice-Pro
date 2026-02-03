@@ -113,10 +113,23 @@ public enum EndMessageUtil {
 
         String winnersString = "";
         for (Player winner : winners) {
-            String winnerString = LanguageManager.getString("MATCH.PARTY-SPLIT.MATCH-END.WINNER-PLAYER-FORMAT")
-                    .replace("%matchId%", partySplit.getId())
-                    .replace("%player%", winner.getName())
-                    .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(winner).toString());
+            String winnerString;
+            // Check if player is still in the match (not left)
+            if (partySplit.getPlayers().contains(winner)) {
+                winnerString = LanguageManager.getString("MATCH.PARTY-SPLIT.MATCH-END.WINNER-PLAYER-FORMAT")
+                        .replace("%matchId%", partySplit.getId())
+                        .replace("%player%", winner.getName())
+                        .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(winner) != null
+                                ? ProfileManager.getInstance().getUuids().get(winner).toString() : "");
+            } else {
+                // Player left the match - use left player format if available, otherwise just show name
+                String leftFormat = LanguageManager.getString("MATCH.PARTY-SPLIT.MATCH-END.LEFT-PLAYER-FORMAT");
+                if (leftFormat != null && !leftFormat.isEmpty()) {
+                    winnerString = leftFormat.replace("%player%", winner.getName());
+                } else {
+                    winnerString = winner.getName();
+                }
+            }
 
             winnersString = winnersString.concat(winnerString);
             if (!winners.get(winners.size() - 1).equals(winner))
@@ -125,10 +138,23 @@ public enum EndMessageUtil {
 
         String losersString = "";
         for (Player loser : losers) {
-            String loserString = LanguageManager.getString("MATCH.PARTY-SPLIT.MATCH-END.LOSER-PLAYER-FORMAT")
-                    .replace("%matchId%", partySplit.getId())
-                    .replace("%player%", loser.getName())
-                    .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(loser).toString());
+            String loserString;
+            // Check if player is still in the match (not left)
+            if (partySplit.getPlayers().contains(loser)) {
+                loserString = LanguageManager.getString("MATCH.PARTY-SPLIT.MATCH-END.LOSER-PLAYER-FORMAT")
+                        .replace("%matchId%", partySplit.getId())
+                        .replace("%player%", loser.getName())
+                        .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(loser) != null
+                                ? ProfileManager.getInstance().getUuids().get(loser).toString() : "");
+            } else {
+                // Player left the match - use left player format if available, otherwise just show name
+                String leftFormat = LanguageManager.getString("MATCH.PARTY-SPLIT.MATCH-END.LEFT-PLAYER-FORMAT");
+                if (leftFormat != null && !leftFormat.isEmpty()) {
+                    loserString = leftFormat.replace("%player%", loser.getName());
+                } else {
+                    loserString = loser.getName();
+                }
+            }
 
             losersString = losersString.concat(loserString);
             if (!losers.get(losers.size() - 1).equals(loser))
@@ -171,10 +197,23 @@ public enum EndMessageUtil {
 
         String winnersString = "";
         for (Player winner : winners) {
-            String winnerString = LanguageManager.getString("MATCH.PARTY-VS-PARTY.MATCH-END.WINNER-PLAYER-FORMAT")
-                    .replace("%matchId%", partyVsParty.getId())
-                    .replace("%player%", winner.getName())
-                    .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(winner).toString());
+            String winnerString;
+            // Check if player is still in the match (not left)
+            if (partyVsParty.getPlayers().contains(winner)) {
+                winnerString = LanguageManager.getString("MATCH.PARTY-VS-PARTY.MATCH-END.WINNER-PLAYER-FORMAT")
+                        .replace("%matchId%", partyVsParty.getId())
+                        .replace("%player%", winner.getName())
+                        .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(winner) != null
+                                ? ProfileManager.getInstance().getUuids().get(winner).toString() : "");
+            } else {
+                // Player left the match - use left player format if available, otherwise just show name
+                String leftFormat = LanguageManager.getString("MATCH.PARTY-VS-PARTY.MATCH-END.LEFT-PLAYER-FORMAT");
+                if (leftFormat != null && !leftFormat.isEmpty()) {
+                    winnerString = leftFormat.replace("%player%", winner.getName());
+                } else {
+                    winnerString = winner.getName();
+                }
+            }
 
             winnersString = winnersString.concat(winnerString);
             if (!winners.get(winners.size() - 1).equals(winner))
@@ -183,10 +222,23 @@ public enum EndMessageUtil {
 
         String losersString = "";
         for (Player loser : losers) {
-            String loserString = LanguageManager.getString("MATCH.PARTY-VS-PARTY.MATCH-END.LOSER-PLAYER-FORMAT")
-                    .replace("%matchId%", partyVsParty.getId())
-                    .replace("%player%", loser.getName())
-                    .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(loser).toString());
+            String loserString;
+            // Check if player is still in the match (not left)
+            if (partyVsParty.getPlayers().contains(loser)) {
+                loserString = LanguageManager.getString("MATCH.PARTY-VS-PARTY.MATCH-END.LOSER-PLAYER-FORMAT")
+                        .replace("%matchId%", partyVsParty.getId())
+                        .replace("%player%", loser.getName())
+                        .replace("%player_uuid%", ProfileManager.getInstance().getUuids().get(loser) != null
+                                ? ProfileManager.getInstance().getUuids().get(loser).toString() : "");
+            } else {
+                // Player left the match - use left player format if available, otherwise just show name
+                String leftFormat = LanguageManager.getString("MATCH.PARTY-VS-PARTY.MATCH-END.LEFT-PLAYER-FORMAT");
+                if (leftFormat != null && !leftFormat.isEmpty()) {
+                    loserString = leftFormat.replace("%player%", loser.getName());
+                } else {
+                    loserString = loser.getName();
+                }
+            }
 
             losersString = losersString.concat(loserString);
             if (!losers.get(losers.size() - 1).equals(loser))
