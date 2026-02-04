@@ -1,4 +1,4 @@
-name: Auto Release & Changelog
+name: Auto Release & Deep Changelog
 
 on:
   push:
@@ -8,20 +8,18 @@ on:
 
 jobs:
   release:
-    name: Build, Changelog & Release
+    name: Create Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required to create releases and tags
+      contents: write
 
     steps:
-      # 1. Checkout with full history
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 
           lfs: true
 
-      # 2. Setup Java 21
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -29,162 +27,148 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # 3. Install dependencies
       - name: Install Local Dependencies
         run: |
-          mvn install:install-file \
-            -Dfile=libs/PaperSpigot-1.8.8-R0.1-SNAPSHOT.jar \
-            -DgroupId=org.github.paperspigot \
-            -DartifactId=paperspigot-api \
-            -Dversion=1.8.8-R0.1-SNAPSHOT \
-            -Dpackaging=jar \
-            -DgeneratePom=true
+          # Ensure this path matches your repo structure
+          if [ -f "libs/PaperSpigot-1.8.8-R0.1-SNAPSHOT.jar" ]; then
+            mvn install:install-file \
+              -Dfile=libs/PaperSpigot-1.8.8-R0.1-SNAPSHOT.jar \
+              -DgroupId=org.github.paperspigot \
+              -DartifactId=paperspigot-api \
+              -Dversion=1.8.8-R0.1-SNAPSHOT \
+              -Dpackaging=jar \
+              -DgeneratePom=true
+          else
+            echo "Warning: Local dependency not found, skipping install."
+          fi
 
-      # 4. Check Version
-      - name: Check for Version Change
+      - name: Check Version & Tag
         id: check_version
         run: |
           NEW_VERSION=$(mvn -N help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "Detected version in pom.xml: $NEW_VERSION"
+          echo "Detected version: $NEW_VERSION"
           
           if git rev-parse "v${NEW_VERSION}" >/dev/null 2>&1; then
-            echo "Tag v${NEW_VERSION} already exists. Skipping release."
+            echo "Tag v${NEW_VERSION} already exists."
             echo "changed=false" >> $GITHUB_OUTPUT
           else
-            echo "Tag v${NEW_VERSION} is new. Proceeding with release."
+            echo "New version detected."
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
             
+            # Find the previous tag to calculate the range
             PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
             echo "previous_tag=$PREV_TAG" >> $GITHUB_OUTPUT
           fi
 
-      # 5. Build
-      - name: Build with Maven
+      - name: Build Project
         if: steps.check_version.outputs.changed == 'true'
         run: mvn -B clean package --file pom.xml
 
-      # 6. Generate "Unpacked" Changelog
-      - name: Generate Changelog
+      - name: Generate Deep Changelog
         if: steps.check_version.outputs.changed == 'true'
         id: changelog
         shell: bash
         run: |
-          VERSION="${{ steps.check_version.outputs.version }}"
           PREV_TAG="${{ steps.check_version.outputs.previous_tag }}"
           
-          # Determine range
           if [ -z "$PREV_TAG" ]; then
-            COMMIT_RANGE="HEAD"
+            RANGE="HEAD"
+            echo "No previous tag. Analyzing all history."
           else
-            COMMIT_RANGE="${PREV_TAG}..HEAD"
+            RANGE="${PREV_TAG}..HEAD"
+            echo "Analyzing range: $RANGE"
           fi
 
-          # Initialize Categories
-          FEATURES=""
-          FIXES=""
-          IMPROVEMENTS=""
-          OTHER=""
+          # 1. Extract raw commit data (Subject + Body) into a temp file
+          # %s = Subject, %b = Body, separated by a unique delimiter
+          git log $RANGE --pretty=format:"%s%n%b%n---COMMIT_DELIMITER---%n" > raw_commits.txt
 
-          # Function to categorize a single line of text
-          categorize_line() {
-            local line="$1"
-            # Cleanup line (trim whitespace)
-            line=$(echo "$line" | xargs)
-            
-            [ -z "$line" ] && return
-            
-            # Skip technical messages
-            if [[ "$line" =~ ^(Merge|Co-authored-by|Signed-off-by) ]]; then return; fi
+          # Prepare output files
+          touch features.txt fixes.txt improvements.txt other.txt
 
-            # Lowercase for checking
-            local lower=$(echo "$line" | tr '[:upper:]' '[:lower:]')
+          # 2. Python script to parse the raw text and unpack squash merges
+          python3 -c '
+          import re
 
-            if [[ "$lower" =~ (fix|bug|issue|error|crash|resolve|patch) ]]; then
-              FIXES="${FIXES}- ${line}\n"
-            elif [[ "$lower" =~ (add|new|feat|implement|create) ]]; then
-              FEATURES="${FEATURES}- ${line}\n"
-            elif [[ "$lower" =~ (update|improve|enhance|refactor|change|adjust|optimiz) ]]; then
-              IMPROVEMENTS="${IMPROVEMENTS}- ${line}\n"
-            else
-              OTHER="${OTHER}- ${line}\n"
-            fi
-          }
-
-          echo "Generating changelog for range: $COMMIT_RANGE"
-          
-          # 1. Dump commits with a delimiter.
-          # Format: START_COMMIT <newline> Subject <newline> Body <newline> END_COMMIT
-          git log $COMMIT_RANGE --pretty=format:"COMMIT_START%n%s%n%b%nCOMMIT_END" > raw_commits.txt
-
-          # 2. Process file entry by entry
-          > current_commit.txt # buffer
-
-          while IFS= read -r line; do
-            if [ "$line" == "COMMIT_START" ]; then
-              > current_commit.txt # Reset buffer
-            elif [ "$line" == "COMMIT_END" ]; then
-              # ANALYZE THE COMMIT BUFFER
+          def categorize(line):
+              lower = line.lower().strip()
+              # Remove common list markers like "* ", "- ", "1. "
+              clean_line = re.sub(r"^[\*\-]\s+", "", line).strip()
               
-              # First line is the Subject (Title)
-              subject=$(head -n 1 current_commit.txt)
-              
-              # Check if the buffer contains bullet points (* or -)
-              # This usually indicates a Squash Merge body containing the real commits
-              if grep -qE "^\s*[\*\-] " current_commit.txt; then
-                 # Found bullets! Extract ONLY the bullet lines.
-                 grep -E "^\s*[\*\-] " current_commit.txt | while IFS= read -r bullet_line; do
-                    # Remove the bullet point (* or -) and trim
-                    clean_msg=$(echo "$bullet_line" | sed -E 's/^\s*[\*\-] //' | xargs)
-                    categorize_line "$clean_msg"
-                 done
-              else
-                 # No bullets found. This is a regular commit. Use the Subject.
-                 categorize_line "$subject"
-              fi
-            else
-              echo "$line" >> current_commit.txt
-            fi
-          done < raw_commits.txt
+              if not clean_line: return
 
-          # Assemble Body
+              if any(x in lower for x in ["fix", "bug", "issue", "crash", "resolve", "patch"]):
+                  with open("fixes.txt", "a") as f: f.write(f"- {clean_line}\n")
+              elif any(x in lower for x in ["add", "new", "feat", "implement", "create"]):
+                  with open("features.txt", "a") as f: f.write(f"- {clean_line}\n")
+              elif any(x in lower for x in ["update", "improve", "enhance", "refactor", "optimiz", "adjust"]):
+                  with open("improvements.txt", "a") as f: f.write(f"- {clean_line}\n")
+              else:
+                  with open("other.txt", "a") as f: f.write(f"- {clean_line}\n")
+
+          with open("raw_commits.txt", "r") as f:
+              content = f.read()
+
+          commits = content.split("---COMMIT_DELIMITER---")
+
+          for commit in commits:
+              if not commit.strip(): continue
+              
+              lines = commit.strip().split("\n")
+              subject = lines[0]
+              body = lines[1:] if len(lines) > 1 else []
+
+              # Check if body contains asterisk list (indicative of squash merge)
+              squash_lines = [line for line in body if line.strip().startswith("* ") or line.strip().startswith("- ")]
+
+              if squash_lines:
+                  # This is a squash merge, process the inner lines
+                  for line in squash_lines:
+                      categorize(line)
+              else:
+                  # Regular commit, process the subject
+                  # Ignore Merge commits that are not squashed lists
+                  if not subject.lower().startswith("merge"):
+                      categorize(subject)
+          '
+
+          # 3. Assemble the Final Markdown
           BODY=""
-          
-          if [ -n "$FEATURES" ]; then
-            BODY="${BODY}### ✨ New Features\n${FEATURES}\n"
+
+          if [ -s features.txt ]; then
+            BODY="${BODY}### ✨ New Features\n$(cat features.txt)\n"
           fi
-          
-          if [ -n "$FIXES" ]; then
-            BODY="${BODY}### 🐛 Bug Fixes\n${FIXES}\n"
+          if [ -s fixes.txt ]; then
+            BODY="${BODY}### 🐛 Bug Fixes\n$(cat fixes.txt)\n"
           fi
-          
-          if [ -n "$IMPROVEMENTS" ]; then
-            BODY="${BODY}### 🚀 Improvements\n${IMPROVEMENTS}\n"
+          if [ -s improvements.txt ]; then
+            BODY="${BODY}### 🚀 Improvements\n$(cat improvements.txt)\n"
           fi
-          
-          if [ -n "$OTHER" ]; then
-            BODY="${BODY}### 🔧 Other Changes\n${OTHER}\n"
+          if [ -s other.txt ]; then
+            BODY="${BODY}### 🔧 Other Changes\n$(cat other.txt)\n"
           fi
 
           if [ -z "$BODY" ]; then
-            BODY="No significant changes detected."
+            BODY="No significant changes found."
           fi
 
-          # Output to GitHub Env
+          # Export to GitHub Output (Multi-line safe)
           {
             echo 'body<<EOF'
             echo -e "$BODY"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 
-      # 7. Create Release
-      - name: Create GitHub Release
+      - name: Publish Release
         if: steps.check_version.outputs.changed == 'true'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.check_version.outputs.version }}
           name: ZonePractice Pro v${{ steps.check_version.outputs.version }}
           body: ${{ steps.changelog.outputs.body }}
+          draft: false
+          prerelease: false
           files: |
             distribution/target/*.jar
             !distribution/target/original-*.jar
