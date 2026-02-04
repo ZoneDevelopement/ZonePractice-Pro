@@ -1,4 +1,4 @@
-name: Auto Release on Version Change
+name: Auto Release & Changelog
 
 on:
   push:
@@ -7,18 +7,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-and-release:
+  release:
+    name: Build, Changelog & Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Required to create releases and tags
 
     steps:
-      - name: Checkout code
+      # 1. Checkout the repository with full history for the changelog
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0 
           lfs: true
-          fetch-depth: 0  # Fetch full history for accurate changelog generation
 
+      # 2. Setup Java 21
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -26,6 +29,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      # 3. Install local PaperSpigot dependency (Ensure this file exists in your repo!)
       - name: Install Local Dependencies
         run: |
           mvn install:install-file \
@@ -36,215 +40,118 @@ jobs:
             -Dpackaging=jar \
             -DgeneratePom=true
 
+      # 4. Check if the version in pom.xml is new
       - name: Check for Version Change
         id: check_version
         run: |
-          # Get current version from pom.xml
+          # Extract version from pom.xml
           NEW_VERSION=$(mvn -N help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "Detected version in pom.xml: $NEW_VERSION"
           
-          echo "Current version in pom.xml: $NEW_VERSION"
-          
-          # Check if a tag for this version already exists
+          # Check if tag exists
           if git rev-parse "v${NEW_VERSION}" >/dev/null 2>&1; then
             echo "Tag v${NEW_VERSION} already exists. Skipping release."
             echo "changed=false" >> $GITHUB_OUTPUT
           else
-            echo "Tag v${NEW_VERSION} does not exist. Creating new release."
+            echo "Tag v${NEW_VERSION} is new. Proceeding with release."
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
             
-            # Get the latest tag for changelog comparison
-            LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-            if [ -n "$LATEST_TAG" ]; then
-              echo "Latest existing tag: $LATEST_TAG"
-              echo "Will generate changelog from $LATEST_TAG to HEAD"
-            else
-              echo "No previous tags found. Will generate changelog from all commits."
-            fi
+            # Find the previous tag for changelog generation
+            PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            echo "previous_tag=$PREV_TAG" >> $GITHUB_OUTPUT
           fi
 
+      # 5. Build the plugin (Only if version changed)
       - name: Build with Maven
         if: steps.check_version.outputs.changed == 'true'
-        run: mvn -B clean install --file pom.xml
+        run: mvn -B clean package --file pom.xml
 
+      # 6. Generate Categorized Changelog
       - name: Generate Changelog
         if: steps.check_version.outputs.changed == 'true'
         id: changelog
+        shell: bash
         run: |
           VERSION="${{ steps.check_version.outputs.version }}"
+          PREV_TAG="${{ steps.check_version.outputs.previous_tag }}"
           
-          # Get the previous tag (not just from HEAD^, but the actual last tag)
-          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          
-          # Initialize categories
-          BUG_FIXES=""
-          ENHANCEMENTS=""
-          FEATURES=""
-          BREAKING_CHANGES=""
-          DOCUMENTATION=""
-          OTHER=""
-          
-          # Function to categorize a commit message with AI fallback
-          categorize_commit() {
-            local commit="$1"
-            
-            # Skip empty lines
-            [ -z "$commit" ] && return
-            
-            # Skip common merge/PR messages that aren't useful
-            if echo "$commit" | grep -qiE "^(merge (pull request|branch)|dev \(#[0-9]+\)|delete |update .*\.md)"; then
-              return
-            fi
-            
-            # First, try conventional commit patterns (strict prefix matching)
-            if echo "$commit" | grep -qiE "^(fix|bugfix|fixed|bug):"; then
-              BUG_FIXES="${BUG_FIXES}- ${commit}\n"
-              return
-            elif echo "$commit" | grep -qiE "^(feat|feature|add|added):"; then
-              FEATURES="${FEATURES}- ${commit}\n"
-              return
-            elif echo "$commit" | grep -qiE "^(enhance|enhancement|improve|improved|update|updated):"; then
-              ENHANCEMENTS="${ENHANCEMENTS}- ${commit}\n"
-              return
-            elif echo "$commit" | grep -qiE "^(break|breaking|BREAKING):"; then
-              BREAKING_CHANGES="${BREAKING_CHANGES}- ${commit}\n"
-              return
-            elif echo "$commit" | grep -qiE "^(doc|docs|documentation):"; then
-              DOCUMENTATION="${DOCUMENTATION}- ${commit}\n"
-              return
-            fi
-            
-            # AI-powered smart categorization for non-conventional commits
-            # Use keyword matching with context to intelligently categorize
-            local lower_commit=$(echo "$commit" | tr '[:upper:]' '[:lower:]')
-            
-            # Bug fix indicators (more comprehensive)
-            if echo "$lower_commit" | grep -qiE "(fix|bug|error|crash|issue|problem|broken|correct|resolve|patch)"; then
-              BUG_FIXES="${BUG_FIXES}- ${commit}\n"
-            # Feature indicators
-            elif echo "$lower_commit" | grep -qiE "(add|new|implement|introduce|create|support for)"; then
-              FEATURES="${FEATURES}- ${commit}\n"
-            # Enhancement indicators
-            elif echo "$lower_commit" | grep -qiE "(improve|enhance|optimize|better|refactor|update|upgrade|performance|faster)"; then
-              ENHANCEMENTS="${ENHANCEMENTS}- ${commit}\n"
-            # Breaking change indicators
-            elif echo "$lower_commit" | grep -qiE "(breaking|remove|deprecat|incompatible)"; then
-              BREAKING_CHANGES="${BREAKING_CHANGES}- ${commit}\n"
-            # Documentation indicators
-            elif echo "$lower_commit" | grep -qiE "(doc|readme|comment|guide|tutorial)"; then
-              DOCUMENTATION="${DOCUMENTATION}- ${commit}\n"
-            # Default to Other
-            else
-              OTHER="${OTHER}- ${commit}\n"
-            fi
-          }
-          
-          # Get all commits to process (including those in squash merges)
+          # Determine commit range
           if [ -z "$PREV_TAG" ]; then
-            # If no previous tag, get all commits from HEAD
+            echo "No previous tag found. Listing all commits."
             COMMIT_RANGE="HEAD"
           else
-            # Get commits since the previous tag
+            echo "Generating changelog from $PREV_TAG to HEAD"
             COMMIT_RANGE="${PREV_TAG}..HEAD"
           fi
-          
-          # Get merge commits first (these are the squash merges from PRs)
-          MERGE_COMMITS=$(git log $COMMIT_RANGE --merges --pretty=format:"%H" 2>/dev/null || echo "")
-          
-          # Process each merge commit to extract the original commits
-          if [ -n "$MERGE_COMMITS" ]; then
-            while IFS= read -r merge_hash; do
-              [ -z "$merge_hash" ] && continue
-              
-              # Get the parents of the merge commit
-              PARENTS=$(git log -1 --pretty=%P $merge_hash)
-              PARENT_ARRAY=($PARENTS)
-              
-              # If it's a squash merge, there will be 2 parents
-              # Get commits from the second parent (the feature branch)
-              if [ ${#PARENT_ARRAY[@]} -ge 2 ]; then
-                FEATURE_PARENT=${PARENT_ARRAY[1]}
-                MAIN_PARENT=${PARENT_ARRAY[0]}
-                
-                # Get all commits that were in the feature branch
-                BRANCH_COMMITS=$(git log $MAIN_PARENT..$FEATURE_PARENT --pretty=format:"%s" 2>/dev/null || echo "")
-                
-                while IFS= read -r commit; do
-                  categorize_commit "$commit"
-                done <<< "$BRANCH_COMMITS"
-              fi
-              
-              # Also get the merge commit message body (in case it contains a list)
-              MERGE_BODY=$(git log -1 --pretty=format:"%b" $merge_hash)
-              if [ -n "$MERGE_BODY" ]; then
-                while IFS= read -r body_line; do
-                  # Clean up the line (remove leading * or - or numbers)
-                  clean_line=$(echo "$body_line" | sed 's/^[0-9]*[.*-] *//' | sed 's/^[*-] *//')
-                  
-                  # Skip empty lines and common non-commit lines
-                  if [ -n "$clean_line" ] && ! echo "$clean_line" | grep -qiE "^(co-authored|signed-off)"; then
-                    categorize_commit "$clean_line"
-                  fi
-                done <<< "$MERGE_BODY"
-              fi
-            done <<< "$MERGE_COMMITS"
-          fi
-          
-          # Also get regular non-merge commits
-          REGULAR_COMMITS=$(git log $COMMIT_RANGE --no-merges --pretty=format:"%s" 2>/dev/null || echo "")
-          while IFS= read -r commit; do
-            categorize_commit "$commit"
-          done <<< "$REGULAR_COMMITS"
-          
-          # Build the changelog
-          CHANGELOG="# Changelog v${VERSION}\n\n"
-          
-          if [ -n "$BREAKING_CHANGES" ]; then
-            CHANGELOG="${CHANGELOG}## ⚠️ Breaking Changes\n${BREAKING_CHANGES}\n"
-          fi
+
+          # Categories
+          FEATURES=""
+          FIXES=""
+          IMPROVEMENTS=""
+          OTHER=""
+
+          # Get raw commits (excluding merges)
+          RAW_COMMITS=$(git log $COMMIT_RANGE --no-merges --pretty=format:"%s")
+
+          # Loop through commits and categorize
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            
+            # Convert to lowercase for checking
+            lower=$(echo "$line" | tr '[:upper:]' '[:lower:]')
+
+            if [[ "$lower" =~ (fix|bug|issue|error|crash|resolve) ]]; then
+              FIXES="${FIXES}- ${line}\n"
+            elif [[ "$lower" =~ (add|new|feat|implement|create) ]]; then
+              FEATURES="${FEATURES}- ${line}\n"
+            elif [[ "$lower" =~ (update|improve|enhance|refactor|change|adjust) ]]; then
+              IMPROVEMENTS="${IMPROVEMENTS}- ${line}\n"
+            else
+              OTHER="${OTHER}- ${line}\n"
+            fi
+          done <<< "$RAW_COMMITS"
+
+          # Assemble the final changelog body
+          BODY=""
           
           if [ -n "$FEATURES" ]; then
-            CHANGELOG="${CHANGELOG}## ✨ New Features\n${FEATURES}\n"
+            BODY="${BODY}### ✨ New Features\n${FEATURES}\n"
           fi
           
-          if [ -n "$ENHANCEMENTS" ]; then
-            CHANGELOG="${CHANGELOG}## 🚀 Enhancements\n${ENHANCEMENTS}\n"
+          if [ -n "$FIXES" ]; then
+            BODY="${BODY}### 🐛 Bug Fixes\n${FIXES}\n"
           fi
           
-          if [ -n "$BUG_FIXES" ]; then
-            CHANGELOG="${CHANGELOG}## 🐛 Bug Fixes\n${BUG_FIXES}\n"
-          fi
-          
-          if [ -n "$DOCUMENTATION" ]; then
-            CHANGELOG="${CHANGELOG}## 📝 Documentation\n${DOCUMENTATION}\n"
+          if [ -n "$IMPROVEMENTS" ]; then
+            BODY="${BODY}### 🚀 Improvements\n${IMPROVEMENTS}\n"
           fi
           
           if [ -n "$OTHER" ]; then
-            CHANGELOG="${CHANGELOG}## 🔧 Other Changes\n${OTHER}\n"
+            BODY="${BODY}### 🔧 Other Changes\n${OTHER}\n"
           fi
-          
-          # If changelog is empty (only has header), add a note
-          if [ "$CHANGELOG" == "# Changelog v${VERSION}\n\n" ]; then
-            CHANGELOG="${CHANGELOG}No categorized changes found in this release.\n"
+
+          if [ -z "$BODY" ]; then
+            BODY="No significant changes detected in commit messages."
           fi
-          
-          # Save changelog to a file
-          echo -e "$CHANGELOG" > CHANGELOG.md
-          
-          # Also output for GitHub (escape newlines for GitHub Actions)
+
+          # Output to GITHUB_OUTPUT (Multi-line safe)
           {
-            echo 'changelog<<EOF'
-            echo -e "$CHANGELOG"
+            echo 'body<<EOF'
+            echo -e "$BODY"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 
+      # 7. Create Release and Tag
       - name: Create GitHub Release
         if: steps.check_version.outputs.changed == 'true'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.check_version.outputs.version }}
           name: ZonePractice Pro v${{ steps.check_version.outputs.version }}
-          body: ${{ steps.changelog.outputs.changelog }}
+          body: ${{ steps.changelog.outputs.body }}
+          draft: false
+          prerelease: false
           files: |
             distribution/target/*.jar
             !distribution/target/original-*.jar
