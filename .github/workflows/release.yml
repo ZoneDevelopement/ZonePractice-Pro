@@ -14,7 +14,7 @@ jobs:
       contents: write # Required to create releases and tags
 
     steps:
-      # 1. Checkout the repository with full history for the changelog
+      # 1. Checkout with full history
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
@@ -29,7 +29,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # 3. Install local PaperSpigot dependency (Ensure this file exists in your repo!)
+      # 3. Install dependencies
       - name: Install Local Dependencies
         run: |
           mvn install:install-file \
@@ -40,15 +40,13 @@ jobs:
             -Dpackaging=jar \
             -DgeneratePom=true
 
-      # 4. Check if the version in pom.xml is new
+      # 4. Check Version
       - name: Check for Version Change
         id: check_version
         run: |
-          # Extract version from pom.xml
           NEW_VERSION=$(mvn -N help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Detected version in pom.xml: $NEW_VERSION"
           
-          # Check if tag exists
           if git rev-parse "v${NEW_VERSION}" >/dev/null 2>&1; then
             echo "Tag v${NEW_VERSION} already exists. Skipping release."
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -57,17 +55,16 @@ jobs:
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
             
-            # Find the previous tag for changelog generation
             PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
             echo "previous_tag=$PREV_TAG" >> $GITHUB_OUTPUT
           fi
 
-      # 5. Build the plugin (Only if version changed)
+      # 5. Build
       - name: Build with Maven
         if: steps.check_version.outputs.changed == 'true'
         run: mvn -B clean package --file pom.xml
 
-      # 6. Generate Categorized Changelog
+      # 6. Generate "Unpacked" Changelog
       - name: Generate Changelog
         if: steps.check_version.outputs.changed == 'true'
         id: changelog
@@ -76,43 +73,81 @@ jobs:
           VERSION="${{ steps.check_version.outputs.version }}"
           PREV_TAG="${{ steps.check_version.outputs.previous_tag }}"
           
-          # Determine commit range
+          # Determine range
           if [ -z "$PREV_TAG" ]; then
-            echo "No previous tag found. Listing all commits."
             COMMIT_RANGE="HEAD"
           else
-            echo "Generating changelog from $PREV_TAG to HEAD"
             COMMIT_RANGE="${PREV_TAG}..HEAD"
           fi
 
-          # Categories
+          # Initialize Categories
           FEATURES=""
           FIXES=""
           IMPROVEMENTS=""
           OTHER=""
 
-          # Get raw commits (excluding merges)
-          RAW_COMMITS=$(git log $COMMIT_RANGE --no-merges --pretty=format:"%s")
-
-          # Loop through commits and categorize
-          while IFS= read -r line; do
-            [ -z "$line" ] && continue
+          # Function to categorize a single line of text
+          categorize_line() {
+            local line="$1"
+            # Cleanup line (trim whitespace)
+            line=$(echo "$line" | xargs)
             
-            # Convert to lowercase for checking
-            lower=$(echo "$line" | tr '[:upper:]' '[:lower:]')
+            [ -z "$line" ] && return
+            
+            # Skip technical messages
+            if [[ "$line" =~ ^(Merge|Co-authored-by|Signed-off-by) ]]; then return; fi
 
-            if [[ "$lower" =~ (fix|bug|issue|error|crash|resolve) ]]; then
+            # Lowercase for checking
+            local lower=$(echo "$line" | tr '[:upper:]' '[:lower:]')
+
+            if [[ "$lower" =~ (fix|bug|issue|error|crash|resolve|patch) ]]; then
               FIXES="${FIXES}- ${line}\n"
             elif [[ "$lower" =~ (add|new|feat|implement|create) ]]; then
               FEATURES="${FEATURES}- ${line}\n"
-            elif [[ "$lower" =~ (update|improve|enhance|refactor|change|adjust) ]]; then
+            elif [[ "$lower" =~ (update|improve|enhance|refactor|change|adjust|optimiz) ]]; then
               IMPROVEMENTS="${IMPROVEMENTS}- ${line}\n"
             else
               OTHER="${OTHER}- ${line}\n"
             fi
-          done <<< "$RAW_COMMITS"
+          }
 
-          # Assemble the final changelog body
+          echo "Generating changelog for range: $COMMIT_RANGE"
+          
+          # 1. Dump commits with a delimiter.
+          # Format: START_COMMIT <newline> Subject <newline> Body <newline> END_COMMIT
+          git log $COMMIT_RANGE --pretty=format:"COMMIT_START%n%s%n%b%nCOMMIT_END" > raw_commits.txt
+
+          # 2. Process file entry by entry
+          > current_commit.txt # buffer
+
+          while IFS= read -r line; do
+            if [ "$line" == "COMMIT_START" ]; then
+              > current_commit.txt # Reset buffer
+            elif [ "$line" == "COMMIT_END" ]; then
+              # ANALYZE THE COMMIT BUFFER
+              
+              # First line is the Subject (Title)
+              subject=$(head -n 1 current_commit.txt)
+              
+              # Check if the buffer contains bullet points (* or -)
+              # This usually indicates a Squash Merge body containing the real commits
+              if grep -qE "^\s*[\*\-] " current_commit.txt; then
+                 # Found bullets! Extract ONLY the bullet lines.
+                 grep -E "^\s*[\*\-] " current_commit.txt | while IFS= read -r bullet_line; do
+                    # Remove the bullet point (* or -) and trim
+                    clean_msg=$(echo "$bullet_line" | sed -E 's/^\s*[\*\-] //' | xargs)
+                    categorize_line "$clean_msg"
+                 done
+              else
+                 # No bullets found. This is a regular commit. Use the Subject.
+                 categorize_line "$subject"
+              fi
+            else
+              echo "$line" >> current_commit.txt
+            fi
+          done < raw_commits.txt
+
+          # Assemble Body
           BODY=""
           
           if [ -n "$FEATURES" ]; then
@@ -132,17 +167,17 @@ jobs:
           fi
 
           if [ -z "$BODY" ]; then
-            BODY="No significant changes detected in commit messages."
+            BODY="No significant changes detected."
           fi
 
-          # Output to GITHUB_OUTPUT (Multi-line safe)
+          # Output to GitHub Env
           {
             echo 'body<<EOF'
             echo -e "$BODY"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 
-      # 7. Create Release and Tag
+      # 7. Create Release
       - name: Create GitHub Release
         if: steps.check_version.outputs.changed == 'true'
         uses: softprops/action-gh-release@v1
@@ -150,8 +185,6 @@ jobs:
           tag_name: v${{ steps.check_version.outputs.version }}
           name: ZonePractice Pro v${{ steps.check_version.outputs.version }}
           body: ${{ steps.changelog.outputs.body }}
-          draft: false
-          prerelease: false
           files: |
             distribution/target/*.jar
             !distribution/target/original-*.jar
