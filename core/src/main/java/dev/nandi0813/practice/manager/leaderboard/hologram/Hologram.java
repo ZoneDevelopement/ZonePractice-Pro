@@ -291,6 +291,18 @@ public abstract class Hologram {
         // Clear existing hologram armor stands first
         clearHologram();
 
+        // Additionally clear any orphaned armor stands at this location from previous sessions
+        // This prevents duplicates from crashes or improper cleanup
+        baseLocation.getWorld().getNearbyEntities(baseLocation, 2, 5, 2).stream()
+                .filter(entity -> entity instanceof org.bukkit.entity.ArmorStand)
+                .forEach(entity -> {
+                    org.bukkit.entity.ArmorStand stand = (org.bukkit.entity.ArmorStand) entity;
+                    // Remove armor stands that look like hologram markers
+                    if (stand.isCustomNameVisible() && stand.getCustomName() != null) {
+                        entity.remove();
+                    }
+                });
+
         Location location = baseLocation.clone();
 
         switch (setupHologram) {

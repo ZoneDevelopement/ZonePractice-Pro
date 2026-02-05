@@ -4,13 +4,13 @@ import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
+import dev.nandi0813.practice.manager.fight.event.setup.EventWandSetupManager;
 import dev.nandi0813.practice.manager.fight.event.util.EventUtil;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.event.EventSetupManager;
-import dev.nandi0813.practice.manager.gui.setup.event.EventSetupUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import lombok.Getter;
@@ -131,11 +131,9 @@ public class EventMainGui extends GUI {
                     }
 
                     if (click.isLeftClick()) {
-                        ItemStack markerItem = EventSetupUtil.getMarkerItem((eventData));
-                        if (!EventSetupManager.getEventMarkerList().containsKey(markerItem))
-                            EventSetupManager.getEventMarkerList().put(markerItem, eventData);
-
-                        player.getInventory().addItem(markerItem);
+                        // Start wand-based setup mode
+                        player.closeInventory();
+                        EventWandSetupManager.getInstance().startSetup(player, eventData);
                     }
                     break;
                 case 27:

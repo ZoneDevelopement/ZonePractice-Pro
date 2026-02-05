@@ -2349,11 +2349,10 @@ GUIS:
             MATERIAL: COMPASS
             LORE:
               - ""
-              - "&d&lLEFT-CLICK &7here to get a corner marker item."
+              - "&d&lLEFT-CLICK &7here to start setup mode."
               - ""
-              - "&7After &7you marked the corners, you can set the"
-              - "&7spawn positions with the"
-              - "&c&l/event %eventName% addspawn &7command."
+              - "&7You'll receive an &6Event Wand &7to configure"
+              - "&7corners and spawn positions interactively."
               - ""
               - "&5&lCurrently Marked:"
               - " &5» &dCorner 1: &7%corner1%"

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 
 public class TNTTagListener extends EventListenerInterface {
@@ -104,6 +105,14 @@ public class TNTTagListener extends EventListenerInterface {
     @Override
     public void onPlayerDropItem(Event event, PlayerDropItemEvent e) {
         if (event instanceof TNTTag) {
+            e.setCancelled(true);
+        }
+    }
+
+    @Override
+    public void onInventoryClick(Event event, InventoryClickEvent e) {
+        if (event instanceof TNTTag) {
+            // Prevent all inventory interactions to protect TNT helmet and items
             e.setCancelled(true);
         }
     }

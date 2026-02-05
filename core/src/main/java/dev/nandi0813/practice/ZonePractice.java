@@ -179,6 +179,9 @@ public final class ZonePractice extends JavaPlugin {
         // Clear all spawn markers to prevent them persisting after server restart
         SpawnMarkerManager.getInstance().clearAllMarkers();
 
+        // Clear all event spawn markers
+        dev.nandi0813.practice.manager.fight.event.setup.EventSpawnMarkerManager.getInstance().clearAllMarkers();
+
         MatchManager.getInstance().endMatches();
         FFAManager.getInstance().endFFAs();
         HologramManager.getInstance().saveHolograms();

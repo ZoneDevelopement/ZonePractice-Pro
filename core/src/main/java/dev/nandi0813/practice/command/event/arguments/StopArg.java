@@ -35,12 +35,17 @@ public enum StopArg {
             Event event = EventManager.getInstance().getEvents().get(0);
             if (event == null) return;
 
-            if (event.getStatus().equals(EventStatus.COLLECTING) && !player.hasPermission("zpp.event.stop.collecting")) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.NO-PERMISSION"));
-                return;
-            } else if (!player.hasPermission("zpp.event.stop.live")) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.NO-PERMISSION"));
-                return;
+            // Check permissions based on event status
+            if (event.getStatus().equals(EventStatus.COLLECTING)) {
+                if (!player.hasPermission("zpp.event.stop.collecting")) {
+                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.NO-PERMISSION"));
+                    return;
+                }
+            } else {
+                if (!player.hasPermission("zpp.event.stop.live")) {
+                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.NO-PERMISSION"));
+                    return;
+                }
             }
 
             event.forceEnd(player);
@@ -59,15 +64,21 @@ public enum StopArg {
                 return;
             }
 
-            if (event.getStatus().equals(EventStatus.COLLECTING) && !player.hasPermission("zpp.event.stop.collecting")) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.NO-PERMISSION"));
-                return;
-            } else if (!player.hasPermission("zpp.event.stop.live")) {
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.NO-PERMISSION"));
-                return;
+            // Check permissions based on event status
+            if (event.getStatus().equals(EventStatus.COLLECTING)) {
+                if (!player.hasPermission("zpp.event.stop.collecting")) {
+                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.NO-PERMISSION"));
+                    return;
+                }
+            } else {
+                if (!player.hasPermission("zpp.event.stop.live")) {
+                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.NO-PERMISSION"));
+                    return;
+                }
             }
 
             event.forceEnd(player);
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.STOP.END-SUCCESS").replace("%event%", event.getType().getName()));
         } else
             HelpArg.run(player, label);
     }

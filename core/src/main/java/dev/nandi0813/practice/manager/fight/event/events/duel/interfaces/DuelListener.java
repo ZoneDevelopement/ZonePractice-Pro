@@ -6,6 +6,7 @@ import dev.nandi0813.practice.manager.fight.event.interfaces.EventListenerInterf
 import dev.nandi0813.practice.util.Cuboid;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -63,6 +64,11 @@ public abstract class DuelListener extends EventListenerInterface {
 
     @Override
     public void onPlayerInteract(Event event, PlayerInteractEvent e) {
+    }
+
+    @Override
+    public void onInventoryClick(Event event, InventoryClickEvent e) {
+        // Default: no action needed
     }
 
 }

@@ -20,6 +20,12 @@ public class HologramRunnable extends BukkitRunnable {
         if (hologram.getHologramType() == null)
             return;
 
+        // Prevent duplicate runnables - if already running, do nothing
+        // The caller should cancel the old runnable and create a new one
+        if (running) {
+            return;
+        }
+
         running = true;
 
         int updateTime;
