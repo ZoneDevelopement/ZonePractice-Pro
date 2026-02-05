@@ -42,6 +42,27 @@ public class EventSpawnMarkerManager {
         // Clear existing markers first
         clearMarkers(eventData);
 
+        // Additionally, clear any orphaned armor stands near spawn locations that might have been left behind
+        // This prevents duplicates from previous sessions or crashes
+        if (eventData.getSpawns() != null && !eventData.getSpawns().isEmpty()) {
+            for (Location spawnLoc : eventData.getSpawns()) {
+                if (spawnLoc != null && spawnLoc.getWorld() != null) {
+                    // Remove any nearby armor stands (within 3 blocks) to clean up orphans
+                    spawnLoc.getWorld().getNearbyEntities(spawnLoc, 3, 3, 3).stream()
+                            .filter(entity -> entity instanceof ArmorStand)
+                            .forEach(entity -> {
+                                ArmorStand stand = (ArmorStand) entity;
+                                // Only remove armor stands that look like our markers
+                                if (stand.getCustomName() != null &&
+                                    (stand.getCustomName().contains("Spawn #") ||
+                                     stand.getCustomName().contains("Right-click to remove"))) {
+                                    stand.remove();
+                                }
+                            });
+                }
+            }
+        }
+
         List<ArmorStand> markers = new ArrayList<>();
 
         List<Location> spawns = eventData.getSpawns();
