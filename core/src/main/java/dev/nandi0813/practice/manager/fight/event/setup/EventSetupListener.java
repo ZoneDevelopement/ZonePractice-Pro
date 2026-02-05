@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.fight.event.setup;
 
+import dev.nandi0813.api.Event.Event.EventEndEvent;
 import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
@@ -130,6 +131,18 @@ public class EventSetupListener implements Listener {
         updateGui(eventData);
 
         player.sendMessage(Common.colorize("&aRemoved spawn point #" + (spawnIndex + 1) + ". Remaining: " + eventData.getSpawns().size()));
+    }
+
+    @EventHandler
+    public void onEventEnd(EventEndEvent event) {
+        // When an event ends, clean up any spawn markers for that event's EventData
+        // This prevents markers from persisting after the event is stopped
+        if (event.getEvent() instanceof dev.nandi0813.practice.manager.fight.event.interfaces.Event practiceEvent) {
+            EventData eventData = practiceEvent.getEventData();
+            if (eventData != null) {
+                EventSpawnMarkerManager.getInstance().clearMarkers(eventData);
+            }
+        }
     }
 
     private void handleModeSwitch(Player player, EventWandSetupManager.SetupSession session, EventData eventData, Action action) {
