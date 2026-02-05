@@ -26,6 +26,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
@@ -304,6 +305,25 @@ public class EventListener implements Listener {
         }
 
         eventManager.getEventListeners().get(event.getType()).onPlayerInteract(event, e);
+    }
+
+    @EventHandler
+    public void onInventoryClick(final InventoryClickEvent e) {
+        if (!(e.getWhoClicked() instanceof Player player)) {
+            return;
+        }
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (!profile.getStatus().equals(ProfileStatus.EVENT)) {
+            return;
+        }
+
+        Event event = eventManager.getEventByPlayer(player);
+        if (event == null) {
+            return;
+        }
+
+        eventManager.getEventListeners().get(event.getType()).onInventoryClick(event, e);
     }
 
 }
