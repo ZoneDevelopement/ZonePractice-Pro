@@ -64,6 +64,7 @@ public class EventMainGui extends GUI {
                 : GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-MAIN.ICONS.STATUS.DISABLED").get());
 
         inventory.setItem(16, GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-MAIN.ICONS.LOCATION")
+                .replace("%eventName%", eventData.getType().getName())
                 .replace("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(eventData.getCuboidLoc1())))
                 .replace("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(eventData.getCuboidLoc2())))
                 .replace("%spawnPositions%", String.valueOf(eventData.getSpawns().size()))
