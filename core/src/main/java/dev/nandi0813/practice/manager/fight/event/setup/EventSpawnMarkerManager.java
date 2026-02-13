@@ -172,9 +172,9 @@ public class EventSpawnMarkerManager {
      * Updates markers for an event (re-creates them)
      */
     public void updateMarkers(EventData eventData) {
-        if (hasMarkers(eventData)) {
-            showMarkers(eventData);
-        }
+        // Always update markers - showMarkers will clear old ones first
+        // This ensures markers appear even when adding the first spawn point
+        showMarkers(eventData);
     }
 
     /**

@@ -13,12 +13,15 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class EventSetupListener implements Listener {
 
@@ -131,6 +134,53 @@ public class EventSetupListener implements Listener {
         updateGui(eventData);
 
         player.sendMessage(Common.colorize("&aRemoved spawn point #" + (spawnIndex + 1) + ". Remaining: " + eventData.getSpawns().size()));
+    }
+
+    // Prevent players from manipulating marker armor stands
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
+        ArmorStand armorStand = event.getRightClicked();
+
+        if (EventSpawnMarkerManager.getInstance().isMarker(armorStand)) {
+            event.setCancelled(true);
+        }
+    }
+
+    // Prevent damage to marker armor stands
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onArmorStandDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof ArmorStand armorStand)) return;
+
+        if (!EventSpawnMarkerManager.getInstance().isMarker(armorStand)) return;
+
+        // Cancel damage in all cases
+        event.setCancelled(true);
+
+        // Check if the damager is a player (left-click)
+        if (!(event.getDamager() instanceof Player player)) return;
+
+        // Check if player is in setup mode
+        if (!setupManager.isSettingUp(player)) return;
+
+        EventWandSetupManager.SetupSession session = setupManager.getSession(player);
+        if (session == null) return;
+
+        EventData eventData = session.getEventData();
+        if (eventData == null) return;
+
+        // Check if in correct mode
+        if (session.getCurrentMode() != EventSetupMode.SPAWN_POINTS) return;
+
+        // Left-click on armor stand = Remove last spawn (same as left-click on block)
+        if (!eventData.getSpawns().isEmpty()) {
+            int index = eventData.getSpawns().size() - 1;
+            eventData.getSpawns().remove(index);
+            EventSpawnMarkerManager.getInstance().updateMarkers(eventData);
+            updateGui(eventData);
+            player.sendMessage(Common.colorize("&cRemoved last spawn point. Remaining: " + index));
+        } else {
+            player.sendMessage(Common.colorize("&cNo spawn points to remove."));
+        }
     }
 
     @EventHandler
@@ -254,6 +304,19 @@ public class EventSetupListener implements Listener {
 
                 eventData.setEnabled(true);
                 player.sendMessage(Common.colorize("&aEnabled event: &e" + eventData.getType().getName()));
+
+                // When enabling an event, cleanup: clear markers and end setup mode for all players
+                List<Player> playersSettingUp = new ArrayList<>(setupManager.getPlayersSettingUpEvent(eventData));
+
+                // Clear markers first (before ending setup, to avoid duplicate clears)
+                if (!playersSettingUp.isEmpty()) {
+                    EventSpawnMarkerManager.getInstance().clearMarkers(eventData);
+                }
+
+                // End setup mode for all players currently setting up this event
+                for (Player settingUpPlayer : playersSettingUp) {
+                    setupManager.stopSetup(settingUpPlayer);
+                }
             }
 
             updateGui(eventData);
