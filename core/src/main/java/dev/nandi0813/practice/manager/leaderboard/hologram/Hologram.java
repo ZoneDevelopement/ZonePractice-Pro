@@ -51,6 +51,9 @@ public abstract class Hologram {
     // Track existing armor stands to prevent flickering during updates
     protected final List<ArmorStand> armorStands = new ArrayList<>();
 
+    // Flag to prevent concurrent hologram updates
+    private volatile boolean isUpdating = false;
+
     public Hologram(String name, Location baseLocation, HologramType hologramType) {
         this.name = name;
         this.baseLocation = baseLocation.subtract(0, 2, 0);
@@ -121,42 +124,59 @@ public abstract class Hologram {
 
     public abstract Leaderboard getNextLeaderboard();
 
-    public void updateContent() {
-        // Safety check to prevent errors if location is invalid
-        if (baseLocation == null || baseLocation.getWorld() == null) {
-            setEnabled(false);
+    public synchronized void updateContent() {
+        // Prevent concurrent updates - if already updating, skip this call
+        if (isUpdating) {
             return;
         }
 
-        Leaderboard leaderboard = this.getNextLeaderboard();
-        if (leaderboard == null) {
-            setSetupHologram(SetupHologramType.SETUP);
-            return;
+        isUpdating = true;
+
+        try {
+            // Safety check to prevent errors if location is invalid
+            if (baseLocation == null || baseLocation.getWorld() == null) {
+                setEnabled(false);
+                return;
+            }
+
+            Leaderboard leaderboard = this.getNextLeaderboard();
+            if (leaderboard == null) {
+                setSetupHologram(SetupHologramType.SETUP);
+                return;
+            }
+
+            // Skip update if leaderboard is currently being refreshed to prevent flickering
+            if (leaderboard.isUpdating()) {
+                return;
+            }
+
+            if (leaderboard.isEmpty()) {
+                setSetupHologram(SetupHologramType.NO_DISPLAY);
+                return;
+            }
+
+            this.currentLB = leaderboard;
+
+            List<String> lines = new ArrayList<>();
+            switch (leaderboard.getMainType()) {
+                case GLOBAL:
+                    lines = new ArrayList<>(currentLB.getSecondaryType().getGlobalLines());
+                    break;
+                case LADDER:
+                    lines = new ArrayList<>(currentLB.getSecondaryType().getLadderLines());
+                    if (currentLB.getLadder() != null) {
+                        lines.replaceAll(line -> line.replace("%ladder_name%", currentLB.getLadder().getName()));
+                        lines.replaceAll(line -> line.replace("%ladder_displayName%", currentLB.getLadder().getDisplayName()));
+                    }
+                    break;
+            }
+            Collections.reverse(lines);
+
+            this.updateHologram(lines, this.getPlacementStrings());
+        } finally {
+            // Always reset the flag, even if an exception occurs
+            isUpdating = false;
         }
-
-        if (leaderboard.isEmpty()) {
-            setSetupHologram(SetupHologramType.NO_DISPLAY);
-            return;
-        }
-
-        this.currentLB = leaderboard;
-
-        List<String> lines = new ArrayList<>();
-        switch (leaderboard.getMainType()) {
-            case GLOBAL:
-                lines = new ArrayList<>(currentLB.getSecondaryType().getGlobalLines());
-                break;
-            case LADDER:
-                lines = new ArrayList<>(currentLB.getSecondaryType().getLadderLines());
-                if (currentLB.getLadder() != null) {
-                    lines.replaceAll(line -> line.replace("%ladder_name%", currentLB.getLadder().getName()));
-                    lines.replaceAll(line -> line.replace("%ladder_displayName%", currentLB.getLadder().getDisplayName()));
-                }
-                break;
-        }
-        Collections.reverse(lines);
-
-        this.updateHologram(lines, this.getPlacementStrings());
     }
 
     /**
