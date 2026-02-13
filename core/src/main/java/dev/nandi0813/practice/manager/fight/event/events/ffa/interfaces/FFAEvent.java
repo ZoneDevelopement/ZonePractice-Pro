@@ -11,8 +11,10 @@ import dev.nandi0813.practice.manager.fight.event.runnables.DurationRunnable;
 import dev.nandi0813.practice.manager.fight.event.runnables.StartRunnable;
 import dev.nandi0813.practice.manager.fight.event.util.EventUtil;
 import dev.nandi0813.practice.manager.server.ServerManager;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.Random;
@@ -28,18 +30,39 @@ public abstract class FFAEvent extends FullRunnableInterface {
     }
 
     public void teleport(final Player player) {
-        int i = random.nextInt(eventData.getSpawns().size());
-        player.teleport(eventData.getSpawns().get(i));
+        // Safety check: ensure spawns list is not empty
+        if (eventData.getSpawns() == null || eventData.getSpawns().isEmpty()) {
+            player.sendMessage(Common.colorize("&cError: No spawn points configured for this event!"));
+            return;
+        }
 
+        // Safety check: ensure player is online
+        if (!player.isOnline()) {
+            return;
+        }
+
+        int i = random.nextInt(eventData.getSpawns().size());
+        Location spawnLocation = eventData.getSpawns().get(i);
+
+        // Safety check: ensure spawn location is valid
+        if (spawnLocation == null || spawnLocation.getWorld() == null) {
+            player.sendMessage(Common.colorize("&cError: Invalid spawn location!"));
+            return;
+        }
+
+        // Teleport the player
+        player.teleport(spawnLocation);
+
+        // Load inventory after teleport
         loadInventory(player);
     }
 
     @Override
     protected void customStart() {
         this.status = EventStatus.START;
-        this.getStartRunnable().begin();
         this.customCustomStart(); // Juggernaut miatt itt kell lennie, mert utána jön a load INV.
 
+        // Teleport players FIRST, before starting the countdown runnable
         for (Player player : this.players) {
             for (Player target : this.players) {
                 if (player != target) {
@@ -49,6 +72,9 @@ public abstract class FFAEvent extends FullRunnableInterface {
 
             this.teleport(player);
         }
+
+        // Start the countdown runnable AFTER players are teleported
+        this.getStartRunnable().begin();
     }
 
     protected abstract void customCustomStart();
