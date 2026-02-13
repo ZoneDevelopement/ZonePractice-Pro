@@ -22,9 +22,21 @@ public enum BackendManager {
 
     public static void createFile(ZonePractice practice) {
         file = new File(practice.getDataFolder(), "backend.yml");
-        config = YamlConfiguration.loadConfiguration(file);
-        save();
-        reload();
+        config = new YamlConfiguration();
+
+        // Only try to load if file exists, and catch errors if worlds aren't loaded yet
+        if (file.exists()) {
+            try {
+                config.load(file);
+            } catch (IOException | InvalidConfigurationException e) {
+                // Ignore errors during initial load - this is expected if worlds aren't loaded yet
+                // The file will be reloaded later when loadLobby() is called
+                Common.sendConsoleMMMessage("<yellow>Backend file exists but couldn't be fully loaded yet (worlds may not be ready). Will retry during initialization.");
+            }
+        } else {
+            // Create new file if it doesn't exist
+            save();
+        }
     }
 
     public static void save() {
@@ -39,7 +51,7 @@ public enum BackendManager {
         try {
             config.load(file);
         } catch (IOException | InvalidConfigurationException e) {
-            Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
+            Common.sendConsoleMMMessage("<red>Error reloading backend: " + e.getMessage());
         }
     }
 
