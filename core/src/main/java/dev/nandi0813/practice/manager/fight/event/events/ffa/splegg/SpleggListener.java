@@ -106,7 +106,9 @@ public class SpleggListener extends FFAListener {
             if (!event.getEventData().getCuboid().contains(hitBlock.getLocation())) return;
 
             Material hitBlockType = hitBlock.getType();
-            if (hitBlockType.toString().contains("_WOOL") || hitBlockType.equals(Material.WOOL)) {
+            String materialName = hitBlockType.name();
+            // Check if block is wool - works for both 1.8.8 (WOOL) and modern versions (WHITE_WOOL, RED_WOOL, etc.)
+            if (materialName.equals("WOOL") || materialName.endsWith("_WOOL")) {
                 splegg.getFightChange().addBlockChange(ClassImport.createChangeBlock(hitBlock));
 
                 hitBlock.setType(Material.AIR);
