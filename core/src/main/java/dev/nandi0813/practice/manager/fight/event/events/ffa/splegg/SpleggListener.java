@@ -23,12 +23,20 @@ public class SpleggListener extends FFAListener {
 
     @Override
     public void onEntityDamage(Event event, EntityDamageEvent e) {
-
+        if (event instanceof Splegg) {
+            e.setCancelled(true);
+        }
     }
 
     @Override
     public void onEntityDamageByEntity(Event event, EntityDamageByEntityEvent e) {
-
+        if (event instanceof Splegg) {
+            if (!(e.getDamager() instanceof Egg)) {
+                e.setCancelled(true);
+            } else {
+                e.setDamage(0);
+            }
+        }
     }
 
     @Override
