@@ -66,10 +66,12 @@ public class ArenaSummaryGui extends GUI {
 
                 // Arena icons
                 Map<Integer, DisplayArena> pageSlots = new HashMap<>();
-                for (Map.Entry<DisplayArena, ItemStack> entry : getPageItems(displayIcons, page, spaces).entrySet()) {
+                for (Map.Entry<DisplayArena, ItemStack> entry : getPageItems(displayIcons, page).entrySet()) {
                     int slot = gui.get(page).firstEmpty();
-                    gui.get(page).setItem(slot, entry.getValue());
-                    pageSlots.put(slot, entry.getKey());
+                    if (slot != -1 && slot < gui.get(page).getSize()) {
+                        gui.get(page).setItem(slot, entry.getValue());
+                        pageSlots.put(slot, entry.getKey());
+                    }
                 }
                 slots.put(page, pageSlots);
 
@@ -196,11 +198,11 @@ public class ArenaSummaryGui extends GUI {
         return guiItem.get();
     }
 
-    private static Map<DisplayArena, ItemStack> getPageItems(Map<DisplayArena, ItemStack> items, int page, int spaces) {
+    private static Map<DisplayArena, ItemStack> getPageItems(Map<DisplayArena, ItemStack> items, int page) {
         Map<DisplayArena, ItemStack> sortedItems = sortByValue(items);
 
-        int upperBound = page * spaces;
-        int lowerBound = upperBound - spaces;
+        int upperBound = page * 27;
+        int lowerBound = upperBound - 27;
 
         Map<DisplayArena, ItemStack> newItems = new HashMap<>();
         int index = 0;

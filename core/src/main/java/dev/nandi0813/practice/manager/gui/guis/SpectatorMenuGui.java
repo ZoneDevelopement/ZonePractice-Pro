@@ -62,7 +62,9 @@ public class SpectatorMenuGui extends GUI {
                 // Match icons
                 for (ItemStack icon : PageUtil.getPageItems(iconsList, page, spaces)) {
                     int slot = inventory.firstEmpty();
-                    inventory.setItem(slot, icon);
+                    if (slot != -1 && slot < inventory.getSize()) {
+                        inventory.setItem(slot, icon);
+                    }
                 }
 
                 // Left navigation
