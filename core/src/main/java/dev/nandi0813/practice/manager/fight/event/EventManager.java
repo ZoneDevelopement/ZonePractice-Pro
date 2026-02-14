@@ -106,6 +106,9 @@ public class EventManager {
     public void loadGUIs() {
         GUIManager.getInstance().addGUI(new EventHostGui());
         EventSetupManager.getInstance().loadGUIs();
+
+        // Initialize the wand-based setup manager
+        dev.nandi0813.practice.manager.fight.event.setup.EventWandSetupManager.getInstance();
     }
 
     public void endEvents() {

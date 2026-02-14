@@ -23,12 +23,20 @@ public class SpleggListener extends FFAListener {
 
     @Override
     public void onEntityDamage(Event event, EntityDamageEvent e) {
-
+        if (event instanceof Splegg) {
+            e.setCancelled(true);
+        }
     }
 
     @Override
     public void onEntityDamageByEntity(Event event, EntityDamageByEntityEvent e) {
-
+        if (event instanceof Splegg) {
+            if (!(e.getDamager() instanceof Egg)) {
+                e.setCancelled(true);
+            } else {
+                e.setDamage(0);
+            }
+        }
     }
 
     @Override
@@ -98,7 +106,9 @@ public class SpleggListener extends FFAListener {
             if (!event.getEventData().getCuboid().contains(hitBlock.getLocation())) return;
 
             Material hitBlockType = hitBlock.getType();
-            if (hitBlockType.toString().contains("_WOOL") || hitBlockType.equals(Material.WOOL)) {
+            String materialName = hitBlockType.name();
+            // Check if block is wool - works for both 1.8.8 (WOOL) and modern versions (WHITE_WOOL, RED_WOOL, etc.)
+            if (materialName.equals("WOOL") || materialName.endsWith("_WOOL")) {
                 splegg.getFightChange().addBlockChange(ClassImport.createChangeBlock(hitBlock));
 
                 hitBlock.setType(Material.AIR);

@@ -52,31 +52,12 @@
         <dependency>
             <groupId>net.megavex</groupId>
             <artifactId>scoreboard-library-api</artifactId>
-            <version>2.4.4</version>
+            <version>2.6.0</version>
         </dependency>
         <dependency>
             <groupId>net.megavex</groupId>
             <artifactId>scoreboard-library-implementation</artifactId>
-            <version>2.4.4</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.megavex</groupId>
-            <artifactId>scoreboard-library-modern</artifactId>
-            <version>2.4.4</version>
-            <scope>runtime</scope>
-            <!-- <classifier>mojmap</classifier> -->
-        </dependency>
-        <dependency>
-            <groupId>net.megavex</groupId>
-            <artifactId>scoreboard-library-legacy</artifactId>
-            <version>2.4.4</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.megavex</groupId>
-            <artifactId>scoreboard-library-packetevents</artifactId>
-            <version>2.4.4</version>
+            <version>2.6.0</version>
             <scope>runtime</scope>
         </dependency>
 

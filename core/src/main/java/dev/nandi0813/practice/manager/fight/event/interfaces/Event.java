@@ -212,17 +212,27 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
             sendMessage(LanguageManager.getString("COMMAND.STAFF.ARGUMENTS.FORCE-END.EVENT.MATCH-END-MSG").replace("%player%", player.getName()), true);
         }
 
-        if (!this.status.equals(EventStatus.COLLECTING)) {
-            this.endEvent();
-        } else {
-            this.removeAll();
-        }
+        // Store current status before changing it
+        boolean wasLive = !this.status.equals(EventStatus.COLLECTING);
 
+        // Cancel all runnables first to prevent interference
         this.cancelAllRunnable();
+
+        // Remove all players and spectators
+        this.removeAll();
+
+        // Set status to END
         this.status = EventStatus.END;
 
+        // Rollback fight changes if event was live
+        if (wasLive) {
+            this.getFightChange().rollback(100, 50);
+        }
+
+        // Remove from event manager
         EventManager.getInstance().getEvents().remove(this);
 
+        // Update spectator GUI
         SpectatorManager.getInstance().getSpectatorMenuGui().update();
     }
 

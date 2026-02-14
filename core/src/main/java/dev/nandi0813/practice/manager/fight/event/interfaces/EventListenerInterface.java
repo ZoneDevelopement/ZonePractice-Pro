@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.fight.event.interfaces;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 
 public abstract class EventListenerInterface {
@@ -22,5 +23,7 @@ public abstract class EventListenerInterface {
     public abstract void onPlayerEggThrow(final Event event, final PlayerEggThrowEvent e);
 
     public abstract void onPlayerDropItem(final Event event, final PlayerDropItemEvent e);
+
+    public abstract void onInventoryClick(final Event event, final InventoryClickEvent e);
 
 }

@@ -279,7 +279,12 @@ public abstract class ArenaCopyUtil implements Listener {
     public abstract void deleteArena(final String arena, final Cuboid cuboid);
 
     protected void deleteNormal(final String arena, final Cuboid cuboid) {
-        final Iterator<Block> iterator = cuboid.getBlocks().iterator();
+        // OPTIMIZATION: Use iterator directly instead of creating a full list in memory
+        final Iterator<Block> iterator = cuboid.iterator();
+
+        // Register chunks for physics blocking during deletion
+        addCopyingChunks(cuboid);
+        copyingCuboids.add(cuboid);
 
         new BukkitRunnable() {
             @Override
@@ -288,29 +293,43 @@ public abstract class ArenaCopyUtil implements Listener {
                 int checkCounter = 0;
 
                 try {
-                    while (iterator.hasNext()) {
-                        if (changeCounter < PermanentConfig.ARENA_COPY_MAX_CHANGES && checkCounter < PermanentConfig.ARENA_COPY_MAX_CHECKS) {
-                            Location location = iterator.next().getLocation();
+                    while (iterator.hasNext() && changeCounter < PermanentConfig.ARENA_COPY_MAX_CHANGES && checkCounter < PermanentConfig.ARENA_COPY_MAX_CHECKS) {
+                        Block block = iterator.next();
+                        checkCounter++;
 
-                            if (location.getBlock() != null && location.getBlock().getType() != null && !location.getBlock().getType().equals(Material.AIR)) {
-                                location.getBlock().setType(Material.AIR);
-                                changeCounter++;
-                            }
+                        // OPTIMIZATION: Skip AIR blocks immediately (doesn't count against change limit)
+                        if (block.getType() == Material.AIR) {
+                            continue;
+                        }
 
-                            checkCounter++;
-                            iterator.remove();
-                        } else return;
+                        block.setType(Material.AIR);
+                        changeCounter++;
                     }
                 } catch (Exception e) {
                     this.cancel();
                     Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
-                }
-                this.cancel();
-                ArenaManager.getInstance().getArenaCuboids().remove(cuboid);
 
-                for (Player player : Bukkit.getOnlinePlayers())
-                    if (player.hasPermission("zpp.setup"))
-                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.LAST-COPY-DELETED").replace("%arena%", arena));
+                    // Cleanup on error
+                    removeCopyingChunks(cuboid);
+                    copyingCuboids.remove(cuboid);
+                    ArenaManager.getInstance().getArenaCuboids().remove(cuboid);
+                    return;
+                }
+
+                // Check if deletion is complete
+                if (!iterator.hasNext()) {
+                    this.cancel();
+
+                    // Cleanup
+                    removeCopyingChunks(cuboid);
+                    copyingCuboids.remove(cuboid);
+                    ArenaManager.getInstance().getArenaCuboids().remove(cuboid);
+
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        if (player.hasPermission("zpp.setup"))
+                            Common.sendMMMessage(player, LanguageManager.getString("ARENA.LAST-COPY-DELETED").replace("%arena%", arena));
+                    }
+                }
             }
         }.runTaskTimer(ZonePractice.getInstance(), 0, 1);
     }

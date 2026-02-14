@@ -11,6 +11,7 @@ import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
+import dev.nandi0813.practice.manager.leaderboard.hologram.Hologram;
 import dev.nandi0813.practice.manager.leaderboard.hologram.HologramManager;
 import dev.nandi0813.practice.manager.leaderboard.types.LbMainType;
 import dev.nandi0813.practice.manager.leaderboard.types.LbSecondaryType;
@@ -38,6 +39,9 @@ public class LeaderboardManager implements Listener {
     }
 
     private final List<Leaderboard> leaderboards = new ArrayList<>();
+
+    // Track holograms that are pending update to prevent duplicate scheduling
+    private final Set<Hologram> pendingHologramUpdates = Collections.synchronizedSet(new HashSet<>());
 
     private LeaderboardManager() {
         Bukkit.getPluginManager().registerEvents(this, ZonePractice.getInstance());
@@ -87,17 +91,58 @@ public class LeaderboardManager implements Listener {
             return;
         }
 
+        // Mark existing leaderboard as updating to prevent hologram flickering
+        Leaderboard existingLB = searchLB(mainType, secondaryType, ladder);
+        if (existingLB != null) {
+            existingLB.setUpdating(true);
+        }
+
         createLB(mainType, secondaryType, ladder, list ->
         {
-            if (list == null) return;
+            if (list == null) {
+                if (existingLB != null) {
+                    existingLB.setUpdating(false);
+                }
+                return;
+            }
 
             Leaderboard leaderboard = searchLB(mainType, secondaryType, ladder);
             if (leaderboard != null) {
                 leaderboard.setList(list);
+                leaderboard.setUpdating(false);
             } else {
                 leaderboard = new Leaderboard(mainType, secondaryType, ladder, list);
                 leaderboards.add(leaderboard);
             }
+
+            // Trigger immediate hologram content update after leaderboard data is updated
+            // This ensures holograms show the latest data without waiting for the next scheduled update
+            final Leaderboard finalLeaderboard = leaderboard;
+            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+                // Collect holograms that need updating
+                Set<Hologram> hologramsToUpdate = new HashSet<>();
+
+                for (Hologram hologram : HologramManager.getInstance().getHolograms()) {
+                    if (!hologram.isEnabled()) continue;
+
+                    Leaderboard holoLB = hologram.getNextLeaderboard();
+                    if (holoLB != null && holoLB == finalLeaderboard) {
+                        // Only add if not already pending update
+                        if (pendingHologramUpdates.add(hologram)) {
+                            hologramsToUpdate.add(hologram);
+                        }
+                    }
+                }
+
+                // Update all holograms and remove them from pending set when done
+                for (Hologram hologram : hologramsToUpdate) {
+                    try {
+                        hologram.updateContent();
+                    } finally {
+                        pendingHologramUpdates.remove(hologram);
+                    }
+                }
+            });
         });
     }
 

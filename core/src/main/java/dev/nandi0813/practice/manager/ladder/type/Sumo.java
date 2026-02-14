@@ -38,10 +38,19 @@ public class Sumo extends NormalLadder implements LadderHandle {
 
         if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) return;
 
-        Material block = player.getLocation().getBlock().getType();
-        if (block.equals(Material.WATER) || block.equals(ClassImport.getClasses().getItemMaterialUtil().getWater())) {
+        // Check both the block at player's location and the block below (feet)
+        org.bukkit.Location playerLoc = player.getLocation();
+        Material blockAtPlayer = playerLoc.getBlock().getType();
+        Material blockBelow = playerLoc.clone().subtract(0, 1, 0).getBlock().getType();
+
+        // Check if player is in/touching water
+        if (blockAtPlayer.equals(Material.WATER) || blockAtPlayer.equals(ClassImport.getClasses().getItemMaterialUtil().getWater()) ||
+            blockBelow.equals(Material.WATER) || blockBelow.equals(ClassImport.getClasses().getItemMaterialUtil().getWater())) {
             match.killPlayer(player, null, DeathCause.SUMO.getMessage());
-        } else if (block.equals(Material.LAVA) || block.equals(ClassImport.getClasses().getItemMaterialUtil().getLava())) {
+        }
+        // Check if player is in/touching lava
+        else if (blockAtPlayer.equals(Material.LAVA) || blockAtPlayer.equals(ClassImport.getClasses().getItemMaterialUtil().getLava()) ||
+                 blockBelow.equals(Material.LAVA) || blockBelow.equals(ClassImport.getClasses().getItemMaterialUtil().getLava())) {
             match.killPlayer(player, null, DeathCause.SUMO.getMessage());
         }
     }
@@ -49,10 +58,19 @@ public class Sumo extends NormalLadder implements LadderHandle {
     private static void onPlayerDamage(final @NotNull EntityDamageEvent e, final @NotNull Match match) {
         if (!(e.getEntity() instanceof Player player)) return;
 
-        if (match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
-            e.setDamage(0);
-            player.setHealth(20);
+        if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+            e.setCancelled(true);
+            return;
         }
+
+        // Don't interfere with void damage - let it kill the player
+        if (e.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
+            return;
+        }
+
+        // For all other damage types, nullify damage and keep player at full health
+        e.setDamage(0);
+        player.setHealth(20);
     }
 
 }

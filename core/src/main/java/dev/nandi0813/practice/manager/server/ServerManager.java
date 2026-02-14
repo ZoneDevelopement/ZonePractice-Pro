@@ -112,6 +112,8 @@ public class ServerManager implements Listener {
 
     public void loadLobby() {
         try {
+            // Reload backend to ensure Location objects are properly deserialized now that worlds are loaded
+            BackendManager.reload();
             lobby = (Location) BackendManager.getConfig().get("lobby");
         } catch (Exception e) {
             Common.sendConsoleMMMessage("<red>Lobby cannot be found.");

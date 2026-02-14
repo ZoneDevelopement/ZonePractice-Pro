@@ -63,10 +63,19 @@ public class SumoListener extends DuelListener {
                 DuelFight duelFight = sumo.getFight(player);
                 if (duelFight == null) return;
 
-                Material block = e.getPlayer().getLocation().getBlock().getType();
-                if (block.equals(Material.WATER) || block.equals(ClassImport.getClasses().getItemMaterialUtil().getWater())) {
+                // Check both the block at player's location and the block below (feet)
+                Location playerLoc = player.getLocation();
+                Material blockAtPlayer = playerLoc.getBlock().getType();
+                Material blockBelow = playerLoc.clone().subtract(0, 1, 0).getBlock().getType();
+
+                // Check if player is in/touching water
+                if (blockAtPlayer.equals(Material.WATER) || blockAtPlayer.equals(ClassImport.getClasses().getItemMaterialUtil().getWater()) ||
+                    blockBelow.equals(Material.WATER) || blockBelow.equals(ClassImport.getClasses().getItemMaterialUtil().getWater())) {
                     duelFight.endFight(player);
-                } else if (block.equals(Material.LAVA) || block.equals(ClassImport.getClasses().getItemMaterialUtil().getLava())) {
+                }
+                // Check if player is in/touching lava
+                else if (blockAtPlayer.equals(Material.LAVA) || blockAtPlayer.equals(ClassImport.getClasses().getItemMaterialUtil().getLava()) ||
+                         blockBelow.equals(Material.LAVA) || blockBelow.equals(ClassImport.getClasses().getItemMaterialUtil().getLava())) {
                     duelFight.endFight(player);
                 }
             }

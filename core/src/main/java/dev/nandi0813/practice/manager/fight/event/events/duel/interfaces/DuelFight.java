@@ -59,12 +59,18 @@ public class DuelFight {
                 }
             }
         } else {
-            for (Player player : this.players) {
-                if (!this.duelEvent.getPlayers().contains(player)) {
-                    this.duelEvent.getPlayers().add(player);
+            // Event is ending - only add back the winner to the players list
+            // The loser was already removed at line 44, so we only need to ensure the winner is in the list
+            if (loser != null) {
+                Player winner = getOtherPlayer(loser);
+                if (winner != null && !this.duelEvent.getPlayers().contains(winner)) {
+                    this.duelEvent.getPlayers().add(winner);
                 }
-                this.duelEvent.getSpectators().remove(player);
+                // Remove winner from spectators if they were added there
+                this.duelEvent.getSpectators().remove(winner);
             }
+            // If loser is null (draw/timeout), both players should remain out
+            // as they were already moved to spectators in lines 37-41
 
             this.duelEvent.endEvent();
         }
