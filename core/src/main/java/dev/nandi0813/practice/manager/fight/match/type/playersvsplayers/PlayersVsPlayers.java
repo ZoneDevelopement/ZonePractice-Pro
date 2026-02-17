@@ -147,7 +147,9 @@ public abstract class PlayersVsPlayers extends Match implements Team {
         this.getTeamPlayers(getTeam(player)).remove(player);
         MatchManager.getInstance().getPlayerMatches().remove(player);
 
-        if (quit) {
+        // Only process quit logic if the match hasn't ended yet
+        // When match status is END or OVER, players are being removed as part of cleanup
+        if (quit && !this.status.equals(MatchStatus.END) && !this.status.equals(MatchStatus.OVER)) {
             this.getCurrentStat(player).end(true);
 
             if (this.getLanguagePath() != null) {
