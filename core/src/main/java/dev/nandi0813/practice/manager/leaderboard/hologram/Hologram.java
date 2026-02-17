@@ -47,6 +47,8 @@ public abstract class Hologram {
     protected int showStat;
 
     protected Leaderboard currentLB;
+    // Track previous leaderboard to detect switches in dynamic holograms
+    private Leaderboard previousLB;
 
     // Track existing armor stands to prevent flickering during updates
     protected final List<ArmorStand> armorStands = new ArrayList<>();
@@ -155,6 +157,22 @@ public abstract class Hologram {
                 return;
             }
 
+            // Detect if we're switching to a different leaderboard (for dynamic holograms)
+            // If so, clear all armor stands to prevent overlap
+            boolean leaderboardChanged = false;
+            if (hologramType == HologramType.LADDER_DYNAMIC && previousLB != null) {
+                // Check if the ladder changed (different ladder in dynamic rotation)
+                if (previousLB.getLadder() != null && leaderboard.getLadder() != null) {
+                    leaderboardChanged = !previousLB.getLadder().equals(leaderboard.getLadder());
+                }
+            }
+
+            // If leaderboard changed, clear all armor stands to prevent overlap
+            if (leaderboardChanged) {
+                clearHologram();
+            }
+
+            this.previousLB = this.currentLB;
             this.currentLB = leaderboard;
 
             List<String> lines = new ArrayList<>();
@@ -219,12 +237,7 @@ public abstract class Hologram {
         if (requiredSize > currentSize) {
             Location location = baseLocation.clone();
 
-            // Calculate location after existing armor stands
-            for (int i = 0; i < currentSize && i < allSpacings.size(); i++) {
-                location.subtract(0, -allSpacings.get(i), 0);
-            }
-
-            // Create new armor stands for additional lines
+            // Create new armor stands starting from where we left off
             for (int i = currentSize; i < requiredSize; i++) {
                 double spacing = allSpacings.get(i);
                 ArmorStand stand = createArmorStand(location, spacing);
