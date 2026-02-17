@@ -31,34 +31,6 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 // FixedMetadataValue is deprecated in Paper but still the standard way to set block metadata
 public class MatchTntListener implements Listener {
 
-    // Performance tracking for BlockFromToEvent metadata cache
-    private int metadataHits = 0;
-    private int metadataMisses = 0;
-    private long lastLogTime = System.currentTimeMillis();
-
-    /**
-     * Logs performance statistics for metadata cache hit rate.
-     * Called periodically to track how often we use cached metadata vs searching.
-     */
-    private void logPerformanceStats() {
-        long currentTime = System.currentTimeMillis();
-        // Log every 30 seconds
-        if (currentTime - lastLogTime >= 30000) {
-            int total = metadataHits + metadataMisses;
-            if (total > 0) {
-                double hitRate = (metadataHits * 100.0) / total;
-                ZonePractice.getInstance().getLogger().info(String.format(
-                        "[BlockFromTo Performance] Metadata hits: %d | Searches: %d | Cache hit rate: %.1f%% | Total events: %d",
-                        metadataHits, metadataMisses, hitRate, total
-                ));
-                // Reset counters for next interval
-                metadataHits = 0;
-                metadataMisses = 0;
-            }
-            lastLogTime = currentTime;
-        }
-    }
-
     private void handleExplosion(Event event, List<Block> blockList, Match match) {
         if (match == null) {
             return;
@@ -228,13 +200,11 @@ public class MatchTntListener implements Listener {
                 if (spectatable instanceof Match) {
                     match = (Match) spectatable;
                 }
-                metadataHits++; // Track successful metadata lookup
             }
         }
 
         // If source doesn't have metadata, search for match (slow path - only for natural flows)
         if (spectatable == null) {
-            metadataMisses++; // Track when we have to search
 
             match = MatchManager.getInstance().getLiveMatches().stream()
                     .filter(m -> m.getCuboid().contains(fromBlock.getLocation()))
@@ -242,14 +212,12 @@ public class MatchTntListener implements Listener {
                     .orElse(null);
 
             if (match == null) {
-                logPerformanceStats(); // Log before returning
                 return;
             }
 
             spectatable = match;
 
             if (!match.getLadder().isBuild()) {
-                logPerformanceStats(); // Log before returning
                 return;
             }
 
@@ -257,9 +225,6 @@ public class MatchTntListener implements Listener {
             fromBlock.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), spectatable));
             match.addBlockChange(ClassImport.createChangeBlock(fromBlock));
         }
-
-        // Log performance stats periodically
-        logPerformanceStats();
 
         // Only proceed with Match-specific logic if it's a Match
         if (match != null) {
