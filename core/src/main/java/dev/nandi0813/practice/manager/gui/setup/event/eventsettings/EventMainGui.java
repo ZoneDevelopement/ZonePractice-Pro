@@ -106,6 +106,7 @@ public class EventMainGui extends GUI {
 
                         update();
                         GUIManager.getInstance().searchGUI(GUIType.Event_Summary).update();
+                        GUIManager.getInstance().searchGUI(GUIType.Event_Host).update();
                     } else if (click.isRightClick()) {
                         Location location = eventData.getAvailableLocation();
                         if (location == null) {

@@ -46,7 +46,7 @@ public class EventHostGui extends GUI {
                 int slot = gui.get(1).firstEmpty();
                 eventSlots.put(slot, eventType);
 
-                gui.get(1).setItem(slot, ItemCreateUtil.hideItemFlags(eventType.getIcon()));
+                gui.get(1).setItem(slot, ItemCreateUtil.hideItemFlags(EventManager.getInstance().getEventData().get(eventType).getIcon().get()));
             }
         }
     }
