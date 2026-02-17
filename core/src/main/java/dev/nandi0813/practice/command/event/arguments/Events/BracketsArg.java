@@ -49,9 +49,6 @@ public enum BracketsArg {
             sendHelpMSG(player, label);
 
             return;
-        } else if (args.length >= 2 && args[1].equalsIgnoreCase("spawn")) {
-            SpawnPointArg.spawnPointCommand(player, label, bracketsData, args);
-            return;
         }
 
         // Checking if the arena is enabled, if it is, it will send a message to the player and return.
@@ -85,7 +82,6 @@ public enum BracketsArg {
             arguments.add("setkit");
             arguments.add("enable");
             arguments.add("disable");
-            arguments.add("spawn");
 
             return StringUtil.copyPartialMatches(args[1], arguments, new ArrayList<>());
         }

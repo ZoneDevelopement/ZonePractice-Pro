@@ -51,9 +51,6 @@ public enum JuggernautArg {
             sendHelpMSG(player, label, label2);
 
             return;
-        } else if (args.length >= 2 && args[1].equalsIgnoreCase("spawn")) {
-            SpawnPointArg.spawnPointCommand(player, label, juggernautData, args);
-            return;
         }
 
         // Checking if the arena is enabled, if it is, it will send a message to the player and return.
@@ -95,7 +92,6 @@ public enum JuggernautArg {
 
         if (args.length == 2) {
             arguments.add("setkit");
-            arguments.add("spawn");
             arguments.add("enable");
             arguments.add("disable");
 

@@ -41,8 +41,6 @@ public enum SumoArg {
                 EventUtil.changeStatus(sumoData, player);
             else
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.SUMO.EVENT-ALREADY-DISABLED"));
-        } else if (args.length >= 2 && args[1].equalsIgnoreCase("spawn")) {
-            SpawnPointArg.spawnPointCommand(player, label, sumoData, args);
         } else
             sendHelpMSG(player, label);
     }
@@ -60,7 +58,6 @@ public enum SumoArg {
         if (args.length == 2) {
             arguments.add("enable");
             arguments.add("disable");
-            arguments.add("spawn");
 
             return StringUtil.copyPartialMatches(args[1], arguments, new ArrayList<>());
         }

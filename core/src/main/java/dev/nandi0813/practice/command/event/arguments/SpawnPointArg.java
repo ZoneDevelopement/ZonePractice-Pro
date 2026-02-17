@@ -51,18 +51,8 @@ public enum SpawnPointArg {
             } catch (Exception e) {
                 Common.sendMMMessage(player, "<red>" + e.getMessage());
             }
-        } else {
-            sendHelp(player, label1, eventData);
         }
-    }
-
-    private static void sendHelp(Player player, String label, EventData eventData) {
-        for (String line : LanguageManager.getList("COMMAND.EVENT.ARGUMENTS.SPAWN-POSITION.COMMAND-HELP")) {
-            Common.sendMMMessage(player, line
-                    .replace("%label%", label)
-                    .replace("%event%", eventData.getType().getName().toLowerCase())
-            );
-        }
+        // No help message - spawn commands work silently or show error
     }
 
 }

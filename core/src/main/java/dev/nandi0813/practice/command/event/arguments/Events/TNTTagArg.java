@@ -41,8 +41,6 @@ public enum TNTTagArg {
                 EventUtil.changeStatus(tntTagData, player);
             else
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.EVENT-ALREADY-DISABLED"));
-        } else if (args.length >= 2 && args[1].equalsIgnoreCase("spawn")) {
-            SpawnPointArg.spawnPointCommand(player, label, tntTagData, args);
         } else
             sendHelpMSG(player, label);
     }
@@ -60,7 +58,6 @@ public enum TNTTagArg {
         if (args.length == 2) {
             arguments.add("enable");
             arguments.add("disable");
-            arguments.add("spawn");
 
             return StringUtil.copyPartialMatches(args[1], arguments, new ArrayList<>());
         }
