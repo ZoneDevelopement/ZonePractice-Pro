@@ -48,14 +48,16 @@ public class HologramSummaryGui extends GUI {
         hologramSlots.clear();
         for (int i = 0; i < 18; i++) gui.get(1).setItem(i, null);
 
-        // Set the hologram icons
-        HologramManager.getInstance().getHolograms().sort(Comparator.comparing(Hologram::getName));
-        for (Hologram hologram : HologramManager.getInstance().getHolograms()) {
-            int slot = gui.get(1).firstEmpty();
+        // Set the hologram icons - sort alphanumerically by internal name (case-insensitive)
+        HologramManager.getInstance().getHolograms()
+                .stream()
+                .sorted(Comparator.comparing(Hologram::getName, String::compareToIgnoreCase))
+                .forEach(hologram -> {
+                    int slot = gui.get(1).firstEmpty();
 
-            gui.get(1).setItem(slot, this.getSummaryHologramMainItem(hologram));
-            hologramSlots.put(slot, hologram);
-        }
+                    gui.get(1).setItem(slot, this.getSummaryHologramMainItem(hologram));
+                    hologramSlots.put(slot, hologram);
+                });
 
         updatePlayers();
     }

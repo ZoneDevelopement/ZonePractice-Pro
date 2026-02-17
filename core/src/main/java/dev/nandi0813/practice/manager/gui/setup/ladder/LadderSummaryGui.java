@@ -50,12 +50,16 @@ public class LadderSummaryGui extends GUI {
         for (int i = 0; i < 45; i++)
             inventory.setItem(i, null);
 
-        for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
-            int slot = inventory.firstEmpty();
+        // Sort ladders alphanumerically by internal name for consistent ordering
+        LadderManager.getInstance().getLadders()
+                .stream()
+                .sorted(java.util.Comparator.comparing(Ladder::getName, String::compareToIgnoreCase))
+                .forEach(ladder -> {
+                    int slot = inventory.firstEmpty();
 
-            inventory.setItem(slot, getLadderItem(ladder));
-            ladderSlots.put(slot, ladder);
-        }
+                    inventory.setItem(slot, getLadderItem(ladder));
+                    ladderSlots.put(slot, ladder);
+                });
 
         updatePlayers();
     }
