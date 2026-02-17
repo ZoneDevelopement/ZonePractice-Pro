@@ -130,10 +130,14 @@ public class TabIntegration {
             // Set the suffix
             nameTagManager.setSuffix(tabPlayer, suffixStr);
 
-            // If TAB's tablist formatting is enabled, preserve the lobby tablist name
-            // This prevents match nametag colors from affecting the tablist in 1.21+
+            // Preserve the lobby tablist name to prevent match nametag colors from affecting it
+            // In Minecraft 1.21+, scoreboard team colors can bleed into the tab list
             if (tablistFormattingEnabled) {
+                // TAB's tablist formatting is enabled - use TAB's TabListFormatManager
                 setLobbyTabListName(player);
+            } else {
+                // TAB's tablist formatting is disabled - use our internal Bukkit method
+                preserveTabListNameInternal(player);
             }
 
         } catch (Exception e) {
@@ -372,6 +376,60 @@ public class TabIntegration {
                 .match("%division_short%")
                 .replacement(Component.empty())
                 .build());
+    }
+
+    /**
+     * Preserves the player's tablist name using internal Bukkit method.
+     * This is called when TAB's tablist-name-formatting is disabled.
+     * Prevents match nametag colors from bleeding into the tablist in 1.21+.
+     *
+     * @param player The player whose tablist name should be preserved
+     */
+    private void preserveTabListNameInternal(Player player) {
+        try {
+            // Get the player's profile to calculate their lobby tab list name
+            dev.nandi0813.practice.manager.profile.Profile profile =
+                dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
+            if (profile == null) return;
+
+            // Calculate lobby formatting components
+            Component lobbyPrefix = Component.empty();
+            Component lobbySuffix = Component.empty();
+            NamedTextColor lobbyNameColor = NamedTextColor.GRAY;
+
+            dev.nandi0813.practice.manager.profile.group.Group group = profile.getGroup();
+            if (group != null) {
+                lobbyPrefix = group.getPrefix();
+                lobbySuffix = group.getSuffix();
+                lobbyNameColor = group.getNameColor();
+            }
+
+            // Apply custom prefix/suffix if set
+            if (profile.getPrefix() != null) lobbyPrefix = profile.getPrefix();
+            if (profile.getSuffix() != null) lobbySuffix = profile.getSuffix();
+
+            // Apply division placeholders to prefix and suffix
+            if (profile.getStats().getDivision() != null) {
+                lobbyPrefix = applyDivisionPlaceholder(lobbyPrefix, profile.getStats().getDivision());
+                lobbySuffix = applyDivisionPlaceholder(lobbySuffix, profile.getStats().getDivision());
+            } else {
+                lobbyPrefix = removeDivisionPlaceholder(lobbyPrefix);
+                lobbySuffix = removeDivisionPlaceholder(lobbySuffix);
+            }
+
+            // Build the full tab list name
+            Component tabListName = lobbyPrefix
+                .append(Component.text(player.getName(), lobbyNameColor))
+                .append(lobbySuffix);
+
+            // Use internal Bukkit method to set the tablist name (not TAB API)
+            dev.nandi0813.practice.module.util.ClassImport.getClasses()
+                .getPlayerUtil()
+                .setPlayerListName(player, tabListName);
+
+        } catch (Exception e) {
+            // Silently fail - this is best-effort
+        }
     }
 
 }
