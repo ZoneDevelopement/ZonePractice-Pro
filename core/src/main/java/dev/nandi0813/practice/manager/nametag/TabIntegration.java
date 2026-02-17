@@ -4,31 +4,56 @@ import lombok.Getter;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
 import me.neznamy.tab.api.nametag.NameTagManager;
+import me.neznamy.tab.api.tablist.TabListFormatManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 
 /**
- * Integration with TAB API for safe nametag management.
+ * Integration with TAB API for nametag and tablist management.
  * <p>
- * This class provides a bridge to TAB's API, allowing us to set
- * nametag prefixes and suffixes through TAB instead of sending
- * our own scoreboard team packets.
+ * <b>ARCHITECTURE PRINCIPLE:</b>
+ * This class EXCLUSIVELY uses TAB's API when TAB is available.
+ * It does NOT contain any internal nametag logic - that belongs in NametagManager.
+ * <p>
+ * <b>Key principles:</b>
+ * <ul>
+ *   <li>If TAB API is available: ALL nametag/tablist operations go through TAB API ONLY</li>
+ *   <li>If TAB API is not available: This class does nothing (NametagManager handles it internally)</li>
+ *   <li>NO mixing of TAB API and internal logic within this class</li>
+ *   <li>NO fallback to internal methods if TAB API calls fail - fail silently</li>
+ * </ul>
+ * <p>
+ * <b>Usage Pattern:</b>
+ * <pre>
+ * NametagManager (orchestrator)
+ *   ├─ Detects if TAB is available
+ *   ├─ If TAB available: delegates to TabIntegration → uses TAB API exclusively
+ *   └─ If TAB not available: uses internal packet-based system
+ * </pre>
  */
 public class TabIntegration {
 
     private final TabAPI tabAPI;
     @Getter
     private final boolean available;
+    @Getter
+    private final boolean tablistFormattingEnabled;
 
     public TabIntegration() {
         TabAPI api = null;
         boolean isAvailable;
+        boolean tablistEnabled = false;
 
         try {
             api = TabAPI.getInstance();
             isAvailable = api != null;
+
+            // Check if TAB's tablist-name-formatting feature is enabled using their API
+            if (isAvailable) {
+                tablistEnabled = checkTablistFormattingEnabled(api);
+            }
         } catch (NoClassDefFoundError | Exception e) {
             // TAB API not available
             isAvailable = false;
@@ -36,10 +61,29 @@ public class TabIntegration {
 
         this.tabAPI = api;
         this.available = isAvailable;
+        this.tablistFormattingEnabled = tablistEnabled;
     }
 
     /**
-     * Sets a player's nametag using TAB API.
+     * Checks if TAB's tablist-name-formatting feature is enabled using TAB's Developer API.
+     * Returns true if TabListFormatManager is available and functional.
+     */
+    private boolean checkTablistFormattingEnabled(TabAPI api) {
+        try {
+            // Use TAB API to check if TabListFormatManager is available
+            // If getTabListFormatManager() returns null, the feature is disabled
+            TabListFormatManager manager = api.getTabListFormatManager();
+            return manager != null;
+        } catch (Exception e) {
+            // If there's an exception, the feature is not available
+            return false;
+        }
+    }
+
+    /**
+     * Sets a player's nametag using ONLY TAB API.
+     * This method sets the nametag (above head) through TAB's NameTagManager.
+     * If tablist formatting is enabled in TAB, it also preserves the lobby tablist name.
      *
      * @param player       The player
      * @param prefix       The prefix component
@@ -54,77 +98,72 @@ public class TabIntegration {
             TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());
             if (tabPlayer == null) return;
 
-            // Convert Components to legacy strings for TAB
-            String prefixStr = prefix != null ? componentToLegacy(prefix) : "";
-            String suffixStr = suffix != null ? componentToLegacy(suffix) : "";
+            // Get TAB's NameTagManager for nametag (above head) management
+            NameTagManager nameTagManager = tabAPI.getNameTagManager();
+            if (nameTagManager == null) return;
 
-            // Check if the original prefix was empty (before we add color codes)
+            // Convert Components to legacy strings for TAB API
+            String prefixStr = componentToLegacy(prefix);
+            String suffixStr = componentToLegacy(suffix);
+
+            // Apply name color to the prefix
+            // In TAB, the "team color" (name color) is set via the prefix's last color code
+            String colorCode = getColorCode(nameColor);
             boolean originalPrefixEmpty = prefixStr.isEmpty();
 
-            // CRITICAL FIX: Apply the name color to the prefix
-            // In TAB, the "team color" is set via the prefix's last color code
-            // So we need to ensure the prefix ends with the desired name color
-            String colorCode = null;
-            if (nameColor != null) {
-                colorCode = getColorCode(nameColor);
-
-                // Check if prefix already ends with a color code (case-insensitive)
-                // Pattern matches: §0-9, §a-f, §A-F, §k-o, §K-O, §r, §R
+            // Handle prefix with color code
+            if (!originalPrefixEmpty) {
+                // Has actual prefix text - append color code if not already present
                 boolean endsWithColor = prefixStr.matches(".*§[0-9a-fA-Fk-oK-OrR]$");
-
-                // Only append color code to prefix if it's NOT empty and doesn't already end with a color
-                // For 1.8 compatibility: If prefix is empty, we'll handle coloring via setName instead
-                if (!prefixStr.isEmpty() && !endsWithColor) {
+                if (!endsWithColor) {
                     prefixStr = prefixStr + colorCode;
                 }
+                nameTagManager.setPrefix(tabPlayer, prefixStr);
+            } else if (colorCode != null) {
+                // No prefix text, but we have a color - set color as prefix
+                nameTagManager.setPrefix(tabPlayer, colorCode);
+            } else {
+                // No prefix and no color
+                nameTagManager.setPrefix(tabPlayer, "");
             }
 
-            // TAB API 5.x uses the NameTagManager to set temporary values for NAMETAG (above head)
-            NameTagManager nameTagManager = tabAPI.getNameTagManager();
-            if (nameTagManager != null) {
-                // Handle prefix setting based on whether there's actual content or just color
-                if (!originalPrefixEmpty) {
-                    // Has actual prefix text (possibly with color appended)
-                    nameTagManager.setPrefix(tabPlayer, prefixStr);
-                } else if (colorCode != null) {
-                    // No prefix text, but we have a color to apply
-                    // Set the color code as prefix so the name gets colored
-                    nameTagManager.setPrefix(tabPlayer, colorCode);
-                } else {
-                    // No prefix and no color
-                    nameTagManager.setPrefix(tabPlayer, "");
-                }
-                nameTagManager.setSuffix(tabPlayer, suffixStr);
-            }
+            // Set the suffix
+            nameTagManager.setSuffix(tabPlayer, suffixStr);
 
-            // IMPORTANT: Preserve the lobby tab list name to prevent match nametag colors from affecting it
-            // In Minecraft 1.21+, scoreboard team colors can bleed into the tab list
-            // We need to explicitly re-set the tab list to the lobby formatting
-            preserveLobbyTabListName(player);
+            // If TAB's tablist formatting is enabled, preserve the lobby tablist name
+            // This prevents match nametag colors from affecting the tablist in 1.21+
+            if (tablistFormattingEnabled) {
+                setLobbyTabListName(player);
+            }
 
         } catch (Exception e) {
-            // Silently fail - TAB integration is optional
+            // Silently fail - TAB integration is best-effort
         }
     }
 
     /**
-     * Preserves the player's lobby tab list name when setting match nametags.
-     * This prevents match nametag colors from affecting the tab list in Minecraft 1.21+.
-     * Uses TAB's TabListFormatManager directly to set prefix, name, and suffix.
+     * Sets the player's tablist name to their lobby formatting using ONLY TAB API.
+     * This method uses TabListFormatManager to set prefix, name, and suffix.
+     * Only called when tablistFormattingEnabled is true.
+     *
+     * @param player The player whose tablist name should be set to lobby formatting
      */
-    private void preserveLobbyTabListName(Player player) {
-        if (!available) return;
+    private void setLobbyTabListName(Player player) {
+        if (!available || !tablistFormattingEnabled) return;
 
         try {
             TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());
             if (tabPlayer == null) return;
+
+            TabListFormatManager tabListFormatManager = tabAPI.getTabListFormatManager();
+            if (tabListFormatManager == null) return;
 
             // Get the player's profile to calculate their lobby tab list name
             dev.nandi0813.practice.manager.profile.Profile profile =
                 dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
             if (profile == null) return;
 
-            // Re-calculate the lobby tab list name from profile data (same logic as InventoryUtil.setLobbyNametag)
+            // Calculate lobby formatting components
             Component lobbyPrefix = Component.empty();
             Component lobbySuffix = Component.empty();
             NamedTextColor lobbyNameColor = NamedTextColor.GRAY;
@@ -142,137 +181,93 @@ public class TabIntegration {
 
             // Apply division placeholders to prefix and suffix
             if (profile.getStats().getDivision() != null) {
-                lobbyPrefix = lobbyPrefix
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division%")
-                        .replacement(profile.getStats().getDivision().getComponentFullName())
-                        .build())
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division_short%")
-                        .replacement(profile.getStats().getDivision().getComponentShortName())
-                        .build());
-
-                lobbySuffix = lobbySuffix
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division%")
-                        .replacement(profile.getStats().getDivision().getComponentFullName())
-                        .build())
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division_short%")
-                        .replacement(profile.getStats().getDivision().getComponentShortName())
-                        .build());
+                lobbyPrefix = applyDivisionPlaceholder(lobbyPrefix, profile.getStats().getDivision());
+                lobbySuffix = applyDivisionPlaceholder(lobbySuffix, profile.getStats().getDivision());
             } else {
-                lobbyPrefix = lobbyPrefix
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division%")
-                        .replacement(Component.empty())
-                        .build())
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division_short%")
-                        .replacement(Component.empty())
-                        .build());
-
-                lobbySuffix = lobbySuffix
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division%")
-                        .replacement(Component.empty())
-                        .build())
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division_short%")
-                        .replacement(Component.empty())
-                        .build());
+                lobbyPrefix = removeDivisionPlaceholder(lobbyPrefix);
+                lobbySuffix = removeDivisionPlaceholder(lobbySuffix);
             }
 
             // Convert components to legacy strings for TAB API
             String prefixStr = componentToLegacy(lobbyPrefix);
             String suffixStr = componentToLegacy(lobbySuffix);
-
-            // Build the colored name
             String nameStr = getColorCode(lobbyNameColor) + player.getName();
 
-            // Use TAB's TabListFormatManager to set the tab list formatting directly
-            var tabListFormatManager = tabAPI.getTabListFormatManager();
-            if (tabListFormatManager != null) {
-                tabListFormatManager.setPrefix(tabPlayer, prefixStr);
-                tabListFormatManager.setName(tabPlayer, nameStr);
-                tabListFormatManager.setSuffix(tabPlayer, suffixStr);
-            }
+            // Use TAB's TabListFormatManager to set the tab list formatting
+            tabListFormatManager.setPrefix(tabPlayer, prefixStr);
+            tabListFormatManager.setName(tabPlayer, nameStr);
+            tabListFormatManager.setSuffix(tabPlayer, suffixStr);
+
         } catch (Exception e) {
-            // Silently fail - this is a best-effort preservation
+            // Silently fail - this is best-effort
         }
     }
 
     /**
-     * Sets a player's tablist name using TAB API.
+     * Sets a player's tablist name using ONLY TAB API.
      * This is used for lobby nametag formatting where we want to show the full formatted name in tablist.
+     * Only works if TAB's tablist-name-formatting feature is enabled.
      *
      * @param player The player
      * @param listName The full formatted component to display in tablist (prefix + colored name + suffix)
      */
     public void setTabListName(Player player, Component listName) {
-        if (!available) return;
+        if (!available || !tablistFormattingEnabled) return;
 
         try {
             TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());
             if (tabPlayer == null) return;
 
-            // Convert Component to legacy string for TAB
+            TabListFormatManager tabListFormatManager = tabAPI.getTabListFormatManager();
+            if (tabListFormatManager == null) return;
+
+            // Convert Component to legacy string for TAB API
             String fullListName = componentToLegacy(listName);
+            String playerName = player.getName();
 
-            // TAB API 5.x uses TabListFormatManager to set tablist formatting
-            try {
-                var tabListFormatManager = tabAPI.getTabListFormatManager();
-                if (tabListFormatManager != null) {
-                    // We need to split the formatted name into prefix, name, and suffix
-                    // The listName contains: prefix + playerName + suffix
-                    // We need to find where the player's actual name is in the string
+            // Parse the formatted name into prefix, name, and suffix
+            // The listName contains: prefix + playerName + suffix
+            int nameIndex = fullListName.indexOf(playerName);
 
-                    String playerName = player.getName();
-                    int nameIndex = fullListName.indexOf(playerName);
+            if (nameIndex >= 0) {
+                // Found the player name in the formatted string
+                // Extract prefix (everything before the name, may include color codes)
+                String prefix = fullListName.substring(0, nameIndex);
 
-                    if (nameIndex >= 0) {
-                        // Found the player name in the formatted string
-                        // Extract prefix (everything before the name, may include color codes)
-                        String prefix = fullListName.substring(0, nameIndex);
-
-                        // Extract the name portion (may have color code before it)
-                        // Find the last color code before the name
-                        String nameWithColor = playerName;
-                        int lastColorBeforeName = prefix.lastIndexOf('§');
-                        if (lastColorBeforeName >= 0 && lastColorBeforeName + 1 < prefix.length()) {
-                            // Extract the color code and apply it to the name
-                            String colorCode = prefix.substring(lastColorBeforeName);
-                            nameWithColor = colorCode + playerName;
-                            // Remove the trailing color code from prefix (it's now part of the name)
-                            prefix = prefix.substring(0, lastColorBeforeName);
-                        }
-
-                        // Extract suffix (everything after the name)
-                        String suffix = fullListName.substring(nameIndex + playerName.length());
-
-                        // Set the components through TAB API
-                        tabListFormatManager.setPrefix(tabPlayer, prefix);
-                        tabListFormatManager.setName(tabPlayer, nameWithColor);
-                        tabListFormatManager.setSuffix(tabPlayer, suffix);
-                    } else {
-                        // Fallback: couldn't parse, set the whole thing as prefix + name
-                        // This handles cases where the name might be modified or not found
-                        tabListFormatManager.setPrefix(tabPlayer, "");
-                        tabListFormatManager.setName(tabPlayer, fullListName);
-                        tabListFormatManager.setSuffix(tabPlayer, "");
-                    }
+                // Extract the name portion with its color code
+                String nameWithColor = playerName;
+                int lastColorBeforeName = prefix.lastIndexOf('§');
+                if (lastColorBeforeName >= 0 && lastColorBeforeName + 1 < prefix.length()) {
+                    // Extract the color code and apply it to the name
+                    String colorCode = prefix.substring(lastColorBeforeName);
+                    nameWithColor = colorCode + playerName;
+                    // Remove the trailing color code from prefix (it's now part of the name)
+                    prefix = prefix.substring(0, lastColorBeforeName);
                 }
-            } catch (Exception e) {
-                // TabListFormatManager might not be available in older TAB versions
-                // Silently ignore
+
+                // Extract suffix (everything after the name)
+                String suffix = fullListName.substring(nameIndex + playerName.length());
+
+                // Set the components through TAB API
+                tabListFormatManager.setPrefix(tabPlayer, prefix);
+                tabListFormatManager.setName(tabPlayer, nameWithColor);
+                tabListFormatManager.setSuffix(tabPlayer, suffix);
+            } else {
+                // Fallback: couldn't parse, set the whole thing as name
+                tabListFormatManager.setPrefix(tabPlayer, "");
+                tabListFormatManager.setName(tabPlayer, fullListName);
+                tabListFormatManager.setSuffix(tabPlayer, "");
             }
+
         } catch (Exception e) {
-            // Silently fail - TAB integration is optional
+            // Silently fail - TAB integration is best-effort
         }
     }
 
     /**
-     * Resets a player's nametag to TAB's default.
+     * Resets a player's nametag to TAB's default using ONLY TAB API.
+     * This resets the nametag (above head) prefix and suffix to TAB's configured values.
+     * NOTE: This does NOT reset tablist formatting - tablist remains as configured by TAB.
      *
      * @param player The player
      */
@@ -283,19 +278,19 @@ public class TabIntegration {
             TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());
             if (tabPlayer == null) return;
 
-            // TAB API 5.x uses the NameTagManager to reset nametag values
+            // Get TAB's NameTagManager to reset nametag values
             NameTagManager nameTagManager = tabAPI.getNameTagManager();
-            if (nameTagManager != null) {
-                // Reset nametag prefix and suffix to default (null values)
-                nameTagManager.setPrefix(tabPlayer, null);
-                nameTagManager.setSuffix(tabPlayer, null);
-            }
+            if (nameTagManager == null) return;
+
+            // Reset nametag prefix and suffix to default (null values reset to TAB's config)
+            nameTagManager.setPrefix(tabPlayer, null);
+            nameTagManager.setSuffix(tabPlayer, null);
 
             // NOTE: We do NOT reset tablist formatting here
             // Tablist should remain as configured by TAB (group-based formatting from lobby)
 
         } catch (Exception e) {
-            // Silently fail
+            // Silently fail - TAB integration is best-effort
         }
     }
 
@@ -336,6 +331,47 @@ public class TabIntegration {
         if (color == NamedTextColor.WHITE) return "§f";
 
         return "§f"; // Default to white if unknown
+    }
+
+    /**
+     * Applies division placeholders to a component.
+     *
+     * @param component The component to process
+     * @param division  The division to apply
+     * @return Component with division placeholders replaced
+     */
+    private Component applyDivisionPlaceholder(Component component, dev.nandi0813.practice.manager.division.Division division) {
+        if (component == null || division == null) return component;
+
+        return component
+            .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                .match("%division%")
+                .replacement(division.getComponentFullName())
+                .build())
+            .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                .match("%division_short%")
+                .replacement(division.getComponentShortName())
+                .build());
+    }
+
+    /**
+     * Removes division placeholders from a component.
+     *
+     * @param component The component to process
+     * @return Component with division placeholders removed
+     */
+    private Component removeDivisionPlaceholder(Component component) {
+        if (component == null) return component;
+
+        return component
+            .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                .match("%division%")
+                .replacement(Component.empty())
+                .build())
+            .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                .match("%division_short%")
+                .replacement(Component.empty())
+                .build());
     }
 
 }
