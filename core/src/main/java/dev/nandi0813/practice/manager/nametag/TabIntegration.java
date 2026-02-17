@@ -97,12 +97,108 @@ public class TabIntegration {
                 nameTagManager.setSuffix(tabPlayer, suffixStr);
             }
 
-            // NOTE: We do NOT modify tablist formatting here
-            // Tablist should remain as configured by TAB (group-based formatting from lobby)
-            // Only the nametag (above head) changes during matches
+            // IMPORTANT: Preserve the lobby tab list name to prevent match nametag colors from affecting it
+            // In Minecraft 1.21+, scoreboard team colors can bleed into the tab list
+            // We need to explicitly re-set the tab list to the lobby formatting
+            preserveLobbyTabListName(player);
 
         } catch (Exception e) {
             // Silently fail - TAB integration is optional
+        }
+    }
+
+    /**
+     * Preserves the player's lobby tab list name when setting match nametags.
+     * This prevents match nametag colors from affecting the tab list in Minecraft 1.21+.
+     * Uses TAB's TabListFormatManager directly to set prefix, name, and suffix.
+     */
+    private void preserveLobbyTabListName(Player player) {
+        if (!available) return;
+
+        try {
+            TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());
+            if (tabPlayer == null) return;
+
+            // Get the player's profile to calculate their lobby tab list name
+            dev.nandi0813.practice.manager.profile.Profile profile =
+                dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
+            if (profile == null) return;
+
+            // Re-calculate the lobby tab list name from profile data (same logic as InventoryUtil.setLobbyNametag)
+            Component lobbyPrefix = Component.empty();
+            Component lobbySuffix = Component.empty();
+            NamedTextColor lobbyNameColor = NamedTextColor.GRAY;
+
+            dev.nandi0813.practice.manager.profile.group.Group group = profile.getGroup();
+            if (group != null) {
+                lobbyPrefix = group.getPrefix();
+                lobbySuffix = group.getSuffix();
+                lobbyNameColor = group.getNameColor();
+            }
+
+            // Apply custom prefix/suffix if set
+            if (profile.getPrefix() != null) lobbyPrefix = profile.getPrefix();
+            if (profile.getSuffix() != null) lobbySuffix = profile.getSuffix();
+
+            // Apply division placeholders to prefix and suffix
+            if (profile.getStats().getDivision() != null) {
+                lobbyPrefix = lobbyPrefix
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division%")
+                        .replacement(profile.getStats().getDivision().getComponentFullName())
+                        .build())
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division_short%")
+                        .replacement(profile.getStats().getDivision().getComponentShortName())
+                        .build());
+
+                lobbySuffix = lobbySuffix
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division%")
+                        .replacement(profile.getStats().getDivision().getComponentFullName())
+                        .build())
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division_short%")
+                        .replacement(profile.getStats().getDivision().getComponentShortName())
+                        .build());
+            } else {
+                lobbyPrefix = lobbyPrefix
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division%")
+                        .replacement(Component.empty())
+                        .build())
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division_short%")
+                        .replacement(Component.empty())
+                        .build());
+
+                lobbySuffix = lobbySuffix
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division%")
+                        .replacement(Component.empty())
+                        .build())
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division_short%")
+                        .replacement(Component.empty())
+                        .build());
+            }
+
+            // Convert components to legacy strings for TAB API
+            String prefixStr = componentToLegacy(lobbyPrefix);
+            String suffixStr = componentToLegacy(lobbySuffix);
+
+            // Build the colored name
+            String nameStr = getColorCode(lobbyNameColor) + player.getName();
+
+            // Use TAB's TabListFormatManager to set the tab list formatting directly
+            var tabListFormatManager = tabAPI.getTabListFormatManager();
+            if (tabListFormatManager != null) {
+                tabListFormatManager.setPrefix(tabPlayer, prefixStr);
+                tabListFormatManager.setName(tabPlayer, nameStr);
+                tabListFormatManager.setSuffix(tabPlayer, suffixStr);
+            }
+        } catch (Exception e) {
+            // Silently fail - this is a best-effort preservation
         }
     }
 

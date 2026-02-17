@@ -214,6 +214,70 @@ public class NametagManager {
         }
 
         setNametagInternal(player.getName(), prefix, namedTextColor, suffix, sortPriority);
+
+        // In Minecraft 1.21+, scoreboard team colors can affect the tab list
+        // We need to explicitly preserve the lobby tab list name to prevent match nametag colors from bleeding into the tab list
+        preserveTabListName(player);
+    }
+
+    /**
+     * Preserves the player's tab list name based on their lobby settings.
+     * This prevents match nametag colors from affecting the tab list in modern Minecraft versions.
+     * Only called when TAB is not managing the tab list.
+     */
+    private void preserveTabListName(Player player) {
+        try {
+            dev.nandi0813.practice.manager.profile.Profile profile =
+                dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
+            if (profile == null) return;
+
+            // Re-calculate the lobby tab list name from profile data
+            Component lobbyPrefix = Component.empty();
+            Component lobbySuffix = Component.empty();
+            NamedTextColor lobbyNameColor = NamedTextColor.GRAY;
+
+            dev.nandi0813.practice.manager.profile.group.Group group = profile.getGroup();
+            if (group != null) {
+                lobbyPrefix = group.getPrefix();
+                lobbySuffix = group.getSuffix();
+                lobbyNameColor = group.getNameColor();
+            }
+
+            // Apply custom prefix/suffix if set
+            if (profile.getPrefix() != null) lobbyPrefix = profile.getPrefix();
+            if (profile.getSuffix() != null) lobbySuffix = profile.getSuffix();
+
+            // Build the tab list name (same as lobby)
+            Component tabListName = lobbyPrefix.append(Component.text(player.getName(), lobbyNameColor)).append(lobbySuffix);
+
+            // Apply division placeholders if needed
+            if (profile.getStats().getDivision() != null) {
+                tabListName = tabListName
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division%")
+                        .replacement(profile.getStats().getDivision().getComponentFullName())
+                        .build())
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division_short%")
+                        .replacement(profile.getStats().getDivision().getComponentShortName())
+                        .build());
+            } else {
+                tabListName = tabListName
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division%")
+                        .replacement(Component.empty())
+                        .build())
+                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .match("%division_short%")
+                        .replacement(Component.empty())
+                        .build());
+            }
+
+            // Set the tab list name to maintain lobby formatting
+            dev.nandi0813.practice.module.util.ClassImport.getClasses().getPlayerUtil().setPlayerListName(player, tabListName);
+        } catch (Exception e) {
+            // Silently fail - this is a best-effort preservation
+        }
     }
 
     /**
