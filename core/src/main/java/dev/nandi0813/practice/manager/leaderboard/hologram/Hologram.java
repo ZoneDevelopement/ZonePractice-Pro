@@ -160,10 +160,10 @@ public abstract class Hologram {
             // Detect if we're switching to a different leaderboard (for dynamic holograms)
             // If so, clear all armor stands to prevent overlap
             boolean leaderboardChanged = false;
-            if (hologramType == HologramType.LADDER_DYNAMIC && previousLB != null) {
+            if (hologramType == HologramType.LADDER_DYNAMIC && currentLB != null) {
                 // Check if the ladder changed (different ladder in dynamic rotation)
-                if (previousLB.getLadder() != null && leaderboard.getLadder() != null) {
-                    leaderboardChanged = !previousLB.getLadder().equals(leaderboard.getLadder());
+                if (currentLB.getLadder() != null && leaderboard.getLadder() != null) {
+                    leaderboardChanged = !currentLB.getLadder().equals(leaderboard.getLadder());
                 }
             }
 
