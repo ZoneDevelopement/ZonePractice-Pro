@@ -13,50 +13,39 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
- * COMPLETELY REWRITTEN LadderDynamicHologram with strict ladder state tracking.
- *
- * Key changes:
- * - Tracks current ladder index to prevent double-rotations
- * - getNextLadder() enforces strict rotation logic
- * - Relies on parent Hologram class for despawn/spawn management
- * - No manual ArmorStand manipulation - parent handles all entities
+ * Dynamic hologram that rotates through multiple ladders on a timer.
  */
 @Getter
 public class LadderDynamicHologram extends Hologram {
 
-    private List<NormalLadder> ladders;
-
-    // Track current position in ladder rotation to prevent skips/doubles
+    private List<NormalLadder> ladders = new ArrayList<>();
     private int currentLadderIndex = -1;
 
     public LadderDynamicHologram(String name, Location baseLocation) {
         super(name, baseLocation, HologramType.LADDER_DYNAMIC);
-        this.ladders = new ArrayList<>();
-        this.currentLadderIndex = -1;
     }
 
     public LadderDynamicHologram(String name) {
         super(name, HologramType.LADDER_DYNAMIC);
-        // currentLadderIndex initialized in getData via getAbstractData
     }
 
     @Override
     public void getAbstractData(YamlConfiguration config) {
-        this.ladders = new ArrayList<>();
-        this.currentLadderIndex = -1;
+        ladders = new ArrayList<>();
+        currentLadderIndex = -1;
 
         if (config.isSet("holograms." + name + ".ladders")) {
-            for (String ladderName : config.getStringList("holograms." + name + ".ladders")) {
-                NormalLadder ladder = LadderManager.getInstance().getLadder(ladderName);
-                if (ladder != null && ladder.isEnabled()) {
-                    ladders.add(ladder);
-                }
-            }
+            ladders = config.getStringList("holograms." + name + ".ladders").stream()
+                    .map(LadderManager.getInstance()::getLadder)
+                    .filter(Objects::nonNull)
+                    .filter(NormalLadder::isEnabled)
+                    .collect(Collectors.toCollection(ArrayList::new));
         }
 
-        // Initialize index to 0 if we have ladders
         if (!ladders.isEmpty()) {
             currentLadderIndex = 0;
         }
@@ -64,10 +53,11 @@ public class LadderDynamicHologram extends Hologram {
 
     @Override
     public void setAbstractData(YamlConfiguration config) {
-        if (!ladders.isEmpty()) {
-            config.set("holograms." + name + ".ladders", getLadderNames(ladders));
+        String path = "holograms." + name + ".ladders";
+        if (ladders.isEmpty()) {
+            config.set(path, null);
         } else {
-            config.set("holograms." + name + ".ladders", null);
+            config.set(path, ladders.stream().map(Ladder::getName).collect(Collectors.toList()));
         }
     }
 
@@ -78,60 +68,46 @@ public class LadderDynamicHologram extends Hologram {
 
     @Override
     public Leaderboard getNextLeaderboard() {
-        Ladder nextLadder = getNextLadder();
-        if (nextLadder == null) {
+        Ladder ladder = getCurrentLadder();
+        if (ladder == null) {
             return null;
         }
-
-        return LeaderboardManager.getInstance().searchLB(
-            hologramType.getLbMainType(),
-            leaderboardType,
-            nextLadder
-        );
+        return LeaderboardManager.getInstance().searchLB(hologramType.getLbMainType(), leaderboardType, ladder);
     }
 
     /**
-     * STRICT LADDER ROTATION: Gets the next ladder in the rotation sequence.
-     * Uses index-based rotation to ensure no skips or duplicates.
-     *
-     * This method is called during each hologram update cycle.
-     * The parent Hologram class detects when the ladder changes and does a full respawn.
-     *
-     * @return The next ladder to display, or null if none available
+     * Gets the current ladder without advancing rotation.
      */
-    public Ladder getNextLadder() {
-        if (ladders == null || ladders.isEmpty()) {
+    public Ladder getCurrentLadder() {
+        if (ladders.isEmpty()) {
             currentLadderIndex = -1;
             return null;
         }
 
-        // If index is invalid, reset to 0
         if (currentLadderIndex < 0 || currentLadderIndex >= ladders.size()) {
             currentLadderIndex = 0;
         }
 
-        // Get current ladder
-        Ladder ladder = ladders.get(currentLadderIndex);
-
-        // Advance to next ladder for next rotation
-        currentLadderIndex = (currentLadderIndex + 1) % ladders.size();
-
-        return ladder;
+        return ladders.get(currentLadderIndex);
     }
 
     /**
-     * Helper method to extract ladder names for config storage.
-     *
-     * @param ladders List of ladders
-     * @return List of ladder names
+     * @deprecated Use {@link #getCurrentLadder()} instead
      */
-    private static List<String> getLadderNames(List<NormalLadder> ladders) {
-        List<String> names = new ArrayList<>();
-        for (Ladder ladder : ladders) {
-            names.add(ladder.getName());
+    @Deprecated
+    public Ladder getNextLadder() {
+        return getCurrentLadder();
+    }
+
+    /**
+     * Advances to the next ladder in rotation.
+     * Called by HologramRunnable on timer tick.
+     */
+    public void rotateLadder() {
+        if (ladders.isEmpty()) {
+            currentLadderIndex = -1;
+            return;
         }
-        return names;
+        currentLadderIndex = (currentLadderIndex + 1) % ladders.size();
     }
 }
-
-

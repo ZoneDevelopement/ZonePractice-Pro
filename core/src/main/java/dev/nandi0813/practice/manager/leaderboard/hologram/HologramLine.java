@@ -1,130 +1,112 @@
 package dev.nandi0813.practice.manager.leaderboard.hologram;
 
-import dev.nandi0813.practice.module.util.ClassImport;
-import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a single line in a hologram.
+ * Represents a single line in a hologram display.
  * Each HologramLine manages exactly ONE ArmorStand entity with strict lifecycle management.
  *
- * This class prevents duplication by:
- * - Maintaining a direct reference to its ArmorStand entity
- * - Ensuring spawn() can only create one entity per instance
- * - Providing clean despawn() that removes the entity
- * - Tracking spawned state to prevent double-spawning
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Spawning/despawning armor stand entities</li>
+ *   <li>Updating display text without flicker</li>
+ *   <li>Auto-recovery when armor stands are removed externally</li>
+ *   <li>Thread-safe state tracking</li>
+ * </ul>
  */
 @Getter
 public class HologramLine {
 
+    @Setter
     private ArmorStand entity;
     private Location location;
-    private String text;
+    private String text = "";
     private boolean spawned;
 
     /**
-     * Creates a new HologramLine (not yet spawned).
-     * Call spawn() to create the actual entity.
+     * Creates an unspawned hologram line.
+     * Call {@link #spawn(Location, String)} to create the actual entity.
      */
     public HologramLine() {
         this.spawned = false;
-        this.entity = null;
-        this.location = null;
-        this.text = "";
     }
 
     /**
-     * Spawns the armor stand entity at the specified location with the given text.
-     * This method is idempotent - calling it multiple times won't create duplicates.
+     * Spawns the armor stand at the specified location.
+     * This method is idempotent - calling multiple times won't create duplicates.
      *
-     * @param loc The location where the armor stand should spawn
-     * @param text The text to display (supports color codes)
-     * @return The spawned ArmorStand entity, or null if already spawned
+     * @param loc  The spawn location
+     * @param text The display text (supports color codes)
+     * @return The spawned ArmorStand, or existing one if already spawned
      */
     @Nullable
     public ArmorStand spawn(@NotNull Location loc, @NotNull String text) {
-        // Prevent double-spawning
-        if (spawned && entity != null && !entity.isDead()) {
+        // Return existing if already alive
+        if (spawned && ArmorStandFactory.isAlive(entity)) {
             return entity;
         }
 
-        // Store the location and text
         this.location = loc.clone();
         this.text = text;
 
-        // Safety check
         if (location.getWorld() == null) {
             return null;
         }
 
-        // Spawn the armor stand
-        ArmorStand stand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+        this.entity = ArmorStandFactory.create(location, text);
+        this.spawned = (entity != null);
 
-        // Configure the armor stand for hologram display
-        stand.setVisible(false);
-        stand.setGravity(false);
-        stand.setCustomNameVisible(true);
-        stand.setCustomName(StringUtil.CC(text));
-        stand.setBasePlate(false);
-        stand.setArms(false);
-
-        // Make it invulnerable (version-compatible)
-        ClassImport.getClasses().getArenaUtil().setArmorStandInvulnerable(stand);
-
-        // Store reference and mark as spawned
-        this.entity = stand;
-        this.spawned = true;
-
-        return stand;
+        return entity;
     }
 
     /**
      * Despawns and removes the armor stand entity.
-     * After calling this, the HologramLine can be respawned with spawn().
+     * The line can be respawned later with {@link #spawn(Location, String)}.
      */
     public void despawn() {
         if (!spawned) {
             return;
         }
 
-        // Remove the entity
-        if (entity != null && !entity.isDead()) {
-            entity.remove();
-        }
-
-        // Clear state
+        ArmorStandFactory.safeRemove(entity);
         entity = null;
         spawned = false;
     }
 
     /**
-     * Updates the text displayed by this hologram line.
-     * Only works if the line has been spawned.
+     * Updates the display text.
+     * If the armor stand was externally removed, it will be automatically respawned.
      *
-     * @param newText The new text to display (supports color codes)
+     * @param newText The new display text (supports color codes)
      */
     public void updateText(@NotNull String newText) {
         this.text = newText;
 
-        if (spawned && entity != null && !entity.isDead()) {
-            entity.setCustomName(StringUtil.CC(newText));
+        // If entity is alive, just update the text
+        if (ArmorStandFactory.isAlive(entity)) {
+            ArmorStandFactory.updateText(entity, newText);
+            return;
+        }
+
+        // Auto-respawn if entity was killed externally
+        if (spawned && location != null && location.getWorld() != null) {
+            this.entity = ArmorStandFactory.create(location, newText);
         }
     }
 
     /**
-     * Teleports this hologram line to a new location.
-     * Useful for height adjustments or repositioning.
+     * Teleports the armor stand to a new location.
      *
      * @param newLoc The new location
-     * @return true if teleported successfully, false otherwise
+     * @return true if teleported successfully
      */
     public boolean teleport(@NotNull Location newLoc) {
-        if (!spawned || entity == null || entity.isDead()) {
+        if (!isValid()) {
             return false;
         }
 
@@ -133,16 +115,16 @@ public class HologramLine {
     }
 
     /**
-     * Checks if this hologram line is currently valid (spawned and entity is alive).
+     * Checks if this line has a valid, alive armor stand.
      *
-     * @return true if the entity exists and is alive, false otherwise
+     * @return true if the entity is alive
      */
     public boolean isValid() {
-        return spawned && entity != null && !entity.isDead() && entity.isValid();
+        return spawned && ArmorStandFactory.isAlive(entity);
     }
 
     /**
-     * Gets the current Y coordinate of this line.
+     * Gets the Y coordinate of this line.
      *
      * @return The Y coordinate, or 0 if not spawned
      */
@@ -150,22 +132,18 @@ public class HologramLine {
         if (location != null) {
             return location.getY();
         }
-        if (entity != null && !entity.isDead()) {
-            return entity.getLocation().getY();
-        }
-        return 0;
+        return ArmorStandFactory.isAlive(entity) ? entity.getLocation().getY() : 0;
     }
 
     /**
      * Updates both location and text in one operation.
-     * More efficient than calling teleport() and updateText() separately.
      *
-     * @param newLoc The new location
-     * @param newText The new text
-     * @return true if updated successfully, false otherwise
+     * @param newLoc  The new location
+     * @param newText The new display text
+     * @return true if successful
      */
     public boolean update(@NotNull Location newLoc, @NotNull String newText) {
-        if (!spawned || entity == null || entity.isDead()) {
+        if (!isValid()) {
             return false;
         }
 
@@ -173,19 +151,17 @@ public class HologramLine {
         this.text = newText;
 
         entity.teleport(newLoc);
-        entity.setCustomName(StringUtil.CC(newText));
+        ArmorStandFactory.updateText(entity, newText);
 
         return true;
     }
 
     /**
-     * Force-cleans this line by removing the entity even if state is inconsistent.
-     * This is a recovery method for when normal despawn() might not work.
+     * Force-cleans this line by removing the entity regardless of state.
+     * Use as a recovery method when normal despawn might not work.
      */
     public void forceClean() {
-        if (entity != null && !entity.isDead()) {
-            entity.remove();
-        }
+        ArmorStandFactory.safeRemove(entity);
         entity = null;
         spawned = false;
     }

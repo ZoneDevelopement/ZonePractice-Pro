@@ -359,9 +359,17 @@ public abstract class ArenaCopyUtil implements Listener {
         }
     }
 
+    /**
+     * Removes all non-player entities from a cuboid.
+     * NOTE: Skips hologram armor stands to prevent leaderboard holograms from disappearing.
+     */
     protected static void removeNonPlayerEntities(Cuboid cuboid) {
         cuboid.getEntities().forEach(entity -> {
             if (!(entity instanceof Player)) {
+                // Skip hologram armor stands
+                if (dev.nandi0813.practice.manager.leaderboard.hologram.ArmorStandFactory.isHologramArmorStand(entity)) {
+                    return;
+                }
                 entity.remove();
             }
         });

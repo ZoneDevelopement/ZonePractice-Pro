@@ -236,11 +236,15 @@ public class FightChangeOptimized {
     /**
      * Removes all entities efficiently.
      * Strategy: Remove tracked entities first, then cleanup any remaining cuboid entities.
+     * NOTE: Skips hologram armor stands (invisible with custom name visible) to prevent
+     * leaderboard holograms from disappearing when matches end.
      */
     private void removeAllEntities() {
         // Remove tracked entities (fast - cached references)
         for (Entity entity : trackedEntities) {
             if (entity != null && entity.isValid()) {
+                // Skip hologram armor stands
+                if (isHologramArmorStand(entity)) continue;
                 entity.remove();
             }
         }
@@ -250,10 +254,20 @@ public class FightChangeOptimized {
         // This catches any entities that weren't tracked
         for (Entity entity : cuboid.getEntities()) {
             if (entity instanceof Player) continue;
+            // Skip hologram armor stands
+            if (isHologramArmorStand(entity)) continue;
             if (entity.isValid()) {
                 entity.remove();
             }
         }
+    }
+
+    /**
+     * Checks if an entity is a hologram armor stand.
+     * Delegates to ArmorStandFactory for consistent detection.
+     */
+    private boolean isHologramArmorStand(Entity entity) {
+        return dev.nandi0813.practice.manager.leaderboard.hologram.ArmorStandFactory.isHologramArmorStand(entity);
     }
 
     /**

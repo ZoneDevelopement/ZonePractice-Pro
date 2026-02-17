@@ -21,73 +21,65 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
- * COMPLETELY REWRITTEN Hologram system with strict state management.
+ * Abstract base class for leaderboard holograms.
  *
- * Architecture:
- * - Each hologram maintains a List<HologramLine> representing individual lines
- * - Each HologramLine manages exactly ONE ArmorStand entity with UUID tracking
- * - Full despawn() clears all lines before any spawn() operation
- * - Thread-safe operations with strict main-thread enforcement
- * - State tracking prevents duplicates and overlapping entities
+ * <p>Architecture:</p>
+ * <ul>
+ *   <li>Each hologram maintains a List of HologramLines</li>
+ *   <li>Smart updates only modify changed content (no flicker)</li>
+ *   <li>Thread-safe with atomic state tracking</li>
+ *   <li>Auto-recovery for externally removed armor stands</li>
+ * </ul>
  */
 @Getter
 public abstract class Hologram {
 
+    // Configuration
     protected static final YamlConfiguration config = BackendManager.getConfig();
-    private static final String NULL_STRING = ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.NULL-LINE");
+    private static final String NULL_LINE_FORMAT = ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.NULL-LINE");
+    private static final double DEFAULT_SPACING = 0.3;
 
+    // Core properties
     protected final String name;
     protected Location baseLocation;
     protected boolean enabled;
 
-    @Setter
-    protected HologramType hologramType;
-    @Setter
-    protected LbSecondaryType leaderboardType;
+    @Setter protected HologramType hologramType;
+    @Setter protected LbSecondaryType leaderboardType;
+    @Setter protected HologramRunnable hologramRunnable;
+    @Setter protected int showStat;
 
-    @Setter
-    protected HologramRunnable hologramRunnable = new HologramRunnable(this);
-    @Setter
-    protected int showStat;
-
-    // Current leaderboard being displayed
+    // State tracking
     protected Leaderboard currentLB;
-
-    // Track current ladder for dynamic holograms to detect switches
     protected Ladder currentLadder;
-
-    // NEW: Strict line-based management instead of loose ArmorStand list
     protected final List<HologramLine> lines = new ArrayList<>();
-
-    // Thread safety: Prevent concurrent updates
     private final AtomicBoolean isUpdating = new AtomicBoolean(false);
-
-    // State tracking: Current hologram state
     private HologramState currentState = HologramState.UNINITIALIZED;
 
-    // ========== CONSTRUCTORS ==========
+    // ==================== CONSTRUCTORS ====================
 
-    public Hologram(String name, Location baseLocation, HologramType hologramType) {
+    protected Hologram(String name, Location baseLocation, HologramType hologramType) {
         this.name = name;
         this.baseLocation = baseLocation.clone().subtract(0, 2, 0);
         this.hologramType = hologramType;
+        this.hologramRunnable = new HologramRunnable(this);
         this.showStat = 10;
         this.leaderboardType = LbSecondaryType.ELO;
     }
 
-    public Hologram(String name, HologramType hologramType) {
+    protected Hologram(String name, HologramType hologramType) {
         this.name = name;
         this.hologramType = hologramType;
+        this.hologramRunnable = new HologramRunnable(this);
         this.leaderboardType = LbSecondaryType.ELO;
-
         this.getData();
 
         if (!this.isReadyToEnable()) {
@@ -95,64 +87,55 @@ public abstract class Hologram {
         }
     }
 
-    // ========== DATA PERSISTENCE ==========
+    // ==================== ABSTRACT METHODS ====================
+
+    public abstract void getAbstractData(YamlConfiguration config);
+    public abstract void setAbstractData(YamlConfiguration config);
+    public abstract boolean isReadyToEnable();
+    public abstract Leaderboard getNextLeaderboard();
+
+    // ==================== DATA PERSISTENCE ====================
 
     public void getData() {
-        if (config.isBoolean("holograms." + name + ".enabled")) {
-            this.enabled = config.getBoolean("holograms." + name + ".enabled");
-        } else {
-            this.enabled = false;
-        }
+        enabled = config.getBoolean("holograms." + name + ".enabled", false);
 
         if (config.isString("holograms." + name + ".lb-type")) {
-            this.leaderboardType = LbSecondaryType.valueOf(config.getString("holograms." + name + ".lb-type"));
+            leaderboardType = LbSecondaryType.valueOf(config.getString("holograms." + name + ".lb-type"));
         }
 
         if (config.isSet("holograms." + name + ".location")) {
-            Object objectLocation = config.get("holograms." + name + ".location");
-            if (objectLocation instanceof Location) {
-                this.baseLocation = (Location) objectLocation;
+            Object loc = config.get("holograms." + name + ".location");
+            if (loc instanceof Location) {
+                baseLocation = (Location) loc;
             }
         }
 
-        if (config.isInt("holograms." + name + ".showStat")) {
-            this.showStat = BackendManager.getInt("holograms." + name + ".showStat");
-        }
-
-        this.getAbstractData(config);
+        showStat = config.getInt("holograms." + name + ".showStat", 10);
+        getAbstractData(config);
     }
-
-    public abstract void getAbstractData(YamlConfiguration config);
 
     public void setData() {
         if (name == null) return;
 
-        config.set("holograms." + name, null);
-        config.set("holograms." + name + ".enabled", enabled);
-        config.set("holograms." + name + ".type", hologramType.name());
-        config.set("holograms." + name + ".lb-type", leaderboardType.name());
-        config.set("holograms." + name + ".showStat", showStat);
+        String path = "holograms." + name;
+        config.set(path, null);
+        config.set(path + ".enabled", enabled);
+        config.set(path + ".type", hologramType.name());
+        config.set(path + ".lb-type", leaderboardType.name());
+        config.set(path + ".showStat", showStat);
 
         if (baseLocation != null) {
-            config.set("holograms." + name + ".location", baseLocation);
+            config.set(path + ".location", baseLocation);
         }
 
         setAbstractData(config);
         BackendManager.save();
     }
 
-    public abstract void setAbstractData(YamlConfiguration config);
-
-    public abstract boolean isReadyToEnable();
-
-    public abstract Leaderboard getNextLeaderboard();
-
-    // ========== CORE HOLOGRAM MANAGEMENT ==========
+    // ==================== CORE MANAGEMENT ====================
 
     /**
-     * STRICT DESPAWN: Removes ALL hologram lines and clears state.
-     * MUST be called on main thread.
-     * This is the ONLY way to clear a hologram - guarantees no duplicates.
+     * Despawns all hologram lines and clears state.
      */
     public synchronized void despawn() {
         if (!Bukkit.isPrimaryThread()) {
@@ -160,26 +143,8 @@ public abstract class Hologram {
             return;
         }
 
-        // Despawn all tracked lines
-        for (HologramLine line : lines) {
-            line.despawn();
-        }
+        lines.forEach(HologramLine::despawn);
         lines.clear();
-
-        // Additional safety: Clear any orphaned armor stands at this location
-        if (baseLocation != null && baseLocation.getWorld() != null) {
-            baseLocation.getWorld().getNearbyEntities(baseLocation, 2, 6, 2).stream()
-                .filter(entity -> entity.getType() == EntityType.ARMOR_STAND)
-                .filter(entity -> {
-                    // Remove invisible armor stands (likely hologram remnants)
-                    if (entity instanceof org.bukkit.entity.ArmorStand) {
-                        org.bukkit.entity.ArmorStand stand = (org.bukkit.entity.ArmorStand) entity;
-                        return !stand.isVisible() && stand.isCustomNameVisible();
-                    }
-                    return false;
-                })
-                .forEach(Entity::remove);
-        }
 
         currentState = HologramState.DESPAWNED;
         currentLB = null;
@@ -187,58 +152,7 @@ public abstract class Hologram {
     }
 
     /**
-     * STRICT SPAWN: Creates hologram lines from scratch.
-     * MUST be called on main thread.
-     * Always calls despawn() first to prevent duplicates.
-     *
-     * @param textLines The lines of text to display (bottom to top order)
-     * @param spacings The spacing for each line
-     */
-    private synchronized void spawn(@NotNull List<String> textLines, @NotNull List<Double> spacings) {
-        if (!Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> spawn(textLines, spacings));
-            return;
-        }
-
-        if (baseLocation == null || baseLocation.getWorld() == null) {
-            return;
-        }
-
-        // STRICT: Always despawn first to prevent any duplicates
-        despawn();
-
-        if (textLines.isEmpty()) {
-            return;
-        }
-
-        // Create new hologram lines
-        Location currentLoc = baseLocation.clone();
-
-        for (int i = 0; i < textLines.size(); i++) {
-            String text = textLines.get(i);
-            if (text.isEmpty()) {
-                text = " ";
-            }
-
-            double spacing = i < spacings.size() ? spacings.get(i) : 0.3;
-
-            // Create and spawn the line
-            HologramLine line = new HologramLine();
-            line.spawn(currentLoc.clone(), text);
-            lines.add(line);
-
-            // Move up for next line
-            currentLoc.subtract(0, -spacing, 0);
-        }
-    }
-
-    /**
-     * SMART UPDATE: Updates hologram content with minimal flickering.
-     * Uses diff-based approach: only modifies lines that changed.
-     * If line count changes significantly or ladder switches, does full respawn.
-     *
-     * @param textLines The new lines of text to display
-     * @param spacings The spacing for each line
+     * Smart update that modifies content without flickering.
      */
     private synchronized void updateSmartly(@NotNull List<String> textLines, @NotNull List<Double> spacings) {
         if (!Bukkit.isPrimaryThread()) {
@@ -246,174 +160,139 @@ public abstract class Hologram {
             return;
         }
 
-        if (baseLocation == null || baseLocation.getWorld() == null) {
+        if (baseLocation == null || baseLocation.getWorld() == null || textLines.isEmpty()) {
             return;
         }
 
-        int currentLineCount = lines.size();
-        int newLineCount = textLines.size();
+        List<Location> positions = calculatePositions(textLines.size(), spacings);
 
-        // If line count changes significantly (>2 difference), full respawn is safer
-        boolean needsFullRespawn = Math.abs(currentLineCount - newLineCount) > 2;
+        if (lines.isEmpty()) {
+            // First spawn - create all lines
+            spawnNewLines(textLines, positions);
+        } else {
+            // Update existing lines
+            updateExistingLines(textLines, positions);
+        }
+    }
 
-        // Check if any lines are invalid (entities died/unloaded)
-        boolean hasInvalidLines = lines.stream().anyMatch(line -> !line.isValid());
+    private List<Location> calculatePositions(int count, List<Double> spacings) {
+        List<Location> positions = new ArrayList<>();
+        Location loc = baseLocation.clone();
 
-        if (needsFullRespawn || hasInvalidLines) {
-            // Full respawn needed
-            spawn(textLines, spacings);
-            return;
+        for (int i = 0; i < count; i++) {
+            positions.add(loc.clone());
+            double spacing = i < spacings.size() ? spacings.get(i) : DEFAULT_SPACING;
+            loc.add(0, spacing, 0);
         }
 
-        // Diff-based update: modify existing lines, add/remove as needed
+        return positions;
+    }
+
+    private void spawnNewLines(List<String> textLines, List<Location> positions) {
+        for (int i = 0; i < textLines.size(); i++) {
+            String text = textLines.get(i).isEmpty() ? " " : textLines.get(i);
+            HologramLine line = new HologramLine();
+            line.spawn(positions.get(i), text);
+            lines.add(line);
+        }
+    }
+
+    private void updateExistingLines(List<String> textLines, List<Location> positions) {
+        int minCount = Math.min(lines.size(), textLines.size());
 
         // Update existing lines
-        int minCount = Math.min(currentLineCount, newLineCount);
         for (int i = 0; i < minCount; i++) {
-            HologramLine line = lines.get(i);
-            String newText = textLines.get(i);
-            if (!line.getText().equals(newText)) {
-                line.updateText(newText);
-            }
+            String text = textLines.get(i).isEmpty() ? " " : textLines.get(i);
+            lines.get(i).updateText(text);
         }
 
         // Add new lines if needed
-        if (newLineCount > currentLineCount) {
-            Location currentLoc = baseLocation.clone();
-            // Calculate where to start adding (after existing lines)
-            for (int i = 0; i < currentLineCount; i++) {
-                double spacing = i < spacings.size() ? spacings.get(i) : 0.3;
-                currentLoc.subtract(0, -spacing, 0);
-            }
-
-            for (int i = currentLineCount; i < newLineCount; i++) {
-                String text = textLines.get(i);
-                if (text.isEmpty()) text = " ";
-
-                double spacing = i < spacings.size() ? spacings.get(i) : 0.3;
-
+        if (textLines.size() > lines.size()) {
+            for (int i = lines.size(); i < textLines.size(); i++) {
+                String text = textLines.get(i).isEmpty() ? " " : textLines.get(i);
                 HologramLine line = new HologramLine();
-                line.spawn(currentLoc.clone(), text);
+                line.spawn(positions.get(i), text);
                 lines.add(line);
-
-                currentLoc.subtract(0, -spacing, 0);
             }
         }
         // Remove extra lines if needed
-        else if (newLineCount < currentLineCount) {
-            // CRITICAL: Remove from the END (top of hologram) to prevent bottom lines from disappearing
-            for (int i = currentLineCount - 1; i >= newLineCount; i--) {
-                HologramLine line = lines.remove(i);
-                line.despawn();
+        else if (textLines.size() < lines.size()) {
+            for (int i = lines.size() - 1; i >= textLines.size(); i--) {
+                lines.remove(i).despawn();
             }
         }
     }
 
-    // ========== UPDATE LOGIC ==========
+    // ==================== UPDATE LOGIC ====================
 
     /**
-     * Main update method called by HologramRunnable.
-     * Handles leaderboard changes and updates hologram content.
-     * Thread-safe with atomic locking.
+     * Main update method - handles leaderboard changes and content updates.
      */
     public synchronized void updateContent() {
-        // Prevent concurrent updates - if already updating, skip
         if (!isUpdating.compareAndSet(false, true)) {
             return;
         }
 
         try {
-            // Safety checks
             if (baseLocation == null || baseLocation.getWorld() == null) {
-                setEnabled(false);
                 return;
             }
 
-            Leaderboard leaderboard = this.getNextLeaderboard();
+            Leaderboard leaderboard = getNextLeaderboard();
 
-            // No leaderboard available - show setup mode
             if (leaderboard == null) {
-                if (currentState != HologramState.SETUP_MODE) {
-                    setSetupHologram(SetupHologramType.SETUP);
-                }
+                handleNoLeaderboard();
                 return;
             }
 
-            // Skip update if leaderboard is currently refreshing
-            if (leaderboard.isUpdating()) {
-                return;
-            }
-
-            // Leaderboard is empty - show "nothing to display"
             if (leaderboard.isEmpty()) {
-                if (currentState != HologramState.NO_DISPLAY) {
-                    setSetupHologram(SetupHologramType.NO_DISPLAY);
-                }
+                handleEmptyLeaderboard();
                 return;
             }
 
-            // Check if ladder switched (for dynamic holograms)
-            boolean ladderSwitched = false;
             if (hologramType == HologramType.LADDER_DYNAMIC) {
-                Ladder newLadder = leaderboard.getLadder();
-                if (currentLadder != null && newLadder != null && !currentLadder.equals(newLadder)) {
-                    ladderSwitched = true;
-                }
-                currentLadder = newLadder;
+                currentLadder = leaderboard.getLadder();
             }
 
-            this.currentLB = leaderboard;
-
-            // Build text lines
+            currentLB = leaderboard;
             List<String> textLines = buildTextLines(leaderboard);
-            List<Double> spacings = buildSpacings(textLines, leaderboard);
+            List<Double> spacings = buildSpacings(textLines.size(), leaderboard);
 
-            // Update strategy: full respawn if ladder switched, smart update otherwise
-            if (ladderSwitched || currentState != HologramState.DISPLAYING_LEADERBOARD) {
-                spawn(textLines, spacings);
-                currentState = HologramState.DISPLAYING_LEADERBOARD;
-            } else {
-                updateSmartly(textLines, spacings);
-            }
+            updateSmartly(textLines, spacings);
+            currentState = HologramState.DISPLAYING_LEADERBOARD;
 
         } finally {
             isUpdating.set(false);
         }
     }
 
-    /**
-     * Builds the text lines for display from leaderboard data.
-     *
-     * @param leaderboard The leaderboard to display
-     * @return List of text lines (bottom to top)
-     */
-    private List<String> buildTextLines(@NotNull Leaderboard leaderboard) {
-        List<String> lines = new ArrayList<>();
+    private void handleNoLeaderboard() {
+        if (lines.isEmpty() && currentState != HologramState.SETUP_MODE) {
+            setSetupHologram(SetupHologramType.SETUP);
+        }
+    }
 
-        switch (leaderboard.getMainType()) {
-            case GLOBAL:
-                lines = new ArrayList<>(leaderboard.getSecondaryType().getGlobalLines());
-                break;
-            case LADDER:
-                lines = new ArrayList<>(leaderboard.getSecondaryType().getLadderLines());
-                if (leaderboard.getLadder() != null) {
-                    final String ladderName = leaderboard.getLadder().getName();
-                    final String ladderDisplayName = leaderboard.getLadder().getDisplayName();
-                    lines.replaceAll(line -> line
-                        .replace("%ladder_name%", ladderName)
-                        .replace("%ladder_displayName%", ladderDisplayName));
-                }
-                break;
+    private void handleEmptyLeaderboard() {
+        if (lines.isEmpty() && currentState != HologramState.NO_DISPLAY) {
+            setSetupHologram(SetupHologramType.NO_DISPLAY);
+        }
+    }
+
+    // ==================== TEXT BUILDING ====================
+
+    private List<String> buildTextLines(@NotNull Leaderboard leaderboard) {
+        List<String> configLines = getConfigLines(leaderboard);
+
+        if (configLines.isEmpty()) {
+            return List.of("§cNo config lines");
         }
 
-        // Reverse to get bottom-to-top order
-        Collections.reverse(lines);
+        Collections.reverse(configLines);
 
-        // Expand %top% placeholder with placement strings
         List<String> expandedLines = new ArrayList<>();
-        List<String> placementStrings = getPlacementStrings(leaderboard);
+        List<String> placementStrings = buildPlacementStrings(leaderboard);
 
-        for (String line : lines) {
+        for (String line : configLines) {
             if (line.contains("%top%")) {
                 expandedLines.addAll(placementStrings);
             } else {
@@ -421,143 +300,121 @@ public abstract class Hologram {
             }
         }
 
-        return expandedLines;
+        return expandedLines.isEmpty() ? List.of("§cNo data") : expandedLines;
     }
 
-    /**
-     * Builds spacing values for each line.
-     *
-     * @param textLines The text lines
-     * @param leaderboard The leaderboard (for spacing config)
-     * @return List of spacing values matching textLines
-     */
-    private List<Double> buildSpacings(@NotNull List<String> textLines, @NotNull Leaderboard leaderboard) {
-        List<Double> spacings = new ArrayList<>();
+    private List<String> getConfigLines(Leaderboard leaderboard) {
+        List<String> lines = switch (leaderboard.getMainType()) {
+            case GLOBAL -> new ArrayList<>(leaderboard.getSecondaryType().getGlobalLines());
+            case LADDER -> {
+                List<String> ladderLines = new ArrayList<>(leaderboard.getSecondaryType().getLadderLines());
+                if (leaderboard.getLadder() != null) {
+                    String ladderName = leaderboard.getLadder().getName();
+                    String displayName = leaderboard.getLadder().getDisplayName();
+                    ladderLines.replaceAll(line -> line
+                            .replace("%ladder_name%", ladderName)
+                            .replace("%ladder_displayName%", displayName));
+                }
+                yield ladderLines;
+            }
+        };
+        return lines;
+    }
+
+    private List<Double> buildSpacings(int lineCount, Leaderboard leaderboard) {
         double standardSpacing = leaderboard.getSecondaryType().getLineSpacing();
         double titleSpacing = leaderboard.getSecondaryType().getTitleLineSpacing();
 
-        for (int i = 0; i < textLines.size(); i++) {
-            // Last line (title) gets different spacing
-            if (i == textLines.size() - 1) {
-                spacings.add(titleSpacing);
-            } else {
-                spacings.add(standardSpacing);
-            }
-        }
-
-        return spacings;
+        return IntStream.range(0, lineCount)
+                .mapToObj(i -> i == lineCount - 1 ? titleSpacing : standardSpacing)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Generates placement strings for top players.
-     *
-     * @param leaderboard The leaderboard
-     * @return List of formatted placement strings
-     */
-    private List<String> getPlacementStrings(@NotNull Leaderboard leaderboard) {
-        List<OfflinePlayer> topPlayers = new ArrayList<>();
-        Map<OfflinePlayer, Integer> list = leaderboard.getList();
+    private List<String> buildPlacementStrings(Leaderboard leaderboard) {
+        Map<OfflinePlayer, Integer> playerStats = leaderboard.getList();
+        List<OfflinePlayer> topPlayers = playerStats.keySet().stream()
+                .limit(showStat)
+                .collect(Collectors.toList());
 
-        for (OfflinePlayer player : list.keySet()) {
-            if (topPlayers.size() < showStat) {
-                topPlayers.add(player);
-            } else {
-                break;
-            }
-        }
+        List<String> placements = new ArrayList<>();
 
-        List<String> placementStrings = new ArrayList<>();
         for (int i = 0; i < showStat; i++) {
-            String rankNumber = String.valueOf(showStat - i);
+            int rank = showStat - i;
+            int playerIndex = showStat - 1 - i;
 
-            if (topPlayers.size() > (showStat - 1 - i)) {
-                OfflinePlayer target = topPlayers.get(showStat - 1 - i);
-                Profile targetProfile = ProfileManager.getInstance().getProfile(target);
-
-                if (targetProfile == null) {
-                    placementStrings.add(NULL_STRING.replaceAll("%number%", rankNumber));
-                } else {
-                    Group group = targetProfile.getGroup();
-                    String statNumber = String.valueOf(list.get(target));
-                    Division division = targetProfile.getStats().getDivision();
-
-                    placementStrings.add(StringUtil.CC(leaderboardType.getFormat()
-                        .replaceAll("%placement%", rankNumber)
-                        .replaceAll("%score%", statNumber)
-                        .replaceAll("%player%", target.getName())
-                        .replaceAll("%division%", (division != null ? Common.mmToNormal(division.getFullName()) : ""))
-                        .replaceAll("%division_short%", (division != null ? Common.mmToNormal(division.getShortName()) : ""))
-                        .replaceAll("%group%", (group != null ? group.getDisplayName() : ""))
-                    ));
-                }
+            if (playerIndex < topPlayers.size()) {
+                placements.add(formatPlayerEntry(topPlayers.get(playerIndex), playerStats, rank));
             } else {
-                placementStrings.add(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.NULL-LINE")
-                    .replaceAll("%number%", rankNumber));
+                placements.add(NULL_LINE_FORMAT.replace("%number%", String.valueOf(rank)));
             }
         }
-        return placementStrings;
+
+        return placements;
     }
 
-    // ========== SETUP HOLOGRAMS ==========
+    private String formatPlayerEntry(OfflinePlayer player, Map<OfflinePlayer, Integer> stats, int rank) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        if (profile == null) {
+            return NULL_LINE_FORMAT.replace("%number%", String.valueOf(rank));
+        }
+
+        Group group = profile.getGroup();
+        Division division = profile.getStats().getDivision();
+
+        return StringUtil.CC(leaderboardType.getFormat()
+                .replace("%placement%", String.valueOf(rank))
+                .replace("%score%", String.valueOf(stats.get(player)))
+                .replace("%player%", player.getName())
+                .replace("%division%", division != null ? Common.mmToNormal(division.getFullName()) : "")
+                .replace("%division_short%", division != null ? Common.mmToNormal(division.getShortName()) : "")
+                .replace("%group%", group != null ? group.getDisplayName() : ""));
+    }
+
+    // ==================== SETUP HOLOGRAMS ====================
 
     /**
      * Shows a setup/placeholder hologram.
-     *
-     * @param type The type of setup hologram to show
      */
     public synchronized void setSetupHologram(@NotNull SetupHologramType type) {
         if (baseLocation == null || baseLocation.getWorld() == null) {
             return;
         }
 
-        List<String> lines = new ArrayList<>();
-        List<Double> spacings = new ArrayList<>();
-
-        switch (type) {
-            case SETUP:
-                lines.add(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.SETUP-HOLO.TITLE"));
-                lines.add(StringUtil.CC(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.SETUP-HOLO.LINE")
-                    .replaceAll("%name%", name)));
-                spacings.add(0.3);
-                spacings.add(0.3);
-                currentState = HologramState.SETUP_MODE;
-                break;
-            case NO_DISPLAY:
-                lines.add(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.NOTHING-TO-DISPLAY"));
-                spacings.add(0.3);
-                currentState = HologramState.NO_DISPLAY;
-                break;
+        // Don't replace existing content
+        if (!lines.isEmpty()) {
+            currentState = type == SetupHologramType.SETUP ? HologramState.SETUP_MODE : HologramState.NO_DISPLAY;
+            return;
         }
 
-        spawn(lines, spacings);
+        List<String> setupLines = switch (type) {
+            case SETUP -> {
+                currentState = HologramState.SETUP_MODE;
+                yield List.of(
+                        ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.SETUP-HOLO.TITLE"),
+                        StringUtil.CC(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.SETUP-HOLO.LINE")
+                                .replace("%name%", name))
+                );
+            }
+            case NO_DISPLAY -> {
+                currentState = HologramState.NO_DISPLAY;
+                yield List.of(ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.NOTHING-TO-DISPLAY"));
+            }
+        };
+
+        List<Double> spacings = setupLines.stream().map(l -> DEFAULT_SPACING).collect(Collectors.toList());
+        updateSmartly(setupLines, spacings);
     }
 
-    // ========== DELETION ==========
+    // ==================== DELETION ====================
 
     /**
      * Deletes the hologram completely.
-     *
-     * @param all If true, removes from manager and deletes config
      */
-    public synchronized void deleteHologram(boolean all) {
-        // Despawn all entities
+    public synchronized void deleteHologram(boolean removeFromManager) {
         despawn();
 
-        // Additional cleanup: remove any nearby invisible armor stands
-        if (baseLocation != null && baseLocation.getWorld() != null) {
-            baseLocation.getWorld().getNearbyEntities(baseLocation, 1, 6, 1).stream()
-                .filter(entity -> entity.getType() == EntityType.ARMOR_STAND)
-                .filter(entity -> {
-                    if (entity instanceof org.bukkit.entity.ArmorStand) {
-                        org.bukkit.entity.ArmorStand stand = (org.bukkit.entity.ArmorStand) entity;
-                        return !stand.isVisible();
-                    }
-                    return false;
-                })
-                .forEach(Entity::remove);
-        }
-
-        if (all) {
+        if (removeFromManager) {
             hologramRunnable.cancel(false);
             HologramManager.getInstance().getHolograms().remove(this);
             HologramSetupManager.getInstance().removeHologramGUIs(this);
@@ -566,30 +423,30 @@ public abstract class Hologram {
         }
     }
 
-    // ========== ENABLE/DISABLE ==========
+    // ==================== ENABLE/DISABLE ====================
 
     public void setEnabled(boolean enabled) {
-        if (!enabled) {
+        if (enabled && isReadyToEnable()) {
+            this.enabled = true;
+            hologramRunnable.begin();
+        } else {
             this.enabled = false;
             hologramRunnable.cancel(true);
-        } else {
-            if (this.isReadyToEnable()) {
-                this.enabled = true;
-                hologramRunnable.begin();
-            }
         }
-        this.setData();
 
-        // Update relevant GUIs
+        setData();
+        updateGUIs();
+    }
+
+    private void updateGUIs() {
         GUIManager.getInstance().searchGUI(GUIType.Hologram_Summary).update();
-        if (HologramSetupManager.getInstance().getHologramSetupGUIs().containsKey(this)) {
-            HologramSetupManager.getInstance().getHologramSetupGUIs().get(this).get(GUIType.Hologram_Main).update();
-            if (HologramSetupManager.getInstance().getHologramSetupGUIs().get(this).containsKey(GUIType.Hologram_Ladder)) {
-                HologramSetupManager.getInstance().getHologramSetupGUIs().get(this).get(GUIType.Hologram_Ladder).update();
+
+        var setupGUIs = HologramSetupManager.getInstance().getHologramSetupGUIs();
+        if (setupGUIs.containsKey(this)) {
+            setupGUIs.get(this).get(GUIType.Hologram_Main).update();
+            if (setupGUIs.get(this).containsKey(GUIType.Hologram_Ladder)) {
+                setupGUIs.get(this).get(GUIType.Hologram_Ladder).update();
             }
         }
     }
 }
-
-
-
