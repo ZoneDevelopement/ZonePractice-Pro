@@ -175,9 +175,11 @@ public abstract class Hologram {
         }
     }
 
+    private static final double BASE_HEIGHT_OFFSET = 0.3; // 0.3 block offset to raise holograms
+
     private List<Location> calculatePositions(int count, List<Double> spacings) {
         List<Location> positions = new ArrayList<>();
-        Location loc = baseLocation.clone();
+        Location loc = baseLocation.clone().add(0, BASE_HEIGHT_OFFSET, 0);
 
         for (int i = 0; i < count; i++) {
             positions.add(loc.clone());

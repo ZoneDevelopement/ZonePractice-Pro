@@ -109,14 +109,14 @@ public class LadderGui extends GUI {
                     if (ladder == null) return;
 
                     if (hologram instanceof LadderStaticHologram staticHologram) {
-
                         staticHologram.setLadder(ladder);
+                        staticHologram.setData();
                     } else if (hologram instanceof LadderDynamicHologram dynamicHologram) {
-
                         if (dynamicHologram.getLadders().contains(ladder))
                             dynamicHologram.getLadders().remove(ladder);
                         else
                             dynamicHologram.getLadders().add(ladder);
+                        dynamicHologram.setData();
                     }
 
                     this.update();

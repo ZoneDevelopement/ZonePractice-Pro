@@ -13,7 +13,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -22,11 +21,12 @@ import java.util.stream.Collectors;
 @Getter
 public class LadderDynamicHologram extends Hologram {
 
-    private List<NormalLadder> ladders = new ArrayList<>();
+    private List<NormalLadder> ladders;
     private int currentLadderIndex = -1;
 
     public LadderDynamicHologram(String name, Location baseLocation) {
         super(name, baseLocation, HologramType.LADDER_DYNAMIC);
+        this.ladders = new ArrayList<>();
     }
 
     public LadderDynamicHologram(String name) {
@@ -38,13 +38,19 @@ public class LadderDynamicHologram extends Hologram {
         ladders = new ArrayList<>();
         currentLadderIndex = -1;
 
-        if (config.isSet("holograms." + name + ".ladders")) {
-            ladders = config.getStringList("holograms." + name + ".ladders").stream()
-                    .map(LadderManager.getInstance()::getLadder)
-                    .filter(Objects::nonNull)
-                    .filter(NormalLadder::isEnabled)
-                    .collect(Collectors.toCollection(ArrayList::new));
+        String path = "holograms." + name + ".ladders";
+        if (config.isSet(path)) {
+            List<String> ladderNames = config.getStringList(path);
+            if (ladderNames != null && !ladderNames.isEmpty()) {
+                for (String ladderName : ladderNames) {
+                    NormalLadder ladder = LadderManager.getInstance().getLadder(ladderName);
+                    if (ladder != null && ladder.isEnabled()) {
+                        ladders.add(ladder);
+                    }
+                }
+            }
         }
+
 
         if (!ladders.isEmpty()) {
             currentLadderIndex = 0;
