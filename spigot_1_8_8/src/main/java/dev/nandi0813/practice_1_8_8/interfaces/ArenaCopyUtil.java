@@ -11,16 +11,21 @@ public class ArenaCopyUtil extends dev.nandi0813.practice.module.interfaces.Aren
 
     @Override
     protected void copyBlock(Block oldBlock, Block newBlock) {
-        // OPTIMIZATION: Disable physics during copy for massive speedup
-        newBlock.setType(oldBlock.getType(), false);
+        try {
+            // OPTIMIZATION: Disable physics during copy for massive speedup
+            newBlock.setType(oldBlock.getType(), false);
 
-        BlockState oldState = oldBlock.getState();
-        BlockState newState = newBlock.getState();
+            BlockState oldState = oldBlock.getState();
+            BlockState newState = newBlock.getState();
 
-        newState.setData(oldState.getData().clone());
-        newState.update(true, false);  // force=true, applyPhysics=false
+            newState.setData(oldState.getData().clone());
+            newState.update(true, false);  // force=true, applyPhysics=false
 
-        newBlock.setBiome(oldBlock.getBiome());
+            newBlock.setBiome(oldBlock.getBiome());
+        } catch (Exception e) {
+            // Skip problematic blocks (e.g., MaterialData type incompatibilities like Torch)
+            // This allows the copy process to continue without halting
+        }
     }
 
     @Override
