@@ -61,17 +61,25 @@ public class ChangedBlock extends dev.nandi0813.practice.module.interfaces.Chang
 
         Block currentBlock = location.getBlock();
 
-        currentBlock.setType(material);
-        currentBlock.setBlockData(blockData);
-        currentBlock.getState().setType(material);
-        currentBlock.getState().setBlockData(blockData);
-        currentBlock.getState().update();
+        try {
+            currentBlock.setType(material);
+            currentBlock.setBlockData(blockData);
+            currentBlock.getState().setType(material);
+            currentBlock.getState().setBlockData(blockData);
+            currentBlock.getState().update();
 
-        if (chestInventory != null) {
-            if (currentBlock.getState() instanceof Chest chest) {
-                chest.getInventory().setContents(chestInventory);
-                chest.update();
+            if (chestInventory != null) {
+                if (currentBlock.getState() instanceof Chest chest) {
+                    chest.getInventory().setContents(chestInventory);
+                    chest.update();
+                }
             }
+        } catch (Exception e) {
+            // Handle BlockData compatibility issues
+            // Just set the block type without the problematic block data
+            currentBlock.setType(material);
+            currentBlock.getState().setType(material);
+            currentBlock.getState().update();
         }
     }
 

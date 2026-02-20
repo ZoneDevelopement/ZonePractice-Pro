@@ -59,14 +59,22 @@ public class ChangedBlock extends dev.nandi0813.practice.module.interfaces.Chang
             return;
         }
 
-        block.setType(material);
-        block.getState().setType(material);
-        block.getState().setData(materialData);
-        block.getState().update(false);
+        try {
+            block.setType(material);
+            block.getState().setType(material);
+            block.getState().setData(materialData);
+            block.getState().update(false);
 
-        if (chestInventory != null && block.getState() instanceof Chest) {
-            Chest chest = (Chest) block.getState();
-            chest.getInventory().setContents(chestInventory);
+            if (chestInventory != null && block.getState() instanceof Chest) {
+                Chest chest = (Chest) block.getState();
+                chest.getInventory().setContents(chestInventory);
+            }
+        } catch (IllegalArgumentException e) {
+            // Handle MaterialData type incompatibilities (e.g., Tree, Torch)
+            // Just set the block type without the problematic material data
+            block.setType(material);
+            block.getState().setType(material);
+            block.getState().update(false);
         }
     }
 
