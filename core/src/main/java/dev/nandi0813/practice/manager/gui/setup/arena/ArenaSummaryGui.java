@@ -20,7 +20,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -204,7 +203,8 @@ public class ArenaSummaryGui extends GUI {
         int upperBound = page * 27;
         int lowerBound = upperBound - 27;
 
-        Map<DisplayArena, ItemStack> newItems = new HashMap<>();
+        // IMPORTANT: Use LinkedHashMap to preserve the sorted order!
+        Map<DisplayArena, ItemStack> newItems = new LinkedHashMap<>();
         int index = 0;
 
         for (Map.Entry<DisplayArena, ItemStack> entry : sortedItems.entrySet()) {
@@ -223,7 +223,12 @@ public class ArenaSummaryGui extends GUI {
     public static Map<DisplayArena, ItemStack> sortByValue(Map<DisplayArena, ItemStack> map) {
         return map.entrySet()
                 .stream()
-                .sorted(Map.Entry.comparingByKey(Comparator.comparing(DisplayArena::getName, String::compareToIgnoreCase)))
+                .sorted(Map.Entry.comparingByKey((arena1, arena2) -> {
+                    // Proper lexicographic comparison (case-insensitive, character by character)
+                    String name1 = arena1.getName();
+                    String name2 = arena2.getName();
+                    return String.CASE_INSENSITIVE_ORDER.compare(name1, name2);
+                }))
                 .collect(LinkedHashMap::new, (m, e) -> m.put(e.getKey(), e.getValue()), LinkedHashMap::putAll);
     }
 
