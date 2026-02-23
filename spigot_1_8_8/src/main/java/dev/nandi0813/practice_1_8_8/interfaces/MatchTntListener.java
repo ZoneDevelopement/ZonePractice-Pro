@@ -34,11 +34,13 @@ public class MatchTntListener implements Listener {
         }
 
         if (!e.isCancelled()) {
-            e.blockList().removeIf(block ->
-                    !ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block) &&
-                            !block.getType().equals(Material.TNT) &&
-                            !block.hasMetadata(PLACED_IN_FIGHT)
-            );
+            e.blockList().removeIf(block -> {
+                if (block.getType().equals(Material.TNT)) return false;                     // keep → explodes
+                if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)) return false; // keep → explodes
+                if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                       // keep → player placed → explodes
+                if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;  // remove → support under player block → protected
+                return true;                                                                 // remove → pure arena block → protected
+            });
 
             for (Block block : e.blockList())
                 match.addBlockChange(ClassImport.createChangeBlock(block));

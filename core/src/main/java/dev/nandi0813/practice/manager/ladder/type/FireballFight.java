@@ -98,6 +98,9 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
         } else if (e instanceof EntityExplodeEvent) {
             onEntityExplode((EntityExplodeEvent) e);
             return true;
+        } else if (e instanceof org.bukkit.event.block.BlockExplodeEvent) {
+            onBlockExplode((org.bukkit.event.block.BlockExplodeEvent) e, match);
+            return true;
         } else if (e instanceof PlayerDropItemEvent) {
             onItemDrop((PlayerDropItemEvent) e);
             return true;
@@ -195,7 +198,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
             Block underBlock = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
             if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock))
-                match.addBlockChange(ClassImport.createChangeBlock(underBlock));
+                match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
         }
     }
 
@@ -268,24 +271,52 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
         if (entity.hasMetadata(FIREBALL_FIGHT_FIREBALL)) {
             e.blockList().clear();
+            e.setCancelled(true);
         } else if (entity.hasMetadata(FIREBALL_FIGHT_TNT) && entity.hasMetadata(FIREBALL_FIGHT_TNT_SHOOTER)) {
             MetadataValue mv = BlockUtil.getMetadata(entity, FIREBALL_FIGHT_TNT);
             if (ListenerUtil.checkMetaData(mv)) return;
 
-            // Support both Match and other Spectatable types (Event, FFA)
-            if (!(mv.value() instanceof Match)) return;
-            Match match = (Match) mv.value();
+            if (!(mv.value() instanceof Match match)) return;
             if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) return;
 
-            e.blockList().removeIf(block ->
-                    !ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block) &&
-                            !block.getType().equals(Material.TNT) &&
-                            !block.hasMetadata(PLACED_IN_FIGHT)
-            );
+            e.blockList().removeIf(block -> {
+                if (block.getType().equals(Material.TNT)) return false;                     // keep → explodes
+                if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)) return false; // keep → explodes
+                if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                       // keep → player placed → explodes
+                if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;  // remove → support under player block → protected
+                return true;                                                                 // remove → pure arena block → protected
+            });
 
             for (Block block : e.blockList())
                 BlockUtil.breakBlock(match, block);
+
+            // Cancel so MatchTntListener does not run a second removeIf pass
+            // on the same block list and accidentally destroy non-removable blocks.
+            e.blockList().clear();
+            e.setCancelled(true);
         }
+    }
+
+    private static void onBlockExplode(@NotNull org.bukkit.event.block.BlockExplodeEvent e, @NotNull Match match) {
+        if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+            e.blockList().clear();
+            e.setCancelled(true);
+            return;
+        }
+
+        e.blockList().removeIf(block -> {
+            if (block.getType().equals(Material.TNT)) return false;                     // keep → explodes
+            if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)) return false; // keep → explodes
+            if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                       // keep → player placed → explodes
+            if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;  // remove → support under player block → protected
+            return true;                                                                 // remove → pure arena block → protected
+        });
+
+        for (Block block : e.blockList())
+            BlockUtil.breakBlock(match, block);
+
+        e.blockList().clear();
+        e.setCancelled(true);
     }
 
     private static void onPlayerDamage(final @NotNull EntityDamageEvent e, final Match match) {

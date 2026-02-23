@@ -44,7 +44,7 @@ public interface TempBuild {
 
                 Block b2 = block.getLocation().subtract(0, 1, 0).getBlock();
                 if (ClassImport.getClasses().getArenaUtil().turnsToDirt(b2))
-                    match.getFightChange().addBlockChange(ClassImport.createChangeBlock(b2), player, buildDelay);
+                    match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(b2));
             }
         }
     }
@@ -61,7 +61,7 @@ public interface TempBuild {
 
         Block block2 = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
         if (ClassImport.getClasses().getArenaUtil().turnsToDirt(block2))
-            match.getFightChange().addBlockChange(ClassImport.createChangeBlock(block2));
+            match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(block2));
     }
 
     static void onBlockBreak(final @NotNull BlockBreakEvent e, final @NotNull Match match) {

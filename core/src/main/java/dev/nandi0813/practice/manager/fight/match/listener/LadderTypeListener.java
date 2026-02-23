@@ -96,7 +96,7 @@ public abstract class LadderTypeListener implements Listener {
 
         Block underBlock = block.getLocation().subtract(0, 1, 0).getBlock();
         if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock)) {
-            match.addBlockChange(ClassImport.createChangeBlock(underBlock));
+            match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
         }
     }
 
@@ -300,7 +300,7 @@ public abstract class LadderTypeListener implements Listener {
 
             Block underBlock = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
             if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock))
-                match.addBlockChange(ClassImport.createChangeBlock(underBlock));
+                match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
         }
     }
 

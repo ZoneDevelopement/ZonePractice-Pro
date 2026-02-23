@@ -106,6 +106,20 @@ public class FightChangeOptimized {
     }
 
     /**
+     * Records a naturally-changed arena block (e.g. grass→dirt under a placed block) for
+     * rollback WITHOUT marking it with {@code PLACED_IN_FIGHT} metadata.
+     * <p>
+     * This prevents players from breaking the block (it has no placed-in-fight tag so the
+     * break listener cancels it via the fightChange check) while still restoring it at match end.
+     */
+    public void addArenaBlockChange(ChangedBlock change) {
+        if (change == null) return;
+        long pos = BlockPosition.encode(change.getLocation());
+        // putIfAbsent preserves original state — does NOT set metadata
+        blocks.putIfAbsent(pos, new BlockChangeEntry(change));
+    }
+
+    /**
      * Adds a temporary block change that will auto-remove after delay.
      */
     public void addBlockChange(ChangedBlock change, Player player, int destroyTime) {

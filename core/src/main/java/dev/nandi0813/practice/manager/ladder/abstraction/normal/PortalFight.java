@@ -93,7 +93,7 @@ public abstract class PortalFight extends NormalLadder {
 
             Block underBlock = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
             if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock))
-                match.addBlockChange(ClassImport.createChangeBlock(underBlock));
+                match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
         }
     }
 
