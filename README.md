@@ -73,7 +73,7 @@ system before cloning or pulling updates:
 
 ## Building
 
-1. **Prerequisites:** Install JDK (Java 17+ recommended for modern builds) and Maven.
+1. **Prerequisites:** Install JDK (Java 21 recommended for modern builds, _it is not gonna work on Java 25_) and Maven.
 2. **Install Local Dependencies:**
    Since the PaperSpigot API is not available in public repositories, install it manually from the `libs` folder:
    ```bash
