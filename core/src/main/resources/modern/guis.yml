@@ -2615,18 +2615,6 @@ GUIS:
               - "&7Enabled ladders: &e%enabledLadder%"
               - "&7Enabled events: &e%enabledEvents%"
               - "&8&m------------------------"
-          RELOAD:
-            NAME: "&eReload files"
-            MATERIAL: CLAY_BALL
-            LORE:
-              - "&8&m------------------------"
-              - "&7Click here to reload the server files."
-              - ""
-              - "&c&lNOTE: &7If you configured a lot of things"
-              - "&7in the config files, it is recommended to"
-              - "&7restart the server, because there are global"
-              - "&7variables that may not be reloaded with this."
-              - "&8&m------------------------"
           LOBBY-ARMORS:
             NAME: "&eLobby Armors"
             MATERIAL: DIAMOND_CHESTPLATE

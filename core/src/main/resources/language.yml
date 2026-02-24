@@ -881,7 +881,6 @@ COMMAND:
       HOLOGRAM-DELETED: "<green>You successfully deleted hologram <yellow>%hologram%<green>."
     SERVER:
       WAIT-BEFORE: "<red>Please wait before using this again."
-      RELOAD-SERVER-FILES: "<yellow>You reloaded the server files."
       SAVED-ALL-FILES: "<yellow>You saved all the server data."
       ENDED-EVENT: "<yellow>You ended the event <red>%event%<yellow>."
       MATCH-ENDED: "<red>The match has been ended by a moderator."
