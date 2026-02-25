@@ -24,13 +24,20 @@ import java.util.Map;
 
 public abstract class QueueSelectorGui extends GUI {
 
+    private final long UPDATE_COOLDOWN_MS =
+            this.getUpdateCooldownMinutes() < 0 ? 0 : this.getUpdateCooldownMinutes() * 60 * 1000L;
+
     private final Map<Integer, NormalLadder> firstCategoryLadderSlots = new HashMap<>();
     private final Map<Integer, NormalLadder> secondCategoryLadderSlots = new HashMap<>();
+
+    private long lastUpdateTime = -1L;
 
     public QueueSelectorGui(GUIType type) {
         super(type);
         build();
     }
+
+    protected abstract int getUpdateCooldownMinutes();
 
     protected abstract String getQueueConfigPath();
 
@@ -46,11 +53,20 @@ public abstract class QueueSelectorGui extends GUI {
 
     @Override
     public void build() {
-        update();
+        doUpdate();
     }
 
     @Override
     public void update() {
+        long now = System.currentTimeMillis();
+        if (lastUpdateTime >= 0 && (now - lastUpdateTime) < UPDATE_COOLDOWN_MS) {
+            return; // Still within the 5-minute cooldown, skip update
+        }
+        doUpdate();
+    }
+
+    private void doUpdate() {
+        lastUpdateTime = System.currentTimeMillis();
         String queuePath = getQueueConfigPath() + ".SELECTOR-GUI";
         String guiPath = getGuiConfigPath();
 
