@@ -4,7 +4,6 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUI;
-import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.ladder.LadderSetupManager;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
@@ -32,9 +31,12 @@ public class DestroyableBlocksGui extends GUI {
     private final NormalLadder ladder;
     private final List<BasicItem> basicItems;
 
+    private static final int BACK_SLOT = 45;
+    private static final int INVENTORY_LAST_SLOT = 53;
+
     public DestroyableBlocksGui(final NormalLadder ladder) {
         super(GUIType.Ladder_DestroyableBlock);
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.LADDER.DESTROYABLE-BLOCKS.TITLE").replace("%ladder%", ladder.getName()), 4));
+        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.LADDER.DESTROYABLE-BLOCKS.TITLE").replace("%ladder%", ladder.getName()), 6));
 
         this.ladder = ladder;
         this.basicItems = ladder.getDestroyableBlocks();
@@ -44,10 +46,7 @@ public class DestroyableBlocksGui extends GUI {
 
     @Override
     public void build() {
-        for (int i = 28; i <= 35; i++)
-            gui.get(1).setItem(i, GUIManager.getFILLER_ITEM());
-
-        gui.get(1).setItem(27, GUIFile.getGuiItem("GUIS.SETUP.LADDER.DESTROYABLE-BLOCKS.ICONS.BACK-TO").get());
+        gui.get(1).setItem(BACK_SLOT, GUIFile.getGuiItem("GUIS.SETUP.LADDER.DESTROYABLE-BLOCKS.ICONS.BACK-TO").get());
 
         update();
     }
@@ -58,15 +57,20 @@ public class DestroyableBlocksGui extends GUI {
         {
             Inventory inventory = gui.get(1);
 
-            for (int i = 0; i <= 26; i++) {
-                inventory.setItem(i, null);
+            // Clear all editable slots (everything except the back button)
+            for (int i = 0; i <= INVENTORY_LAST_SLOT; i++) {
+                if (i != BACK_SLOT)
+                    inventory.setItem(i, null);
             }
 
             for (BasicItem block : this.basicItems) {
-                int slot = inventory.firstEmpty();
-                if (slot != -1) {
-                    ItemStack itemStack = new ItemStack(block.getMaterial(), 1, block.getDamage());
-                    inventory.setItem(slot, itemStack);
+                // Place into the first empty editable slot
+                for (int i = 0; i <= INVENTORY_LAST_SLOT; i++) {
+                    if (i == BACK_SLOT) continue;
+                    if (inventory.getItem(i) == null) {
+                        inventory.setItem(i, new ItemStack(block.getMaterial(), 1, block.getDamage()));
+                        break;
+                    }
                 }
             }
         });
@@ -78,22 +82,36 @@ public class DestroyableBlocksGui extends GUI {
     public void handleClickEvent(InventoryClickEvent e) {
         Player player = (Player) e.getWhoClicked();
         int slot = e.getRawSlot();
+        ClickType click = e.getClick();
 
-        if (slot >= 27 && slot <= 35) {
-            if (slot == 27)
-                LadderSetupManager.getInstance().getLadderSetupGUIs().get(ladder).get(GUIType.Ladder_Main).open(player);
-
+        if (slot == BACK_SLOT) {
+            LadderSetupManager.getInstance().getLadderSetupGUIs().get(ladder).get(GUIType.Ladder_Main).open(player);
             e.setCancelled(true);
             return;
-        } else {
-            if (ladder.isEnabled()) {
-                e.setCancelled(true);
-                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.LADDER.CANT-EDIT-ENABLED"));
-                return;
-            }
         }
 
-        checkArmor(e);
+        // Click is in the player's own inventory (bottom half)
+        if (slot > INVENTORY_LAST_SLOT) {
+            // Shift-click from player inventory would push item into the GUI — validate it
+            if (click == ClickType.SHIFT_LEFT || click == ClickType.SHIFT_RIGHT) {
+                if (ladder.isEnabled()) {
+                    e.setCancelled(true);
+                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.LADDER.CANT-EDIT-ENABLED"));
+                    return;
+                }
+                checkItem(e);
+            }
+            // Normal clicks in the player's own inventory are always allowed
+            return;
+        }
+
+        if (ladder.isEnabled()) {
+            e.setCancelled(true);
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.LADDER.CANT-EDIT-ENABLED"));
+            return;
+        }
+
+        checkItem(e);
     }
 
     public void handleCloseEvent(InventoryCloseEvent e) {
@@ -109,7 +127,8 @@ public class DestroyableBlocksGui extends GUI {
     public void save() {
         basicItems.clear();
 
-        for (int i = 0; i <= 26; i++) {
+        for (int i = 0; i <= INVENTORY_LAST_SLOT; i++) {
+            if (i == BACK_SLOT) continue;
             ItemStack itemStack = this.gui.get(1).getItem(i);
             if (itemStack != null && !itemStack.getType().equals(Material.AIR)) {
                 BasicItem block = new BasicItem(itemStack.getType(), itemStack.getDurability());
@@ -118,29 +137,32 @@ public class DestroyableBlocksGui extends GUI {
         }
     }
 
-    private void checkArmor(InventoryClickEvent e) {
+    private void checkItem(InventoryClickEvent e) {
         final Player player = (Player) e.getWhoClicked();
         final Inventory inventory = e.getView().getTopInventory();
         final ClickType click = e.getClick();
         final int slot = e.getRawSlot();
 
         ItemStack item = null;
-        if (inventory.getSize() > slot && click.equals(ClickType.NUMBER_KEY)) {
+        if (slot < inventory.getSize() && click == ClickType.NUMBER_KEY) {
+            // Hotbar key press while hovering over GUI slot
             item = player.getInventory().getItem(e.getHotbarButton());
-        } else if (inventory.getSize() > slot && (click.equals(ClickType.RIGHT) || click.equals(ClickType.LEFT))) {
+        } else if (slot < inventory.getSize() && (click == ClickType.RIGHT || click == ClickType.LEFT)) {
+            // Placing cursor item into a GUI slot
             item = player.getItemOnCursor();
-        } else if (inventory.getSize() <= slot && click.equals(ClickType.SHIFT_LEFT) || click.equals(ClickType.SHIFT_RIGHT)) {
+        } else if (slot >= inventory.getSize() && (click == ClickType.SHIFT_LEFT || click == ClickType.SHIFT_RIGHT)) {
+            // Shift-clicking from player inventory into GUI
             item = e.getCurrentItem();
         }
 
-        if (item != null) {
+        if (item != null && !item.getType().equals(Material.AIR)) {
             if (!item.getType().isBlock()) {
-                Common.sendMMMessage((Player) e.getWhoClicked(), LanguageManager.getString("COMMAND.SETUP.LADDER.ONLY-PUT-BLOCKS"));
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.LADDER.ONLY-PUT-BLOCKS"));
                 e.setCancelled(true);
             } else {
-                Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                {
-                    for (int i = 0; i <= 26; i++) {
+                Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+                    for (int i = 0; i <= INVENTORY_LAST_SLOT; i++) {
+                        if (i == BACK_SLOT) continue;
                         ItemStack itemStack = gui.get(1).getItem(i);
                         if (itemStack != null && !itemStack.getType().equals(Material.AIR)) {
                             itemStack.setAmount(1);
@@ -151,10 +173,9 @@ public class DestroyableBlocksGui extends GUI {
                                 itemMeta.getItemFlags().clear();
                                 itemStack.setItemMeta(itemMeta);
                             }
-
-                            updatePlayers();
                         }
                     }
+                    updatePlayers();
                 }, 2L);
             }
         }
