@@ -50,6 +50,7 @@ public class LadderFile extends ConfigFile {
         config.set("settings.knockback", ladder.getLadderKnockback().get());
         config.set("settings.tntfusetime", ladder.getTntFuseTime());
         config.set("settings.healthbelowname", ladder.isHealthBelowName());
+        config.set("settings.resetbuildafterround", ladder.isResetBuildAfterRound());
 
         if (ladder instanceof RespawnableLadder respawnableLadder) {
             config.set("settings.respawntime", respawnableLadder.getRespawnTime());
@@ -138,6 +139,10 @@ public class LadderFile extends ConfigFile {
 
         if (config.isBoolean("settings.healthbelowname")) {
             ladder.setHealthBelowName(config.getBoolean("settings.healthbelowname"));
+        }
+
+        if (config.isBoolean("settings.resetbuildafterround")) {
+            ladder.setResetBuildAfterRound(config.getBoolean("settings.resetbuildafterround"));
         }
 
         if (config.isInt("settings.hitdelay")) {

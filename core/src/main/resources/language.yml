@@ -1,4 +1,4 @@
-VERSION: 13
+VERSION: 14
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -221,6 +221,7 @@ COMMAND:
         NOT-IN-REGION: "<red>The portal must be in the arena world inside the arenas cube."
         INVALID-NUMBER: "<red>Invalid team number!"
         PORTAL-OVERLAP: "<red>Portals cannot overlap with X and Z coordinates."
+        TOO-LOW-FOR-FLOOR: "<red>The portal must be at least 1 block above the %floor_type% (Y: <yellow>%floor_y%<red>)."
         SET-PORTAL1: "<green>You set the first portal location for the arena %arena%"
         SET-PORTAL2: "<green>You set the second portal location for the arena %arena%"
       PORTAL-PROTECTION:
@@ -881,7 +882,6 @@ COMMAND:
       HOLOGRAM-DELETED: "<green>You successfully deleted hologram <yellow>%hologram%<green>."
     SERVER:
       WAIT-BEFORE: "<red>Please wait before using this again."
-      RELOAD-SERVER-FILES: "<yellow>You reloaded the server files."
       SAVED-ALL-FILES: "<yellow>You saved all the server data."
       ENDED-EVENT: "<yellow>You ended the event <red>%event%<yellow>."
       MATCH-ENDED: "<red>The match has been ended by a moderator."

@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.gui.guis.queue;
 
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.fight.match.enums.WeightClass;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
@@ -10,6 +11,11 @@ public class UnrankedGui extends QueueSelectorGui {
 
     public UnrankedGui() {
         super(GUIType.Queue_Unranked);
+    }
+
+    @Override
+    protected long getUpdateCooldownMinutes() {
+        return ConfigManager.getInt("QUEUE.UNRANKED.GUI-UPDATE-MINUTE");
     }
 
     @Override

@@ -32,7 +32,7 @@ LOBBY-BASIC:
       ITEM:
         NAME: "&aSettings &7(Right-Click)"
         MATERIAL: CLOCK
-        AMOUNT: 2
+        AMOUNT: 1
         ENCHANTMENTS:
           - "DURABILITY:1"
       FLAGS:

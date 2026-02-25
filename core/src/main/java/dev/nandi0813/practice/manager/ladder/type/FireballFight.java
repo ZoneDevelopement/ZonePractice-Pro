@@ -98,6 +98,9 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
         } else if (e instanceof EntityExplodeEvent) {
             onEntityExplode((EntityExplodeEvent) e);
             return true;
+        } else if (e instanceof org.bukkit.event.block.BlockExplodeEvent) {
+            onBlockExplode((org.bukkit.event.block.BlockExplodeEvent) e, match);
+            return true;
         } else if (e instanceof PlayerDropItemEvent) {
             onItemDrop((PlayerDropItemEvent) e);
             return true;
@@ -195,7 +198,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
             Block underBlock = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
             if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock))
-                match.addBlockChange(ClassImport.createChangeBlock(underBlock));
+                match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
         }
     }
 
@@ -249,6 +252,8 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
     }
 
     private static final float FIREBALL_YIELD = (float) ConfigManager.getDouble("MATCH-SETTINGS.FIREBALL-FIGHT.FIREBALL-YIELD");
+
+
     private static void onFireballHit(final @NotNull ProjectileHitEvent e) {
         Entity entity = e.getEntity();
 
@@ -267,25 +272,43 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
         Entity entity = e.getEntity();
 
         if (entity.hasMetadata(FIREBALL_FIGHT_FIREBALL)) {
+            // No block destruction from fireball — but don't cancel so the sound plays naturally.
             e.blockList().clear();
         } else if (entity.hasMetadata(FIREBALL_FIGHT_TNT) && entity.hasMetadata(FIREBALL_FIGHT_TNT_SHOOTER)) {
             MetadataValue mv = BlockUtil.getMetadata(entity, FIREBALL_FIGHT_TNT);
             if (ListenerUtil.checkMetaData(mv)) return;
 
-            // Support both Match and other Spectatable types (Event, FFA)
-            if (!(mv.value() instanceof Match)) return;
-            Match match = (Match) mv.value();
-            if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) return;
+            if (!(mv.value() instanceof Match match)) return;
+            if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+                e.blockList().clear();
+                return;
+            }
 
-            e.blockList().removeIf(block ->
-                    !ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block) &&
-                            !block.getType().equals(Material.TNT) &&
-                            !block.hasMetadata(PLACED_IN_FIGHT)
-            );
-
-            for (Block block : e.blockList())
-                BlockUtil.breakBlock(match, block);
+            // Filter to only destroyable blocks — MatchTntListener will track + break them naturally.
+            e.blockList().removeIf(block -> {
+                if (block.getType().equals(Material.TNT)) return false;                     // keep → chain-explodes
+                if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)) return false; // keep → destroyable
+                if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                       // keep → player placed
+                if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;  // remove → support under player block
+                return true;                                                                 // remove → pure arena block
+            });
         }
+    }
+
+    private static void onBlockExplode(@NotNull org.bukkit.event.block.BlockExplodeEvent e, @NotNull Match match) {
+        if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+            e.blockList().clear();
+            return;
+        }
+
+        // Filter to only destroyable blocks — MatchTntListener will track + break them naturally.
+        e.blockList().removeIf(block -> {
+            if (block.getType().equals(Material.TNT)) return false;                     // keep → chain-explodes
+            if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)) return false; // keep → destroyable
+            if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                       // keep → player placed
+            if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;  // remove → support under player block
+            return true;                                                                 // remove → pure arena block
+        });
     }
 
     private static void onPlayerDamage(final @NotNull EntityDamageEvent e, final Match match) {

@@ -205,6 +205,9 @@ public class SettingsGui extends GUI {
 
         if (settingTypes.contains(SettingType.HEALTH_BELOW_NAME))
             settingItems.add(new HealthBelowNameItem(this, ladder));
+
+        if (settingTypes.contains(SettingType.RESET_BUILD_AFTER_ROUND))
+            settingItems.add(new ResetBuildAfterRoundItem(this, ladder));
     }
 
 }

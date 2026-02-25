@@ -24,5 +24,6 @@ public enum SettingType {
     MAX_DURATION,
     TNT_FUSE_TIME,
     HEALTH_BELOW_NAME,
+    RESET_BUILD_AFTER_ROUND,
 
 }

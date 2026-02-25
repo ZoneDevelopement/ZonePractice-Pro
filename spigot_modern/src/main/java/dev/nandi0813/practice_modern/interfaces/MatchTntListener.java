@@ -31,6 +31,18 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 // FixedMetadataValue is deprecated in Paper but still the standard way to set block metadata
 public class MatchTntListener implements Listener {
 
+    /**
+     * Returns true if the block should be protected from explosion damage:
+     * - it was placed by a player during the match, OR
+     * - a player-placed block sits directly on top of it (e.g. grass under wool)
+     */
+    private static boolean isProtectedFromExplosion(Block block, Match match) {
+        if (block.hasMetadata(PLACED_IN_FIGHT)) return true;
+        // Protect arena blocks that support a player-placed block above them
+        Block above = block.getRelative(0, 1, 0);
+        return above.hasMetadata(PLACED_IN_FIGHT);
+    }
+
     private void handleExplosion(Event event, List<Block> blockList, Match match) {
         if (match == null) {
             return;
@@ -42,9 +54,13 @@ public class MatchTntListener implements Listener {
         }
 
         blockList.removeIf(
-                block -> !block.getType().equals(Material.TNT) &&
-                        !block.hasMetadata(PLACED_IN_FIGHT) &&
-                        !ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)
+                block -> {
+                    if (block.getType().equals(Material.TNT)) return false;                     // keep → explodes
+                    if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)) return false; // keep → explodes
+                    if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                       // keep → player placed → explodes
+                    if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;  // remove → support under player block → protected
+                    return true;                                                                 // remove → pure arena block → protected
+                }
         );
 
         for (Block block : blockList) {

@@ -66,6 +66,8 @@ public abstract class Ladder {
     protected boolean startMove = true;
     @Setter
     protected boolean healthBelowName = false;
+    @Setter
+    protected boolean resetBuildAfterRound = false;
 
     protected Ladder(String name, LadderType type) {
         this.name = name;
@@ -101,6 +103,7 @@ public abstract class Ladder {
         this.dropInventoryPartyGames = ladder.isDropInventoryPartyGames();
         this.startMove = ladder.isStartMove();
         this.healthBelowName = ladder.isHealthBelowName();
+        this.resetBuildAfterRound = ladder.isResetBuildAfterRound();
     }
 
     public abstract List<Arena> getArenas();

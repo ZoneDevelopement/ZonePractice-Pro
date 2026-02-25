@@ -1,4 +1,4 @@
-VERSION: 13
+VERSION: 14
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -27,6 +27,7 @@ KNOCKBACK:
 QUEUE:
   UNRANKED:
     MAX-QUEUE-TIME: 300 # In sec.
+    GUI-UPDATE-MINUTE: 2
     DIVISION-SEARCH:
       ENABLED: true
       SETTINGS:
@@ -64,6 +65,7 @@ QUEUE:
           VANILLA: 24
   RANKED:
     MAX-QUEUE-TIME: 300 # In sec.
+    GUI-UPDATE-MINUTE: 1
     DEFAULT-ELO: 1000
     ELO-RANGE-TIME: 5 # Sec
     ELO-RANGE-INCREASE: 20 # Range

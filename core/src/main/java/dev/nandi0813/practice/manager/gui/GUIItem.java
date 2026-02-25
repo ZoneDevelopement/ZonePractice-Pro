@@ -100,6 +100,7 @@ public class GUIItem {
 
     public GUIItem setGlowing(boolean glowing) {
         this.glowing = glowing;
+        this.addItemFlag(ItemFlag.HIDE_ENCHANTS);
         return this;
     }
 

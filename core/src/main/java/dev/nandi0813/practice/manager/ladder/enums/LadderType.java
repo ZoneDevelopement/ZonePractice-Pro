@@ -161,6 +161,7 @@ public enum LadderType {
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
+            .withSetting(SettingType.RESET_BUILD_AFTER_ROUND)
     ),
 
     BATTLE_RUSH(LadderTypeConfig.builder(

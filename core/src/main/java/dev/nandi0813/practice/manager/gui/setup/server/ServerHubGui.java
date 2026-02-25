@@ -52,7 +52,6 @@ public class ServerHubGui extends GUI {
         for (int i : new int[]{28, 29, 30, 31, 32, 33, 34, 35})
             inventory.setItem(i, GUIManager.getFILLER_ITEM());
 
-        inventory.setItem(12, GUIFile.getGuiItem("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.RELOAD").get());
         inventory.setItem(13, GUIFile.getGuiItem("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.SAVE").get());
         inventory.setItem(14, GUIFile.getGuiItem("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.LOBBY-ARMORS").get());
 
@@ -88,17 +87,6 @@ public class ServerHubGui extends GUI {
             switch (slot) {
                 case 27:
                     GUIManager.getInstance().searchGUI(GUIType.Setup_Hub).open(player);
-                    break;
-                case 12:
-                    if (PlayerCooldown.isActive(player, CooldownObject.SERVER_SETUP_RELOAD_FILES)) {
-                        Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.SERVER.WAIT-BEFORE"));
-                        return;
-                    }
-
-                    ServerManager.getInstance().reloadFiles();
-                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.SETUP.SERVER.RELOAD-SERVER-FILES"));
-
-                    PlayerCooldown.addCooldown(player, CooldownObject.SERVER_SETUP_RELOAD_FILES, 15);
                     break;
                 case 13:
                     if (click.isLeftClick()) {

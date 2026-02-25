@@ -1,4 +1,4 @@
-VERSION: 9
+VERSION: 10
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -2092,6 +2092,25 @@ GUIS:
                 - "&7during the match."
                 - ""
                 - "&e&lClick here &7to &aenable&7."
+          RESET-BUILD-AFTER-ROUND:
+            ENABLED:
+              NAME: "&7Reset Build After Round: &aEnabled"
+              MATERIAL: GRASS
+              LORE:
+                - ""
+                - "&7The arena will be reset after each"
+                - "&7round, before the next one starts."
+                - ""
+                - "&e&lClick here &7to &cdisable&7."
+            DISABLED:
+              NAME: "&7Reset Build After Round: &cDisabled"
+              MATERIAL: GRASS
+              LORE:
+                - ""
+                - "&7The arena will not be reset between"
+                - "&7rounds. Placed blocks persist."
+                - ""
+                - "&e&lClick here &7to &aenable&7."
           ENDERPEARL-COOLDOWN:
             NAME: "&7EnderPearl Cooldown: &6%epCooldown% sec"
             MATERIAL: ENDER_PEARL
@@ -2664,18 +2683,6 @@ GUIS:
               - "&7Enabled arenas: &e%enabledArena%"
               - "&7Enabled ladders: &e%enabledLadder%"
               - "&7Enabled events: &e%enabledEvents%"
-              - "&8&m------------------------"
-          RELOAD:
-            NAME: "&eReload files"
-            MATERIAL: CLAY_BALL
-            LORE:
-              - "&8&m------------------------"
-              - "&7Click here to reload the server files."
-              - ""
-              - "&c&lNOTE: &7If you configured a lot of things"
-              - "&7in the config files, it is recommended to"
-              - "&7restart the server, because there are global"
-              - "&7variables that may not be reloaded with this."
               - "&8&m------------------------"
           LOBBY-ARMORS:
             NAME: "&eLobby Armors"

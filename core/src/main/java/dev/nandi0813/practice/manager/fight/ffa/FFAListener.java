@@ -201,7 +201,7 @@ public abstract class FFAListener implements Listener {
 
             Block underBlock = block.getLocation().subtract(0, 1, 0).getBlock();
             if (underBlock.getType() == Material.DIRT) {
-                ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(underBlock));
+                ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
             }
             return;
         }
@@ -262,7 +262,7 @@ public abstract class FFAListener implements Listener {
 
             Block underBlock = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
             if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock))
-                ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(underBlock));
+                ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
         }
     }
 
@@ -284,7 +284,7 @@ public abstract class FFAListener implements Listener {
 
             Block underBlock = toBlock.getLocation().subtract(0, 1, 0).getBlock();
             if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock)) {
-                ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(underBlock));
+                ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
             }
         }
     }
@@ -329,7 +329,7 @@ public abstract class FFAListener implements Listener {
 
                 Block underBlock = relative.getLocation().subtract(0, 1, 0).getBlock();
                 if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock))
-                    ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(underBlock));
+                    ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
             }
         }
     }

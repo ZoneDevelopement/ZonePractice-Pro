@@ -5,7 +5,6 @@ import dev.nandi0813.practice.module.interfaces.*;
 import dev.nandi0813.practice_modern.interfaces.MatchTntListener;
 import dev.nandi0813.practice_modern.interfaces.PlayerHiderUtil;
 import dev.nandi0813.practice_modern.listener.*;
-import dev.nandi0813.practice_modern.modern_version.BlockExplode;
 import dev.nandi0813.practice_modern.modern_version.ItemOffHand;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -39,7 +38,6 @@ public class Classes implements dev.nandi0813.practice.module.util.Classes {
 
         // Only 1.20 stuff
         Bukkit.getServer().getPluginManager().registerEvents(new ItemOffHand(), ZonePractice.getInstance());
-        Bukkit.getServer().getPluginManager().registerEvents(new BlockExplode(), ZonePractice.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new MatchTntListener(), ZonePractice.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new ArenaListener(), ZonePractice.getInstance());
 
