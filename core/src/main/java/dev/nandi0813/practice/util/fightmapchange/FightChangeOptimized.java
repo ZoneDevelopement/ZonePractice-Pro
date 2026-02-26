@@ -309,6 +309,11 @@ public class FightChangeOptimized {
      * - Chunk-aware: Skips blocks in unloaded chunks
      * - Progress tracking: Logs completion metrics
      * - Memory efficient: Removes entries during iteration
+     * <p>
+     * ORDER: Entries are sorted bottom-to-top (ascending Y) so that support blocks are
+     * always restored before gravity-affected blocks (sand, gravel, etc.) above them.
+     * Without this, a sand block restored at Y=70 would immediately fall because the
+     * block at Y=69 hasn't been restored yet.
      */
     private class RollbackTask extends BukkitRunnable {
         private final Iterator<Map.Entry<Long, BlockChangeEntry>> iterator;
@@ -320,7 +325,12 @@ public class FightChangeOptimized {
         private boolean isRunning = false;
 
         RollbackTask(int maxCheck, int maxChange) {
-            this.iterator = blocks.entrySet().iterator();
+            // Sort ascending by Y so bottom blocks are restored first.
+            // This prevents gravity blocks (sand/gravel) from falling during rollback
+            // because their support blocks below are always placed before them.
+            List<Map.Entry<Long, BlockChangeEntry>> sorted = new ArrayList<>(blocks.entrySet());
+            sorted.sort(java.util.Comparator.comparingInt(entry -> BlockPosition.getY(entry.getKey())));
+            this.iterator = sorted.iterator();
             this.maxCheck = maxCheck;
             this.maxChange = maxChange;
             this.totalBlocks = blocks.size();
@@ -352,7 +362,7 @@ public class FightChangeOptimized {
 
                     if (!world.isChunkLoaded(chunkX, chunkZ)) {
                         skippedUnloaded++;
-                        iterator.remove(); // Remove anyway - arena should be loaded
+                        blocks.remove(pos); // Remove from live map - arena should be loaded
                         continue;
                     }
 
@@ -364,7 +374,7 @@ public class FightChangeOptimized {
                     Block block = BlockPosition.getBlock(world, pos);
                     block.removeMetadata(PLACED_IN_FIGHT, ZonePractice.getInstance());
 
-                    iterator.remove();
+                    blocks.remove(pos); // Remove from live map
                 }
 
                 // Finished rolling back all blocks
