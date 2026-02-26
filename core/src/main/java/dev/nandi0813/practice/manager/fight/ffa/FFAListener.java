@@ -22,13 +22,17 @@ import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -394,6 +398,9 @@ public abstract class FFAListener implements Listener {
         );
 
         for (Block block : blockList) {
+            // TNT blocks: already tracked (and already AIR) from EntitySpawnEvent — skip.
+            // AIR blocks: chain-exploded TNT or already-fallen sand — already tracked, skip.
+            if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
             ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(block));
         }
     }
@@ -517,5 +524,101 @@ public abstract class FFAListener implements Listener {
         }
     }
 
+    /**
+     * When a TNT block is primed (becomes a TNTPrimed entity), track its original position
+     * for rollback. The block is already AIR at EntitySpawnEvent time, so we use the
+     * Material.TNT override to ensure rollback restores TNT, not AIR.
+     */
+    @EventHandler ( priority = EventPriority.MONITOR, ignoreCancelled = true )
+    public void onTntPrimed(EntitySpawnEvent e) {
+        if (!(e.getEntity() instanceof TNTPrimed)) return;
+
+        FFA ffa = FFAManager.getInstance().getOpenFFAs().stream()
+                .filter(m -> m.getCuboid().contains(e.getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (ffa == null) return;
+        if (!ffa.isBuild()) return;
+
+        Block tntBlock = e.getLocation().getBlock();
+        ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(tntBlock, Material.TNT));
+        // Also track the entity so rollback removes it even if it drifts outside the cuboid
+        ffa.getFightChange().addEntityChange(e.getEntity());
+    }
+
+    /**
+     * Tracks falling blocks (sand/gravel/concrete powder/etc.) for FFA arena rollback.
+     * <p>
+     * This event fires BEFORE the block changes, so we capture the true original state.
+     * Two cases are handled:
+     * <ol>
+     *   <li><b>Start falling</b> (block → AIR): the source block is still the correct material —
+     *       record it so rollback knows to restore sand/gravel there. The entity is also registered
+     *       via addEntityChange so rollback kills it even if it flies outside the cuboid.</li>
+     *   <li><b>Landing</b> (AIR → block material): the source block is AIR; we schedule a
+     *       1-tick delay so the landed block is written to the world before we capture it.
+     *       Landing outside the cuboid is tracked too so rollback restores it to AIR.</li>
+     * </ol>
+     * Using LOWEST priority ensures the block in the world still holds its pre-change state
+     * when we call createChangeBlock for the "start falling" case.
+     */
+    @EventHandler ( priority = EventPriority.LOWEST, ignoreCancelled = true )
+    public void onFallingBlockChange(EntityChangeBlockEvent e) {
+        if (!(e.getEntity() instanceof FallingBlock fallingBlock)) return;
+
+        Block affectedBlock = e.getBlock();
+        boolean isLanding = e.getTo() != Material.AIR;
+
+        // Fast path: entity was tagged when it first started falling inside the arena
+        if (fallingBlock.hasMetadata(PLACED_IN_FIGHT)) {
+            MetadataValue mv = fallingBlock.getMetadata(PLACED_IN_FIGHT).get(0);
+            if (!(mv.value() instanceof FFA ffa)) return;
+
+            if (isLanding) {
+                // Landing: at LOWEST priority the block is still AIR — capture it NOW.
+                // createChangeBlock(block, AIR) stores AIR as the restore target so rollback
+                // removes the rogue sand block rather than keeping it.
+                // Track even if landing outside the cuboid.
+                if (!affectedBlock.hasMetadata(PLACED_IN_FIGHT)) {
+                    ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(affectedBlock, Material.AIR));
+                }
+            } else {
+                // Start falling: block is still sand/gravel — capture original state now.
+                // Register the entity so rollback removes it even if it escapes the cuboid.
+                if (!affectedBlock.hasMetadata(PLACED_IN_FIGHT)) {
+                    ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(affectedBlock));
+                }
+                ffa.getFightChange().addEntityChange(fallingBlock);
+            }
+            return;
+        }
+
+        // Slow path: check if the affected location is inside any build FFA
+        FFA ffa = FFAManager.getInstance().getOpenFFAs().stream()
+                .filter(m -> m.getCuboid().contains(affectedBlock.getLocation()))
+                .findFirst()
+                .orElse(null);
+
+        if (ffa == null) return;
+        if (!ffa.isBuild()) return;
+
+        // Tag the entity so the fast path works for the next change event (landing).
+        // Register it so rollback removes it even if it escapes the cuboid.
+        fallingBlock.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), ffa));
+        ffa.getFightChange().addEntityChange(fallingBlock);
+
+        if (isLanding) {
+            // Landing: at LOWEST priority the block is still AIR — capture it NOW.
+            if (!affectedBlock.hasMetadata(PLACED_IN_FIGHT)) {
+                ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(affectedBlock, Material.AIR));
+            }
+        } else {
+            // Start falling: block is still sand/gravel — capture original state now
+            if (!affectedBlock.hasMetadata(PLACED_IN_FIGHT)) {
+                ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(affectedBlock));
+            }
+        }
+    }
 
 }

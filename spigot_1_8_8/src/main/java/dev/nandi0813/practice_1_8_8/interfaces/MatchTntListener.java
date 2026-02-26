@@ -48,8 +48,10 @@ public class MatchTntListener implements Listener {
                 if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;  // remove → support under player block
                 return true;                                                                 // remove → pure arena block
             });
-            for (Block block : e.blockList())
+            for (Block block : e.blockList()) {
+                if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
                 match.addBlockChange(ClassImport.createChangeBlock(block));
+            }
             return;
         }
 
@@ -71,8 +73,12 @@ public class MatchTntListener implements Listener {
                 return true;                                                                 // remove → pure arena block → protected
             });
 
-            for (Block block : e.blockList())
+            for (Block block : e.blockList()) {
+                // TNT blocks: already tracked (and already AIR) from EntitySpawnEvent — skip.
+                // AIR blocks: chain-exploded TNT or already-fallen sand — already tracked, skip.
+                if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
                 match.addBlockChange(ClassImport.createChangeBlock(block));
+            }
         }
     }
 
@@ -90,6 +96,15 @@ public class MatchTntListener implements Listener {
 
         if (e.isCancelled()) {
             return;
+        }
+
+        // Track the TNT block using Material.TNT override — the block is already AIR at this
+        // point because the TNTPrimed entity replaced it, but we still need rollback to restore TNT.
+        if (match.getLadder().isBuild()) {
+            Block tntBlock = tnt.getLocation().getBlock();
+            match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(tntBlock, Material.TNT));
+            // Also register the entity so rollback removes it even if it drifts outside the cuboid
+            match.addEntityChange(tnt);
         }
 
         if (tnt.getSource() != null && tnt.getSource() instanceof Player) {

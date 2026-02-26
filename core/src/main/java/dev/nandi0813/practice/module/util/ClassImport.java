@@ -7,6 +7,7 @@ import dev.nandi0813.practice.module.interfaces.KitData;
 import dev.nandi0813.practice.module.interfaces.actionbar.ActionBar;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockPlaceEvent;
 
@@ -41,6 +42,26 @@ public enum ClassImport {
                 return constructor.newInstance(block);
             } catch (Exception e) {
                 Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Creates a ChangedBlock for a position whose block has already changed (e.g. is now AIR)
+     * but whose original material is known. Used for TNT blocks that were chain-primed before
+     * the EntityExplodeEvent fires.
+     */
+    public static ChangedBlock createChangeBlock(Block block, Material originalMaterial) {
+        if (block == null || originalMaterial == null) return null;
+
+        Class<?> changedBlockClass = classes.getChangedBlockClass();
+        if (ChangedBlock.class.isAssignableFrom(changedBlockClass)) {
+            try {
+                Constructor<ChangedBlock> constructor = (Constructor<ChangedBlock>) changedBlockClass.getConstructor(Block.class, Material.class);
+                return constructor.newInstance(block, originalMaterial);
+            } catch (Exception e) {
+                Common.sendConsoleMMMessage("<red>Error creating ChangedBlock with material override: " + e.getMessage());
             }
         }
         return null;

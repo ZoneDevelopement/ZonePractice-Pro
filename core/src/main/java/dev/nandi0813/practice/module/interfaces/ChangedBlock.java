@@ -31,6 +31,17 @@ public abstract class ChangedBlock {
         saveBed(this.location);
     }
 
+    /**
+     * Constructor for when the block has already changed in the world but we know its original material.
+     * Used for TNT blocks that became TNTPrimed entities before the explosion event fires.
+     */
+    protected ChangedBlock(final Block block, final Material originalMaterial) {
+        this.block = block;
+        this.location = block.getLocation();
+        this.material = originalMaterial;
+        // No chest/bed state to save — the block is already gone
+    }
+
     protected ChangedBlock(final BlockPlaceEvent e) {
         this.block = e.getBlockPlaced();
         this.location = block.getLocation();

@@ -20,6 +20,12 @@ public class ChangedBlock extends dev.nandi0813.practice.module.interfaces.Chang
         this.materialData = oldBlock.getState().getData();
     }
 
+    public ChangedBlock(final Block oldBlock, final Material originalMaterial) {
+        super(oldBlock, originalMaterial);
+        // Block is already AIR/changed; use the default MaterialData for the original material
+        this.materialData = new org.bukkit.material.MaterialData(originalMaterial);
+    }
+
     public ChangedBlock(final BlockPlaceEvent e) {
         super(e);
         this.materialData = e.getBlockReplacedState().getData();

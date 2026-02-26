@@ -66,6 +66,9 @@ public class MatchTntListener implements Listener {
         );
 
         for (Block block : blockList) {
+            // TNT blocks: already tracked (and already AIR) from TNTPrimeEvent — skip.
+            // AIR blocks: chain-exploded TNT or already-fallen sand — already tracked, skip.
+            if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
             match.addBlockChange(ClassImport.createChangeBlock(block));
         }
     }
@@ -100,6 +103,7 @@ public class MatchTntListener implements Listener {
                 return true;                                                                 // remove → pure arena block
             });
             for (Block block : e.blockList()) {
+                if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
                 match.addBlockChange(ClassImport.createChangeBlock(block));
             }
             return;
@@ -134,6 +138,14 @@ public class MatchTntListener implements Listener {
             return;
         }
 
+        // Track the TNT block NOW while it is still a TNT block in the world.
+        // By the time EntityExplodeEvent fires, this block will already be AIR (the entity replaced it).
+        // putIfAbsent preserves the original state if another explosion already tracked it.
+        if (match.getLadder().isBuild()) {
+            Block tntBlock = e.getBlock();
+            match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(tntBlock));
+        }
+
         if (!e.getCause().equals(TNTPrimeEvent.PrimeCause.EXPLOSION)) {
             String locationKey = getNormalizedLocationKey(e.getBlock().getLocation());
             setFuseTick.put(locationKey, match.getLadder().getTntFuseTime() * 20);
@@ -144,6 +156,15 @@ public class MatchTntListener implements Listener {
     public void onEntitySpawnEvent(EntitySpawnEvent e) {
         if (!(e.getEntity() instanceof TNTPrimed tntPrimed)) {
             return;
+        }
+
+        // Register entity for removal during rollback even if it drifts outside the cuboid
+        Match match = MatchManager.getInstance().getLiveMatches().stream()
+                .filter(m -> m.getCuboid().contains(e.getLocation()))
+                .findFirst()
+                .orElse(null);
+        if (match != null && match.getLadder().isBuild()) {
+            match.addEntityChange(tntPrimed);
         }
 
         final String locationKey = getNormalizedLocationKey(tntPrimed.getLocation());
