@@ -124,7 +124,14 @@ public class HologramProtectionListener implements Listener {
         if (line.getEntity() == deadStand) {
             return true;
         }
-        return line.getLocation() != null && line.getLocation().distanceSquared(location) < 0.5;
+        org.bukkit.Location lineLocation = line.getLocation();
+        if (lineLocation == null || lineLocation.getWorld() == null || location.getWorld() == null) {
+            return false;
+        }
+        if (!lineLocation.getWorld().equals(location.getWorld())) {
+            return false;
+        }
+        return lineLocation.distanceSquared(location) < 0.5;
     }
 
     /**
