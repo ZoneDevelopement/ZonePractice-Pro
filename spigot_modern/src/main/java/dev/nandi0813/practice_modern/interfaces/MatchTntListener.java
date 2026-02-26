@@ -4,6 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
+import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.module.util.ClassImport;
@@ -11,6 +12,7 @@ import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -74,6 +76,35 @@ public class MatchTntListener implements Listener {
                 .filter(m -> m.getCuboid().contains(e.getLocation()))
                 .findFirst()
                 .orElse(null);
+
+        // For creeper explosions: apply the same block filtering and rollback tracking as TNT.
+        // Non-build matches: clear block list entirely (no arena damage, no tracking needed).
+        // Build matches: only keep destroyable blocks and player-placed blocks, track them for rollback.
+        if (e.getEntity() instanceof Creeper) {
+            if (match == null) {
+                return;
+            }
+            if (!match.getLadder().isBuild()) {
+                e.blockList().clear();
+                return;
+            }
+            if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+                e.blockList().clear();
+                return;
+            }
+            e.blockList().removeIf(block -> {
+                if (block.getType().equals(Material.TNT)) return false;                     // keep → chain-explodes
+                if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)) return false; // keep → destroyable
+                if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                       // keep → player placed
+                if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;  // remove → support under player block
+                return true;                                                                 // remove → pure arena block
+            });
+            for (Block block : e.blockList()) {
+                match.addBlockChange(ClassImport.createChangeBlock(block));
+            }
+            return;
+        }
+
         handleExplosion(e, e.blockList(), match);
     }
 
