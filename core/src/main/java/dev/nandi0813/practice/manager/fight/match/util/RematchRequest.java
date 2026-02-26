@@ -14,9 +14,11 @@ import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
+import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -100,6 +102,11 @@ public class RematchRequest {
 
                         Profile profile = ProfileManager.getInstance().getProfile(player);
                         if (!profile.getStatus().equals(ProfileStatus.LOBBY)) return;
+
+                        Location lobby = ServerManager.getLobby();
+                        if (lobby != null && lobby.getWorld() != null && !player.getLocation().getWorld().equals(lobby.getWorld())) {
+                            return;
+                        }
 
                         InventoryManager.getInstance().setLobbyInventory(player, false);
                     }
