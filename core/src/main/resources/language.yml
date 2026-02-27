@@ -1215,7 +1215,6 @@ EVENT:
     POSITION-MARKERS-DELETED: "<red>The position markers have been deleted!"
     ALREADY-SCANNING: "<red>The <yellow>%event% <red>event's map is already being scanned."
     ENDERPEARL-COOLDOWN: "<red>You cannot use this for another <yellow>%seconds% <red>%secondName%."
-    FIREWORK-ROCKET-COOLDOWN: "<red>You cannot use firework rockets for another <yellow>%seconds% <red>%secondName%."
 PARTY:
   NO-PERMISSION: "<red>You don't have permission."
   ALREADY-PARTY: "<red>You are already in a different party."
@@ -1329,6 +1328,7 @@ MATCH:
     ENDER-PEARL: "<red>You cannot use this for another <yellow>%seconds% <red>%secondName%."
     GOLDEN-APPLE: "<red>You cannot eat another <gold>golden apple</gold> for another <yellow>%seconds% <red>%secondName%."
     FIREBALL: "<red>You cannot throw another fireball for another <yellow>%seconds% <red>%secondName%."
+    FIREWORK-ROCKET-COOLDOWN: "<red>You cannot use firework rockets for another <yellow>%seconds% <red>%secondName%."
   CANT-BUILD-OUTSIDE-ARENA: "<red>You can't build outside the arena."
   CANT-BUILD-OVER-LIMIT: "<red>You can't build there."
   CANT-CRAFT: "<red>You can't craft with this ladder."
