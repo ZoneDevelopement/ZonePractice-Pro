@@ -40,6 +40,35 @@ public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.Arena
     }
 
     @Override
+    public boolean requiresSupport(Block block) {
+        Material type = block.getType();
+        return org.bukkit.Tag.FLOWERS.isTagged(type)
+                || org.bukkit.Tag.SAPLINGS.isTagged(type)
+                || org.bukkit.Tag.CROPS.isTagged(type)
+                || org.bukkit.Tag.WALL_POST_OVERRIDE.isTagged(type)   // torches, signs on walls, etc.
+                || type == Material.DEAD_BUSH
+                || type == Material.SHORT_GRASS
+                || type == Material.TALL_GRASS
+                || type == Material.FERN
+                || type == Material.LARGE_FERN
+                || type == Material.VINE
+                || type == Material.SUGAR_CANE
+                || type == Material.CACTUS
+                || type == Material.SNOW
+                || type == Material.TORCH
+                || type == Material.SOUL_TORCH
+                || type == Material.REDSTONE_WIRE
+                || type == Material.REDSTONE_TORCH
+                || type == Material.LEVER
+                || type == Material.COMPARATOR
+                || type == Material.REPEATER
+                || type == Material.TRIPWIRE_HOOK
+                || type == Material.TRIPWIRE
+                || type == Material.LILY_PAD
+                || type == Material.NETHER_WART;
+    }
+
+    @Override
     public void loadArenaChunks(BasicArena arena) {
         if (arena.getCuboid() != null) {
             for (Chunk chunk : arena.getCuboid().getChunks()) {

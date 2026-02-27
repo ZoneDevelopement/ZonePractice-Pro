@@ -40,6 +40,45 @@ public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.Arena
     }
 
     @Override
+    public boolean requiresSupport(Block block) {
+        switch (block.getType()) {
+            case LONG_GRASS:        // tall grass / fern
+            case DEAD_BUSH:
+            case YELLOW_FLOWER:     // dandelion
+            case RED_ROSE:          // all small flowers share this Material in 1.8.8
+            case SAPLING:
+            case TORCH:
+            case REDSTONE_TORCH_ON:
+            case REDSTONE_TORCH_OFF:
+            case REDSTONE_WIRE:
+            case LEVER:
+            case STONE_BUTTON:
+            case WOOD_BUTTON:
+            case DIODE_BLOCK_ON:
+            case DIODE_BLOCK_OFF:
+            case REDSTONE_COMPARATOR_ON:
+            case REDSTONE_COMPARATOR_OFF:
+            case TRIPWIRE_HOOK:
+            case TRIPWIRE:
+            case SNOW:
+            case SUGAR_CANE_BLOCK:
+            case CROPS:             // wheat
+            case CARROT:
+            case POTATO:
+            case NETHER_WARTS:
+            case PUMPKIN_STEM:
+            case MELON_STEM:
+            case CACTUS:
+            case VINE:              // vines attach to the side of a block
+            case WATER_LILY:
+            case DOUBLE_PLANT:      // sunflower, lilac, rose bush, peony, tall grass (double)
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
     public void loadArenaChunks(BasicArena arena) {
         if (arena.getCuboid() != null) {
             for (Chunk chunk : arena.getCuboid().getChunks()) {

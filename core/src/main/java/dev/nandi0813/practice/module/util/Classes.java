@@ -28,6 +28,8 @@ public interface Classes {
 
     ConfigItemProvider getConfigItemProvider();
 
+    AbstractBuildListener getBuildListener();
+
     Class<?> getKitDataClass();
 
     Class<?> getActionBarClass();

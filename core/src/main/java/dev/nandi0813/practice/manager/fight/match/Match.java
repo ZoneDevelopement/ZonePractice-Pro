@@ -391,10 +391,17 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
         }
     }
 
+    @Override
+    public boolean isBuild() {
+        return ladder.isBuild();
+    }
+
+    @Override
     public void addBlockChange(ChangedBlock changedBlock) {
         fightChange.addBlockChange(changedBlock);
     }
 
+    @Override
     public void addEntityChange(Entity entity) {
         fightChange.addEntityChange(entity);
 

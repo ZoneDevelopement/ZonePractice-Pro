@@ -284,6 +284,11 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
     }
 
     @Override
+    public boolean isBuild() {
+        return false;
+    }
+
+    @Override
     public Cuboid getCuboid() {
         return eventData.getCuboid();
     }

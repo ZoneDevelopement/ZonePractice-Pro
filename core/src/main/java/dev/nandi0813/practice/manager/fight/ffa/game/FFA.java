@@ -294,6 +294,11 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     }
 
     @Override
+    public boolean isBuild() {
+        return this.build;
+    }
+
+    @Override
     public Cuboid getCuboid() {
         return arena.getCuboid();
     }

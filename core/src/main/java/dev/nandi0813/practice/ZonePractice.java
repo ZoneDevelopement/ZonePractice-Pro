@@ -30,6 +30,7 @@ import dev.nandi0813.practice.manager.backend.*;
 import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
+import dev.nandi0813.practice.manager.fight.listener.BuildBlockListener;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.util.EntityHiderListener;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
@@ -43,6 +44,7 @@ import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
+import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.module.util.VersionChecker;
 import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
@@ -348,6 +350,9 @@ public final class ZonePractice extends JavaPlugin {
      * It registers all the events that are used in the plugin
      */
     private void registerListeners(PluginManager pm) {
+        pm.registerEvents(new BuildBlockListener(), this);
+        pm.registerEvents(ClassImport.getClasses().getBuildListener(), this);
+
         pm.registerEvents(new PlayerPreLogin(), this);
         pm.registerEvents(new PlayerJoin(), this);
         pm.registerEvents(new PlayerQuit(), this);

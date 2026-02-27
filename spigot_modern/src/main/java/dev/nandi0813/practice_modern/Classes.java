@@ -2,7 +2,7 @@ package dev.nandi0813.practice_modern;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.module.interfaces.*;
-import dev.nandi0813.practice_modern.interfaces.MatchTntListener;
+import dev.nandi0813.practice_modern.interfaces.BuildListener;
 import dev.nandi0813.practice_modern.interfaces.PlayerHiderUtil;
 import dev.nandi0813.practice_modern.listener.*;
 import dev.nandi0813.practice_modern.modern_version.ItemOffHand;
@@ -25,6 +25,7 @@ public class Classes implements dev.nandi0813.practice.module.util.Classes {
     public EntityHider entityHider = new dev.nandi0813.practice_modern.interfaces.EntityHider(ZonePractice.getInstance(), EntityHider.Policy.BLACKLIST);
     public StatisticListener statisticListener = new dev.nandi0813.practice_modern.interfaces.StatisticListener();
     public ConfigItemProvider configItemProvider = new dev.nandi0813.practice_modern.interfaces.ModernConfigItemProvider();
+    public AbstractBuildListener buildListener = new BuildListener();
 
     public Class<?> changedBlockClass = dev.nandi0813.practice_modern.interfaces.ChangedBlock.class;
     public Class<?> kitDataClass = dev.nandi0813.practice_modern.interfaces.KitData.class;
@@ -38,7 +39,6 @@ public class Classes implements dev.nandi0813.practice.module.util.Classes {
 
         // Only 1.20 stuff
         Bukkit.getServer().getPluginManager().registerEvents(new ItemOffHand(), ZonePractice.getInstance());
-        Bukkit.getServer().getPluginManager().registerEvents(new MatchTntListener(), ZonePractice.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new ArenaListener(), ZonePractice.getInstance());
 
         Bukkit.getServer().getPluginManager().registerEvents(new EPCountdownListener(), ZonePractice.getInstance());

@@ -40,4 +40,19 @@ public enum FightUtil {
         return spectatables;
     }
 
+    /**
+     * Returns only the active Spectatables that have build mechanics enabled.
+     * Used by {@link dev.nandi0813.practice.manager.fight.listener.BuildBlockListener}
+     * to quickly find the owner of a block change without iterating all contexts.
+     */
+    public static List<Spectatable> getActiveBuildSpectatables() {
+        List<Spectatable> result = new ArrayList<>();
+        for (Spectatable s : getSpectatables()) {
+            if (s.isBuild() && s.getFightChange() != null) {
+                result.add(s);
+            }
+        }
+        return result;
+    }
+
 }

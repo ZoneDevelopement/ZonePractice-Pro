@@ -3,7 +3,7 @@ package dev.nandi0813.practice_1_8_8;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.module.interfaces.*;
 import dev.nandi0813.practice_1_8_8.interfaces.LadderUtil;
-import dev.nandi0813.practice_1_8_8.interfaces.MatchTntListener;
+import dev.nandi0813.practice_1_8_8.interfaces.BuildListener;
 import dev.nandi0813.practice_1_8_8.interfaces.PlayerHiderUtil;
 import dev.nandi0813.practice_1_8_8.listener.ArenaListener;
 import dev.nandi0813.practice_1_8_8.listener.FFAListener;
@@ -27,6 +27,7 @@ public class Classes implements dev.nandi0813.practice.module.util.Classes {
     public EntityHider entityHider = new dev.nandi0813.practice_1_8_8.interfaces.EntityHider(ZonePractice.getInstance(), EntityHider.Policy.BLACKLIST);
     public StatisticListener statisticListener = new dev.nandi0813.practice_1_8_8.interfaces.StatisticListener();
     public ConfigItemProvider configItemProvider = new dev.nandi0813.practice_1_8_8.interfaces.LegacyConfigItemProvider();
+    public AbstractBuildListener buildListener = new BuildListener();
 
     public Class<?> changedBlockClass = dev.nandi0813.practice_1_8_8.interfaces.ChangedBlock.class;
     public Class<?> kitDataClass = dev.nandi0813.practice_1_8_8.interfaces.KitData.class;
@@ -37,7 +38,6 @@ public class Classes implements dev.nandi0813.practice.module.util.Classes {
         Bukkit.getServer().getPluginManager().registerEvents(statisticListener, ZonePractice.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new MatchListener(), ZonePractice.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new FFAListener(), ZonePractice.getInstance());
-        Bukkit.getServer().getPluginManager().registerEvents(new MatchTntListener(), ZonePractice.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new ArenaListener(), ZonePractice.getInstance());
 
         Bukkit.getServer().getPluginManager().registerEvents(new EPCountdownListener(), ZonePractice.getInstance());
