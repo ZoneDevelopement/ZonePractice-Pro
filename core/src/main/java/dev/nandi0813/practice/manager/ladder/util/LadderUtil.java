@@ -110,7 +110,7 @@ public enum LadderUtil {
         ladder.setEnabled(true);
 
         if (!ladder.getPreviouslyAssignedArenas().isEmpty()) {
-            for (String arenaName : ladder.getPreviouslyAssignedArenas()) {
+            for (String arenaName : new HashSet<>(ladder.getPreviouslyAssignedArenas())) {
                 Arena arena = ArenaManager.getInstance().getNormalArena(arenaName);
                 if (arena != null) {
                     if (ladder.getPreviouslyAssignedArenas().contains(arena.getName()) &&
@@ -119,8 +119,8 @@ public enum LadderUtil {
                         arena.getAssignedLadders().add(ladder);
                     }
                 }
-                ladder.getPreviouslyAssignedArenas().clear();
             }
+            ladder.getPreviouslyAssignedArenas().clear();
         }
 
         // Update GUIs
