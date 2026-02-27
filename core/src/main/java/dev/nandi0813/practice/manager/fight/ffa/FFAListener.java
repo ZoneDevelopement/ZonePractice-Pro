@@ -155,16 +155,6 @@ public abstract class FFAListener implements Listener {
                     ClassImport.getClasses().getEntityHider().hideEntity(online, arrow);
                 }
             }
-
-            // 5 minutes = 6000 ticks — remove if still on ground after that
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (!arrow.isDead() && arrow.isOnGround()) {
-                        arrow.remove();
-                    }
-                }
-            }.runTaskLater(ZonePractice.getInstance(), 6000L);
         }
     }
 
