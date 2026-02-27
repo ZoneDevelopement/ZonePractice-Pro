@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.fight.ffa;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
@@ -20,6 +21,7 @@ import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -33,8 +35,11 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
 /**
@@ -131,12 +136,36 @@ public abstract class FFAListener implements Listener {
 
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
-        if (!ffa.isBuild()) return;
 
-        FightChangeOptimized fightChange = ffa.getFightChange();
-        if (fightChange == null) return;
+        if (ffa.isBuild()) {
+            // Build FFAs: track all projectiles for entity rollback cleanup
+            FightChangeOptimized fightChange = ffa.getFightChange();
+            if (fightChange != null) fightChange.addEntityChange(e.getEntity());
+        }
 
-        fightChange.addEntityChange(e.getEntity());
+        // For arrows in any FFA (build or non-build): tag with FIGHT_ENTITY so
+        // ProjectileLaunch won't remove them on ground-hit, hide from players in
+        // other arenas, and schedule a 5-minute vanilla-style self-removal.
+        if (e.getEntity() instanceof Arrow arrow) {
+            arrow.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), ffa));
+
+            // Hide from every online player NOT in this FFA
+            for (org.bukkit.entity.Player online : ZonePractice.getInstance().getServer().getOnlinePlayers()) {
+                if (!ffa.getPlayers().containsKey(online) && !ffa.getSpectators().contains(online)) {
+                    ClassImport.getClasses().getEntityHider().hideEntity(online, arrow);
+                }
+            }
+
+            // 5 minutes = 6000 ticks — remove if still on ground after that
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (!arrow.isDead() && arrow.isOnGround()) {
+                        arrow.remove();
+                    }
+                }
+            }.runTaskLater(ZonePractice.getInstance(), 6000L);
+        }
     }
 
     @EventHandler
@@ -335,6 +364,12 @@ public abstract class FFAListener implements Listener {
         Player player = e.getPlayer();
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
+
+        // Prevent picking up items (e.g. arrows) that have been hidden from this player
+        if (!ClassImport.getClasses().getEntityHider().canSee(player, e.getItem())) {
+            e.setCancelled(true);
+            return;
+        }
 
         e.setCancelled(false);
     }

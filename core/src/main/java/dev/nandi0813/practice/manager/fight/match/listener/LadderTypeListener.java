@@ -490,8 +490,27 @@ public abstract class LadderTypeListener implements Listener {
                 } else {
                     e.setCancelled(true);
                     player.updateInventory();
+                    return;
                 }
             }
+        }
+
+        // Tag the arrow so ProjectileLaunch won't immediately remove it on ground-hit,
+        // register it for rollback cleanup (and hiding from players in other matches),
+        // and schedule a 5-minute vanilla-style self-removal.
+        if (e.getProjectile() instanceof org.bukkit.entity.Arrow arrow) {
+            arrow.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), match));
+            match.addEntityChange(arrow); // hides from other-arena players + rollback tracking
+
+            // 5 minutes = 6000 ticks — remove if still on ground after that
+            new org.bukkit.scheduler.BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (!arrow.isDead() && arrow.isOnGround()) {
+                        arrow.remove();
+                    }
+                }
+            }.runTaskLater(ZonePractice.getInstance(), 6000L);
         }
     }
 
