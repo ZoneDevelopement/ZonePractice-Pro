@@ -43,7 +43,7 @@ public class ArenaSummaryGui extends GUI {
 
     @Override
     public void build() {
-        slots.clear();
+        // Build item stacks (can be done on any thread)
         Map<DisplayArena, ItemStack> displayIcons = new HashMap<>();
 
         for (Arena arena : ArenaManager.getInstance().getNormalArenas())
@@ -52,27 +52,34 @@ public class ArenaSummaryGui extends GUI {
         for (FFAArena ffaArena : ArenaManager.getInstance().getFFAArenas())
             displayIcons.put(ffaArena, getArenaItem(ffaArena));
 
+        // Build new inventories and slots into LOCAL maps — never touch shared state until we're done
+        Map<Integer, Inventory> newGui = new HashMap<>();
+        Map<Integer, Map<Integer, DisplayArena>> newSlots = new HashMap<>();
+
         for (int page = 1; page < 10; page++) {
             if (PageUtil.isPageValid(displayIcons.size(), page, spaces) || page == 1) {
-                if (!gui.containsKey(page))
-                    gui.put(page, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.ARENA.ARENA-MANAGER.TITLE").replace("%page%", String.valueOf(page)), 5));
+                // Re-use existing inventory object if present, otherwise create a fresh one
+                Inventory inv = gui.containsKey(page)
+                        ? gui.get(page)
+                        : InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.ARENA.ARENA-MANAGER.TITLE").replace("%page%", String.valueOf(page)), 5);
+                newGui.put(page, inv);
 
-                gui.get(page).clear();
+                inv.clear();
 
                 // Frame
                 for (int i : new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 36, 37, 38, 39, 40, 41, 42, 43, 44})
-                    gui.get(page).setItem(i, GUIManager.getFILLER_ITEM());
+                    inv.setItem(i, GUIManager.getFILLER_ITEM());
 
                 // Arena icons
                 Map<Integer, DisplayArena> pageSlots = new HashMap<>();
                 for (Map.Entry<DisplayArena, ItemStack> entry : getPageItems(displayIcons, page).entrySet()) {
-                    int slot = gui.get(page).firstEmpty();
-                    if (slot != -1 && slot < gui.get(page).getSize()) {
-                        gui.get(page).setItem(slot, entry.getValue());
+                    int slot = inv.firstEmpty();
+                    if (slot != -1 && slot < inv.getSize()) {
+                        inv.setItem(slot, entry.getValue());
                         pageSlots.put(slot, entry.getKey());
                     }
                 }
-                slots.put(page, pageSlots);
+                newSlots.put(page, pageSlots);
 
                 // Left navigation
                 ItemStack left;
@@ -80,7 +87,7 @@ public class ArenaSummaryGui extends GUI {
                     left = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.PAGE-LEFT").replace("%page%", String.valueOf(page - 1)).get();
                 else
                     left = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.BACK-TO").get();
-                gui.get(page).setItem(36, left);
+                inv.setItem(36, left);
 
                 // Right navigation
                 ItemStack right;
@@ -88,29 +95,40 @@ public class ArenaSummaryGui extends GUI {
                     right = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.PAGE-RIGHT").replace("%page%", String.valueOf(page + 1)).get();
                 else
                     right = GUIManager.getFILLER_ITEM();
-                gui.get(page).setItem(44, right);
-            } else {
-                if (gui.containsKey(page)) {
-                    int finalPage = page;
-                    Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
-                    {
-                        gui.remove(finalPage);
-                        for (Player player : inGuiPlayers.keySet()) {
-                            if (inGuiPlayers.get(player) == finalPage)
-                                open(player, finalPage - 1);
-                        }
-                    });
-                }
+                inv.setItem(44, right);
             }
         }
+
+        // Atomically swap shared state on the main thread so handleClickEvent never
+        // sees a partially-rebuilt slots map
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
+        {
+            // Remove pages that no longer exist and redirect players on those pages
+            for (int p = 1; p < 10; p++) {
+                if (!newGui.containsKey(p) && gui.containsKey(p)) {
+                    gui.remove(p);
+                    for (Player player : inGuiPlayers.keySet()) {
+                        if (inGuiPlayers.get(player) == p)
+                            open(player, p - 1);
+                    }
+                }
+            }
+
+            // Swap in the newly built pages and slot mappings all at once
+            gui.putAll(newGui);
+            slots.clear();
+            slots.putAll(newSlots);
+        });
     }
 
     @Override
     public void update() {
         Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
         {
+            // Item building is safe async; the final swap inside build() is dispatched to main thread
             build();
-            updatePlayers();
+            // updatePlayers() must run after the main-thread swap; schedule it after build()'s runTask
+            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), this::updatePlayers);
         });
     }
 
