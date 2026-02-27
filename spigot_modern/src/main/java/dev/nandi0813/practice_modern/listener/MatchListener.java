@@ -138,6 +138,10 @@ public class MatchListener extends LadderTypeListener implements Listener {
             }
         }
 
+        // Always record the attacker for void-kill attribution,
+        // regardless of whether the event was cancelled by a ladder handler.
+        match.recordAttack(target, attacker);
+
         if (!e.isCancelled() && !match.getLadder().getLadderKnockback().getKnockbackType().equals(KnockbackType.DEFAULT)) {
             KnockbackUtil.setPlayerKnockback(target, match.getLadder().getLadderKnockback().getKnockbackType());
         }

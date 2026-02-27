@@ -57,17 +57,19 @@ public class MatchListener extends LadderTypeListener implements Listener {
         if (player.getHealth() - e.getFinalDamage() <= 0) {
             e.setDamage(0);
 
+            DeathCause cause = DeathCause.convert(e.getCause());
+
             if (e instanceof EntityDamageByEntityEvent) {
                 Player killer = FightUtil.getKiller(((EntityDamageByEntityEvent) e).getDamager());
 
-                match.killPlayer(player, killer, DeathCause.convert(e.getCause()).getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
+                match.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
                 if (killer != null) {
                     Statistic statistic = match.getCurrentStat(killer);
                     statistic.setKills(statistic.getKills() + 1);
                 }
             } else {
-                match.killPlayer(player, null, DeathCause.convert(e.getCause()).getMessage());
+                match.killPlayer(player, null, cause.getMessage());
             }
         }
     }
@@ -120,6 +122,10 @@ public class MatchListener extends LadderTypeListener implements Listener {
                 ((LadderHandle) match.getLadder()).handleEvents(e, match);
             }
         }
+
+        // Always record the attacker for void-kill attribution,
+        // regardless of whether the event was cancelled by a ladder handler.
+        match.recordAttack(target, attacker);
 
         if (!e.isCancelled() && !match.getLadder().getLadderKnockback().getKnockbackType().equals(KnockbackType.DEFAULT)) {
             KnockbackUtil.setPlayerKnockback(target, match.getLadder().getLadderKnockback().getKnockbackType());

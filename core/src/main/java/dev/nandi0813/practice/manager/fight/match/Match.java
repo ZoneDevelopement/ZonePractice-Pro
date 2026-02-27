@@ -81,6 +81,13 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     // Fight change
     private final FightChangeOptimized fightChange;
 
+    /** Tracks the last player that dealt damage to another player, for void-kill attribution. */
+    private final Map<UUID, UUID> lastAttackerMap = new HashMap<>();
+    /** Timestamp (ms) of the last attacker hit, keyed by victim UUID. */
+    private final Map<UUID, Long> lastAttackerTime = new HashMap<>();
+    /** How long (ms) a last-attacker is considered valid for void attribution. */
+    private static final long LAST_ATTACKER_EXPIRY_MS = 4_000L;
+
     /** True while the arena is being rolled back between rounds — players are frozen. */
     @Getter
     private boolean rollingBack = false;
@@ -181,9 +188,46 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
 
     public abstract void teleportPlayer(Player player);
 
+    /**
+     * Records that {@code attacker} last hit {@code victim}.
+     * Called from damage listeners so void deaths can be attributed correctly.
+     */
+    public void recordAttack(Player victim, Player attacker) {
+        lastAttackerMap.put(victim.getUniqueId(), attacker.getUniqueId());
+        lastAttackerTime.put(victim.getUniqueId(), System.currentTimeMillis());
+    }
+
+    /**
+     * Returns the last player who hit {@code victim} within the expiry window,
+     * or {@code null} if there is none.
+     */
+    public @org.jetbrains.annotations.Nullable Player getLastAttacker(Player victim) {
+        Long time = lastAttackerTime.get(victim.getUniqueId());
+        if (time == null || System.currentTimeMillis() - time > LAST_ATTACKER_EXPIRY_MS) return null;
+        UUID attackerUuid = lastAttackerMap.get(victim.getUniqueId());
+        if (attackerUuid == null) return null;
+        for (Player p : players) {
+            if (attackerUuid.equals(p.getUniqueId())) return p;
+        }
+        return null;
+    }
+
     public void killPlayer(Player player, Player killer, String deathMessage) {
         if (this.getCurrentStat(player).isSet())
             return;
+
+        // If no explicit killer and the death message is the plain void message,
+        // check whether a recent attacker should be credited instead.
+        if (killer == null) {
+            Player lastAttacker = getLastAttacker(player);
+            if (lastAttacker != null && deathMessage != null
+                    && deathMessage.equals(dev.nandi0813.practice.manager.fight.util.DeathCause.VOID.getMessage())) {
+                killer = lastAttacker;
+                deathMessage = dev.nandi0813.practice.manager.fight.util.DeathCause.VOID_BY_PLAYER
+                        .getMessage()
+                        .replace("%killer%", killer.getName());
+            }
+        }
 
         deathMessage = TeamUtil.replaceTeamNames(deathMessage, player, this instanceof Team team ? team.getTeam(player) : TeamEnum.FFA);
         matchPlayers.get(player).die(deathMessage, this.getCurrentStat(player));

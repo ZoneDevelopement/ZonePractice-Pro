@@ -1,4 +1,4 @@
-VERSION: 15
+VERSION: 16
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1621,6 +1621,7 @@ FFA:
 FIGHT:
   DEATH-MESSAGES:
     VOID: "<red>%player% <yellow>fell into the void."
+    VOID-BY-PLAYER: "<red>%player% <yellow>was knocked into the void by <gold>%killer%<yellow>."
     WATER: "<red>%player% <yellow>drowned."
     LAVA: "<red>%player% <yellow>burned in lava."
     FIRE: "<red>%player% <yellow>burned to death."

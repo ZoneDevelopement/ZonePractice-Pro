@@ -8,6 +8,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 public enum DeathCause {
 
     VOID(LanguageManager.getString("FIGHT.DEATH-MESSAGES.VOID")),
+    VOID_BY_PLAYER(LanguageManager.getString("FIGHT.DEATH-MESSAGES.VOID-BY-PLAYER")),
     WATER(LanguageManager.getString("FIGHT.DEATH-MESSAGES.WATER")),
     LAVA(LanguageManager.getString("FIGHT.DEATH-MESSAGES.LAVA")),
     FIRE(LanguageManager.getString("FIGHT.DEATH-MESSAGES.FIRE")),
