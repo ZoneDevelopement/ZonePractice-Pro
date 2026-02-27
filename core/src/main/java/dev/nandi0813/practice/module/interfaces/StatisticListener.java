@@ -35,14 +35,12 @@ public abstract class StatisticListener implements Listener {
         return new BukkitRunnable() {
             @Override
             public void run() {
-                if (CURRENT_CPS.containsKey(player)) {
-                    int current = CURRENT_CPS.get(player);
-
-                    if (current > 2) {
-                        statistic.getCps().put(System.currentTimeMillis(), current);
-                        CPS.put(player, current);
-                    }
-                    CURRENT_CPS.remove(player);
+                // Remove atomically — avoids the TOCTOU race between containsKey and get
+                // that can return null and cause an NPE when unboxing to int.
+                Integer current = CURRENT_CPS.remove(player);
+                if (current != null && current > 2) {
+                    statistic.getCps().put(System.currentTimeMillis(), current);
+                    CPS.put(player, current);
                 }
             }
         };
