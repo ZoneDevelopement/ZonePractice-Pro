@@ -150,7 +150,8 @@ public class LadderTypeConfig {
      */
     public LadderTypeConfig withBuildSettings() {
         return withSettings(
-                SettingType.TNT_FUSE_TIME
+                SettingType.TNT_FUSE_TIME,
+                SettingType.BREAK_ALL_BLOCKS
         );
     }
 

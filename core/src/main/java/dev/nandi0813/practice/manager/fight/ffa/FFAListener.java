@@ -221,6 +221,14 @@ public abstract class FFAListener implements Listener {
             }
         }
 
+        // When break-all-blocks is enabled on the player's current ladder, track the
+        // natural arena block for rollback and allow the break.
+        NormalLadder currentLadder = ffa.getPlayers().get(player);
+        if (currentLadder != null && currentLadder.isBreakAllBlocks()) {
+            ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(block));
+            return; // do NOT cancel — let the break happen
+        }
+
         e.setCancelled(true);
     }
 

@@ -1,4 +1,4 @@
-VERSION: 10
+VERSION: 11
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -2109,6 +2109,25 @@ GUIS:
                 - ""
                 - "&7The arena will not be reset between"
                 - "&7rounds. Placed blocks persist."
+                - ""
+                - "&e&lClick here &7to &aenable&7."
+          BREAK-ALL-BLOCKS:
+            ENABLED:
+              NAME: "&7Break All Blocks: &aEnabled"
+              MATERIAL: DIAMOND_PICKAXE
+              LORE:
+                - ""
+                - "&7Players can break any block in the arena,"
+                - "&7not just blocks they placed themselves."
+                - ""
+                - "&e&lClick here &7to &cdisable&7."
+            DISABLED:
+              NAME: "&7Break All Blocks: &cDisabled"
+              MATERIAL: WOOD_PICKAXE
+              LORE:
+                - ""
+                - "&7Players can only break blocks they"
+                - "&7placed during the match."
                 - ""
                 - "&e&lClick here &7to &aenable&7."
           ENDERPEARL-COOLDOWN:

@@ -1,5 +1,7 @@
 package dev.nandi0813.practice.util.interfaces;
 
+import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
+import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.module.interfaces.ChangedBlock;
 import dev.nandi0813.practice.util.Cuboid;
@@ -32,6 +34,26 @@ public interface Spectatable {
      * Block tracking and rollback only apply when this returns true.
      */
     boolean isBuild();
+
+    /**
+     * Returns {@code true} if the "break all blocks" setting is active for this
+     * fight context, meaning explosions (and player breaks) may destroy any arena
+     * block — not just player-placed ones.
+     * <p>
+     * For a {@link Match} this checks the single match ladder.
+     * For an {@link FFA} this returns {@code true} if ANY of the assigned ladders
+     * has the setting enabled (since multiple ladder types can coexist in FFA).
+     */
+    default boolean isBreakAllBlocks() {
+        if (this instanceof Match match) {
+            return match.getLadder().isBreakAllBlocks();
+        }
+        if (this instanceof FFA ffa) {
+            return ffa.getPlayers().values().stream()
+                    .anyMatch(ladder -> ladder != null && ladder.isBreakAllBlocks());
+        }
+        return false;
+    }
 
     /**
      * Track a block change for rollback.

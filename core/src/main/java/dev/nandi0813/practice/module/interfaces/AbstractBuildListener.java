@@ -126,8 +126,11 @@ public abstract class AbstractBuildListener implements Listener {
      * (on modern) {@code BlockExplodeEvent}.
      * <ul>
      *   <li>Delegates to the ladder handler when the context is a {@link Match}.</li>
-     *   <li>Removes all pure-arena blocks from the block list so they stay intact.</li>
-     *   <li>Tracks every remaining (player-placed) block for rollback.</li>
+     *   <li>When {@code breakAllBlocks} is disabled: removes pure-arena blocks so they
+     *       stay intact, tracks only player-placed blocks for rollback.</li>
+     *   <li>When {@code breakAllBlocks} is enabled: keeps every arena block in the list
+     *       (so the explosion destroys them) and tracks each one via
+     *       {@code addArenaBlockChange} for rollback.</li>
      *   <li>Tracks dependent blocks above exploded blocks (dead bush, tall grass, etc.)
      *       that silently disappear when their support is destroyed.</li>
      * </ul>
@@ -143,19 +146,26 @@ public abstract class AbstractBuildListener implements Listener {
         }
 
         final Ladder l = ladderOf(spectatable);
+        final boolean breakAll = spectatable.isBreakAllBlocks();
+
         blockList.removeIf(block -> {
             if (block.getType().equals(Material.TNT)) return false;                    // keep → chain-explodes
             if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(l, block)) return false; // keep → destroyable
             if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                      // keep → player placed
+            if (breakAll) return false;                                                 // keep → break-all-blocks active
             if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true; // remove → support block protected
             return true;                                                                // remove → pure arena block
         });
 
         for (Block block : blockList) {
             if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
-            spectatable.addBlockChange(ClassImport.createChangeBlock(block));
-            // Track dependent blocks (dead bush, tall grass, torch, etc.) that sit on
-            // this block and will silently disappear once the support is gone.
+            if (block.hasMetadata(PLACED_IN_FIGHT)) {
+                spectatable.addBlockChange(ClassImport.createChangeBlock(block));
+            } else {
+                // Natural arena block — use addArenaBlockChange so no PLACED_IN_FIGHT
+                // metadata is set (players can't break it manually) but it is restored.
+                spectatable.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(block));
+            }
             trackDependentBlocksAbove(block, spectatable);
         }
     }
@@ -178,16 +188,22 @@ public abstract class AbstractBuildListener implements Listener {
                 }
             }
             final Ladder l = ladderOf(spectatable);
+            final boolean breakAll = spectatable.isBreakAllBlocks();
             e.blockList().removeIf(block -> {
                 if (block.getType().equals(Material.TNT)) return false;
                 if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(l, block)) return false;
                 if (block.hasMetadata(PLACED_IN_FIGHT)) return false;
+                if (breakAll) return false;
                 if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;
                 return true;
             });
             for (Block block : e.blockList()) {
                 if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
-                spectatable.addBlockChange(ClassImport.createChangeBlock(block));
+                if (block.hasMetadata(PLACED_IN_FIGHT)) {
+                    spectatable.addBlockChange(ClassImport.createChangeBlock(block));
+                } else {
+                    spectatable.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(block));
+                }
                 trackDependentBlocksAbove(block, spectatable);
             }
             return;

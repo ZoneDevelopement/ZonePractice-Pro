@@ -25,5 +25,6 @@ public enum SettingType {
     TNT_FUSE_TIME,
     HEALTH_BELOW_NAME,
     RESET_BUILD_AFTER_ROUND,
+    BREAK_ALL_BLOCKS,
 
 }

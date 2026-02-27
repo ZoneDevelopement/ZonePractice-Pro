@@ -239,6 +239,13 @@ public abstract class LadderTypeListener implements Listener {
             BlockUtil.breakBlock(match, block);
         }
 
+        // When break-all-blocks is enabled, track the natural arena block for rollback
+        // and allow the break — the player can destroy any block in the arena.
+        if (match.getLadder().isBreakAllBlocks()) {
+            match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(block));
+            return; // do NOT cancel — let the break happen
+        }
+
         e.setCancelled(true);
     }
 
