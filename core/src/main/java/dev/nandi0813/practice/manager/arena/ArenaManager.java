@@ -139,17 +139,13 @@ public class ArenaManager implements Listener {
                 ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Single).update();
             }
 
-            if (arena.isEnabled() && arena.getAssignedLadders().isEmpty()) {
-                arena.setEnabled(false);
-            } else {
-                if (arena instanceof FFAArena) {
-                    FFA ffa = ((FFAArena) arena).getFfa();
+            if (arena instanceof FFAArena) {
+                FFA ffa = ((FFAArena) arena).getFfa();
 
-                    for (Map.Entry<Player, NormalLadder> ffaPlayer : ffa.getPlayers().entrySet()) {
-                        if (ffaPlayer.getValue() == ladder) {
-                            ffa.removePlayer(ffaPlayer.getKey());
-                            Common.sendMMMessage(ffaPlayer.getKey(), LanguageManager.getString("FFA.LADDER-DISABLED-REMOVED"));
-                        }
+                for (Map.Entry<Player, NormalLadder> ffaPlayer : ffa.getPlayers().entrySet()) {
+                    if (ffaPlayer.getValue() == ladder) {
+                        ffa.removePlayer(ffaPlayer.getKey());
+                        Common.sendMMMessage(ffaPlayer.getKey(), LanguageManager.getString("FFA.LADDER-DISABLED-REMOVED"));
                     }
                 }
             }

@@ -84,10 +84,10 @@ public enum ArenaUtil {
                 returnVal = false;
             }
 
-            if (arena.getAssignedLadders().isEmpty()) {
-                Common.sendMMMessage(player, LanguageManager.getString("ARENA.STATUS-CHANGE.NO-LADDER-ASSIGNED"));
-                returnVal = false;
-            }
+//            if (arena.getAssignedLadders().isEmpty()) {
+//                Common.sendMMMessage(player, LanguageManager.getString("ARENA.STATUS-CHANGE.NO-LADDER-ASSIGNED"));
+//                returnVal = false;
+//            }
 
             if (arena instanceof Arena) {
                 if (isArenaBedRelated((Arena) arena) && !arena.isBedSet()) {
