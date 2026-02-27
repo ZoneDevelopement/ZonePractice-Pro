@@ -81,6 +81,10 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     // Fight change
     private final FightChangeOptimized fightChange;
 
+    /** True while the arena is being rolled back between rounds — players are frozen. */
+    @Getter
+    private boolean rollingBack = false;
+
     @Setter
     protected MatchStatus status;
 
@@ -418,16 +422,49 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     }
 
     public void resetMap() {
+        resetMap(null);
+    }
+
+    /**
+     * Rolls back the arena and, once every block is restored, fires {@code afterRollback}
+     * on the main thread (e.g. to start the next round).
+     * <p>
+     * While rolling back:
+     * <ul>
+     *   <li>Every player is teleported to their spawn position and frozen there.</li>
+     *   <li>A "rolling back arena" message is sent to all participants.</li>
+     * </ul>
+     *
+     * @param afterRollback called when rollback is complete, or {@code null} to do nothing
+     */
+    public void resetMap(@org.jetbrains.annotations.Nullable Runnable afterRollback) {
         // Make sure that the players can safely spawn back to the starting position.
         for (Location location : this.arena.getStandingLocations()) {
             MatchUtil.safePlayerTeleportBlock(location.getBlock().getRelative(BlockFace.DOWN));
         }
 
+        // Teleport every player to their spawn position and freeze them there
+        // so they cannot walk around in the arena while it is being regenerated.
+        rollingBack = true;
+        for (Player player : this.players) {
+            teleportPlayer(player);
+        }
+
+        // Inform everyone that they must wait for the arena to regenerate.
+        sendMessage(LanguageManager.getString("MATCH.ARENA-ROLLING-BACK"), true);
+
+        Runnable onRollbackComplete = () -> {
+            rollingBack = false;
+            if (afterRollback != null) {
+                afterRollback.run();
+            }
+        };
+
         if (ZonePractice.getInstance().isEnabled()) {
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                    fightChange.rollback(300, 100), 2L);
+                    fightChange.rollback(300, 100, onRollbackComplete), 2L);
         } else {
-            fightChange.rollback(300, 100);
+            fightChange.rollback(300, 100, onRollbackComplete);
         }
     }
 

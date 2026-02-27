@@ -220,6 +220,18 @@ public class FightChangeOptimized {
      * @param maxChange Maximum blocks to change per tick (use ~100)
      */
     public void rollback(int maxCheck, int maxChange) {
+        rollback(maxCheck, maxChange, null);
+    }
+
+    /**
+     * Same as {@link #rollback(int, int)} but fires {@code onComplete} on the main
+     * thread once every block has been restored.  Pass {@code null} to skip the callback.
+     *
+     * @param maxCheck   Maximum blocks to inspect per tick  (~300)
+     * @param maxChange  Maximum blocks to restore per tick  (~100)
+     * @param onComplete Called on the main thread when rollback finishes, or {@code null}
+     */
+    public void rollback(int maxCheck, int maxChange, @org.jetbrains.annotations.Nullable Runnable onComplete) {
         // Remove all entities (both tracked and cuboid entities in one pass)
         removeAllEntities();
 
@@ -229,11 +241,22 @@ public class FightChangeOptimized {
             tempBlockTicker = null;
         }
 
-        if (blocks.isEmpty()) return;
+        if (blocks.isEmpty()) {
+            // Nothing to restore — fire callback immediately
+            if (onComplete != null) {
+                if (org.bukkit.Bukkit.isPrimaryThread()) {
+                    onComplete.run();
+                } else {
+                    org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), onComplete);
+                }
+            }
+            return;
+        }
 
         // Quick rollback if server is shutting down
         if (!ZonePractice.getInstance().isEnabled()) {
             quickRollback();
+            if (onComplete != null) onComplete.run();
             return;
         }
 
@@ -243,7 +266,7 @@ public class FightChangeOptimized {
         }
 
         // Start new rollback task
-        rollbackTask = new RollbackTask(maxCheck, maxChange);
+        rollbackTask = new RollbackTask(maxCheck, maxChange, onComplete);
         rollbackTask.start();
     }
 
@@ -323,8 +346,10 @@ public class FightChangeOptimized {
         private int processedBlocks = 0;
         private final long startTime;
         private boolean isRunning = false;
+        @org.jetbrains.annotations.Nullable
+        private final Runnable onComplete;
 
-        RollbackTask(int maxCheck, int maxChange) {
+        RollbackTask(int maxCheck, int maxChange, @org.jetbrains.annotations.Nullable Runnable onComplete) {
             // Sort ascending by Y so bottom blocks are restored first.
             // This prevents gravity blocks (sand/gravel) from falling during rollback
             // because their support blocks below are always placed before them.
@@ -335,6 +360,7 @@ public class FightChangeOptimized {
             this.maxChange = maxChange;
             this.totalBlocks = blocks.size();
             this.startTime = System.currentTimeMillis();
+            this.onComplete = onComplete;
         }
 
         void start() {
@@ -382,6 +408,10 @@ public class FightChangeOptimized {
                     this.cancel();
                     isRunning = false;
                     blocks.clear(); // Clear the map
+
+                    if (onComplete != null) {
+                        onComplete.run(); // already on main thread (runTaskTimer)
+                    }
 
                     /*
                     // Log completion metrics

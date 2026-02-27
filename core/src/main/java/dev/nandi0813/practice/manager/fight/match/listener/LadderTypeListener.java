@@ -331,6 +331,15 @@ public abstract class LadderTypeListener implements Listener {
         Match match = getPlayerMatch(player);
         if (match == null) return;
 
+        // Freeze players on their spawn position while the arena is regenerating
+        // between rounds. Any horizontal movement is snapped back instantly.
+        if (match.isRollingBack()) {
+            if (e.getTo().getX() != e.getFrom().getX() || e.getTo().getZ() != e.getFrom().getZ()) {
+                match.teleportPlayer(player);
+            }
+            return;
+        }
+
         RoundStatus roundStatus = match.getCurrentRound().getRoundStatus();
         BasicArena arena = match.getArena();
         Cuboid cuboid = arena.getCuboid();

@@ -96,29 +96,34 @@ public abstract class Round extends BukkitRunnable {
 
         boolean isEndMatch = match.isEndMatch();
 
-        if (!isEndMatch) {
-            if (!this.match.getLadder().getType().equals(LadderType.BRIDGES)) {
-                this.match.resetMap();
-            } else if (this.match.getLadder().isResetBuildAfterRound()) {
-                this.match.resetMap();
-            }
-        }
+        // Determine whether the arena needs to be rolled back before the next round.
+        boolean needsReset = !isEndMatch && (
+                !this.match.getLadder().getType().equals(LadderType.BRIDGES) ||
+                this.match.getLadder().isResetBuildAfterRound()
+        );
 
-        /*
-         * Ezt be kell fejezni
-         *
-         * set/get winner abstract parancs ami objectet vesz át és ad vissza
-         */
         if (this.roundStartRunnable != null)
             this.roundStartRunnable.cancel();
 
-        if (this.roundEndRunnable == null) {
-            this.roundEndRunnable = new RoundEndRunnable(this, isEndMatch).begin();
-        } else {
-            if (!this.roundEndRunnable.isEnded() && isEndMatch) {
-                this.roundEndRunnable.cancel();
+        if (isEndMatch) {
+            // Match is over — start the end countdown normally.
+            if (this.roundEndRunnable == null) {
                 this.roundEndRunnable = new RoundEndRunnable(this, true).begin();
+            } else {
+                if (!this.roundEndRunnable.isEnded()) {
+                    this.roundEndRunnable.cancel();
+                    this.roundEndRunnable = new RoundEndRunnable(this, true).begin();
+                }
             }
+        } else if (needsReset) {
+            // Non-ending round that requires an arena rollback.
+            // resetMap fires startNextRound() only after every block is restored.
+            // suppressNextRound=true so the runnable doesn't also call startNextRound().
+            this.roundEndRunnable = new RoundEndRunnable(this, false, true).begin();
+            this.match.resetMap(this.match::startNextRound);
+        } else {
+            // Non-ending round, no reset needed — start the next round immediately.
+            this.roundEndRunnable = new RoundEndRunnable(this, false).begin();
         }
 
         if (this.isRunning())

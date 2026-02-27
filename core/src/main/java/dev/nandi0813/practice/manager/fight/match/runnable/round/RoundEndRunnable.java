@@ -23,10 +23,22 @@ public class RoundEndRunnable extends BukkitRunnable {
     @Getter
     private final boolean ended;
 
+    /**
+     * When {@code true} the runnable will NOT call {@link Match#startNextRound()} when
+     * it reaches zero — used for non-ending rounds where the rollback callback is
+     * responsible for starting the next round.
+     */
+    private final boolean suppressNextRound;
+
     public RoundEndRunnable(Round round, boolean ended) {
+        this(round, ended, false);
+    }
+
+    public RoundEndRunnable(Round round, boolean ended, boolean suppressNextRound) {
         this.round = round;
         this.match = round.getMatch();
         this.ended = ended;
+        this.suppressNextRound = suppressNextRound;
 
         if (ended)
             this.seconds = ConfigManager.getConfig().getInt("MATCH-SETTINGS.AFTER-COUNTDOWN");
@@ -61,7 +73,7 @@ public class RoundEndRunnable extends BukkitRunnable {
 
             if (ended)
                 match.endMatch();
-            else
+            else if (!suppressNextRound)
                 match.startNextRound();
         } else
             seconds--;

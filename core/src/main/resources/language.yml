@@ -1,4 +1,4 @@
-VERSION: 14
+VERSION: 15
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1339,6 +1339,7 @@ MATCH:
   ONLY-CHARGE-WIND: "<red>You can only use wind charge in build ladders."
   REACHED-NEW-DIVISION: "<green>Congratulations! <yellow>You have reached %newDivision_fullName% <yellow>division." # %oldDivision_fullName% & %newDivision_fullName%
   MATCH-OVER-IN-30: "<yellow>Match is over in <red>30 <yellow>seconds."
+  ARENA-ROLLING-BACK: "<yellow>Rolling back arena... <gray>Waiting for next round to start."
   REMATCH-REQUEST:
     TARGET-OFFLINE: "<red>%target% has left the server."
     ALREADY-SENT: "<red>The rematch request has already been sent out."
