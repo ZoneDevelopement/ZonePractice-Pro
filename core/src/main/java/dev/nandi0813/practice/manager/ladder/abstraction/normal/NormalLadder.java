@@ -16,8 +16,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Getter
 public abstract class NormalLadder extends Ladder {
@@ -39,6 +41,15 @@ public abstract class NormalLadder extends Ladder {
     // Preview gui
     @Setter
     protected LadderPreviewGui previewGui;
+
+    /**
+     * Names of arenas this ladder was assigned to at the time it was disabled.
+     * Populated by {@link dev.nandi0813.practice.manager.arena.ArenaManager#removeLadder}
+     * and consumed (then cleared) by
+     * {@link dev.nandi0813.practice.manager.ladder.util.LadderUtil#enableLadder} so the
+     * assignments are automatically restored when the ladder is re-enabled.
+     */
+    protected final Set<String> previouslyAssignedArenas = new HashSet<>();
 
     protected NormalLadder(String name, LadderType type) {
         super(name, type);

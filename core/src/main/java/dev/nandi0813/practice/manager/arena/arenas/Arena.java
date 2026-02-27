@@ -16,7 +16,9 @@ import lombok.Setter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 public class Arena extends DisplayArena {
@@ -26,7 +28,7 @@ public class Arena extends DisplayArena {
     private boolean copying = false;
 
     @Setter
-    private List<LadderType> assignedLadderTypes = new ArrayList<>();
+    private Set<LadderType> assignedLadderTypes = new HashSet<>();
     @Setter
     private boolean allowCustomKitOnMap = true;
 
@@ -193,8 +195,8 @@ public class Arena extends DisplayArena {
     }
 
     @Override
-    public List<NormalLadder> getAssignableLadders() {
-        List<NormalLadder> list = new ArrayList<>();
+    public Set<NormalLadder> getAssignableLadders() {
+        Set<NormalLadder> list = new HashSet<>();
 
         for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
             if (this.build == ladder.isBuild()) {

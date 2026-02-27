@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.ladder.util;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
+import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.backend.MysqlManager;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
@@ -107,6 +108,20 @@ public enum LadderUtil {
 
     public static void enableLadder(NormalLadder ladder) {
         ladder.setEnabled(true);
+
+        if (!ladder.getPreviouslyAssignedArenas().isEmpty()) {
+            for (String arenaName : ladder.getPreviouslyAssignedArenas()) {
+                Arena arena = ArenaManager.getInstance().getNormalArena(arenaName);
+                if (arena != null) {
+                    if (ladder.getPreviouslyAssignedArenas().contains(arena.getName()) &&
+                        arena.getAssignedLadderTypes().contains(ladder.getType())
+                    ) {
+                        arena.getAssignedLadders().add(ladder);
+                    }
+                }
+                ladder.getPreviouslyAssignedArenas().clear();
+            }
+        }
 
         // Update GUIs
         ladder.getPreviewGui().update();

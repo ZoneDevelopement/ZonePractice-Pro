@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public enum ArenaUtil {
     ;
@@ -178,12 +179,12 @@ public enum ArenaUtil {
     }
 
     public static boolean isArenaBedRelated(Arena arena) {
-        List<LadderType> assignedLadders = arena.getAssignedLadderTypes();
+        Set<LadderType> assignedLadders = arena.getAssignedLadderTypes();
         return assignedLadders.contains(LadderType.BEDWARS) || assignedLadders.contains(LadderType.FIREBALL_FIGHT);
     }
 
     public static boolean isArenaPortalRelated(Arena arena) {
-        List<LadderType> assignedLadders = arena.getAssignedLadderTypes();
+        Set<LadderType> assignedLadders = arena.getAssignedLadderTypes();
         return assignedLadders.contains(LadderType.BRIDGES) || assignedLadders.contains(LadderType.BATTLE_RUSH);
     }
 

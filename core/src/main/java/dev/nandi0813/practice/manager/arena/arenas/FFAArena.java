@@ -14,9 +14,7 @@ import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Getter
 public class FFAArena extends DisplayArena {
@@ -102,8 +100,8 @@ public class FFAArena extends DisplayArena {
     }
 
     @Override
-    public List<NormalLadder> getAssignableLadders() {
-        List<NormalLadder> list = new ArrayList<>();
+    public Set<NormalLadder> getAssignableLadders() {
+        Set<NormalLadder> list = new HashSet<>();
 
         for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
             if (this.build && ladder.getType().equals(LadderType.BUILD) && ladder.getLadderKnockback().isDefault())
@@ -144,7 +142,7 @@ public class FFAArena extends DisplayArena {
 
         this.build = build;
 
-        List<NormalLadder> assignableLadders = this.getAssignableLadders();
+        Set<NormalLadder> assignableLadders = this.getAssignableLadders();
         this.assignedLadders.removeIf(ladder -> !assignableLadders.contains(ladder));
 
         GUI ladderGUI = ArenaGUISetupManager.getInstance().getArenaSetupGUIs().getOrDefault(this, new HashMap<>()).get(GUIType.Arena_Ladders_Single);

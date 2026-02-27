@@ -23,7 +23,9 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 public abstract class DisplayArena extends NormalArena {
@@ -41,7 +43,7 @@ public abstract class DisplayArena extends NormalArena {
     @Setter
     protected boolean build;
     @Setter
-    protected List<NormalLadder> assignedLadders = new ArrayList<>();
+    protected Set<NormalLadder> assignedLadders = new HashSet<>();
 
     protected DisplayArena(String name, ArenaType type) {
         super(name);
@@ -122,7 +124,7 @@ public abstract class DisplayArena extends NormalArena {
 
     public abstract boolean isReadyToEnable();
 
-    public abstract List<NormalLadder> getAssignableLadders();
+    public abstract Set<NormalLadder> getAssignableLadders();
 
     public abstract boolean deleteData();
 

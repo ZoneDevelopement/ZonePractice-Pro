@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class LadderSingleGui extends GUI {
 
@@ -56,7 +57,7 @@ public class LadderSingleGui extends GUI {
         {
             ladderSlots.clear();
             for (int i = 0; i < 45; i++) gui.get(1).setItem(i, null);
-            List<NormalLadder> assignableLadders = arena.getAssignableLadders();
+            Set<NormalLadder> assignableLadders = arena.getAssignableLadders();
 
             for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
                 ItemStack ladderItem;

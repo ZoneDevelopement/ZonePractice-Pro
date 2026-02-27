@@ -131,6 +131,9 @@ public class ArenaManager implements Listener {
     public void removeLadder(NormalLadder ladder) {
         for (DisplayArena arena : arenaList) {
             if (arena.getAssignedLadders().contains(ladder)) {
+                // Remember this arena so we can restore the assignment when re-enabled
+                ladder.getPreviouslyAssignedArenas().add(arena.getName());
+
                 arena.getAssignedLadders().remove(ladder);
 
                 ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arena).get(GUIType.Arena_Ladders_Single).update();
