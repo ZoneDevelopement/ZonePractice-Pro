@@ -39,7 +39,7 @@ QUEUE:
         SIZE: 4
         GO-TO-SECOND-CATEGORY-SLOT: 35
         LADDERS:
-          BATTLERUSH: 10
+          CRYSTAL: 10
           BEDWARS: 11
           BOXING: 12
           BRIDGES: 14
@@ -77,7 +77,7 @@ QUEUE:
         SIZE: 4
         GO-TO-SECOND-CATEGORY-SLOT: 35
         LADDERS:
-          BATTLERUSH: 10
+          CRYSTAL: 10
           BEDWARS: 11
           BOXING: 12
           BRIDGES: 14

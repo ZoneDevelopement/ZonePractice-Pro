@@ -22,7 +22,6 @@ public class SaveResource {
     private static final String[] COMMON_LADDER_NAMES = {
             "archer.yml",
             "axe.yml",
-            "battlerush.yml",
             "bedwars.yml",
             "boxing.yml",
             "bridges.yml",
@@ -42,12 +41,14 @@ public class SaveResource {
 
     // Ladders exclusive to 1.8.8
     private static final String[] LEGACY_ONLY_LADDER_NAMES = {
-            "combo.yml"
+            "combo.yml",
+            "battlerush.yml",
     };
 
     // Ladders exclusive to modern versions (1.20+)
     private static final String[] MODERN_ONLY_LADDER_NAMES = {
-            "mace.yml"
+            "mace.yml",
+            "crystal.yml"
     };
 
     /**
