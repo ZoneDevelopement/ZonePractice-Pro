@@ -26,5 +26,6 @@ public enum SettingType {
     HEALTH_BELOW_NAME,
     RESET_BUILD_AFTER_ROUND,
     BREAK_ALL_BLOCKS,
+    SPLEEF_SNOWBALL_MODE,
 
 }

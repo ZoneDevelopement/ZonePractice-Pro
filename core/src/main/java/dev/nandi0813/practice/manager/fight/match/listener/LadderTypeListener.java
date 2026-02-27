@@ -148,6 +148,18 @@ public abstract class LadderTypeListener implements Listener {
                 }
             }
         }
+
+        // Tag snowballs launched in a Spleef-snowball-mode match so onProjectileHit
+        // can route them to Spleef.handleEvents for snow-block destruction.
+        if (e.getEntity() instanceof org.bukkit.entity.Snowball snowball) {
+            if (snowball.getShooter() instanceof Player player) {
+                Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+                if (match != null && match.getLadder() instanceof dev.nandi0813.practice.manager.ladder.type.Spleef spleef
+                        && spleef.isSnowballMode()) {
+                    snowball.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), match));
+                }
+            }
+        }
     }
 
 

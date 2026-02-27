@@ -99,7 +99,8 @@ public enum LadderType {
                     SettingType.WEIGHT_CLASS,
                     SettingType.ROUNDS,
                     SettingType.MAX_DURATION,
-                    SettingType.START_COUNTDOWN
+                    SettingType.START_COUNTDOWN,
+                    SettingType.SPLEEF_SNOWBALL_MODE
             )
     ),
 

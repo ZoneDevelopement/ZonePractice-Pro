@@ -2130,6 +2130,26 @@ GUIS:
                 - "&7placed during the match."
                 - ""
                 - "&e&lClick here &7to &aenable&7."
+          SPLEEF-SNOWBALL-MODE:
+            ENABLED:
+              NAME: "&7Snowball Mode: &aEnabled"
+              MATERIAL: SNOW_BALL
+              LORE:
+                - ""
+                - "&7Breaking a snow block gives a snowball."
+                - "&7Throw snowballs to destroy snow blocks"
+                - "&7beneath other players."
+                - ""
+                - "&e&lClick here &7to &cdisable&7."
+            DISABLED:
+              NAME: "&7Snowball Mode: &cDisabled"
+              MATERIAL: SNOW_BALL
+              LORE:
+                - ""
+                - "&7Enable to let players collect and throw"
+                - "&7snowballs that destroy snow blocks."
+                - ""
+                - "&e&lClick here &7to &aenable&7."
           ENDERPEARL-COOLDOWN:
             NAME: "&7EnderPearl Cooldown: &6%epCooldown% sec"
             MATERIAL: ENDER_PEARL

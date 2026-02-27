@@ -211,6 +211,9 @@ public class SettingsGui extends GUI {
 
         if (settingTypes.contains(SettingType.BREAK_ALL_BLOCKS))
             settingItems.add(new BreakAllBlocksItem(this, ladder));
+
+        if (settingTypes.contains(SettingType.SPLEEF_SNOWBALL_MODE))
+            settingItems.add(new SpleefSnowballModeItem(this, (dev.nandi0813.practice.manager.ladder.type.Spleef) ladder));
     }
 
 }
