@@ -106,11 +106,16 @@ public abstract class PortalFight extends NormalLadder {
         }
 
         if (!e.isCancelled()) {
-            match.addBlockChange(ClassImport.createChangeBlock(e.getBlock()));
+            // Use addArenaBlockChange (no PLACED_IN_FIGHT metadata) so the block is tracked
+            // for rollback but LadderTypeListener's breakAllBlocks gate still controls
+            // whether the actual break is permitted. addBlockChange would tag the block with
+            // PLACED_IN_FIGHT, causing LadderTypeListener to treat it as a player-placed block
+            // and allow the break even when breakAllBlocks is disabled.
+            match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(e.getBlock()));
 
             Block underBlock = e.getBlock().getLocation().subtract(0, 1, 0).getBlock();
             if (underBlock.getType() == Material.DIRT) {
-                match.addBlockChange(ClassImport.createChangeBlock(underBlock));
+                match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
             }
         }
     }
