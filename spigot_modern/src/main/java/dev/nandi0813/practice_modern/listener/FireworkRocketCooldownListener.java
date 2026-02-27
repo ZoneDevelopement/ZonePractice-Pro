@@ -14,6 +14,7 @@ import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -24,9 +25,17 @@ import org.bukkit.inventory.ItemStack;
  */
 public class FireworkRocketCooldownListener implements Listener {
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onFireworkRocketUse(PlayerInteractEvent e) {
         Player player = e.getPlayer();
+
+        // Fix duplicate events: block multiple attempts in same tick (elytra client sends 2 packets)
+        if (PlayerCooldown.isActive(player, CooldownObject.FIREWORK_ATTEMPT)) {
+            e.setCancelled(true);
+            return;
+        }
+        PlayerCooldown.addCooldown(player, CooldownObject.FIREWORK_ATTEMPT, 0.1); // 100ms
+
         ItemStack item = e.getItem();
 
         // Check if player is using a firework rocket
