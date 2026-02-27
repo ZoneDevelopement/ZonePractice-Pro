@@ -70,12 +70,13 @@ public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.Arena
 
     @Override
     public void loadArenaChunks(BasicArena arena) {
-        if (arena.getCuboid() != null) {
-            for (Chunk chunk : arena.getCuboid().getChunks()) {
-                if (!chunk.isLoaded()) {
-                    chunk.load(true);
-                }
-            }
+        if (arena.getCuboid() == null) return;
+        // getChunkAtAsync schedules real async chunk loading on the I/O thread —
+        // no main-thread stall and no need to call chunk.load() manually.
+        org.bukkit.World world = arena.getCuboid().getWorld();
+        if (world == null) return;
+        for (Chunk chunk : arena.getCuboid().getChunks()) {
+            world.getChunkAtAsync(chunk.getX(), chunk.getZ());
         }
     }
 

@@ -80,12 +80,18 @@ public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.Arena
 
     @Override
     public void loadArenaChunks(BasicArena arena) {
-        if (arena.getCuboid() != null) {
-            for (Chunk chunk : arena.getCuboid().getChunks()) {
-                if (!chunk.isLoaded()) {
-                    chunk.load(true);
+        if (arena.getCuboid() == null) return;
+        // 1.8.8 has no async chunk-load API — stagger each chunk one tick apart so
+        // the server never freezes trying to load all chunks in a single tick.
+        org.bukkit.plugin.Plugin plugin = dev.nandi0813.practice.ZonePractice.getInstance();
+        long delay = 0;
+        for (Chunk chunk : arena.getCuboid().getChunks()) {
+            final Chunk c = chunk;
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (!c.isLoaded()) {
+                    c.load(true);
                 }
-            }
+            }, delay++);
         }
     }
 
