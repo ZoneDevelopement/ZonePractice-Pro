@@ -39,6 +39,10 @@ public enum Common {
             line = StringUtil.legacyColorToMiniMessage(line);
         }
 
+        if (line.isEmpty()) {
+            return;
+        }
+
         if (SoftDependUtil.isPAPI_ENABLED) {
             line = PlaceholderAPI.setPlaceholders(player, line);
         }

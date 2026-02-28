@@ -494,8 +494,10 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             teleportPlayer(player);
         }
 
-        // Inform everyone that they must wait for the arena to regenerate.
-        sendMessage(LanguageManager.getString("MATCH.ARENA-ROLLING-BACK"), true);
+        if (this.isBuild()) {
+             // Inform everyone that they must wait for the arena to regenerate.
+            sendMessage(LanguageManager.getString("MATCH.ARENA-ROLLING-BACK"), true);
+        }
 
         Runnable onRollbackComplete = () -> {
             rollingBack = false;
