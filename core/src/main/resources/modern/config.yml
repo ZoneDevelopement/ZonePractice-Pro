@@ -36,8 +36,8 @@ QUEUE:
     SELECTOR-GUI:
       SHOW-DISABLED-LADDERS: true
       FIRST-CATEGORY:
-        SIZE: 4
-        GO-TO-SECOND-CATEGORY-SLOT: 35
+        SIZE: 5
+        GO-TO-SECOND-CATEGORY-SLOT: 44
         LADDERS:
           BATTLERUSH: 10
           BEDWARS: 11
@@ -50,6 +50,8 @@ QUEUE:
           SUMO: 22
           BUILDUHC: 23
           PEARLFIGHT: 24
+          CRYSTAL: 30
+          SPEAR: 32
       SECOND-CATEGORY:
         ENABLED: true
         BACK-TO-FIRST-CATEGORY-SLOT: 35
@@ -74,8 +76,8 @@ QUEUE:
     SELECTOR-GUI:
       SHOW-DISABLED-LADDERS: true
       FIRST-CATEGORY:
-        SIZE: 4
-        GO-TO-SECOND-CATEGORY-SLOT: 35
+        SIZE: 5
+        GO-TO-SECOND-CATEGORY-SLOT: 44
         LADDERS:
           BATTLERUSH: 10
           BEDWARS: 11
@@ -88,6 +90,8 @@ QUEUE:
           SUMO: 22
           BUILDUHC: 23
           PEARLFIGHT: 24
+          CRYSTAL: 30
+          SPEAR: 32
       SECOND-CATEGORY:
         ENABLED: true
         BACK-TO-FIRST-CATEGORY-SLOT: 18
