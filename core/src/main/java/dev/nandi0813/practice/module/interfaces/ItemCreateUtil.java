@@ -36,12 +36,7 @@ public abstract class ItemCreateUtil {
 
     public static ItemStack hideItemFlags(ItemStack item) {
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        itemMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        itemMeta.addItemFlags(ItemFlag.HIDE_DESTROYS);
-        itemMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-        itemMeta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
+        hideItemFlags(itemMeta);
         item.setItemMeta(itemMeta);
         return item;
     }

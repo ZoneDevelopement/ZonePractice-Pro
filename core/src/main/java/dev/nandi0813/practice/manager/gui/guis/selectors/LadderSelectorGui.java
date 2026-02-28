@@ -97,8 +97,7 @@ public class LadderSelectorGui extends GUI {
                     if (customPlayerKitItem.getName() == null)
                         customPlayerKitItem.setName(CUSTOM_PLAYER_KIT_ITEM.getName());
 
-                    customPlayerKitItem.setMaterial(ladderIcon.getType());
-                    customPlayerKitItem.setDamage(ladderIcon.getDurability());
+                    customPlayerKitItem.setBaseItem(ladderIcon);
                 }
 
                 inventory.setItem(53, customPlayerKitItem.get());

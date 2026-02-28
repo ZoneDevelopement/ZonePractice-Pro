@@ -37,6 +37,8 @@ public class GUIItem {
     private final List<ItemFlag> itemFlags = new ArrayList<>();
     private final Map<Enchantment, Integer> enchantments = new HashMap<>();
     private int durability = -1;
+    @Getter
+    private ItemStack baseItemStack = null;
 
     public GUIItem() {
     }
@@ -111,19 +113,27 @@ public class GUIItem {
 
 
     public ItemStack get() {
-        if (material == null) return null;
-
         ItemStack itemStack;
-        if (damage == -1 && amount == 1) {
-            itemStack = new ItemStack(material);
-        } else if (damage == -1) {
-            itemStack = new ItemStack(material, amount);
-        } else {
-            itemStack = new ItemStack(material, amount, damage);
-        }
 
-        if (durability > 0) {
-            ClassImport.getClasses().getLadderUtil().setDurability(itemStack, durability);
+        if (baseItemStack != null) {
+            // Clone the base item to preserve special meta (e.g. PotionMeta for modern Minecraft)
+            itemStack = baseItemStack.clone();
+            itemStack.setAmount(amount);
+            ItemCreateUtil.hideItemFlags(itemStack);
+        } else {
+            if (material == null) return null;
+
+            if (damage == -1 && amount == 1) {
+                itemStack = new ItemStack(material);
+            } else if (damage == -1) {
+                itemStack = new ItemStack(material, amount);
+            } else {
+                itemStack = new ItemStack(material, amount, damage);
+            }
+
+            if (durability > 0) {
+                ClassImport.getClasses().getLadderUtil().setDurability(itemStack, durability);
+            }
         }
 
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -246,6 +256,15 @@ public class GUIItem {
         return this;
     }
 
+    public GUIItem setBaseItem(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType() == Material.AIR) {
+            return this;
+        }
+        this.baseItemStack = itemStack.clone();
+        this.material = itemStack.getType();
+        return this;
+    }
+
     public GUIItem cloneItem() {
         GUIItem guiItem = new GUIItem();
         guiItem.setName(this.name);
@@ -256,6 +275,9 @@ public class GUIItem {
         guiItem.setUnbreakable(this.unbreakable);
         guiItem.setAmount(this.amount);
         guiItem.setDurability(this.durability);
+        if (this.baseItemStack != null) {
+            guiItem.baseItemStack = this.baseItemStack.clone();
+        }
         guiItem.itemFlags.addAll(this.itemFlags);
         guiItem.enchantments.putAll(this.enchantments);
         return guiItem;

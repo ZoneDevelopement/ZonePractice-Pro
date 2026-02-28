@@ -83,8 +83,9 @@ public enum LbGuiUtil {
                 .replace("%division%", (profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "&cN/A"))
                 .replace("%division_short%", (profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "&cN/A"));
 
-        guiItem.setMaterial(ladder.getIcon().getType());
-        guiItem.setDamage(ladder.getIcon().getDurability());
+        if (ladder.getIcon() != null) {
+            guiItem.setBaseItem(ladder.getIcon());
+        }
 
         return guiItem;
     }

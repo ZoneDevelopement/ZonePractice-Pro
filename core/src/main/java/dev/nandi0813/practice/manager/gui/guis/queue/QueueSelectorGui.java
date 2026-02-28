@@ -136,9 +136,11 @@ public abstract class QueueSelectorGui extends GUI {
 
             icon.replace("%ladder%", ladder.getDisplayName());
 
-            if (icon.getMaterial() == null && ladder.getIcon() != null) {
-                icon.setMaterial(ladder.getIcon().getType());
-                icon.setDamage(ladder.getIcon().getDurability());
+            if (ladder.getIcon() != null) {
+                icon.setBaseItem(ladder.getIcon());
+            } else if (icon.getMaterial() == null) {
+                // No icon set and template has no material - skip
+                continue;
             }
 
             slotMap.put(slot, ladder);

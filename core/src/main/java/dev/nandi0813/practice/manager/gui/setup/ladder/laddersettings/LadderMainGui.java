@@ -127,8 +127,7 @@ public class LadderMainGui extends GUI {
                 .replace("%type%", ladder.getType().getName());
 
         if (ladder.getIcon() != null) {
-            guiItem.setMaterial(ladder.getIcon().getType());
-            guiItem.setDamage(ladder.getIcon().getDurability());
+            guiItem.setBaseItem(ladder.getIcon());
         }
 
         return guiItem.get();
