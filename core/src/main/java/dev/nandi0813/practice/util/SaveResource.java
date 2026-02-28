@@ -48,7 +48,8 @@ public class SaveResource {
     // Ladders exclusive to modern versions (1.20+)
     private static final String[] MODERN_ONLY_LADDER_NAMES = {
             "mace.yml",
-            "crystal.yml"
+            "crystal.yml",
+            "spear.yml"
     };
 
     /**
