@@ -338,8 +338,5 @@ public class EventListener implements Listener {
         if (event == null) {
             return;
         }
-
-        eventManager.getEventListeners().get(event.getType()).onPlayerItemHeld(event, e);
     }
-
 }
