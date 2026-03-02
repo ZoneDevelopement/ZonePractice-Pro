@@ -7,6 +7,8 @@ import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -58,12 +60,17 @@ public class EventWandSetupManager {
         setupSessions.put(player, new SetupSession(eventData));
 
         if (eventData.getCuboid() != null && !eventData.getCuboid().contains(player.getLocation())) {
-            if (eventData.getCuboid().getCenter() != null) {
-                player.teleport(eventData.getCuboid().getCenter());
+            Location teleportLocation = eventData.getAvailableLocation();
+            if (teleportLocation != null) {
+                player.teleport(teleportLocation);
+                player.setAllowFlight(true);
+                player.setFlying(true);
+                player.setGameMode(GameMode.CREATIVE);
             }
         } else if (!player.getWorld().equals(ArenaWorldUtil.getArenasWorld())) {
             player.setAllowFlight(true);
             player.setFlying(true);
+            player.setGameMode(GameMode.CREATIVE);
             player.teleport(ArenaWorldUtil.getArenasWorld().getSpawnLocation());
         }
 
