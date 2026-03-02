@@ -44,8 +44,6 @@ public class TNTTagListener extends EventListenerInterface {
                 return;
             }
 
-            e.setDamage(0);
-
             if (tntTag.getTaggedPlayers().contains(attacker) && !tntTag.getTaggedPlayers().contains(target)) {
                 tntTag.setTag(attacker, target);
             }
