@@ -53,7 +53,7 @@ public enum StopArg {
         } else if (args.length == 2) {
             Event event = null;
             for (Event e : EventManager.getInstance().getEvents()) {
-                if (e.getType().getName().equalsIgnoreCase(args[1])) {
+                if (e.getType().getName().equalsIgnoreCase(args[1]) || e.getType().name().equalsIgnoreCase(args[1])) {
                     event = e;
                     break;
                 }
