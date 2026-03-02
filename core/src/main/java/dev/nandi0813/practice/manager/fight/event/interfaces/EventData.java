@@ -246,6 +246,10 @@ public abstract class EventData extends ConfigFile {
             } else if (icon == null) {
                 throw new IOException("Icon not set.");
             } else {
+                // Always remove spawn-point marker armor stands before going live.
+                // This must happen unconditionally here rather than at each call-site
+                // so that every enable path (wand, GUI, command) is covered.
+                dev.nandi0813.practice.manager.fight.event.setup.EventSpawnMarkerManager.getInstance().clearMarkers(this);
                 enable();
             }
         } else {

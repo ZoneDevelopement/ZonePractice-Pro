@@ -305,15 +305,8 @@ public class EventSetupListener implements Listener {
                 eventData.setEnabled(true);
                 player.sendMessage(Common.colorize("&aEnabled event: &e" + eventData.getType().getName()));
 
-                // When enabling an event, cleanup: clear markers and end setup mode for all players
-                List<Player> playersSettingUp = new ArrayList<>(setupManager.getPlayersSettingUpEvent(eventData));
-
-                // Clear markers first (before ending setup, to avoid duplicate clears)
-                if (!playersSettingUp.isEmpty()) {
-                    EventSpawnMarkerManager.getInstance().clearMarkers(eventData);
-                }
-
                 // End setup mode for all players currently setting up this event
+                List<Player> playersSettingUp = new ArrayList<>(setupManager.getPlayersSettingUpEvent(eventData));
                 for (Player settingUpPlayer : playersSettingUp) {
                     setupManager.stopSetup(settingUpPlayer);
                 }
