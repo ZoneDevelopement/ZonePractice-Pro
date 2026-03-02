@@ -110,9 +110,18 @@ public class TNTTagListener extends EventListenerInterface {
     @Override
     public void onPlayerMove(Event event, PlayerMoveEvent e) {
         if (event instanceof TNTTag tntTag) {
+            // Only enforce boundary for active players during LIVE/START phase.
+            // Spectators are free to move and the event may still fire during END.
+            if (!event.getStatus().equals(EventStatus.LIVE) && !event.getStatus().equals(EventStatus.START)) {
+                return;
+            }
+            Player player = e.getPlayer();
+            if (!tntTag.getPlayers().contains(player)) {
+                return;
+            }
             Cuboid cuboid = event.getEventData().getCuboid();
-            if (!cuboid.contains(e.getTo())) {
-                tntTag.teleportPlayer(e.getPlayer());
+            if (cuboid != null && !cuboid.contains(e.getTo())) {
+                tntTag.teleportPlayer(player);
             }
         }
     }

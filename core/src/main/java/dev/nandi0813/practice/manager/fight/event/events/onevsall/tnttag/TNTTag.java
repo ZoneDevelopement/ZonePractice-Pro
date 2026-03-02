@@ -248,7 +248,12 @@ public class TNTTag extends Event {
     }
 
     public void teleportPlayer(Player player) {
-        player.teleport(eventData.getSpawns().get(random.nextInt(eventData.getSpawns().size())));
+        List<Location> spawns = eventData.getSpawns();
+        if (!spawns.isEmpty()) {
+            player.teleport(spawns.get(random.nextInt(spawns.size())));
+        } else if (eventData.getCuboid() != null) {
+            player.teleport(eventData.getCuboid().getCenter());
+        }
     }
 
     public void setTag(Player tagger, Player tagged) {
