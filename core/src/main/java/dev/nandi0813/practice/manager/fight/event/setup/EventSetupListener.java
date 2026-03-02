@@ -20,12 +20,22 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 
 public class EventSetupListener implements Listener {
 
     private final EventWandSetupManager setupManager;
+
+    /**
+     * Paper 1.9+ fires {@link PlayerInteractEvent} twice per physical click – once for
+     * the main hand and once for the off hand.  We track which players have already been
+     * processed this tick and skip any duplicate invocation within the same tick.
+     */
+    private final Set<UUID> interactCooldown = new HashSet<>();
 
     public EventSetupListener(EventWandSetupManager setupManager) {
         this.setupManager = setupManager;
@@ -40,6 +50,17 @@ public class EventSetupListener implements Listener {
         }
 
         event.setCancelled(true);
+
+        // Paper fires PlayerInteractEvent twice per click (main hand + off hand).
+        // The first call adds the UUID; the second call finds it already present and bails out.
+        // The UUID is removed at the end of the same tick so the next click is processed normally.
+        if (!interactCooldown.add(player.getUniqueId())) {
+            return;
+        }
+        org.bukkit.Bukkit.getScheduler().runTask(
+                dev.nandi0813.practice.ZonePractice.getInstance(),
+                () -> interactCooldown.remove(player.getUniqueId())
+        );
 
         EventWandSetupManager.SetupSession session = setupManager.getSession(player);
         EventData eventData = session.getEventData();
