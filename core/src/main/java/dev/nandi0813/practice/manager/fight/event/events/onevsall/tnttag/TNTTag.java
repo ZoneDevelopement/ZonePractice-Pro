@@ -26,10 +26,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 @Getter
 public class TNTTag extends Event {
@@ -40,6 +44,14 @@ public class TNTTag extends Event {
 
     @Setter
     private List<Player> taggedPlayers = new ArrayList<>();
+
+    /**
+     * Maps the UUID of a player whose knockback is in-flight (within the 1-tick
+     * re-apply window) to the velocity snapshot that must be restored.
+     * While an entry exists, any hotbar-switch from that player is suppressed.
+     */
+    @Getter
+    private final Map<UUID, Vector> knockbackPending = new HashMap<>();
 
     private StartRunnable startRunnable;
     private DurationRunnable durationRunnable;

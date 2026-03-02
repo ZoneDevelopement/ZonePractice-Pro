@@ -326,4 +326,20 @@ public class EventListener implements Listener {
         eventManager.getEventListeners().get(event.getType()).onInventoryClick(event, e);
     }
 
+    @EventHandler
+    public void onPlayerItemHeld(final PlayerItemHeldEvent e) {
+        Player player = e.getPlayer();
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (!profile.getStatus().equals(ProfileStatus.EVENT)) {
+            return;
+        }
+
+        Event event = eventManager.getEventByPlayer(player);
+        if (event == null) {
+            return;
+        }
+
+        eventManager.getEventListeners().get(event.getType()).onPlayerItemHeld(event, e);
+    }
+
 }
