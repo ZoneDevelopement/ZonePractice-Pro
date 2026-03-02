@@ -152,13 +152,13 @@ public class SettingsGui extends GUI {
 
                 if (click.isLeftClick() && minPlayer > 2)
                     eventData.setMinPlayer(minPlayer - 1);
-                else if (click.isRightClick() && minPlayer < 15)
+                else if (click.isRightClick() && minPlayer < eventData.getMaxPlayer())
                     eventData.setMinPlayer(minPlayer + 1);
                 break;
             case 16:
                 int maxPlayer = eventData.getMaxPlayer();
 
-                if (click.isLeftClick() && maxPlayer > 20)
+                if (click.isLeftClick() && maxPlayer > eventData.getMinPlayer())
                     eventData.setMaxPlayer(maxPlayer - 1);
                 else if (click.isRightClick() && maxPlayer < 100)
                     eventData.setMaxPlayer(maxPlayer + 1);
