@@ -213,6 +213,9 @@ public class ServerManager implements Listener {
     }
 
     public static void runConsoleCommand(String command) {
+        if (!ZonePractice.getInstance().isEnabled()) {
+            return;
+        }
         ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
         Bukkit.dispatchCommand(console, command);
     }

@@ -218,11 +218,13 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
         // Cancel all runnables first to prevent interference
         this.cancelAllRunnable();
 
+        // Set status to END *before* removeAll() so that killPlayer/checkIfEnd
+        // cannot re-trigger endEvent() while we are already cleaning up.
+        this.status = EventStatus.END;
+
         // Remove all players and spectators
         this.removeAll();
 
-        // Set status to END
-        this.status = EventStatus.END;
 
         // Rollback fight changes if event was live
         if (wasLive) {

@@ -168,6 +168,10 @@ public class TNTTag extends Event {
 
     @Override
     public void endEvent() {
+        if (this.status.equals(EventStatus.END)) {
+            return;
+        }
+
         EventEndEvent event = new EventEndEvent(this);
         Bukkit.getPluginManager().callEvent(event);
 
