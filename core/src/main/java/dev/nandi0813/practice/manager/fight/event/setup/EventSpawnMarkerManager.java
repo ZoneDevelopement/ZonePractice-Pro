@@ -108,8 +108,10 @@ public class EventSpawnMarkerManager {
         armorStand.setCustomNameVisible(true);
         armorStand.setCustomName(Common.colorize(name));
 
-        // Make the armor stand face the same direction as the spawn location
+        // Make the armor stand face the same direction (yaw) as the saved spawn location
         Location facingLoc = markerLoc.clone();
+        facingLoc.setYaw(location.getYaw());
+        facingLoc.setPitch(0.0f);
         armorStand.teleport(facingLoc);
 
         // Give it a sword to hold (to make it more visible)

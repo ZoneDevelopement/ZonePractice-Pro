@@ -275,9 +275,7 @@ public class EventSetupListener implements Listener {
             Block block = event.getClickedBlock();
             if (block == null) return;
 
-            Location spawnLoc = block.getLocation().clone().add(0.5, 1, 0.5);
-            spawnLoc.setYaw(player.getLocation().getYaw());
-            spawnLoc.setPitch(player.getLocation().getPitch());
+            Location spawnLoc = getSnappedLocation(block, player);
 
             if (!eventData.getCuboid().contains(spawnLoc)) {
                 player.sendMessage(Common.colorize("&cSpawn point must be within the event cuboid!"));
@@ -345,5 +343,13 @@ public class EventSetupListener implements Listener {
                 EventSetupManager.getInstance().getEventSetupGUIs().get(eventData).get(GUIType.Event_Main).update();
             }
         }
+    }
+
+    private static Location getSnappedLocation(org.bukkit.block.Block clickedBlock, Player player) {
+        Location loc = clickedBlock.getLocation().add(0.5, 1, 0.5);
+        float snappedYaw = Math.round(player.getLocation().getYaw() / 45f) * 45f;
+        loc.setYaw(snappedYaw);
+        loc.setPitch(0.0f);
+        return loc;
     }
 }
