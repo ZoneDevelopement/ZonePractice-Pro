@@ -112,7 +112,7 @@ public class EventManager {
     }
 
     public void endEvents() {
-        for (Event event : events) {
+        for (Event event : new java.util.ArrayList<>(events)) {
             event.forceEnd(null);
         }
     }

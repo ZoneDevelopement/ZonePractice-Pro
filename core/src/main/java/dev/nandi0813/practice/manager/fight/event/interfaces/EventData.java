@@ -70,6 +70,7 @@ public abstract class EventData extends ConfigFile {
                 config.set("settings.duration", duration);
                 config.set("settings.startTime", startTime);
                 config.set("settings.minPlayer", minPlayer);
+                config.set("settings.maxPlayer", maxPlayer);
 
                 if (cuboidLoc1 != null)
                     config.set("cuboid.1", cuboidLoc1);
