@@ -27,7 +27,11 @@ public enum PlayerUtil {
         player.setFlying(fly);
         ClassImport.getClasses().getPlayerUtil().setCollidesWithEntities(player, entityCollide);
 
-        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setFireTicks(0), 2L);
+        if (ZonePractice.getInstance().isEnabled()) {
+            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setFireTicks(0), 2L);
+        } else {
+            player.setFireTicks(0);
+        }
 
         if (deleteInv) ClassImport.getClasses().getPlayerUtil().clearInventory(player);
 
