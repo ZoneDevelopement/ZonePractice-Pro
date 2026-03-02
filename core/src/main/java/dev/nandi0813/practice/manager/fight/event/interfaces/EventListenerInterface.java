@@ -26,13 +26,4 @@ public abstract class EventListenerInterface {
 
     public abstract void onInventoryClick(final Event event, final InventoryClickEvent e);
 
-    /**
-     * Called when a player changes their held hotbar slot during an event.
-     * Default no-op; override in event-specific listeners that need to guard
-     * against rapid hotbar switching interfering with velocity application.
-     */
-    public void onPlayerItemHeld(final Event event, final PlayerItemHeldEvent e) {
-        // no-op by default
-    }
-
 }
