@@ -2,7 +2,6 @@ package dev.nandi0813.practice.manager.ladder.type;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
-import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
@@ -14,11 +13,6 @@ import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.BedFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.module.util.ClassImport;
-import dev.nandi0813.practice.util.Common;
-import dev.nandi0813.practice.util.StringUtil;
-import dev.nandi0813.practice.util.cooldown.CooldownObject;
-import dev.nandi0813.practice.util.cooldown.FireballRunnable;
-import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -147,11 +141,8 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
         if (ladder.fireballCooldown <= 0) return;
 
-        if (!PlayerCooldown.isActive(player, CooldownObject.FIREBALL_FIGHT_FIREBALL)) {
-            FireballRunnable fireballRunnable = new FireballRunnable(player, ladder.fireballCooldown);
-            fireballRunnable.begin();
-        } else {
-            Common.sendMMMessage(player, StringUtil.replaceSecondString(LanguageManager.getString("MATCH.COOLDOWN.FIREBALL"), PlayerCooldown.getLeftInDouble(player, CooldownObject.FIREBALL_FIGHT_FIREBALL)));
+        if (!ClassImport.getClasses().getItemCooldownHandler().handleFireballMatch(
+                player, ladder.fireballCooldown, "MATCH.COOLDOWN.FIREBALL")) {
             return;
         }
 

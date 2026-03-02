@@ -1,6 +1,7 @@
-package dev.nandi0813.practice.manager.fight.util.Runnable;
+package dev.nandi0813.practice_1_8_8.cooldown;
 
 import dev.nandi0813.practice.manager.fight.util.FightPlayer;
+import dev.nandi0813.practice.manager.fight.util.Runnable.GameRunnable;
 import dev.nandi0813.practice.util.cooldown.CooldownObject;
 import org.bukkit.entity.Player;
 

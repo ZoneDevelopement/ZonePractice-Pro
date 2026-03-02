@@ -16,7 +16,6 @@ import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.cooldown.CooldownObject;
-import dev.nandi0813.practice.util.cooldown.GoldenAppleRunnable;
 import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.Material;
@@ -119,15 +118,12 @@ public abstract class FFAListener implements Listener {
         Ladder ladder = ffa.getPlayers().get(player);
         if (ladder.getGoldenAppleCooldown() < 1) return;
 
-        if (!PlayerCooldown.isActive(player, CooldownObject.GOLDEN_APPLE)) {
-            GoldenAppleRunnable goldenAppleRunnable = new GoldenAppleRunnable(player, ladder.getGoldenAppleCooldown());
-            goldenAppleRunnable.begin();
-        } else {
-            e.setCancelled(true);
-
-            Common.sendMMMessage(player, StringUtil.replaceSecondString(LanguageManager.getString("FFA.GAME.COOLDOWN.GOLDEN-APPLE"), PlayerCooldown.getLeftInDouble(player, CooldownObject.GOLDEN_APPLE)));
-            player.updateInventory();
-        }
+        ClassImport.getClasses().getItemCooldownHandler().handleGoldenAppleFFA(
+                player,
+                ladder.getGoldenAppleCooldown(),
+                e,
+                "FFA.GAME.COOLDOWN.GOLDEN-APPLE"
+        );
     }
 
     @EventHandler

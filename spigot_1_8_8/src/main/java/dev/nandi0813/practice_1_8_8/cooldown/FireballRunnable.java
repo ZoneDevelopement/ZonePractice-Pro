@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.util.cooldown;
+package dev.nandi0813.practice_1_8_8.cooldown;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
@@ -10,6 +10,8 @@ import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
+import dev.nandi0813.practice.util.cooldown.CooldownObject;
+import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

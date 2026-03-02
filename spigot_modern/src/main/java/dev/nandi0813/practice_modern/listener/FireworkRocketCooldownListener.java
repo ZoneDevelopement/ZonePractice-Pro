@@ -1,17 +1,12 @@
 package dev.nandi0813.practice_modern.listener;
 
 import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
-import dev.nandi0813.practice.manager.fight.util.Runnable.FireworkRocketRunnable;
-import dev.nandi0813.practice.util.Common;
-import dev.nandi0813.practice.util.StringUtil;
-import dev.nandi0813.practice.util.cooldown.CooldownObject;
-import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
+import dev.nandi0813.practice.module.util.ClassImport;
 import org.bukkit.Material;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -27,6 +22,8 @@ import java.util.UUID;
 /**
  * Handles firework rocket cooldown for elytra boost in modern Minecraft versions.
  * This prevents spam-boosting with firework rockets when flying with elytra.
+ * Delegates to {@link dev.nandi0813.practice.module.interfaces.ItemCooldownHandler}
+ * so the modern implementation can apply a native hotbar visual cooldown.
  */
 public class FireworkRocketCooldownListener implements Listener {
 
@@ -66,16 +63,13 @@ public class FireworkRocketCooldownListener implements Listener {
                 return;
             }
 
-            if (PlayerCooldown.isActive(player, CooldownObject.FIREWORK_ROCKET)) {
-                Common.sendMMMessage(player, StringUtil.replaceSecondString(
-                        LanguageManager.getString("MATCH.COOLDOWN.FIREWORK-ROCKET-COOLDOWN"),
-                        PlayerCooldown.getLeftInDouble(player, CooldownObject.FIREWORK_ROCKET)
-                ));
-                e.setCancelled(true);
-            } else {
-                FireworkRocketRunnable fireworkRocketCountdown = new FireworkRocketRunnable(player, ffa.getFightPlayers().get(player), duration, false);
-                fireworkRocketCountdown.begin();
-            }
+            ClassImport.getClasses().getItemCooldownHandler().handleFireworkRocketFFA(
+                    player,
+                    ffa.getFightPlayers().get(player),
+                    duration,
+                    e,
+                    "MATCH.COOLDOWN.FIREWORK-ROCKET-COOLDOWN"
+            );
             return;
         }
 
@@ -92,16 +86,13 @@ public class FireworkRocketCooldownListener implements Listener {
                 return;
             }
 
-            if (PlayerCooldown.isActive(player, CooldownObject.FIREWORK_ROCKET)) {
-                Common.sendMMMessage(player, StringUtil.replaceSecondString(
-                        LanguageManager.getString("MATCH.COOLDOWN.FIREWORK-ROCKET-COOLDOWN"),
-                        PlayerCooldown.getLeftInDouble(player, CooldownObject.FIREWORK_ROCKET)
-                ));
-                e.setCancelled(true);
-            } else {
-                FireworkRocketRunnable fireworkRocketCountdown = new FireworkRocketRunnable(player, match.getMatchPlayers().get(player), duration, false);
-                fireworkRocketCountdown.begin();
-            }
+            ClassImport.getClasses().getItemCooldownHandler().handleFireworkRocketMatch(
+                    player,
+                    match.getMatchPlayers().get(player),
+                    duration,
+                    e,
+                    "MATCH.COOLDOWN.FIREWORK-ROCKET-COOLDOWN"
+            );
         }
     }
 

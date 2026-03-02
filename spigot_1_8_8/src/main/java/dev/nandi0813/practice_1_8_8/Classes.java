@@ -4,6 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.module.interfaces.*;
 import dev.nandi0813.practice_1_8_8.interfaces.LadderUtil;
 import dev.nandi0813.practice_1_8_8.interfaces.BuildListener;
+import dev.nandi0813.practice_1_8_8.interfaces.LegacyItemCooldownHandler;
 import dev.nandi0813.practice_1_8_8.interfaces.PlayerHiderUtil;
 import dev.nandi0813.practice_1_8_8.listener.ArenaListener;
 import dev.nandi0813.practice_1_8_8.listener.FFAListener;
@@ -32,6 +33,8 @@ public class Classes implements dev.nandi0813.practice.module.util.Classes {
     public Class<?> changedBlockClass = dev.nandi0813.practice_1_8_8.interfaces.ChangedBlock.class;
     public Class<?> kitDataClass = dev.nandi0813.practice_1_8_8.interfaces.KitData.class;
     public Class<?> actionBarClass = dev.nandi0813.practice_1_8_8.interfaces.ActionBar.class;
+
+    public ItemCooldownHandler itemCooldownHandler = new LegacyItemCooldownHandler();
 
     public Classes() {
         Bukkit.getServer().getPluginManager().registerEvents(arenaCopyUtil, ZonePractice.getInstance());
