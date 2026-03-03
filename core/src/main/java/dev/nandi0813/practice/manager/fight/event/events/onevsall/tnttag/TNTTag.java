@@ -26,14 +26,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 
 @Getter
 public class TNTTag extends Event {
@@ -44,14 +40,6 @@ public class TNTTag extends Event {
 
     @Setter
     private List<Player> taggedPlayers = new ArrayList<>();
-
-    /**
-     * Maps the UUID of a player whose knockback is in-flight (within the 1-tick
-     * re-apply window) to the velocity snapshot that must be restored.
-     * While an entry exists, any hotbar-switch from that player is suppressed.
-     */
-    @Getter
-    private final Map<UUID, Vector> knockbackPending = new HashMap<>();
 
     private StartRunnable startRunnable;
     private DurationRunnable durationRunnable;
@@ -107,6 +95,8 @@ public class TNTTag extends Event {
     private void loadInv(Player player) {
         PlayerUtil.clearPlayer(player, true, false, true);
         setSpeedPotion(player, 1);
+        setResistancePotion(player);
+
     }
 
     @Override
@@ -316,6 +306,11 @@ public class TNTTag extends Event {
     private static void setSpeedPotion(Player player, int amplifier) {
         player.removePotionEffect(PotionEffectType.SPEED);
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10000 * 20, amplifier));
+    }
+
+    private static void setResistancePotion(Player player) {
+        player.removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10000 * 20, 125));
     }
 
     public static final String TNT_TAG_TNT_METADATA = "ZPP_TNT_TAG_TNT";
