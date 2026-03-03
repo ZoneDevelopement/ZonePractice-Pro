@@ -69,14 +69,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Litebans -->
-        <dependency>
-            <groupId>com.gitlab.ruany</groupId>
-            <artifactId>LiteBansAPI</artifactId>
-            <version>0.6.1</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- API -->
         <dependency>
             <groupId>com.github.ZoneDevelopement</groupId>

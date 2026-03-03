@@ -7,7 +7,6 @@ public enum SoftDependUtil {
 
     public static boolean isPAPI_ENABLED = false;
     public static boolean isFAWE_ENABLED = false;
-    public static boolean isLITEBANS_ENABLED = false;
 
     static {
         if (Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit") != null) {
@@ -16,10 +15,6 @@ public enum SoftDependUtil {
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             isPAPI_ENABLED = true;
-        }
-
-        if (Bukkit.getPluginManager().getPlugin("LiteBans") != null) {
-            isLITEBANS_ENABLED = true;
         }
     }
 

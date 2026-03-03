@@ -9,6 +9,7 @@ import dev.nandi0813.practice_1_8_8.interfaces.PlayerHiderUtil;
 import dev.nandi0813.practice_1_8_8.listener.ArenaListener;
 import dev.nandi0813.practice_1_8_8.listener.FFAListener;
 import dev.nandi0813.practice_1_8_8.listener.MatchListener;
+import dev.nandi0813.practice_1_8_8.listener.PlayerChatListener;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 
@@ -44,6 +45,7 @@ public class Classes implements dev.nandi0813.practice.module.util.Classes {
         Bukkit.getServer().getPluginManager().registerEvents(new ArenaListener(), ZonePractice.getInstance());
 
         Bukkit.getServer().getPluginManager().registerEvents(new EPCountdownListener(), ZonePractice.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new PlayerChatListener(), ZonePractice.getInstance());
     }
 
 }

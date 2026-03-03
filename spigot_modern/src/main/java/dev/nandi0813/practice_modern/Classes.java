@@ -46,6 +46,7 @@ public class Classes implements dev.nandi0813.practice.module.util.Classes {
 
         Bukkit.getServer().getPluginManager().registerEvents(new EPCountdownListener(), ZonePractice.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new FireworkRocketCooldownListener(), ZonePractice.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new PlayerChatListener(), ZonePractice.getInstance());
     }
 
 }

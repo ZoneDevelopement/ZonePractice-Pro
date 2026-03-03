@@ -361,7 +361,6 @@ public final class ZonePractice extends JavaPlugin {
         pm.registerEvents(new ItemConsume(), this);
         pm.registerEvents(new ProjectileLaunch(), this);
         pm.registerEvents(new PlayerCommandPreprocess(), this);
-        pm.registerEvents(new PlayerChat(), this);
         pm.registerEvents(new EntityDamage(), this);
         pm.registerEvents(new ArenaListener(), this);
     }
