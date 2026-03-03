@@ -60,6 +60,9 @@ public class EventManager {
 
     private final EventListener listener;
 
+    @Getter
+    private AutoEventScheduler autoEventScheduler;
+
     public static final ItemStack PLAYER_TRACKER = ConfigManager.getGuiItem("EVENT.PLAYER-TRACKER").get();
 
     private EventManager() {
@@ -99,7 +102,11 @@ public class EventManager {
                 data.getData();
             }
 
-            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), startUpCallback::onLoadingDone);
+            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+                autoEventScheduler = new AutoEventScheduler();
+                autoEventScheduler.start();
+                startUpCallback.onLoadingDone();
+            });
         });
     }
 
@@ -112,6 +119,9 @@ public class EventManager {
     }
 
     public void endEvents() {
+        if (autoEventScheduler != null) {
+            autoEventScheduler.cancel();
+        }
         for (Event event : new java.util.ArrayList<>(events)) {
             event.forceEnd(null);
         }
@@ -124,6 +134,14 @@ public class EventManager {
     }
 
     public void startEvent(Player starter, EventType eventType) {
+        if (eventType == null) {
+            return;
+        }
+
+        if (!getEventData().get(eventType).isEnabled()) {
+            ZonePractice.getInstance().getLogger().warning("Event " + eventType.getName() + " is not enabled.");
+        }
+
         if (this.isEventLive(eventType)) {
             if (starter != null)
                 Common.sendMMMessage(starter, LanguageManager.getString("EVENT.CANT-START-EVENT").replace("%event%", eventType.getName()));
