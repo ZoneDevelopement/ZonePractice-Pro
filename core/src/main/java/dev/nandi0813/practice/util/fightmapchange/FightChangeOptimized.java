@@ -67,6 +67,9 @@ public class FightChangeOptimized {
     public FightChangeOptimized(Spectatable spectatable) {
         this.spectatable = spectatable;
         this.cuboid = spectatable.getCuboid();
+        if (this.cuboid == null) {
+            throw new IllegalStateException("Cuboid is null for spectatable: " + spectatable.getClass().getSimpleName() + " — make sure the event/arena is fully configured before starting.");
+        }
         this.world = cuboid.getWorld();
     }
 

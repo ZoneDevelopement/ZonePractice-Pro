@@ -140,6 +140,7 @@ public class EventManager {
 
         if (!getEventData().get(eventType).isEnabled()) {
             ZonePractice.getInstance().getLogger().warning("Event " + eventType.getName() + " is not enabled.");
+            return;
         }
 
         if (this.isEventLive(eventType)) {
