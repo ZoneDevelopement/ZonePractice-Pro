@@ -111,20 +111,6 @@ public class ProfileFile extends ConfigFile {
         config.set("settings.messages", ConfigManager.getBoolean("PLAYER.DEFAULT-SETTINGS.PRIVATEMESSAGE"));
         config.set("settings.worldtime", ProfileWorldTime.valueOf(ConfigManager.getString("PLAYER.DEFAULT-SETTINGS.WORLD-TIME")).toString());
 
-        for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
-            String name = ladder.getName().toLowerCase();
-
-            config.set("stats.ladder-stats." + name + ".unranked.wins", 0);
-            config.set("stats.ladder-stats." + name + ".unranked.losses", 0);
-
-            if (ladder.isRanked()) {
-                config.set("stats.elo." + name, LadderManager.getDEFAULT_ELO());
-
-                config.set("stats.ladder-stats." + name + ".ranked.wins", 0);
-                config.set("stats.ladder-stats." + name + ".ranked.losses", 0);
-            }
-        }
-
         saveFile();
     }
 
