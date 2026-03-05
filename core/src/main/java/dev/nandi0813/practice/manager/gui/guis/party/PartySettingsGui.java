@@ -142,14 +142,13 @@ public class PartySettingsGui extends GUI {
                 break;
             case 16:
                 if (player.hasPermission("zpp.party.broadcast")) {
-                    if (PlayerCooldown.isActive(player, CooldownObject.BROADCAST_PARTY_CHANGE)) {
-                        Common.sendMMMessage(player, StringUtil.replaceSecondString(LanguageManager.getString("WAIT-FOR-COOLDOWN"), PlayerCooldown.getLeftInDouble(player, CooldownObject.LEADERBOARD_GUI_REFRESH)));
-                        return;
-                    }
-
-                    PlayerCooldown.addCooldown(player, CooldownObject.BROADCAST_PARTY_CHANGE, 5);
-
                     if (party.isBroadcastParty()) {
+                        if (PlayerCooldown.isActive(player, CooldownObject.BROADCAST_PARTY_CHANGE)) {
+                            Common.sendMMMessage(player, StringUtil.replaceSecondString(LanguageManager.getString("WAIT-FOR-COOLDOWN"), PlayerCooldown.getLeftInDouble(player, CooldownObject.BROADCAST_PARTY_CHANGE)));
+                            return;
+                        }
+
+                        PlayerCooldown.addCooldown(player, CooldownObject.BROADCAST_PARTY_CHANGE, 5);
                         party.getBroadcastTask().cancel();
                         update();
                     } else {
@@ -159,10 +158,17 @@ public class PartySettingsGui extends GUI {
                                 Common.sendMMMessage(player, LanguageManager.getString("PARTY.NO-BROADCAST-LEFT"));
                                 return;
                             }
-                            party.getBroadcastTask().begin();
                             if (!player.hasPermission("zpp.bypass.party.broadcast.limit")) {
                                 leaderProfile.setPartyBroadcastLeft(leaderProfile.getPartyBroadcastLeft() - 1);
                             }
+
+                            if (PlayerCooldown.isActive(player, CooldownObject.BROADCAST_PARTY_CHANGE)) {
+                                Common.sendMMMessage(player, StringUtil.replaceSecondString(LanguageManager.getString("WAIT-FOR-COOLDOWN"), PlayerCooldown.getLeftInDouble(player, CooldownObject.BROADCAST_PARTY_CHANGE)));
+                                return;
+                            }
+
+                            PlayerCooldown.addCooldown(player, CooldownObject.BROADCAST_PARTY_CHANGE, 5);
+                            party.getBroadcastTask().begin();
                             update();
                         } else
                             Common.sendMMMessage(player, LanguageManager.getString("PARTY.PARTY-NOT-PUBLIC"));
