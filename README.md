@@ -108,6 +108,137 @@ Common commands include `/practice` (aliases: `/prac`, `/zonepractice`, `/zonepr
 Permissions follow the `zpp.*` namespace, such as `zpp.admin` (default: op), `zpp.practice.*`, `zpp.staffmode`, and many
 granular nodes.
 
+## Developer API
+
+ZonePractice Pro provides a comprehensive API for developers to interact with the core systems, retrieve player statistics, and listen to custom events.
+
+### Setting Up the API
+
+#### 1. Add JitPack Repository and Dependency
+
+Add the following to your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependencies>
+    <dependency>
+        <groupId>com.github.ZoneDevelopement</groupId>
+        <artifactId>ZonePracticePro-Api</artifactId>
+        <version>2.2.0</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+```
+
+#### 2. Update Your plugin.yml
+
+Ensure your plugin loads after ZonePractice Pro by adding it as a dependency:
+
+```yaml
+name: YourPluginName
+version: '1.0'
+main: your.package.path.MainClass
+api-version: '1.20'
+depends: [ZonePracticePro]
+```
+
+### Using the API
+
+Access API methods via the singleton instance `ZonePracticeApi.getInstance()`. You can also listen to custom events provided in the `dev.nandi0813.api.Event` package.
+
+#### Example: Fetching Player Statistics
+
+```java
+@EventHandler
+public void onPlayerJoin(PlayerJoinEvent e) {
+    Player player = e.getPlayer();
+    ZonePracticeApi api = ZonePracticeApi.getInstance();
+
+    // Get player division and ladder stats
+    String division = api.getPlayerDivision(player, DivisionName.FULL);
+    int fireballWins = api.getLadderWins(player, "FireballFight", WeightClass.UNRANKED);
+
+    player.sendMessage("Your division: " + division);
+    player.sendMessage("Your FireballFight wins: " + fireballWins);
+}
+```
+
+#### Example: Listening to Custom Events
+
+```java
+@EventHandler
+public void onMatchStart(MatchStartEvent e) {
+    Match match = e.getMatch();
+
+    // Send a custom MiniMessage format string to all match participants
+    match.sendMessage("<red>Welcome to the match! Good luck!", true);
+    
+    // Iterate through players
+    match.getPlayers().forEach(player -> {
+        player.sendMessage("The battle has begun!");
+    });
+}
+```
+
+### Complete Example Plugin
+
+```java
+public final class ZPPApiExample extends JavaPlugin implements Listener {
+
+    private ZonePracticeApi api;
+
+    @Override
+    public void onEnable() {
+        // Retrieve the API instance
+        api = ZonePracticeApi.getInstance();
+        
+        // Register your listeners
+        Bukkit.getPluginManager().registerEvents(this, this);
+        getLogger().info("ZonePractice API loaded successfully!");
+    }
+
+    // Example 1: Fetching player statistics
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player player = e.getPlayer();
+
+        // Get division and ladder stats using the API
+        String division = api.getPlayerDivision(player, DivisionName.FULL);
+        int fireballWins = api.getLadderWins(player, "FireballFight", WeightClass.UNRANKED);
+
+        player.sendMessage("Your division: " + division);
+        player.sendMessage("Your FireballFight wins: " + fireballWins);
+    }
+
+    // Example 2: Listening to custom ZPP Events
+    @EventHandler
+    public void onMatchStart(MatchStartEvent e) {
+        Match match = e.getMatch();
+
+        // Send a custom MiniMessage format string to all match participants
+        match.sendMessage("<red>Welcome to the match! Good luck!", true);
+        
+        // Iterate through players
+        match.getPlayers().forEach(player -> {
+            player.sendMessage("The battle has begun!");
+        });
+    }
+}
+```
+
+### API Features
+
+- **Player Statistics**: Access divisions, ELO, wins/losses, and experience
+- **Ladder Management**: Query ladder-specific stats with weight classes
+- **Custom Events**: Listen to match events, player profile updates, and more
+- **Match Control**: Interact with active matches and send formatted messages
+- **Player Data**: Retrieve nametags, groups, and other player information
 ## Soft Dependencies & Load Order
 
 Defined in `plugin.yml`:

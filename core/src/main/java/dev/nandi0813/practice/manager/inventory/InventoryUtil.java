@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.inventory;
 
+import dev.nandi0813.api.Utilities.PlayerNametag;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.nametag.TabIntegration;
@@ -23,6 +24,34 @@ public enum InventoryUtil {
                 NametagManager.getInstance().reset(player.getName());
             }
         } else {
+            PlayerNametag playerNametag = getLobbyNametag(profile);
+
+            Component prefix = playerNametag.getPrefix();
+            NamedTextColor nameColor = playerNametag.getColorOfName();
+            Component suffix = playerNametag.getSuffix();
+            int sortPriority = playerNametag.getSortPriority();
+
+            if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
+                // ── Tab-list formatting ──────────────────────────────────────
+                Component listName = prefix.append(Component.text(player.getName(), nameColor)).append(suffix);
+                listName = listName
+                        .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
+                        .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build());
+
+                TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
+                if (tabIntegration != null && tabIntegration.isAvailable()) {
+                    tabIntegration.setTabListName(player, listName);
+                } else {
+                    ClassImport.getClasses().getPlayerUtil().setPlayerListName(player, listName);
+                }
+
+                // ── Nametag management (above-head prefix / suffix / color) ──
+                NametagManager.getInstance().setNametag(player, prefix, nameColor, suffix, sortPriority);
+            }
+        }
+    }
+
+    public static PlayerNametag getLobbyNametag(Profile profile) {
             Group group = profile.getGroup();
             Component prefix = Component.empty(), suffix = Component.empty();
             NamedTextColor nameColor = NamedTextColor.GRAY;
@@ -44,24 +73,7 @@ public enum InventoryUtil {
             if (profile.getPrefix() != null) prefix = profile.getPrefix();
             if (profile.getSuffix() != null) suffix = profile.getSuffix();
 
-            if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
-                // ── Tab-list formatting ──────────────────────────────────────
-                Component listName = prefix.append(Component.text(player.getName(), nameColor)).append(suffix);
-                listName = listName
-                        .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
-                        .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build());
-
-                TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
-                if (tabIntegration != null && tabIntegration.isAvailable()) {
-                    tabIntegration.setTabListName(player, listName);
-                } else {
-                    ClassImport.getClasses().getPlayerUtil().setPlayerListName(player, listName);
-                }
-
-                // ── Nametag management (above-head prefix / suffix / color) ──
-                NametagManager.getInstance().setNametag(player, prefix, nameColor, suffix, sortPriority);
-            }
-        }
+            return new PlayerNametag(prefix, nameColor, suffix, sortPriority);
     }
 
 }

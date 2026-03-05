@@ -2,9 +2,11 @@ package dev.nandi0813.practice;
 
 import dev.nandi0813.api.Enum.DivisionName;
 import dev.nandi0813.api.Enum.WeightClass;
+import dev.nandi0813.api.Utilities.PlayerNametag;
 import dev.nandi0813.api.ZonePracticeApi;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.inventory.InventoryUtil;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
@@ -160,6 +162,16 @@ public class ZonePracticeApiImpl extends ZonePracticeApi {
         if (profile == null) return -1;
 
         return profile.getStats().getGlobalWins();
+    }
+
+    @Override
+    public PlayerNametag getPlayerNametag(Player player) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) {
+            return null;
+        }
+
+        return InventoryUtil.getLobbyNametag(profile);
     }
 
 }

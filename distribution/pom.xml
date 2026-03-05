@@ -131,11 +131,11 @@
                                         <echo message="Copying plugins for the test servers..." />
 
                                         <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                              tofile="${server.path.old}/plugins/ZPP.jar"
+                                              tofile="${server.path.old}/plugins/ZonePracticePro.jar"
                                               overwrite="true" failonerror="false" />
 
                                         <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                              tofile="${server.path.modern}/plugins/ZPP.jar"
+                                              tofile="${server.path.modern}/plugins/ZonePracticePro.jar"
                                               overwrite="true" failonerror="false" />
                                     </target>
                                 </configuration>

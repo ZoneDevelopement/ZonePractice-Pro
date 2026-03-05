@@ -73,7 +73,7 @@
         <dependency>
             <groupId>com.github.ZoneDevelopement</groupId>
             <artifactId>ZonePracticePro-Api</artifactId>
-            <version>2.0.0</version>
+            <version>2.2.0</version>
         </dependency>
 
         <!-- TAB API -->
