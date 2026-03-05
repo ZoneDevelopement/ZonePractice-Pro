@@ -8,5 +8,7 @@ public enum SoundType {
     MATCH_PLAYER_TEMP_DEATH,
     MATCH_PLAYER_DEATH,
     TOTEM_SAVE_PLAYER, // Only in modern
+    EVENT_QUEUE_COUNTDOWN,
+    EVENT_START_COUNTDOWN,
 
 }

@@ -4,6 +4,9 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.server.sound.SoundEffect;
+import dev.nandi0813.practice.manager.server.sound.SoundManager;
+import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.util.interfaces.Runnable;
 import org.bukkit.entity.Player;
 
@@ -28,6 +31,9 @@ public class QueueStartRunnable extends Runnable {
                             .replace("%seconds%", String.valueOf(seconds))
                             .replace("%secondName%", (seconds == 1 ? LanguageManager.getString("SECOND-NAME.1SEC") : LanguageManager.getString("SECOND-NAME.1<SEC")))
                     , false);
+
+            SoundEffect sound = SoundManager.getInstance().getSound(SoundType.EVENT_QUEUE_COUNTDOWN);
+            if (sound != null) sound.play(event.getPlayers());
         }
 
         if (seconds == 0) {
