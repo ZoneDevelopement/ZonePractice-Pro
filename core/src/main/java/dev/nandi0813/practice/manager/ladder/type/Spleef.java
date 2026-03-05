@@ -32,7 +32,8 @@ import org.jetbrains.annotations.Nullable;
 public class Spleef extends NormalLadder implements LadderHandle, CustomConfig {
 
     /** When true, breaking a snow block gives a snowball; snowballs can be thrown to destroy snow. */
-    private boolean snowballMode = false;
+    // Can't set variable here, because it overrides custom config's reading.
+    private boolean snowballMode;
 
     public Spleef(String name, LadderType type) {
         super(name, type);
