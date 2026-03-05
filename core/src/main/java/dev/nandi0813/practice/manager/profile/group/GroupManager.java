@@ -53,6 +53,7 @@ public class GroupManager extends ConfigFile {
                     this.getInt("GROUPS." + groupName + ".UNRANKED-PER-DAY"),
                     this.getInt("GROUPS." + groupName + ".RANKED-PER-DAY"),
                     this.getInt("GROUPS." + groupName + ".EVENT-START-PER-DAY"),
+                    this.getInt("GROUPS." + groupName + ".PARTY-BROADCAST-PER-DAY"),
                     this.getInt("GROUPS." + groupName + ".CUSTOM-KIT"),
                     this.getInt("GROUPS." + groupName + ".MODIFIABLE-KIT-PER-LADDER"),
                     ZonePractice.getMiniMessage().deserialize(this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.PREFIX")),

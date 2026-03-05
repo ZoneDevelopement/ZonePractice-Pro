@@ -35,6 +35,7 @@ public class ProfileLimitRunnable extends BukkitRunnable {
             profile.setRankedLeft(group != null ? group.getRankedLimit() : 0);
             profile.setUnrankedLeft(group != null ? group.getUnrankedLimit() : 0);
             profile.setEventStartLeft(group != null ? group.getEventStartLimit() : 0);
+            profile.setPartyBroadcastLeft(group != null ? group.getPartyBroadcastLimit() : 0);
         }
 
         for (Player player : Bukkit.getOnlinePlayers())

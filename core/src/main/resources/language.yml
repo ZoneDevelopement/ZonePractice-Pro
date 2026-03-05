@@ -1,4 +1,4 @@
-VERSION: 16
+VERSION: 17
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1231,6 +1231,7 @@ PARTY:
   NOT-LEADER: "<red>You are not the leader of the party."
   CANT-DECREASE-LIMIT: "<red>You can't decrease the limit further than the number of players in the party."
   PARTY-NOT-PUBLIC: "<red>You have to have a public party for that."
+  NO-BROADCAST-LEFT: "<red>You have reached your daily party broadcast limit."
   CANT-DUEL-OWN-PARTY: "<red>You can't duel your own party."
   CANT-USE-PARTY-CHAT: "<red>You can't use party chat right now."
   CANT-DUEL-PARTY: "<red>You can't duel this party."

@@ -288,6 +288,8 @@ permissions:
     description: Bypass unranked limit per day.
   zpp.bypass.ranked.limit:
     description: Bypass ranked limit per day.
+  zpp.bypass.party.broadcast.limit:
+    description: Bypass the daily party broadcast limit.
   zpp.bypass.elo.change:
     description: Players elo cannot be changed with commands.
   zpp.bypass.forceend:

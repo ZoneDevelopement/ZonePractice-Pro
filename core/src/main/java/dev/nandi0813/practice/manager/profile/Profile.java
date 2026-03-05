@@ -68,6 +68,7 @@ public class Profile {
     private int unrankedLeft = 0;
     private int rankedLeft = 0;
     private int eventStartLeft = 0;
+    private int partyBroadcastLeft = 0;
 
     private RankedBan rankedBan = new RankedBan();
     private ProfileSettingsGui settingsGui;
@@ -192,6 +193,7 @@ public class Profile {
         this.unrankedLeft = group.getUnrankedLimit();
         this.rankedLeft = group.getRankedLimit();
         this.eventStartLeft = group.getEventStartLimit();
+        this.partyBroadcastLeft = group.getPartyBroadcastLimit();
 
         while (this.customLadders.size() < this.group.getCustomKitLimit()) {
             this.customLadders.add(new CustomLadder(this, "player-custom-kit." + customLadders.size(), this.customLadders.size() + 1));
