@@ -9,6 +9,7 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.util.PermanentConfig;
+import dev.nandi0813.practice.util.UpdateChecker;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -59,6 +60,10 @@ public class PlayerJoin implements Listener {
             ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.OFFLINE);
             SidebarManager.getInstance().unLoadSidebar(player);
         }
+
+        // Notify operators about available updates (delayed so the player is fully in the world)
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
+                UpdateChecker.notifyPlayer(player), 40L);
     }
 
 }

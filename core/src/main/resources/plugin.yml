@@ -60,6 +60,7 @@ permissions:
       zpp.event.*: true
       zpp.settings.*: true
       zpp.admin.scoreboard: true
+      zpp.update.notify: true
   zpp.setup:
     description: Setup everything.
     children:
@@ -316,3 +317,8 @@ permissions:
     description: Share custom kit with others.
   zpp.playerkit.copy:
     description: Copy custom kit from others.
+
+  # Update notifier
+  zpp.update.notify:
+    description: Receive in-game notifications when a new ZonePractice Pro version is released.
+    default: op

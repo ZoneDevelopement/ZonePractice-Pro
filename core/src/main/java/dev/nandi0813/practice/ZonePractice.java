@@ -47,6 +47,7 @@ import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.module.util.VersionChecker;
 import dev.nandi0813.practice.util.*;
+import dev.nandi0813.practice.util.UpdateChecker;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import lombok.Getter;
@@ -158,6 +159,9 @@ public final class ZonePractice extends JavaPlugin {
 
                     // Mark plugin as fully loaded
                     fullyLoaded = true;
+
+                    // Check for updates asynchronously and log to console
+                    UpdateChecker.checkAsync(ZonePractice.this);
                 });
             });
         });
