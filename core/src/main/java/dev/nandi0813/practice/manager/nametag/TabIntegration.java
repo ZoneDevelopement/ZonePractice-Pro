@@ -5,6 +5,7 @@ import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
 import me.neznamy.tab.api.nametag.NameTagManager;
 import me.neznamy.tab.api.tablist.TabListFormatManager;
+import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -130,14 +131,14 @@ public class TabIntegration {
             // Set the suffix
             nameTagManager.setSuffix(tabPlayer, suffixStr);
 
-            // Preserve the lobby tablist name to prevent match nametag colors from affecting it
-            // In Minecraft 1.21+, scoreboard team colors can bleed into the tab list
-            if (tablistFormattingEnabled) {
-                // TAB's tablist formatting is enabled - use TAB's TabListFormatManager
-                setLobbyTabListName(player);
-            } else {
-                // TAB's tablist formatting is disabled - use our internal Bukkit method
-                preserveTabListNameInternal(player);
+            // Preserve the lobby tablist name to prevent match nametag colors from affecting it.
+            // Only do this when our NAMETAG-MANAGEMENT toggle is enabled.
+            if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
+                if (tablistFormattingEnabled) {
+                    setLobbyTabListName(player);
+                } else {
+                    preserveTabListNameInternal(player);
+                }
             }
 
         } catch (Exception e) {
@@ -153,7 +154,7 @@ public class TabIntegration {
      * @param player The player whose tablist name should be set to lobby formatting
      */
     private void setLobbyTabListName(Player player) {
-        if (!available || !tablistFormattingEnabled) return;
+        if (!available || !tablistFormattingEnabled || !PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) return;
 
         try {
             TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());
@@ -216,7 +217,7 @@ public class TabIntegration {
      * @param listName The full formatted component to display in tablist (prefix + colored name + suffix)
      */
     public void setTabListName(Player player, Component listName) {
-        if (!available || !tablistFormattingEnabled) return;
+        if (!available || !tablistFormattingEnabled || !PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) return;
 
         try {
             TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());

@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.nametag;
 
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
+import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -151,6 +152,8 @@ public class NametagManager {
      * Automatically uses TAB API if available, otherwise uses internal system.
      */
     public FakeTeam reset(String player) {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) return null;
+
         if (tryResetViaTab(player)) {
             return null; // Handled by TAB or TAB is active (skip internal)
         }
@@ -209,14 +212,16 @@ public class NametagManager {
      * Automatically uses TAB API if available, otherwise uses internal system.
      */
     public void setNametag(Player player, Component prefix, NamedTextColor namedTextColor, Component suffix, int sortPriority) {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) return;
+
         if (trySetViaTab(player, prefix, namedTextColor, suffix, sortPriority)) {
             return; // Handled by TAB or TAB is active (skip internal)
         }
 
         setNametagInternal(player.getName(), prefix, namedTextColor, suffix, sortPriority);
 
-        // In Minecraft 1.21+, scoreboard team colors can affect the tab list
-        // We need to explicitly preserve the lobby tab list name to prevent match nametag colors from bleeding into the tab list
+        // In Minecraft 1.21+, scoreboard team colors can affect the tab list.
+        // Preserve the lobby tab list name to prevent match nametag colors from bleeding into it.
         preserveTabListName(player);
     }
 
@@ -292,9 +297,11 @@ public class NametagManager {
 
     /**
      * Sends all current teams to a player (for when they join).
-     * Skips if TAB is managing teams.
+     * Skips if TAB is managing teams or nametag management is disabled.
      */
     public void sendTeams(Player player) {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) return;
+
         if (isUsingTabSystem()) {
             return; // TAB handles this
         }

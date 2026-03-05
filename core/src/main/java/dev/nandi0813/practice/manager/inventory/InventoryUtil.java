@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -18,7 +19,9 @@ public enum InventoryUtil {
 
     public static void setLobbyNametag(Player player, Profile profile) {
         if (!ConfigManager.getBoolean("PLAYER.LOBBY-NAMETAG.ENABLED")) {
-            NametagManager.getInstance().reset(player.getName());
+            if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
+                NametagManager.getInstance().reset(player.getName());
+            }
         } else {
             Group group = profile.getGroup();
             Component prefix = Component.empty(), suffix = Component.empty();
@@ -27,55 +30,37 @@ public enum InventoryUtil {
 
             if (group != null) {
                 prefix = group.getPrefix()
-                        .replaceText(
-                                TextReplacementConfig.builder()
-                                        .match("%division%")
-                                        .replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "")
-                                        .build()
-                        ).replaceText(
-                                TextReplacementConfig.builder()
-                                        .match("%division_short%")
-                                        .replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "")
-                                        .build()
-                        );
+                        .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "").build())
+                        .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "").build());
 
                 suffix = group.getSuffix()
-                        .replaceText(
-                                TextReplacementConfig.builder()
-                                        .match("%division%")
-                                        .replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "")
-                                        .build()
-                        ).replaceText(
-                                TextReplacementConfig.builder()
-                                        .match("%division_short%")
-                                        .replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "")
-                                        .build()
-                        );
+                        .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "").build())
+                        .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "").build());
 
                 nameColor = group.getNameColor();
-
                 sortPriority = group.getSortPriority();
             }
 
             if (profile.getPrefix() != null) prefix = profile.getPrefix();
             if (profile.getSuffix() != null) suffix = profile.getSuffix();
 
-            Component listName = prefix.append(Component.text(player.getName(), nameColor)).append(suffix);
-            listName = listName
-                    .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
-                    .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build());
+            if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
+                // ── Tab-list formatting ──────────────────────────────────────
+                Component listName = prefix.append(Component.text(player.getName(), nameColor)).append(suffix);
+                listName = listName
+                        .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
+                        .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build());
 
-            // Check if TAB integration is available and use it, otherwise use direct API
-            TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
-            if (tabIntegration != null && tabIntegration.isAvailable()) {
-                // Use TAB API to set tablist name
-                tabIntegration.setTabListName(player, listName);
-            } else {
-                // Use direct Bukkit API
-                ClassImport.getClasses().getPlayerUtil().setPlayerListName(player, listName);
+                TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
+                if (tabIntegration != null && tabIntegration.isAvailable()) {
+                    tabIntegration.setTabListName(player, listName);
+                } else {
+                    ClassImport.getClasses().getPlayerUtil().setPlayerListName(player, listName);
+                }
+
+                // ── Nametag management (above-head prefix / suffix / color) ──
+                NametagManager.getInstance().setNametag(player, prefix, nameColor, suffix, sortPriority);
             }
-
-            NametagManager.getInstance().setNametag(player, prefix, nameColor, suffix, sortPriority);
         }
     }
 

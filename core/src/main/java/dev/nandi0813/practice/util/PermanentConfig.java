@@ -8,6 +8,7 @@ public enum PermanentConfig {
     public static final int ARENA_COPY_MAX_CHANGES = 50 * (ConfigManager.getBoolean("ARENA.FAST-COPY") ? 3 : 1);
     public static final int ARENA_COPY_MAX_CHECKS = 500 * (ConfigManager.getBoolean("ARENA.FAST-COPY") ? 3 : 1);
     public static final boolean JOIN_TELEPORT_LOBBY = ConfigManager.getBoolean("PLAYER.JOIN-TELEPORT-LOBBY");
+    public static final boolean NAMETAG_MANAGEMENT_ENABLED = ConfigManager.getBoolean("PLAYER.NAMETAG-MANAGEMENT.ENABLED");
 
     public static final boolean MATCH_EXP_BAR = ConfigManager.getBoolean("MATCH-SETTINGS.ENDERPEARL.EXP-BAR");
     public static final boolean FFA_EXP_BAR = ConfigManager.getBoolean("FFA.ENDER-PEARL-EXP-BAR");
