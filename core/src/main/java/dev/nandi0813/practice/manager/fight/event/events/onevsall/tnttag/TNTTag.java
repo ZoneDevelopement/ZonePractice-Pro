@@ -17,6 +17,7 @@ import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -94,6 +95,7 @@ public class TNTTag extends Event {
 
     private void loadInv(Player player) {
         PlayerUtil.clearPlayer(player, true, false, true);
+        player.setGameMode(GameMode.ADVENTURE);
         setSpeedPotion(player, 1);
         setResistancePotion(player);
 
