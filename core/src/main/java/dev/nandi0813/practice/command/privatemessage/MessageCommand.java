@@ -19,7 +19,7 @@ public class MessageCommand extends PrivateMessageCommand {
     public static HashMap<Player, Player> latestMessage = new HashMap<>();
 
     public MessageCommand() {
-        super("message", new String[]{"m", "msg"});
+        super("message", new String[]{"m", "msg", "tell", "whisper", "w"});
     }
 
     @Override
