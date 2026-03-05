@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.gui.guis;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.division.Division;
 import dev.nandi0813.practice.manager.division.DivisionManager;
+import java.util.List;
 import dev.nandi0813.practice.manager.division.DivisionUtil;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
@@ -83,11 +84,16 @@ public class DivisionGui extends GUI {
     private ItemStack getDivisionItem(final Division division) {
         GUIItem guiItem;
 
-        if (division == profile.getStats().getDivision()) {
+        List<Division> divisions = DivisionManager.getInstance().getDivisions();
+        Division currentDivision = profile.getStats().getDivision();
+        int divisionIndex = divisions.indexOf(division);
+        int currentIndex = currentDivision != null ? divisions.indexOf(currentDivision) : -1;
+
+        if (division == currentDivision) {
             guiItem = CURRENT_DIVISION_ITEM.cloneItem();
             guiItem.replace("%progress_bar%", StatisticUtil.getProgressBar(100.0));
             guiItem.replace("%progress_percent%", "100.0");
-        } else if (division.getExperience() < profile.getStats().getExperience() && division.getWin() < profile.getStats().getGlobalWins()) {
+        } else if (currentDivision != null && divisionIndex < currentIndex) {
             guiItem = PAST_DIVISION_ITEM.cloneItem();
             guiItem.replace("%progress_bar%", StatisticUtil.getProgressBar(100.0));
             guiItem.replace("%progress_percent%", "100.0");
