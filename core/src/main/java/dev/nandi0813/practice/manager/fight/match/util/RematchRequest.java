@@ -46,7 +46,7 @@ public class RematchRequest {
     public void sendRematchRequest(Player sender) {
         Player target = getOtherPlayer(sender);
         if (!target.isOnline()) {
-            Common.sendMMMessage(sender, LanguageManager.getString("MATCH.REMATCH-REQUEST.TARGET-OFFLINE"));
+            Common.sendMMMessage(sender, LanguageManager.getString("MATCH.REMATCH-REQUEST.TARGET-OFFLINE").replace("%target%", target.getName()));
             return;
         }
 
