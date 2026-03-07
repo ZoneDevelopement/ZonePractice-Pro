@@ -57,10 +57,9 @@ public class FireworkRocketCooldownListener implements Listener {
         // Deduplicate: PlayerInteractEvent fires once per hand (MAIN + OFF), skip the second call this tick
         UUID uuid = player.getUniqueId();
         if (!handledThisTick.add(uuid)) {
+            handledThisTick.remove(uuid);
             return;
         }
-        // Clean up after this tick so the next click is processed normally
-        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> handledThisTick.remove(uuid));
 
         // Check if player is in FFA
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
@@ -102,5 +101,4 @@ public class FireworkRocketCooldownListener implements Listener {
             );
         }
     }
-
 }
