@@ -289,6 +289,7 @@ public abstract class QueueSelectorGui extends GUI {
             // Apply only the LB lore (which is static) but NOT %in_queue%/%in_fight%
             String lbFormat = GUIFile.getString(guiPath + ".LB-FORMAT");
             rawTemplate.setLore(QueueGuiUtil.replaceLore(lbFormat, rawTemplate.getLore(), ladder));
+            rawTemplate.replace("%weight_class%", getWeightClass().getName());
             rawTemplate.setAmount(1);
             pageTemplates.put(slot, rawTemplate.get());
         }
@@ -323,6 +324,8 @@ public abstract class QueueSelectorGui extends GUI {
 
         String lbFormat = GUIFile.getString(guiPath + ".LB-FORMAT");
         icon.setLore(QueueGuiUtil.replaceLore(lbFormat, icon.getLore(), ladder));
+
+        icon.replace("%weight_class%", getWeightClass().getName());
 
         if (duelMatchSize > 0 && duelMatchSize <= 64) {
             icon.setAmount(duelMatchSize);
