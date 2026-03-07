@@ -42,12 +42,16 @@ public class FireworkRocketCooldownListener implements Listener {
             return;
         }
 
-        // Apply cooldown only for valid firework usage:
-        // - Player gliding with elytra (boost attempt) OR
-        // - Any non-air click (ground/block usage)
-        // Ignore empty RIGHT_CLICK_AIR without gliding
-        if (!player.isGliding() && e.getAction() == Action.RIGHT_CLICK_AIR) {
-            return;
+        // Apply cooldown only for valid RIGHT-CLICK firework usage:
+        // - RIGHT_CLICK_AIR while gliding (elytra boost)
+        // - RIGHT_CLICK_BLOCK (ground/block launch)
+        // Ignore: LEFT clicks, PHYSICAL, empty RIGHT_CLICK_AIR without gliding
+        Action action = e.getAction();
+        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) {
+            return;  // Ignore left clicks & PHYSICAL
+        }
+        if (!player.isGliding() && action == Action.RIGHT_CLICK_AIR) {
+            return;  // Ignore empty air clicks
         }
 
         // Deduplicate: PlayerInteractEvent fires once per hand (MAIN + OFF), skip the second call this tick
