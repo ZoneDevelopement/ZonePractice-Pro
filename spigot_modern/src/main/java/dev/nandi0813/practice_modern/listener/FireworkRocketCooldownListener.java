@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -41,9 +42,11 @@ public class FireworkRocketCooldownListener implements Listener {
             return;
         }
 
-        // Check if player is wearing elytra
-        ItemStack chestplate = player.getInventory().getChestplate();
-        if (chestplate == null || chestplate.getType() != Material.ELYTRA) {
+        // Apply cooldown only for valid firework usage:
+        // - Player gliding with elytra (boost attempt) OR
+        // - Any non-air click (ground/block usage)
+        // Ignore empty RIGHT_CLICK_AIR without gliding
+        if (!player.isGliding() && e.getAction() == Action.RIGHT_CLICK_AIR) {
             return;
         }
 
