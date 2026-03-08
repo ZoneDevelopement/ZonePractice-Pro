@@ -60,12 +60,9 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
 
         inventory.setItem(0, BACK_TO_ITEM);
 
-        ItemStack ladderIcon = ladder.getIcon().clone();
         GUIItem ladderIconItem = SHOW_LADDER.cloneItem();
-        if (ladderIcon != null && ladderIcon.getType() != null) {
-            ladderIconItem
-                    .setMaterial(ladderIcon.getType())
-                    .setDamage(ladderIcon.getDurability());
+        if (ladder.getIcon() != null) {
+            ladderIconItem.setBaseItem(ladder.getIcon());
         }
 
         inventory.setItem(5, ladderIconItem
@@ -73,12 +70,9 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
                 .get());
 
         if (arena != null) {
-            ItemStack arenaIcon = arena.getIcon().clone();
             GUIItem arenaIconItem = SHOW_ARENA.cloneItem();
-            if (arenaIcon != null && arenaIcon.getType() != null) {
-                arenaIconItem
-                        .setMaterial(arenaIcon.getType())
-                        .setDamage(arenaIcon.getDurability());
+            if (arena.getIcon() != null) {
+                arenaIconItem.setBaseItem(arena.getIcon());
             }
 
             inventory.setItem(6, arenaIconItem

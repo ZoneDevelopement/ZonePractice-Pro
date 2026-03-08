@@ -47,11 +47,14 @@ public class LadderSelector extends GUI {
         ladderSlots.clear();
 
         for (NormalLadder ladder : ffaArena.getAssignedLadders()) {
-            ItemStack ladderItem = LADDER_ITEM.cloneItem()
-                    .setMaterial(ladder.getIcon().getType())
-                    .setDamage(ladder.getIcon().getDurability())
-                    .replace("%ladder%", ladder.getDisplayName())
-                    .get();
+            GUIItem guiItem = LADDER_ITEM.cloneItem()
+                    .replace("%ladder%", ladder.getDisplayName());
+
+            if (ladder.getIcon() != null) {
+                guiItem.setBaseItem(ladder.getIcon());
+            }
+
+            ItemStack ladderItem = guiItem.get();
 
             int slot = inventory.firstEmpty();
             inventory.setItem(slot, ladderItem);
