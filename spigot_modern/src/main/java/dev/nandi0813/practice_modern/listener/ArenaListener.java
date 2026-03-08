@@ -1,7 +1,10 @@
 package dev.nandi0813.practice_modern.listener;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.server.ServerManager;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -16,7 +19,12 @@ public class ArenaListener implements Listener {
     public void onChunkUnload(ChunkUnloadEvent e) {
         if (LOAD_CHUNKS) {
             if (LOADED_CHUNKS.contains(e.getChunk())) {
-                e.getChunk().getWorld().getChunkAtAsync(e.getChunk().getX(), e.getChunk().getZ());
+                final World world = e.getChunk().getWorld();
+                final int cx = e.getChunk().getX();
+                final int cz = e.getChunk().getZ();
+                Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
+                    world.getChunkAtAsync(cx, cz)
+                );
             }
         }
     }
