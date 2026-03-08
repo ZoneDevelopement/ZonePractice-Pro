@@ -6,9 +6,8 @@ import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.manager.profile.group.Group;
+import dev.nandi0813.practice.util.ChatFormatUtil;
 import dev.nandi0813.practice.util.Common;
-import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -28,15 +27,12 @@ public class PlayerChatListener implements Listener {
 
         // --- Party chat ---
         if (ConfigManager.getBoolean("CHAT.PARTY-CHAT-ENABLED") && profile.isParty() && party != null && message.startsWith("@")) {
-            e.setCancelled(true);
-
             if (party.isPartyChat() || party.getLeader() == player) {
-                final String partyMsg = LanguageManager.getString("GENERAL-CHAT.PARTY-CHAT")
-                        .replace("%%player%%", player.getName())
-                        .replace("%%message%%", message.replaceFirst("@", ""));
-                Bukkit.getScheduler().runTask(dev.nandi0813.practice.ZonePractice.getInstance(),
-                        () -> party.sendMessage(partyMsg));
+                e.getRecipients().clear();
+                e.getRecipients().addAll(party.getMembers());
+                applyLegacyFormat(e, ChatFormatUtil.buildPartyChatMessage(player, message));
             } else {
+                e.setCancelled(true);
                 final String cantUse = LanguageManager.getString("PARTY.CANT-USE-PARTY-CHAT");
                 Bukkit.getScheduler().runTask(dev.nandi0813.practice.ZonePractice.getInstance(),
                         () -> Common.sendMMMessage(player, cantUse));
@@ -46,55 +42,39 @@ public class PlayerChatListener implements Listener {
 
         // --- Staff chat (toggle) ---
         if (profile.isStaffChat()) {
-            e.setCancelled(true);
-            Bukkit.getScheduler().runTask(dev.nandi0813.practice.ZonePractice.getInstance(),
-                    () -> PlayerUtil.sendStaffMessage(player, message));
+            applyStaffChat(e, player, message);
             return;
         }
 
         // --- Staff chat (shortcut: #message) ---
         if (player.hasPermission("zpp.staff") && ConfigManager.getBoolean("CHAT.STAFF-CHAT.SHORTCUT") && message.startsWith("#")) {
-            e.setCancelled(true);
-            final String staffMsg = message.replaceFirst("#", "");
-            Bukkit.getScheduler().runTask(dev.nandi0813.practice.ZonePractice.getInstance(),
-                    () -> PlayerUtil.sendStaffMessage(player, staffMsg));
+            applyStaffChat(e, player, message.replaceFirst("#", ""));
             return;
         }
 
         // --- Custom server chat ---
         if (ConfigManager.getBoolean("CHAT.SERVER-CHAT-ENABLED")) {
-            // Build the format string
-            final String format;
-            if (ConfigManager.getBoolean("PLAYER.GROUP-CHAT.ENABLED")) {
-                Group group = profile.getGroup();
-                if (group != null && group.getChatFormat() != null) {
-                    format = group.getChatFormat();
-                } else {
-                    format = LanguageManager.getString("GENERAL-CHAT.SERVER-CHAT");
-                }
-            } else {
-                format = LanguageManager.getString("GENERAL-CHAT.SERVER-CHAT");
-            }
-
-            String division      = profile.getStats().getDivision() != null ? profile.getStats().getDivision().getFullName()  : "";
-            String divisionShort = profile.getStats().getDivision() != null ? profile.getStats().getDivision().getShortName() : "";
-
-            String preFormatted = format
-                    .replace("%%division%%",       division)
-                    .replace("%%division_short%%", divisionShort)
-                    .replace("%%player%%",          player.getName())
-                    .replace("%%message%%",         message);
-
-            // Serialize the MiniMessage string to a legacy §-coloured string and inject
-            // it as the entire chat line via setFormat(). Bukkit calls:
-            //   String.format(format, playerName, message)
-            // We put the fully-built line in slot %2$s and suppress slot %1$s,
-            // so the event is NOT cancelled — Bukkit delivers it natively to all recipients.
-            String legacy = LegacyComponentSerializer.legacySection()
-                    .serialize(Common.deserializeMiniMessage(preFormatted));
-
-            e.setFormat("%2$s");
-            e.setMessage(legacy);
+            applyLegacyFormat(e, ChatFormatUtil.buildServerChatMessage(profile, player, message));
         }
+    }
+
+    /**
+     * Restricts recipients to staff and applies the staff chat format.
+     */
+    private void applyStaffChat(AsyncPlayerChatEvent e, Player player, String rawMessage) {
+        e.getRecipients().clear();
+        e.getRecipients().addAll(ChatFormatUtil.getStaffRecipients());
+        applyLegacyFormat(e, ChatFormatUtil.buildStaffChatMessage(player, rawMessage));
+    }
+
+    /**
+     * Serialises a MiniMessage string to a legacy §-coloured string and injects
+     * it into the event via setFormat / setMessage so Bukkit delivers it natively.
+     */
+    private void applyLegacyFormat(AsyncPlayerChatEvent e, String miniMessageString) {
+        String legacy = LegacyComponentSerializer.legacySection()
+                .serialize(Common.deserializeMiniMessage(miniMessageString));
+        e.setFormat("%2$s");
+        e.setMessage(legacy);
     }
 }
