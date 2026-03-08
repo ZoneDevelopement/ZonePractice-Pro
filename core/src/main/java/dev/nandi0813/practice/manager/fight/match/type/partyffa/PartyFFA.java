@@ -12,6 +12,7 @@ import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.util.MatchPlayerUtil;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
@@ -19,6 +20,7 @@ import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
+import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
@@ -88,35 +90,60 @@ public class PartyFFA extends Match {
 
     @Override
     protected void killPlayer(Player player, String deathMessage) {
-        // Check if this ladder supports FFA mode using the Match helper methods
-        // Respawnable ladders don't support standard FFA death mechanics
-        if (isRespawnableLadder()) {
-            return; // Respawnable ladders (Bridges, BedWars, etc.) don't support FFA
-        }
-
-        // Scoring ladders (like Boxing) have special win conditions
-        if (isScoringLadder()) {
-            return;
-        }
-
-        // Default death behavior for standard ladders in FFA
-        this.getCurrentStat(player).end(true);
-        SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
-
-        PlayerUtil.setFightPlayer(player);
-
-        if (ladder.isDropInventoryPartyGames())
-            addEntityChange(ClassImport.getClasses().getPlayerUtil().dropPlayerInventory(player));
-        else
-            ClassImport.getClasses().getPlayerUtil().clearInventory(player);
-
         PartyFfaRound round = this.getCurrentRound();
-        Player winnerPlayer = this.getWinnerPlayer();
-        if (winnerPlayer != null) {
-            round.setRoundWinner(winnerPlayer);
-            round.endRound();
-        } else
-            MatchPlayerUtil.hidePlayerPartyGames(player, this.players);
+
+        // Use the Match helper method to handle ladder-specific death behavior
+        DeathResult result = handleLadderDeath(player);
+
+        switch (result) {
+            case TEMPORARY_DEATH:
+                // Ladder supports respawning - create temp kill
+                asRespawnableLadder().ifPresent(respawnableLadder -> {
+                    new TempKillPlayer(round, player, respawnableLadder.getRespawnTime());
+                    SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_TEMP_DEATH).play(this.getPeople());
+                });
+                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                player.setHealth(20);
+                return;
+
+            case ELIMINATED:
+                if (isScoringLadder()) {
+                    // Scoring ladder (like Boxing) - death doesn't end round
+                    return;
+                }
+
+                // Standard or respawnable-eliminated death behavior
+                this.getCurrentStat(player).end(true);
+                SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
+
+                PlayerUtil.setFightPlayer(player);
+
+                if (ladder.isDropInventoryPartyGames())
+                    addEntityChange(ClassImport.getClasses().getPlayerUtil().dropPlayerInventory(player));
+                else
+                    ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+
+                // Send a death notification message
+                String playerDieMsg = LanguageManager.getString("MATCH.PARTY-FFA.PLAYER-DIE");
+                if (playerDieMsg != null) {
+                    this.sendMessage(playerDieMsg
+                            .replace("%player%", player.getName())
+                            .replace("%alivePlayers%", String.valueOf(this.getAlivePlayers().size())), true);
+                }
+
+                Player winnerPlayer = this.getWinnerPlayer();
+                if (winnerPlayer != null) {
+                    round.setRoundWinner(winnerPlayer);
+                    round.endRound();
+                } else {
+                    MatchPlayerUtil.hidePlayerPartyGames(player, this.players);
+                }
+                break;
+
+            case NO_ACTION:
+                // Ladder handled everything
+                break;
+        }
     }
 
     @Override

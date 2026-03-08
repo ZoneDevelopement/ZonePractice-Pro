@@ -285,14 +285,21 @@ public class TabIntegration {
 
             // Get TAB's NameTagManager to reset nametag values
             NameTagManager nameTagManager = tabAPI.getNameTagManager();
-            if (nameTagManager == null) return;
+            if (nameTagManager != null) {
+                // Reset nametag prefix and suffix to default (null values reset to TAB's config)
+                nameTagManager.setPrefix(tabPlayer, null);
+                nameTagManager.setSuffix(tabPlayer, null);
+            }
 
-            // Reset nametag prefix and suffix to default (null values reset to TAB's config)
-            nameTagManager.setPrefix(tabPlayer, null);
-            nameTagManager.setSuffix(tabPlayer, null);
-
-            // NOTE: We do NOT reset tablist formatting here
-            // Tablist should remain as configured by TAB (group-based formatting from lobby)
+            // Also reset tablist formatting to TAB's defaults so stale values don't persist
+            if (tablistFormattingEnabled) {
+                TabListFormatManager tabListFormatManager = tabAPI.getTabListFormatManager();
+                if (tabListFormatManager != null) {
+                    tabListFormatManager.setPrefix(tabPlayer, null);
+                    tabListFormatManager.setName(tabPlayer, null);
+                    tabListFormatManager.setSuffix(tabPlayer, null);
+                }
+            }
 
         } catch (Exception e) {
             // Silently fail - TAB integration is best-effort
@@ -315,7 +322,7 @@ public class TabIntegration {
      * @return Legacy color code string (e.g., "§a" for green)
      */
     private String getColorCode(NamedTextColor color) {
-        if (color == null) return "§f"; // Default to white
+        if (color == null) return "§7"; // Default to gray
 
         // Map NamedTextColor to legacy color codes
         if (color == NamedTextColor.BLACK) return "§0";
@@ -335,7 +342,7 @@ public class TabIntegration {
         if (color == NamedTextColor.YELLOW) return "§e";
         if (color == NamedTextColor.WHITE) return "§f";
 
-        return "§f"; // Default to white if unknown
+        return "§7"; // Default to gray if unknown
     }
 
     /**

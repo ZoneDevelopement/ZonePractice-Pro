@@ -1,4 +1,4 @@
-VERSION: 17
+VERSION: 18
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1415,6 +1415,7 @@ MATCH:
         - "%rankedExtension%"
   PARTY-FFA:
     PLAYER-LEFT: "<red>%player% <yellow>left the match."
+    PLAYER-DIE: "<red>%player% <yellow>has been eliminated. <gray>(%alivePlayers% players remaining)"
     START:
       MATCH-STARTING: "<yellow>Match is starting in <gold>%seconds% <yellow>%secondName%."
       MATCH-STARTED: "<green>Match has been started."

@@ -57,7 +57,7 @@ public class GroupManager extends ConfigFile {
                     this.getInt("GROUPS." + groupName + ".CUSTOM-KIT"),
                     this.getInt("GROUPS." + groupName + ".MODIFIABLE-KIT-PER-LADDER"),
                     ZonePractice.getMiniMessage().deserialize(this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.PREFIX")),
-                    NamedTextColor.NAMES.valueOr(this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME-COLOR").toLowerCase(), NamedTextColor.WHITE),
+                    NamedTextColor.NAMES.valueOr(this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME-COLOR").toLowerCase(), NamedTextColor.GRAY),
                     ZonePractice.getMiniMessage().deserialize(this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.SUFFIX")),
                     this.getInt("GROUPS." + groupName + ".LOBBY-NAMETAG.SORT-PRIORITY"),
                     chatFormat,
