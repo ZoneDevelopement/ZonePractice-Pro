@@ -22,7 +22,7 @@ public class PlayerPreLogin implements Listener {
         if (!ZonePractice.isFullyLoaded()) {
             String message = LanguageManager.getString("PLUGIN-LOADING-MESSAGE");
             if (message == null || message.isEmpty()) {
-                message = "<red>The server is still loading, please wait...";
+                message = "<red>The server is still loading. Please try again in a moment.";
             }
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Common.mmToNormal(message));
             return;
