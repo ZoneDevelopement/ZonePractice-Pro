@@ -88,7 +88,9 @@ public enum MatchUtil {
     }
 
     public static void safePlayerTeleportBlock(Block block) {
-        if (block != null && block.getType().equals(Material.AIR))
+        if (block == null) return;
+        if (!block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4)) return;
+        if (block.getType().equals(Material.AIR))
             block.setType(Material.BEDROCK);
     }
 
