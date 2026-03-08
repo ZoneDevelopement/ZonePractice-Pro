@@ -67,7 +67,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
 
     // Round
     protected final int winsNeeded;
-    protected final Map<Integer, Round> rounds = new HashMap<>();
+    protected final Map<Integer, Round> rounds = new java.util.concurrent.ConcurrentHashMap<>();
 
     // Player variables
     protected final Map<Player, MatchFightPlayer> matchPlayers = new HashMap<>();
