@@ -60,6 +60,14 @@ public class FightChangeOptimized {
     private RollbackTask rollbackTask;
 
     /**
+     * True while a rollback is in progress. Used by block spread/burn listeners to
+     * cancel new fire spread during the multi-tick rollback window so fire doesn't
+     * re-appear on blocks that have already been restored.
+     */
+    @Getter
+    private volatile boolean rollingBack = false;
+
+    /**
      * Constructor for all fight types (Match, Event, FFA).
      *
      * @param spectatable The Spectatable instance (provides cuboid and is stored in metadata)
@@ -235,6 +243,8 @@ public class FightChangeOptimized {
      * @param onComplete Called on the main thread when rollback finishes, or {@code null}
      */
     public void rollback(int maxCheck, int maxChange, @org.jetbrains.annotations.Nullable Runnable onComplete) {
+        rollingBack = true;
+
         // Remove all entities (both tracked and cuboid entities in one pass)
         removeAllEntities();
 
@@ -245,7 +255,9 @@ public class FightChangeOptimized {
         }
 
         if (blocks.isEmpty()) {
-            // Nothing to restore — fire callback immediately
+            // Nothing to restore — still extinguish any lingering fire
+            extinguishFire();
+            rollingBack = false;
             if (onComplete != null) {
                 if (org.bukkit.Bukkit.isPrimaryThread()) {
                     onComplete.run();
@@ -259,6 +271,8 @@ public class FightChangeOptimized {
         // Quick rollback if server is shutting down
         if (!ZonePractice.getInstance().isEnabled()) {
             quickRollback();
+            extinguishFire();
+            rollingBack = false;
             if (onComplete != null) onComplete.run();
             return;
         }
@@ -325,6 +339,24 @@ public class FightChangeOptimized {
             block.removeMetadata(PLACED_IN_FIGHT, ZonePractice.getInstance());
 
             iterator.remove();
+        }
+    }
+
+    /**
+     * Scans the arena cuboid and extinguishes any remaining fire (FIRE / SOUL_FIRE) blocks.
+     * <p>
+     * During multi-tick rollback, fire can spread to freshly-restored flammable blocks
+     * before the rollback finishes. This sweep ensures no fire persists after rollback.
+     */
+    private void extinguishFire() {
+        if (cuboid == null) return;
+
+        for (Block block : cuboid) {
+            String typeName = block.getType().name();
+            if (typeName.equals("FIRE") || typeName.equals("SOUL_FIRE")) {
+                block.setType(org.bukkit.Material.AIR, false);
+                block.removeMetadata(PLACED_IN_FIGHT, ZonePractice.getInstance());
+            }
         }
     }
 
@@ -412,6 +444,10 @@ public class FightChangeOptimized {
                     isRunning = false;
                     blocks.clear(); // Clear the map
 
+                    // Extinguish any fire that spread during the multi-tick rollback
+                    extinguishFire();
+                    rollingBack = false;
+
                     if (onComplete != null) {
                         onComplete.run(); // already on main thread (runTaskTimer)
                     }
@@ -428,6 +464,7 @@ public class FightChangeOptimized {
             } catch (Exception e) {
                 this.cancel();
                 isRunning = false;
+                rollingBack = false;
                 Common.sendConsoleMMMessage("<red>Rollback error at block " + processedBlocks + "/" + totalBlocks + ": " + e.getMessage());
                 e.printStackTrace();
             }

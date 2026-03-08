@@ -18,6 +18,7 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
@@ -425,7 +426,7 @@ public abstract class AbstractBuildListener implements Listener {
     // BLOCK SPREAD (fire, mushrooms, etc.)
     // =========================================================================
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockSpread(BlockSpreadEvent e) {
         Block source = e.getSource();
 
@@ -445,12 +446,104 @@ public abstract class AbstractBuildListener implements Listener {
 
         if (!spectatable.isBuild()) return;
 
+        // Cancel fire spread during rollback to prevent fire from re-igniting
+        // freshly-restored flammable blocks while the multi-tick rollback is in progress.
+        if (spectatable.getFightChange() != null && spectatable.getFightChange().isRollingBack()) {
+            e.setCancelled(true);
+            return;
+        }
+
         final Spectatable finalSpectatable = spectatable;
         final Block newBlock = e.getNewState().getBlock();
         org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
             if (newBlock.hasMetadata(PLACED_IN_FIGHT)) return;
             tagAndTrack(newBlock, finalSpectatable);
         });
+    }
+
+    // =========================================================================
+    // BLOCK BURN (fire destroying blocks)
+    // =========================================================================
+
+    /**
+     * Tracks blocks destroyed by fire so they are restored during rollback.
+     * Runs at LOWEST so the block still holds its original material when captured.
+     * <p>
+     * Also tracks adjacent fire blocks (the igniting fire and fire above) so that
+     * rollback removes the fire along with restoring the burned block.
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBlockBurn(BlockBurnEvent e) {
+        Block block = e.getBlock();
+
+        Spectatable spectatable = null;
+
+        // Fast path: block already tagged
+        if (block.hasMetadata(PLACED_IN_FIGHT)) {
+            MetadataValue mv = block.getMetadata(PLACED_IN_FIGHT).get(0);
+            if (mv.value() instanceof Spectatable s) {
+                spectatable = s;
+            }
+        }
+
+        // Slow path: natural arena block — look up by cuboid
+        if (spectatable == null) {
+            spectatable = getByBlock(block);
+            if (spectatable == null) return;
+        }
+
+        if (!spectatable.isBuild()) return;
+
+        // Cancel burns during rollback to prevent fire from destroying
+        // freshly-restored blocks while the multi-tick rollback is in progress.
+        if (spectatable.getFightChange() != null && spectatable.getFightChange().isRollingBack()) {
+            e.setCancelled(true);
+            return;
+        }
+
+        // Track the block's original state for rollback
+        if (block.hasMetadata(PLACED_IN_FIGHT)) {
+            spectatable.addBlockChange(ClassImport.createChangeBlock(block));
+        } else {
+            spectatable.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(block));
+        }
+
+        // Track adjacent fire blocks so rollback removes the fire that caused/surrounds the burn.
+        // Without this, restoring the burned block leaves fire sitting on top of it.
+        trackAdjacentFire(block, spectatable);
+
+        // After the burn event, the burned block may be replaced with fire.
+        // Schedule a 1-tick delayed check to track it if so.
+        final Spectatable finalSpectatable = spectatable;
+        org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+            String typeName = block.getType().name();
+            if ((typeName.equals("FIRE") || typeName.equals("SOUL_FIRE")) && !block.hasMetadata(PLACED_IN_FIGHT)) {
+                tagAndTrack(block, finalSpectatable);
+            }
+        });
+    }
+
+    /**
+     * Checks all six faces around a block for fire (FIRE / SOUL_FIRE) and tracks
+     * any untracked fire blocks for rollback so they are removed when the arena resets.
+     */
+    private void trackAdjacentFire(Block center, Spectatable spectatable) {
+        final Block[] adjacent = {
+                center.getRelative(0, 1, 0),   // above
+                center.getRelative(0, -1, 0),  // below
+                center.getRelative(1, 0, 0),   // east
+                center.getRelative(-1, 0, 0),  // west
+                center.getRelative(0, 0, 1),   // south
+                center.getRelative(0, 0, -1)   // north
+        };
+
+        for (Block adj : adjacent) {
+            String typeName = adj.getType().name();
+            if (!typeName.equals("FIRE") && !typeName.equals("SOUL_FIRE")) continue;
+            if (adj.hasMetadata(PLACED_IN_FIGHT)) continue;
+
+            tagAndTrack(adj, spectatable);
+        }
     }
 
     // =========================================================================

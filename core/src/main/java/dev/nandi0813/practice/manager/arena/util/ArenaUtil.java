@@ -109,6 +109,10 @@ public enum ArenaUtil {
                     Common.sendMMMessage(player, LanguageManager.getString("ARENA.STATUS-CHANGE.NO-FFA-POSITIONS"));
                     returnVal = false;
                 }
+                if (arena.getAssignedLadders().isEmpty()) {
+                    Common.sendMMMessage(player, "<red>Please assign at least one ladder to the arena!");
+                    return false;
+                }
             }
         } else {
             if (!MatchManager.getInstance().getLiveMatchesByArena(arena).isEmpty()) {

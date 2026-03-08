@@ -27,6 +27,8 @@ import dev.nandi0813.practice.util.interfaces.Spectatable;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -143,6 +145,14 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         Bukkit.getPluginManager().callEvent(new FFARemovePlayerEvent(this, player));
 
         this.sendMessage(LanguageManager.getString("FFA.GAME.PLAYER-LEAVE").replace("%player%", player.getName()), true);
+
+        // Remove in-flight ender pearls to prevent the player from being
+        // teleported back to the arena world after they have left.
+        for (Entity entity : player.getWorld().getEntities()) {
+            if (entity instanceof EnderPearl pearl && player.equals(pearl.getShooter())) {
+                pearl.remove();
+            }
+        }
 
         players.remove(player);
         fightPlayers.remove(player);
