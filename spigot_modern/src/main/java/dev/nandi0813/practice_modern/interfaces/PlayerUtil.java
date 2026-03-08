@@ -114,18 +114,25 @@ public class PlayerUtil implements dev.nandi0813.practice.module.interfaces.Play
         final float yield = fireball.getYield() > 0 ? fireball.getYield() : 1.0f;
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-            double distance = playerLoc.distance(fireballLoc);
+            double dx = playerLoc.getX() - fireballLoc.getX();
+            double dz = playerLoc.getZ() - fireballLoc.getZ();
+            double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
+            double fullDistance = playerLoc.distance(fireballLoc);
+
+            // Blend horizontal and full 3D distance so that jumping still weakens
+            // the knockback, but not as drastically as using full 3D distance alone.
+            double effectiveDistance = (horizontalDistance * 0.7) + (fullDistance * 0.3);
 
             double safeDistance = 0.6;
             double factor = 1.0;
 
-            if (distance > safeDistance) {
+            if (effectiveDistance > safeDistance) {
                 double impactRadius = yield * 2.5;
                 double decayRange = impactRadius - safeDistance;
 
                 if (decayRange <= 0.1) decayRange = 1.0;
 
-                factor = 1.0 - ((distance - safeDistance) / decayRange);
+                factor = 1.0 - ((effectiveDistance - safeDistance) / decayRange);
             }
 
             if (factor <= 0.1) return;
