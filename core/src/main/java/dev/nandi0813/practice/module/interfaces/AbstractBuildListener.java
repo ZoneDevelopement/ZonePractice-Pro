@@ -428,16 +428,28 @@ public abstract class AbstractBuildListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockSpread(BlockSpreadEvent e) {
         Block source = e.getSource();
-        if (!source.hasMetadata(PLACED_IN_FIGHT)) return;
 
-        MetadataValue mv = source.getMetadata(PLACED_IN_FIGHT).get(0);
-        if (!(mv.value() instanceof Spectatable spectatable)) return;
+        Spectatable spectatable = null;
+
+        if (source.hasMetadata(PLACED_IN_FIGHT)) {
+            MetadataValue mv = source.getMetadata(PLACED_IN_FIGHT).get(0);
+            if (mv.value() instanceof Spectatable s) {
+                spectatable = s;
+            }
+        }
+
+        if (spectatable == null) {
+            spectatable = getByBlock(source);
+            if (spectatable == null) return;
+        }
+
         if (!spectatable.isBuild()) return;
 
+        final Spectatable finalSpectatable = spectatable;
         final Block newBlock = e.getNewState().getBlock();
         org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
             if (newBlock.hasMetadata(PLACED_IN_FIGHT)) return;
-            tagAndTrack(newBlock, spectatable);
+            tagAndTrack(newBlock, finalSpectatable);
         });
     }
 
