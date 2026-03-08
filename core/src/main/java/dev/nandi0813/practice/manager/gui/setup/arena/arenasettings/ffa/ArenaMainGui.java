@@ -138,6 +138,10 @@ public class ArenaMainGui extends GUI {
                 GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).open(player);
                 break;
             case 31:
+                if (!ffaArena.isEnabled() && ffaArena.isReadyToEnable()) {
+                    ArenaUtil.changeStatus(player, ffaArena);
+                }
+
                 if (ffaArena.isEnabled()) {
                     FFA ffa = ffaArena.getFfa();
 
