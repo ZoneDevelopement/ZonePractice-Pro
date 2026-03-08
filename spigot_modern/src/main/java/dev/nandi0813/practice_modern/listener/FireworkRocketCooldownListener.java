@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -41,19 +42,24 @@ public class FireworkRocketCooldownListener implements Listener {
             return;
         }
 
-        // Check if player is wearing elytra
-        ItemStack chestplate = player.getInventory().getChestplate();
-        if (chestplate == null || chestplate.getType() != Material.ELYTRA) {
-            return;
+        // Apply cooldown only for valid RIGHT-CLICK firework usage:
+        // - RIGHT_CLICK_AIR while gliding (elytra boost)
+        // - RIGHT_CLICK_BLOCK (ground/block launch)
+        // Ignore: LEFT clicks, PHYSICAL, empty RIGHT_CLICK_AIR without gliding
+        Action action = e.getAction();
+        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) {
+            return;  // Ignore left clicks & PHYSICAL
+        }
+        if (!player.isGliding() && action == Action.RIGHT_CLICK_AIR) {
+            return;  // Ignore empty air clicks
         }
 
         // Deduplicate: PlayerInteractEvent fires once per hand (MAIN + OFF), skip the second call this tick
         UUID uuid = player.getUniqueId();
         if (!handledThisTick.add(uuid)) {
+            handledThisTick.remove(uuid);
             return;
         }
-        // Clean up after this tick so the next click is processed normally
-        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> handledThisTick.remove(uuid));
 
         // Check if player is in FFA
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
@@ -95,5 +101,4 @@ public class FireworkRocketCooldownListener implements Listener {
             );
         }
     }
-
 }
