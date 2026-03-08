@@ -78,6 +78,7 @@ public class PlayerChatListener implements Listener {
     private void setViewers(AsyncChatEvent e, Collection<? extends Audience> targets) {
         Set<Audience> viewers = e.viewers();
         viewers.clear();
+        viewers.add(ZonePractice.getAdventure().console());
         viewers.addAll(targets);
     }
 
