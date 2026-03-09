@@ -602,8 +602,10 @@ public class PracticeAdapter implements SidebarAdapter {
                 line = line
                         .replace("%tps%", String.valueOf(TPSUtil.get1MinTPSRounded()))
                         .replace("%arenas%", String.valueOf(ArenaManager.getInstance().getArenaList().size()))
-                        .replace("%enabledArenas%", String.valueOf(ArenaManager.getInstance().getEnabledArenas().size()));
-
+                        .replace("%enabledArenas%", String.valueOf(
+                                ArenaManager.getInstance().getEnabledArenas().size() +
+                                        ArenaManager.getInstance().getEnabledFFAArenas().size()
+                        ));
                 sidebar.add(PAPIUtil.runThroughFormat(player, line));
             }
         }
