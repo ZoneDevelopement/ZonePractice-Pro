@@ -47,7 +47,9 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 public class FireballFight extends BedFight implements CustomConfig, LadderHandle {
 
     private double fireballCooldown;
+    private boolean fireballBlockDestroy;
     private static final String FIREBALL_COOLDOWN_PATH = "fireball-cooldown";
+    private static final String FIREBALL_BLOCK_DESTROY_PATH = "fireball-block-destroy";
 
     public FireballFight(String name, LadderType type) {
         super(name, type);
@@ -61,6 +63,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
     @Override
     public void setCustomConfig(YamlConfiguration config) {
         config.set(FIREBALL_COOLDOWN_PATH, fireballCooldown);
+        config.set(FIREBALL_BLOCK_DESTROY_PATH, fireballBlockDestroy);
     }
 
     @Override
@@ -71,6 +74,8 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
                 this.fireballCooldown = 1.5;
         } else
             this.fireballCooldown = 1.5;
+
+        this.fireballBlockDestroy = config.getBoolean(FIREBALL_BLOCK_DESTROY_PATH, false);
     }
 
     @Override
@@ -263,8 +268,30 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
         Entity entity = e.getEntity();
 
         if (entity.hasMetadata(FIREBALL_FIGHT_FIREBALL)) {
-            // No block destruction from fireball — but don't cancel so the sound plays naturally.
-            e.blockList().clear();
+            MetadataValue fbMv = BlockUtil.getMetadata(entity, FIREBALL_FIGHT_FIREBALL);
+            if (ListenerUtil.checkMetaData(fbMv)) {
+                e.blockList().clear();
+                return;
+            }
+
+            if (!(fbMv.value() instanceof Match match)) {
+                e.blockList().clear();
+                return;
+            }
+
+            if (!(match.getLadder() instanceof FireballFight fireballFight) || !fireballFight.isFireballBlockDestroy()) {
+                // Setting disabled — no block destruction from fireball, but don't cancel so the sound plays.
+                e.blockList().clear();
+                return;
+            }
+
+            if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+                e.blockList().clear();
+                return;
+            }
+
+            // Setting enabled — only destroy player-placed blocks, not arena blocks.
+            e.blockList().removeIf(block -> !block.hasMetadata(PLACED_IN_FIGHT));
         } else if (entity.hasMetadata(FIREBALL_FIGHT_TNT) && entity.hasMetadata(FIREBALL_FIGHT_TNT_SHOOTER)) {
             MetadataValue mv = BlockUtil.getMetadata(entity, FIREBALL_FIGHT_TNT);
             if (ListenerUtil.checkMetaData(mv)) return;

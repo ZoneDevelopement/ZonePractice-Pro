@@ -147,6 +147,7 @@ public enum LadderType {
             .withPearlSettings()
             .withBuildSettings()
             .withSetting(SettingType.FIREBALL_COOLDOWN)
+            .withSetting(SettingType.FIREBALL_BLOCK_DESTROY)
     ),
 
     BRIDGES(LadderTypeConfig.builder(

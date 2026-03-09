@@ -191,6 +191,9 @@ public class SettingsGui extends GUI {
         if (settingTypes.contains(SettingType.FIREBALL_COOLDOWN))
             settingItems.add(new FireballCooldownItem(this, ladder));
 
+        if (settingTypes.contains(SettingType.FIREBALL_BLOCK_DESTROY))
+            settingItems.add(new FireballBlockDestroyItem(this, ladder));
+
         if (settingTypes.contains(SettingType.SKYWARS_LOOT))
             settingItems.add(new SkywarsLootItem(this, (SkyWars) ladder));
 

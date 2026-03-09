@@ -1,4 +1,4 @@
-VERSION: 11
+VERSION: 12
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -2128,6 +2128,26 @@ GUIS:
                 - ""
                 - "&7Players can only break blocks they"
                 - "&7placed during the match."
+                - ""
+                - "&e&lClick here &7to &aenable&7."
+          FIREBALL-BLOCK-DESTROY:
+            ENABLED:
+              NAME: "&7Fireball Block Destroy: &aEnabled"
+              MATERIAL: FIREBALL
+              LORE:
+                - ""
+                - "&7Fireball explosions will destroy"
+                - "&7blocks placed by players."
+                - "&8(Arena blocks are not affected)"
+                - ""
+                - "&e&lClick here &7to &cdisable&7."
+            DISABLED:
+              NAME: "&7Fireball Block Destroy: &cDisabled"
+              MATERIAL: FIREBALL
+              LORE:
+                - ""
+                - "&7Fireball explosions will not"
+                - "&7destroy any blocks."
                 - ""
                 - "&e&lClick here &7to &aenable&7."
           SPLEEF-SNOWBALL-MODE:
