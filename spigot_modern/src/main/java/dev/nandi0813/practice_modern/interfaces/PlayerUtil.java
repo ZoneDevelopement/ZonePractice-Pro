@@ -117,13 +117,12 @@ public class PlayerUtil implements dev.nandi0813.practice.module.interfaces.Play
             double dx = playerLoc.getX() - fireballLoc.getX();
             double dz = playerLoc.getZ() - fireballLoc.getZ();
             double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
-            double fullDistance = playerLoc.distance(fireballLoc);
 
-            // Blend horizontal and full 3D distance so that jumping still weakens
-            // the knockback, but not as drastically as using full 3D distance alone.
-            double effectiveDistance = (horizontalDistance * 0.7) + (fullDistance * 0.3);
+            // Use only horizontal distance for factor calculation so that jumping
+            // (which only increases vertical separation) does not reduce the knockback strength.
+            double effectiveDistance = horizontalDistance;
 
-            double safeDistance = 0.6;
+            double safeDistance = 0.8;
             double factor = 1.0;
 
             if (effectiveDistance > safeDistance) {
@@ -138,18 +137,35 @@ public class PlayerUtil implements dev.nandi0813.practice.module.interfaces.Play
             if (factor <= 0.1) return;
             if (factor > 1) factor = 1;
 
-            Vector direction = playerLoc.toVector().subtract(fireballLoc.toVector());
+            // Compute horizontal direction separately so the vertical component
+            // of the direction vector doesn't steal from horizontal velocity.
+            double horizontalLen = Math.sqrt(dx * dx + dz * dz);
+            double horizDirX;
+            double horizDirZ;
 
-            if (direction.lengthSquared() == 0) {
-                direction = new Vector(0, 0.1, 0);
+            if (horizontalLen < 0.001) {
+                // Fireball is almost directly below – pick the player's facing direction
+                Vector facing = playerLoc.getDirection();
+                double facingLen = Math.sqrt(facing.getX() * facing.getX() + facing.getZ() * facing.getZ());
+                if (facingLen < 0.001) {
+                    horizDirX = 0;
+                    horizDirZ = 0;
+                } else {
+                    horizDirX = facing.getX() / facingLen;
+                    horizDirZ = facing.getZ() / facingLen;
+                }
             } else {
-                direction.normalize();
+                horizDirX = dx / horizontalLen;
+                horizDirZ = dz / horizontalLen;
             }
 
+            // Apply a slight reduction when airborne so it's weaker than grounded, but not drastically
+            double airMultiplier = player.isOnGround() ? 1.0 : 0.8;
+
             Vector velocity = new Vector(
-                    direction.getX() * FB_VELOCITY_HORIZONTAL_MULTIPLICATIVE * factor,
+                    horizDirX * FB_VELOCITY_HORIZONTAL_MULTIPLICATIVE * factor * airMultiplier,
                     FB_VELOCITY_VERTICAL_MULTIPLICATIVE * factor,
-                    direction.getZ() * FB_VELOCITY_HORIZONTAL_MULTIPLICATIVE * factor
+                    horizDirZ * FB_VELOCITY_HORIZONTAL_MULTIPLICATIVE * factor * airMultiplier
             );
 
             player.setVelocity(velocity);
