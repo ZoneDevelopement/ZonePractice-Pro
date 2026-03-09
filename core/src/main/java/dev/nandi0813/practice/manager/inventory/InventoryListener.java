@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.inventory;
 
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.inventory.inventories.StaffInventory;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvItem;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.staffitems.CheckInventoryInvItem;
@@ -88,19 +89,30 @@ public class InventoryListener implements Listener {
                 return;
         }
 
-        if (!profile.isStaffMode()) return;
-        if (!(e.getRightClicked() instanceof Player)) return;
+        if (!(e.getRightClicked() instanceof Player target)) return;
 
-        Inventory inventory = InventoryManager.getInstance().getPlayerInventory(player);
-        if (inventory == null) return;
+        // Staff mode: check inventory item
+        if (profile.isStaffMode()) {
+            Inventory inventory = InventoryManager.getInstance().getPlayerInventory(player);
+            if (inventory == null) return;
 
-        if (inventory instanceof StaffInventory) {
-            ItemStack itemInHand = ClassImport.getClasses().getPlayerUtil().getPlayerMainHand(player);
-            InvItem invItem = inventory.getInvItem(itemInHand.getItemMeta().getDisplayName(), itemInHand.getType());
+            if (inventory instanceof StaffInventory) {
+                ItemStack itemInHand = ClassImport.getClasses().getPlayerUtil().getPlayerMainHand(player);
+                InvItem invItem = inventory.getInvItem(itemInHand.getItemMeta().getDisplayName(), itemInHand.getType());
 
-            if (invItem instanceof CheckInventoryInvItem checkInventoryInvItem) {
-                checkInventoryInvItem.handleClickEvent(player, (Player) e.getRightClicked());
+                if (invItem instanceof CheckInventoryInvItem checkInventoryInvItem) {
+                    checkInventoryInvItem.handleClickEvent(player, target);
+                }
             }
+            return;
+        }
+
+        // Right-click-to-duel: when in lobby, right-clicking a player sends a duel request
+        if (ConfigManager.getBoolean("MATCH-SETTINGS.DUEL.RIGHT-CLICK-TO-DUEL")
+                && profile.getStatus().equals(ProfileStatus.LOBBY)
+                && !profile.isParty()
+                && player.hasPermission("zpp.duel")) {
+            player.performCommand("duel " + target.getName());
         }
     }
 
