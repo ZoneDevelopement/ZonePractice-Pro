@@ -50,7 +50,7 @@ public class CopyGui extends GUI {
 
     @Override
     public void update() {
-        Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
         {
             icons.clear();
             List<ArenaCopy> copies = arena.getCopies();
