@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.ladder.abstraction.normal;
 
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
+import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.guis.ladder.LadderPreviewGui;
@@ -76,7 +77,7 @@ public abstract class NormalLadder extends Ladder {
     }
 
     public boolean isReadyToEnable() {
-        return icon != null && kitData.isSet() && !matchTypes.isEmpty();
+        return icon != null && kitData.isSet();
     }
 
     public void setFrozen(boolean frozen) {

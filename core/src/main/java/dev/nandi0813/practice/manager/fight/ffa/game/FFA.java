@@ -222,6 +222,12 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             return;
         }
 
+        // If the spectator was spectating another match/FFA, remove them first.
+        Spectatable previousSpectatable = SpectatorManager.getInstance().getSpectators().get(player);
+        if (previousSpectatable != null) {
+            previousSpectatable.removeSpectator(player);
+        }
+
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
         this.spectators.add(player);

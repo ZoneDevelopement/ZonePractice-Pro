@@ -220,7 +220,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
         // check whether a recent attacker should be credited instead.
         if (killer == null) {
             Player lastAttacker = getLastAttacker(player);
-            if (lastAttacker != null && deathMessage != null
+            if (lastAttacker != null && !lastAttacker.equals(player) && deathMessage != null
                     && deathMessage.equals(dev.nandi0813.practice.manager.fight.util.DeathCause.VOID.getMessage())) {
                 killer = lastAttacker;
                 deathMessage = dev.nandi0813.practice.manager.fight.util.DeathCause.VOID_BY_PLAYER
