@@ -554,12 +554,12 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
 
         for (int x = x1; x <= x2; x++) {
             for (int z = z1; z <= z2; z++) {
-
-                if (!w.isChunkLoaded(x, z)) {
-                    w.loadChunk(x, z);
+                // Only collect already-loaded chunks. Chunk loading is handled
+                // separately by ArenaUtil.loadArenaChunks() to avoid blocking
+                // the main server thread.
+                if (w.isChunkLoaded(x, z)) {
+                    res.add(w.getChunkAt(x, z));
                 }
-
-                res.add(w.getChunkAt(x, z));
             }
         }
 

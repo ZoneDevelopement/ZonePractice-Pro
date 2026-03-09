@@ -234,8 +234,8 @@ public abstract class ArenaCopyUtil implements Listener {
                         if (finalActionBar != null) {
                             finalActionBar.setMessage(LanguageManager.getString("ARENA.ACTION-BAR-MSG")
                                     .replace("%arena%", Common.serializeNormalToMMString(arenaCopy.getMainArena().getDisplayName()))
-                                    .replace("%progress_bar%", StatisticUtil.getProgressBar(progress))
-                                    .replace("%progress_percent%", String.valueOf(progress)));
+                                    .replace("%progress_bar%", Common.serializeNormalToMMString(StatisticUtil.getProgressBar(progress)))
+                                    .replace("%progress_percent%", Common.serializeNormalToMMString(String.valueOf(progress))));
                         }
 
                         Location newLoc = new Location(copyWorld, originLoc.getX(), originLoc.getY(), originLoc.getZ()).clone().subtract(reference).add(newLocation);

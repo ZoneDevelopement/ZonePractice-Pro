@@ -4,7 +4,6 @@ import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.util.BasicItem;
-import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
@@ -84,14 +83,25 @@ public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.Arena
         // 1.8.8 has no async chunk-load API — stagger each chunk one tick apart so
         // the server never freezes trying to load all chunks in a single tick.
         org.bukkit.plugin.Plugin plugin = dev.nandi0813.practice.ZonePractice.getInstance();
+        org.bukkit.World world = arena.getCuboid().getWorld();
+        if (world == null) return;
+
+        int minCX = arena.getCuboid().getLowerX() >> 4;
+        int maxCX = arena.getCuboid().getUpperX() >> 4;
+        int minCZ = arena.getCuboid().getLowerZ() >> 4;
+        int maxCZ = arena.getCuboid().getUpperZ() >> 4;
+
         long delay = 0;
-        for (Chunk chunk : arena.getCuboid().getChunks()) {
-            final Chunk c = chunk;
-            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (!c.isLoaded()) {
-                    c.load(true);
-                }
-            }, delay++);
+        for (int cx = minCX; cx <= maxCX; cx++) {
+            for (int cz = minCZ; cz <= maxCZ; cz++) {
+                final int x = cx;
+                final int z = cz;
+                org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (!world.isChunkLoaded(x, z)) {
+                        world.loadChunk(x, z);
+                    }
+                }, delay++);
+            }
         }
     }
 

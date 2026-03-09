@@ -4,7 +4,6 @@ import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.util.BasicItem;
-import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
@@ -71,12 +70,23 @@ public class ArenaUtil implements dev.nandi0813.practice.module.interfaces.Arena
     @Override
     public void loadArenaChunks(BasicArena arena) {
         if (arena.getCuboid() == null) return;
-        // getChunkAtAsync schedules real async chunk loading on the I/O thread —
-        // no main-thread stall and no need to call chunk.load() manually.
         org.bukkit.World world = arena.getCuboid().getWorld();
         if (world == null) return;
-        for (Chunk chunk : arena.getCuboid().getChunks()) {
-            world.getChunkAtAsync(chunk.getX(), chunk.getZ());
+
+        // Calculate chunk coordinate range directly from the cuboid bounds
+        // instead of calling getChunks() which synchronously loads all chunks.
+        int minCX = arena.getCuboid().getLowerX() >> 4;
+        int maxCX = arena.getCuboid().getUpperX() >> 4;
+        int minCZ = arena.getCuboid().getLowerZ() >> 4;
+        int maxCZ = arena.getCuboid().getUpperZ() >> 4;
+
+        org.bukkit.plugin.Plugin plugin = dev.nandi0813.practice.ZonePractice.getInstance();
+        for (int cx = minCX; cx <= maxCX; cx++) {
+            for (int cz = minCZ; cz <= maxCZ; cz++) {
+                // addPluginChunkTicket loads the chunk asynchronously if needed
+                // and prevents it from being unloaded — no main-thread stall.
+                world.addPluginChunkTicket(cx, cz, plugin);
+            }
         }
     }
 
