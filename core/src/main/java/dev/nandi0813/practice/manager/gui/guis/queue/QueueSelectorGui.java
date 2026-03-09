@@ -102,7 +102,7 @@ public abstract class QueueSelectorGui extends GUI {
                 ConfigManager.getInt(queuePath + ".FIRST-CATEGORY.SIZE"),
                 GUIFile.getGuiItem(guiPath + ".FIRST-CATEGORY.ICONS.FILLER-ITEM").get(),
                 GUIFile.getGuiItem(guiPath + ".FIRST-CATEGORY.ICONS.LADDER"),
-                queuePath + ".FIRST-CATEGORY.LADDERS",
+                queuePath + ".FIRST-CATEGORY.LADDER-SLOTS",
                 firstCategoryLadderSlots,
                 secondCategoryEnabled ? ConfigManager.getInt(queuePath + ".FIRST-CATEGORY.GO-TO-SECOND-CATEGORY-SLOT") : -1,
                 secondCategoryEnabled ? GUIFile.getGuiItem(guiPath + ".FIRST-CATEGORY.ICONS.GO-TO-SECOND-CATEGORY").get() : null
@@ -115,7 +115,7 @@ public abstract class QueueSelectorGui extends GUI {
                     ConfigManager.getInt(queuePath + ".SECOND-CATEGORY.SIZE"),
                     GUIFile.getGuiItem(guiPath + ".SECOND-CATEGORY.ICONS.FILLER-ITEM").get(),
                     GUIFile.getGuiItem(guiPath + ".SECOND-CATEGORY.ICONS.LADDER"),
-                    queuePath + ".SECOND-CATEGORY.LADDERS",
+                    queuePath + ".SECOND-CATEGORY.LADDER-SLOTS",
                     secondCategoryLadderSlots,
                     ConfigManager.getInt(queuePath + ".SECOND-CATEGORY.BACK-TO-FIRST-CATEGORY-SLOT"),
                     GUIFile.getGuiItem(guiPath + ".SECOND-CATEGORY.ICONS.GO-BACK-TO-FIRST-CATEGORY").get()

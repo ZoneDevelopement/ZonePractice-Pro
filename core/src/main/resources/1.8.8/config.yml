@@ -1,4 +1,4 @@
-VERSION: 16
+VERSION: 17
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -38,7 +38,7 @@ QUEUE:
       FIRST-CATEGORY:
         SIZE: 4
         GO-TO-SECOND-CATEGORY-SLOT: 35
-        LADDERS:
+        LADDER-SLOTS:
           - "BATTLERUSH::10"
           - "BEDWARS::11"
           - "BOXING::12"
@@ -54,7 +54,7 @@ QUEUE:
         ENABLED: true
         BACK-TO-FIRST-CATEGORY-SLOT: 35
         SIZE: 4
-        LADDERS:
+        LADDER-SLOTS:
           - "ARCHER::10"
           - "AXE::11"
           - "DEBUFF::12"
@@ -76,7 +76,7 @@ QUEUE:
       FIRST-CATEGORY:
         SIZE: 4
         GO-TO-SECOND-CATEGORY-SLOT: 35
-        LADDERS:
+        LADDER-SLOTS:
           - "BATTLERUSH::10"
           - "BEDWARS::11"
           - "BOXING::12"
@@ -92,7 +92,7 @@ QUEUE:
         ENABLED: true
         BACK-TO-FIRST-CATEGORY-SLOT: 18
         SIZE: 3
-        LADDERS:
+        LADDER-SLOTS:
           - "DEBUFF::11"
           - "SG::12"
           - "SKYWARS::13"
