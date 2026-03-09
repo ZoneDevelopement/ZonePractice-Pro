@@ -279,7 +279,7 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
     @Override
     public GUIItem getSpectatorMenuItem() {
         return GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.EVENT-ICON")
-                .setMaterial(eventData.getIcon().getMaterial()).setDamage(eventData.getIcon().getDamage()).replace("%event_type%", type.getName())
+                .setBaseItem(eventData.getIcon().get()).replace("%event_type%", type.getName())
                 .replace("%event_duration%", this.getDurationRunnable().getFormattedTime())
                 .replace("%players%", String.valueOf(players.size())).replace("%spectators%", String.valueOf(spectators.size()));
 

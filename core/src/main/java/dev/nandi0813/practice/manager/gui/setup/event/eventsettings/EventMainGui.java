@@ -55,8 +55,7 @@ public class EventMainGui extends GUI {
 
         inventory.setItem(10, GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-MAIN.ICONS.EVENT-NAME")
                 .replace("%eventName%", eventData.getType().getName())
-                .setMaterial(eventData.getIcon().getMaterial())
-                .setDamage(eventData.getIcon().getDamage())
+                .setBaseItem(eventData.getIcon().get())
                 .get());
 
         inventory.setItem(11, eventData.isEnabled() ?

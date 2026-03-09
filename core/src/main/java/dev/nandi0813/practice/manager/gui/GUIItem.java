@@ -98,6 +98,8 @@ public class GUIItem {
         this.amount = itemStack.getAmount();
         this.damage = itemStack.getDurability();
         this.material = itemStack.getType();
+        // Preserve the full ItemStack so special meta (e.g. PotionMeta) is not lost
+        this.baseItemStack = itemStack.clone();
     }
 
     public GUIItem setGlowing(boolean glowing) {

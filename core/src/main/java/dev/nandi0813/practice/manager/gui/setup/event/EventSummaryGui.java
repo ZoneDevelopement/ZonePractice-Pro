@@ -46,8 +46,7 @@ public class EventSummaryGui extends GUI {
                     .replace("%state%", eventData.isEnabled() ?
                             GUIFile.getString("GUIS.SETUP.EVENT.EVENT-MANAGER.ICONS.EVENT-ICON.STATUS-NAMES.ENABLED") :
                             GUIFile.getString("GUIS.SETUP.EVENT.EVENT-MANAGER.ICONS.EVENT-ICON.STATUS-NAMES.DISABLED"))
-                    .setMaterial(eventData.getIcon().getMaterial())
-                    .setDamage(eventData.getIcon().getDamage())
+                    .setBaseItem(eventData.getIcon().get())
                     .get();
 
             int slot = eventData.getType().getGuiSlot();

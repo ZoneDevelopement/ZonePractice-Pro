@@ -9,7 +9,6 @@ import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.module.interfaces.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import lombok.Getter;
@@ -46,7 +45,7 @@ public class EventHostGui extends GUI {
                 int slot = gui.get(1).firstEmpty();
                 eventSlots.put(slot, eventType);
 
-                gui.get(1).setItem(slot, ItemCreateUtil.hideItemFlags(EventManager.getInstance().getEventData().get(eventType).getIcon().get()));
+                gui.get(1).setItem(slot, EventManager.getInstance().getEventData().get(eventType).getIcon().get());
             }
         }
     }
