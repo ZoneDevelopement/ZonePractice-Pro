@@ -39,30 +39,30 @@ QUEUE:
         SIZE: 4
         GO-TO-SECOND-CATEGORY-SLOT: 35
         LADDERS:
-          BATTLERUSH: 10
-          BEDWARS: 11
-          BOXING: 12
-          BRIDGES: 14
-          FIREBALL: 15
-          GAPPLE: 16
-          NODEBUFF: 20
-          COMBO: 21
-          SUMO: 22
-          BUILDUHC: 23
-          PEARLFIGHT: 24
+          - "BATTLERUSH::10"
+          - "BEDWARS::11"
+          - "BOXING::12"
+          - "BRIDGES::14"
+          - "FIREBALL::15"
+          - "GAPPLE::16"
+          - "NODEBUFF::20"
+          - "COMBO::21"
+          - "SUMO::22"
+          - "BUILDUHC::23"
+          - "PEARLFIGHT::24"
       SECOND-CATEGORY:
         ENABLED: true
         BACK-TO-FIRST-CATEGORY-SLOT: 35
         SIZE: 4
         LADDERS:
-          ARCHER: 10
-          AXE: 11
-          DEBUFF: 12
-          SG: 14
-          SKYWARS: 15
-          SOUP: 16
-          SPLEEF: 20
-          VANILLA: 24
+          - "ARCHER::10"
+          - "AXE::11"
+          - "DEBUFF::12"
+          - "SG::14"
+          - "SKYWARS::15"
+          - "SOUP::16"
+          - "SPLEEF::20"
+          - "VANILLA::24"
   RANKED:
     MAX-QUEUE-TIME: 300 # In sec.
     GUI-UPDATE-MINUTE: 1
@@ -77,27 +77,27 @@ QUEUE:
         SIZE: 4
         GO-TO-SECOND-CATEGORY-SLOT: 35
         LADDERS:
-          BATTLERUSH: 10
-          BEDWARS: 11
-          BOXING: 12
-          BRIDGES: 14
-          FIREBALL: 15
-          GAPPLE: 16
-          NODEBUFF: 20
-          COMBO: 21
-          SUMO: 22
-          BUILDUHC: 23
-          PEARLFIGHT: 24
+          - "BATTLERUSH::10"
+          - "BEDWARS::11"
+          - "BOXING::12"
+          - "BRIDGES::14"
+          - "FIREBALL::15"
+          - "GAPPLE::16"
+          - "NODEBUFF::20"
+          - "COMBO::21"
+          - "SUMO::22"
+          - "BUILDUHC::23"
+          - "PEARLFIGHT::24"
       SECOND-CATEGORY:
         ENABLED: true
         BACK-TO-FIRST-CATEGORY-SLOT: 18
         SIZE: 3
         LADDERS:
-          DEBUFF: 11
-          SG: 12
-          SKYWARS: 13
-          SOUP: 14
-          SPLEEF: 15
+          - "DEBUFF::11"
+          - "SG::12"
+          - "SKYWARS::13"
+          - "SOUP::14"
+          - "SPLEEF::15"
 #
 # Admin settings
 ADMIN-SETTINGS:

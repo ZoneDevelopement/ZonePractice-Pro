@@ -25,6 +25,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -379,13 +380,23 @@ public abstract class QueueSelectorGui extends GUI {
     // -------------------------------------------------------------------------
 
     private Map<NormalLadder, Integer> getTempLadderSlots(final String path, int size) {
-        final Map<NormalLadder, Integer> tempLadderSlots = new HashMap<>();
+        final Map<NormalLadder, Integer> tempLadderSlots = new LinkedHashMap<>();
 
-        for (String ladderName : ConfigManager.getConfigList(path)) {
+        for (String entry : ConfigManager.getList(path)) {
+            String[] parts = entry.split("::");
+            if (parts.length != 2) continue;
+
+            String ladderName = parts[0].trim();
+            int slot;
+            try {
+                slot = Integer.parseInt(parts[1].trim());
+            } catch (NumberFormatException e) {
+                continue;
+            }
+
             NormalLadder ladder = LadderManager.getInstance().getLadder(ladderName);
 
             if (ladder != null && isValidLadder(ladder) && ladder.getMatchTypes().contains(MatchType.DUEL)) {
-                int slot = ConfigManager.getInt(path + "." + ladderName);
 
                 if (slot >= 0 && slot < size) {
                     tempLadderSlots.put(ladder, slot);
