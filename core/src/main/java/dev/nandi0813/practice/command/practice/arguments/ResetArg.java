@@ -29,7 +29,7 @@ public enum ResetArg {
             return;
         }
 
-        Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[1]));
+        Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[1]));
         if (target == null) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.TARGET-OFFLINE").replace("%target%", args[1]));
             return;
@@ -60,7 +60,7 @@ public enum ResetArg {
             return;
         }
 
-        Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[1]));
+        Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[1]));
         if (target == null) {
             Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RESET.TARGET-OFFLINE").replace("%target%", args[1]));
             return;

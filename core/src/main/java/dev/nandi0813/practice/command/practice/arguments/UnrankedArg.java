@@ -24,7 +24,7 @@ public enum UnrankedArg {
                 return;
             }
 
-            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
@@ -51,7 +51,7 @@ public enum UnrankedArg {
                 return;
             }
 
-            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.TARGET-OFFLINE"));
                 return;
@@ -85,7 +85,7 @@ public enum UnrankedArg {
 
     public static void run(String label, String[] args) {
         if (args.length == 3 && args[1].equalsIgnoreCase("reset")) {
-            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.TARGET-OFFLINE"));
                 return;
@@ -101,7 +101,7 @@ public enum UnrankedArg {
             } else
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.NO-GROUP").replace("%target%", target.getPlayer().getName()));
         } else if (args.length == 4 && args[1].equalsIgnoreCase("add")) {
-            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.UNRANKED.TARGET-OFFLINE"));
                 return;

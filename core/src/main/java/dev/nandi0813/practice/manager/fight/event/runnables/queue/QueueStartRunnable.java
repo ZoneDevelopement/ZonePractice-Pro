@@ -32,8 +32,10 @@ public class QueueStartRunnable extends Runnable {
                             .replace("%secondName%", (seconds == 1 ? LanguageManager.getString("SECOND-NAME.1SEC") : LanguageManager.getString("SECOND-NAME.1<SEC")))
                     , false);
 
-            SoundEffect sound = SoundManager.getInstance().getSound(SoundType.EVENT_QUEUE_COUNTDOWN);
-            if (sound != null) sound.play(event.getPlayers());
+            if (seconds <= 5) {
+                SoundEffect sound = SoundManager.getInstance().getSound(SoundType.EVENT_QUEUE_COUNTDOWN);
+                if (sound != null) sound.play(event.getPlayers());
+            }
         }
 
         if (seconds == 0) {

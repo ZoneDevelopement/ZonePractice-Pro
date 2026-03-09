@@ -115,7 +115,7 @@ public enum EloArg {
 
     public static void run(String label, String[] args) {
         if (args.length == 4 && args[1].equalsIgnoreCase("reset")) {
-            Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
@@ -145,7 +145,7 @@ public enum EloArg {
                         .replace("%defaultElo%", String.valueOf(defaultElo)));
             }
         } else if (args.length == 5 && args[1].equalsIgnoreCase("set")) {
-            Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;

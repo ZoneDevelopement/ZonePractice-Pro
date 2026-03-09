@@ -1,4 +1,4 @@
-VERSION: 18
+VERSION: 19
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -546,6 +546,7 @@ COMMAND:
           - "<gray>Setup Commands:"
           - "<red> » <click:suggest_command:'/%label% sumo enable'><hover:show_text:'<gray>Enable the event.'>/%label% sumo enable"
           - "<red> » <click:suggest_command:'/%label% sumo disable'><hover:show_text:'<gray>Disable the event.'>/%label% sumo disable"
+          - "<red> » <click:suggest_command:'/%label% brackets setkit'><hover:show_text:'<gray>Set the kit for the event.'>/%label% brackets setkit"
           - ""
           - "<yellow>Note: <gray>Use <white>/setup event <gray>GUI to get the"
           - "<gray>Event Wand for corner & spawn position setup."
@@ -565,6 +566,8 @@ COMMAND:
         NO-WINNER: "<red>No one won the event in time."
         STARTED-SPECTATING: "<gray>%spectator% <yellow>started spectating the event."
         PLAYER-OUT: "<yellow>%player% <red>is out of the game."
+        CANT-EDIT: "<red>You cannot edit an enabled Event."
+        KIT-SET: "<green>You successfully set the kit for the sumo event."
       TNTTAG:
         COMMAND-HELP:
           - "<red><st>---------------------------------------"

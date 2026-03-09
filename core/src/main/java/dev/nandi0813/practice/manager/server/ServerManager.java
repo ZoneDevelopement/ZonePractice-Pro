@@ -54,6 +54,7 @@ public class ServerManager implements Listener {
 
     @Getter
     private final Map<String, OfflinePlayer> offlinePlayers = new HashMap<>(); // All the player that has ever been on the server is here.
+
     @Getter
     private final List<Player> onlineStaffs = new ArrayList<>();
 
@@ -210,6 +211,24 @@ public class ServerManager implements Listener {
                 if (player.hasPermission(permission))
                     Common.sendMMMessage(player, message);
         });
+    }
+
+    /**
+     * Resolves a player by name. First checks currently online players (exact match),
+     * then falls back to the offlinePlayers map. This ensures that online players are
+     * always found even if the offlinePlayers map is in an inconsistent state due to
+     * the async loading in {@link #loadOfflinePlayers()}.
+     *
+     * @param name the player name to look up
+     * @return the matching OfflinePlayer, or {@code null} if not found
+     */
+    public OfflinePlayer resolvePlayer(String name) {
+        // First try online players — this is always reliable
+        Player online = Bukkit.getPlayerExact(name);
+        if (online != null) return online;
+
+        // Fall back to the offline map
+        return offlinePlayers.get(name);
     }
 
     public static void runConsoleCommand(String command) {

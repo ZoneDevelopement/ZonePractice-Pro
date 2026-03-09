@@ -24,7 +24,7 @@ public enum RankedArg {
                 return;
             }
 
-            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
@@ -51,7 +51,7 @@ public enum RankedArg {
                 return;
             }
 
-            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
@@ -81,7 +81,7 @@ public enum RankedArg {
                 return;
             }
 
-            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
@@ -122,7 +122,7 @@ public enum RankedArg {
                 return;
             }
 
-            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
@@ -146,7 +146,7 @@ public enum RankedArg {
 
     public static void run(String label, String[] args) {
         if (args.length == 3 && args[1].equalsIgnoreCase("reset")) {
-            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
@@ -162,7 +162,7 @@ public enum RankedArg {
             } else
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.NO-GROUP").replace("%target%", target.getPlayer().getName()));
         } else if (args.length == 4 && args[1].equalsIgnoreCase("add")) {
-            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[2]));
+            final Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RANKED.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;

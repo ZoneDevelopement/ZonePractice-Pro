@@ -52,7 +52,7 @@ public class StatisticsCommand implements CommandExecutor, TabCompleter {
                 return false;
             }
 
-            Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().getOfflinePlayers().get(args[0]));
+            Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[0]));
             if (target == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.STATISTICS.TARGET-NOT-EXISTS").replace("%target%", args[0]));
                 return false;
