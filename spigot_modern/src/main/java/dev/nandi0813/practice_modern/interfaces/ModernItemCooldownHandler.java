@@ -32,7 +32,9 @@ public class ModernItemCooldownHandler implements ItemCooldownHandler {
     public void handleEnderPearlFFA(Player player, FightPlayer fightPlayer, int duration, boolean expBar,
                                     Cancellable event, String langKey) {
         if (player.hasCooldown(Material.ENDER_PEARL)) {
-            event.setCancelled(true);
+            if (event != null) {
+                event.setCancelled(true);
+            }
         }
         // If no cooldown: let the throw proceed; PlayerItemCooldownEvent will set the correct duration.
     }
@@ -41,7 +43,9 @@ public class ModernItemCooldownHandler implements ItemCooldownHandler {
     public void handleEnderPearlMatch(Player player, FightPlayer fightPlayer, int duration, boolean expBar,
                                       Cancellable event, String langKey) {
         if (player.hasCooldown(Material.ENDER_PEARL)) {
-            event.setCancelled(true);
+            if (event != null) {
+                event.setCancelled(true);
+            }
         }
         // If no cooldown: let the throw proceed; PlayerItemCooldownEvent will set the correct duration.
     }
@@ -53,7 +57,9 @@ public class ModernItemCooldownHandler implements ItemCooldownHandler {
     @Override
     public void handleGoldenAppleFFA(Player player, int duration, Cancellable event, String langKey) {
         if (player.hasCooldown(Material.GOLDEN_APPLE)) {
-            event.setCancelled(true);
+            if (event != null) {
+                event.setCancelled(true);
+            }
         } else {
             player.setCooldown(Material.GOLDEN_APPLE, duration * 20);
         }
@@ -62,7 +68,9 @@ public class ModernItemCooldownHandler implements ItemCooldownHandler {
     @Override
     public void handleGoldenAppleMatch(Player player, int duration, Cancellable event, String langKey) {
         if (player.hasCooldown(Material.GOLDEN_APPLE)) {
-            event.setCancelled(true);
+            if (event != null) {
+                event.setCancelled(true);
+            }
         } else {
             player.setCooldown(Material.GOLDEN_APPLE, duration * 20);
         }
@@ -77,7 +85,9 @@ public class ModernItemCooldownHandler implements ItemCooldownHandler {
                                         Cancellable event, String langKey) {
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
             if (player.hasCooldown(Material.FIREWORK_ROCKET)) {
-                event.setCancelled(true);
+                if (event != null) {
+                    event.setCancelled(true);
+                }
             } else {
                 player.setCooldown(Material.FIREWORK_ROCKET, duration * 20);
             }
@@ -89,7 +99,9 @@ public class ModernItemCooldownHandler implements ItemCooldownHandler {
                                           Cancellable event, String langKey) {
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
             if (player.hasCooldown(Material.FIREWORK_ROCKET)) {
-                event.setCancelled(true);
+                if (event != null) {
+                    event.setCancelled(true);
+                }
             } else {
                 player.setCooldown(Material.FIREWORK_ROCKET, duration * 20);
             }
