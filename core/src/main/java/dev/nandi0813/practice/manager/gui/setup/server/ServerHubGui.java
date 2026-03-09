@@ -127,7 +127,10 @@ public class ServerHubGui extends GUI {
                 .replace("%onlineStaffs%", String.valueOf(PlayerUtil.getOnlineStaff().size()))
                 .replace("%requiredDivision%", DivisionManager.getInstance().getMinimumForRanked() != null ? DivisionManager.getInstance().getMinimumForRanked().getFullName() : "&cN/A")
                 .replace("%lobbyStatus%", ServerManager.getLobby() != null ? GUIFile.getString("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.INFORMATIONS.STATUS-NAMES.SET") : GUIFile.getString("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.INFORMATIONS.STATUS-NAMES.UNSET"))
-                .replace("%enabledArena%", String.valueOf(ArenaManager.getInstance().getEnabledArenas().size()))
+                .replace("%enabledArena%", String.valueOf(
+                        ArenaManager.getInstance().getEnabledArenas().size() +
+                                ArenaManager.getInstance().getEnabledFFAArenas().size()
+                ))
                 .replace("%enabledLadder%", String.valueOf(LadderManager.getInstance().getEnabledLadders().size()))
                 .replace("%enabledEvents%", String.valueOf(EventManager.getInstance().getEnabledEvents().size()))
                 .get();

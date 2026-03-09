@@ -91,6 +91,13 @@ public class ArenaManager implements Listener {
         return enabledArenas;
     }
 
+    public List<FFAArena> getEnabledFFAArenas() {
+        List<FFAArena> enabledArenas = new ArrayList<>();
+        for (FFAArena arena : this.getFFAArenas())
+            if (arena.isEnabled()) enabledArenas.add(arena);
+        return enabledArenas;
+    }
+
     public void loadArenas(final StartUpCallback boolCallback) {
         Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
         {

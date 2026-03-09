@@ -1,24 +1,16 @@
 package dev.nandi0813.practice_modern.listener;
 
-import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.module.util.ClassImport;
-import org.bukkit.Material;
-import org.bukkit.Bukkit;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import org.bukkit.event.entity.EntitySpawnEvent;
 
 /**
  * Handles firework rocket cooldown for elytra boost in modern Minecraft versions.
@@ -28,67 +20,37 @@ import java.util.UUID;
  */
 public class FireworkRocketCooldownListener implements Listener {
 
-    // Tracks players whose interact event was already handled this tick to prevent
-    // duplicate processing from the MAIN_HAND + OFF_HAND double-fire.
-    private final Set<UUID> handledThisTick = new HashSet<>();
-
     @EventHandler
-    public void onFireworkRocketUse(PlayerInteractEvent e) {
-        Player player = e.getPlayer();
-        ItemStack item = e.getItem();
+    public void onFireworkSpawn(EntitySpawnEvent e) {
 
-        // Check if player is using a firework rocket
-        if (item == null || item.getType() != Material.FIREWORK_ROCKET) {
-            return;
-        }
+        if (!(e.getEntity() instanceof Firework firework)) return;
+        if (!(firework.getShooter() instanceof Player player)) return;
 
-        // Apply cooldown only for valid RIGHT-CLICK firework usage:
-        // - RIGHT_CLICK_AIR while gliding (elytra boost)
-        // - RIGHT_CLICK_BLOCK (ground/block launch)
-        // Ignore: LEFT clicks, PHYSICAL, empty RIGHT_CLICK_AIR without gliding
-        Action action = e.getAction();
-        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) {
-            return;  // Ignore left clicks & PHYSICAL
-        }
-        if (!player.isGliding() && action == Action.RIGHT_CLICK_AIR) {
-            return;  // Ignore empty air clicks
-        }
-
-        // Deduplicate: PlayerInteractEvent fires once per hand (MAIN + OFF), skip the second call this tick
-        UUID uuid = player.getUniqueId();
-        if (!handledThisTick.add(uuid)) {
-            handledThisTick.remove(uuid);
-            return;
-        }
-
-        // Check if player is in FFA
+        // FFA
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa != null) {
+
             int duration = ffa.getPlayers().get(player).getFireworkRocketCooldown();
-            if (duration <= 0) {
-                return;
-            }
+            if (duration <= 0) return;
 
             ClassImport.getClasses().getItemCooldownHandler().handleFireworkRocketFFA(
                     player,
                     ffa.getFightPlayers().get(player),
                     duration,
-                    e,
+                    null,
                     "MATCH.COOLDOWN.FIREWORK-ROCKET-COOLDOWN"
             );
             return;
         }
 
-        // Check if player is in a match
+        // Match
         Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
         if (match != null) {
+
             int duration = match.getLadder().getFireworkRocketCooldown();
-            if (duration <= 0) {
-                return;
-            }
+            if (duration <= 0) return;
 
             if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
-                e.setCancelled(true);
                 return;
             }
 
@@ -96,7 +58,7 @@ public class FireworkRocketCooldownListener implements Listener {
                     player,
                     match.getMatchPlayers().get(player),
                     duration,
-                    e,
+                    null,
                     "MATCH.COOLDOWN.FIREWORK-ROCKET-COOLDOWN"
             );
         }
