@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -31,6 +32,13 @@ public class FFAListener extends dev.nandi0813.practice.manager.fight.ffa.FFALis
         e.setCancelled(true);
 
         DamageSource damageSource = e.getDamageSource();
+
+        // Void deaths are already handled by onPlayerMove in the core FFAListener.
+        // Skip here to avoid sending the death message twice.
+        if (damageSource.getDamageType().equals(DamageType.OUT_OF_WORLD)) {
+            return;
+        }
+
         Player killer = null;
         if (damageSource.getCausingEntity() instanceof Entity damageEntity) {
             killer = FightUtil.getKiller(damageEntity);
@@ -47,25 +55,33 @@ public class FFAListener extends dev.nandi0813.practice.manager.fight.ffa.FFALis
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
-        if (!(e.getEntity() instanceof Player player)) {
+        if (!(e.getEntity() instanceof Player target)) {
             return;
         }
 
-        Profile profile = ProfileManager.getInstance().getProfile(player);
+        Profile profile = ProfileManager.getInstance().getProfile(target);
         if (profile == null) return;
 
-        FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
+        FFA ffa = FFAManager.getInstance().getFFAByPlayer(target);
         if (ffa == null) return;
 
-        if (!(e.getEntity() instanceof Player target)) return;
-
-        if (e.getDamager() instanceof Projectile projectile) {
-            if (projectile.getShooter() instanceof Player attacker) {
+        // Resolve the attacker (direct hit or projectile shooter)
+        Player attacker = null;
+        if (e.getDamager() instanceof Player damager) {
+            attacker = damager;
+        } else if (e.getDamager() instanceof Projectile projectile) {
+            if (projectile.getShooter() instanceof Player shooter) {
+                attacker = shooter;
 
                 if (projectile instanceof Arrow) {
-                    arrowDisplayHearth(attacker, target, e.getFinalDamage());
+                    arrowDisplayHearth(shooter, target, e.getFinalDamage());
                 }
             }
+        }
+
+        // Record the attacker for void-kill attribution
+        if (attacker != null) {
+            ffa.recordAttack(target, attacker);
         }
     }
 

@@ -27,6 +27,13 @@ public class FFAListener extends dev.nandi0813.practice.manager.fight.ffa.FFALis
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
 
+        // Void deaths are already handled by onPlayerMove in the core FFAListener.
+        // Skip here to avoid sending the death message twice.
+        if (e.getCause() == EntityDamageEvent.DamageCause.VOID) {
+            e.setDamage(0);
+            return;
+        }
+
         if (e instanceof EntityDamageByEntityEvent) {
             onEntityDamageByEntity((EntityDamageByEntityEvent) e);
         }
@@ -52,15 +59,25 @@ public class FFAListener extends dev.nandi0813.practice.manager.fight.ffa.FFALis
         if (!(e.getEntity() instanceof Player)) return;
         Player target = (Player) e.getEntity();
 
-        if (e.getDamager() instanceof Projectile) {
+        FFA ffa = FFAManager.getInstance().getFFAByPlayer(target);
+
+        Player attacker = null;
+        if (e.getDamager() instanceof Player) {
+            attacker = (Player) e.getDamager();
+        } else if (e.getDamager() instanceof Projectile) {
             Projectile projectile = (Projectile) e.getDamager();
             if (projectile.getShooter() instanceof Player) {
-                Player attacker = (Player) projectile.getShooter();
+                attacker = (Player) projectile.getShooter();
 
                 if (projectile instanceof Arrow) {
                     arrowDisplayHearth(attacker, target, e.getFinalDamage());
                 }
             }
+        }
+
+        // Record the attacker for void-kill attribution
+        if (attacker != null && ffa != null) {
+            ffa.recordAttack(target, attacker);
         }
     }
 
