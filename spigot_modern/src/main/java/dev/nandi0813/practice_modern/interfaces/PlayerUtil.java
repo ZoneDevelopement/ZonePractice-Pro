@@ -61,6 +61,17 @@ public class PlayerUtil implements dev.nandi0813.practice.module.interfaces.Play
 
             entities.add(player.getWorld().dropItemNaturally(player.getLocation(), item));
         }
+        // Drop items from the 2x2 crafting grid (indices 1-4 of the open inventory)
+        for (int i = 1; i <= 4; i++) {
+            ItemStack item = player.getOpenInventory().getItem(i);
+            if (item == null || item.getType().equals(Material.AIR)) continue;
+            entities.add(player.getWorld().dropItemNaturally(player.getLocation(), item));
+        }
+        // Drop cursor item if any
+        ItemStack cursor = player.getItemOnCursor();
+        if (cursor != null && !cursor.getType().equals(Material.AIR))
+            entities.add(player.getWorld().dropItemNaturally(player.getLocation(), cursor));
+
         this.clearInventory(player);
 
         return entities;
@@ -68,6 +79,11 @@ public class PlayerUtil implements dev.nandi0813.practice.module.interfaces.Play
 
     public void clearInventory(Player player) {
         player.getInventory().clear();
+        // Clear the 2x2 crafting grid slots (indices 1-4 of the player's open inventory)
+        for (int i = 1; i <= 4; i++)
+            player.getOpenInventory().setItem(i, null);
+        // Clear any item held on the cursor
+        player.setItemOnCursor(null);
     }
 
     public void setCollidesWithEntities(Player player, boolean bool) {
