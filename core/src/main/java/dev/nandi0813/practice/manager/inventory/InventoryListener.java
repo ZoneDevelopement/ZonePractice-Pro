@@ -108,11 +108,21 @@ public class InventoryListener implements Listener {
         }
 
         // Right-click-to-duel: when in lobby, right-clicking a player sends a duel request
+        // Only triggers when the player is holding the unranked item
         if (ConfigManager.getBoolean("MATCH-SETTINGS.DUEL.RIGHT-CLICK-TO-DUEL")
                 && profile.getStatus().equals(ProfileStatus.LOBBY)
                 && !profile.isParty()
                 && player.hasPermission("zpp.duel")) {
-            player.performCommand("duel " + target.getName());
+            Inventory inventory = InventoryManager.getInstance().getPlayerInventory(player);
+            if (inventory != null) {
+                ItemStack itemInHand = ClassImport.getClasses().getPlayerUtil().getPlayerMainHand(player);
+                if (itemInHand != null && itemInHand.getType() != Material.AIR && itemInHand.hasItemMeta()) {
+                    InvItem heldInvItem = inventory.getInvItem(itemInHand.getItemMeta().getDisplayName(), itemInHand.getType());
+                    if (heldInvItem instanceof dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.UnrankedInvItem) {
+                        player.performCommand("duel " + target.getName());
+                    }
+                }
+            }
         }
     }
 

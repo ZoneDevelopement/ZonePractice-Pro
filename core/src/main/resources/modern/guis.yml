@@ -1,4 +1,4 @@
-VERSION: 12
+VERSION: 13
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -563,6 +563,26 @@ GUIS:
               - "&f&lClick here &fto duel this party."
               - "&7&m------------------------"
   FFA:
+    ARENA-SELECTOR:
+      TITLE: "&8Select an &6FFA Arena"
+      ROWS: 3
+      ICONS:
+        ARENA:
+          BUILD-STATUS:
+            ENABLED: "&aEnabled"
+            DISABLED: "&cDisabled"
+          NAME: "&6%arena%"
+          LORE:
+            - ""
+            - "&eBuild: &f%build_status%"
+            - "&eRe-Kit After Kill: &f%rekit_after_kill%"
+            - "&eLobby After Death: &f%lobby_after_death%"
+            - "&eLadders: &f%ladders%"
+            - "&ePlayers: &f%players%"
+            - ""
+            - "&aClick to join this arena!"
+        FILLER:
+          MATERIAL: ORANGE_STAINED_GLASS_PANE
     LADDER-SELECTOR:
       TITLE: "&8Select a &6ladder &8to join"
       ICONS:

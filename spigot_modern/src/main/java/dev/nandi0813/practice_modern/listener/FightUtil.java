@@ -22,7 +22,8 @@ public enum FightUtil {
             return DeathCause.FALL;
         } else if (damageType.equals(DamageType.EXPLOSION) || damageType.equals(DamageType.PLAYER_EXPLOSION)) {
             return DeathCause.EXPLOSION;
-        } else if (damageType.equals(DamageType.MOB_ATTACK) || damageType.equals(DamageType.PLAYER_ATTACK)) {
+        } else if (damageType.equals(DamageType.MOB_ATTACK) || damageType.equals(DamageType.PLAYER_ATTACK)
+                || damageType.equals(DamageType.MACE_SMASH)) {
             return DeathCause.PLAYER_ATTACK;
         } else if (damageType.equals(DamageType.ARROW) || damageType.equals(DamageType.TRIDENT) ||
                 damageType.equals(DamageType.MOB_PROJECTILE)) {

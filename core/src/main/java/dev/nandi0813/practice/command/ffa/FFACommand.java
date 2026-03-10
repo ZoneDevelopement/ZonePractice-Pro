@@ -2,6 +2,10 @@ package dev.nandi0813.practice.command.ffa;
 
 import dev.nandi0813.practice.command.ffa.arguments.*;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
+import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,7 +30,7 @@ public class FFACommand implements CommandExecutor, TabCompleter {
         if (args.length > 0) {
             switch (args[0]) {
                 case "join":
-                    JoinArg.run(player, label, args);
+                    openArenaSelectorGui(player);
                     break;
                 case "leave":
                     LeaveArg.run(player);
@@ -42,10 +46,22 @@ public class FFACommand implements CommandExecutor, TabCompleter {
                     HelpArg.run(player, label);
                     break;
             }
-        } else
-            HelpArg.run(player, label);
+        } else {
+            openArenaSelectorGui(player);
+        }
 
         return true;
+    }
+
+    private static void openArenaSelectorGui(Player player) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (!profile.getStatus().equals(ProfileStatus.LOBBY)) {
+            Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.JOIN.CANT-JOIN-FFA"));
+            return;
+        }
+
+        FFAManager.getInstance().getArenaSelectorGui().update();
+        FFAManager.getInstance().getArenaSelectorGui().open(player);
     }
 
     @Override
@@ -61,10 +77,9 @@ public class FFACommand implements CommandExecutor, TabCompleter {
 
             StringUtil.copyPartialMatches(args[0], arguments, completion);
         } else {
-            if (args[0].equalsIgnoreCase("join")) {
-                completion = JoinArg.tabComplete(player, args);
-            } else if (args[0].equalsIgnoreCase("spectate"))
+            if (args[0].equalsIgnoreCase("spectate")) {
                 completion = SpectateArg.tabComplete(player, args);
+            }
         }
 
         Collections.sort(completion);
