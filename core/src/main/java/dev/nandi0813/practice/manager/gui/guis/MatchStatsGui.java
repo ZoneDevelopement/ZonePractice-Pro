@@ -35,8 +35,11 @@ public class MatchStatsGui extends GUI {
         this.uuid = uuid;
         this.player = Bukkit.getOfflinePlayer(uuid);
 
-        for (Round round : match.getRounds().values())
-            stats.put(round.getRoundNumber(), round.getStatistics().get(uuid));
+        for (Round round : match.getRounds().values()) {
+            Statistic statistic = round.getStatistics().get(uuid);
+            if (statistic != null)
+                stats.put(round.getRoundNumber(), statistic);
+        }
 
         build();
     }
