@@ -1,4 +1,4 @@
-VERSION: 17
+VERSION: 18
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -195,7 +195,7 @@ MATCH-SETTINGS:
       - "REGENERATION::20::2"
   REMOVE-EMPTY-BOTTLE: true # Removes empty potion bottles after the player use it.
   DUEL:
-    RIGHT-CLICK-TO-DUEL: true # When enabled, players can right-click another player in the lobby to send them a duel request.
+    SWORD-TO-DUEL: true # When enabled, hitting a player with the unranked sword in the lobby sends a duel request.
     INVITATION-EXPIRY: 60 # After the seconds, the duel request will expire.
     ROUND-SELECTOR:
       MAX: 10

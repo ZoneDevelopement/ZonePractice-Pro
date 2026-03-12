@@ -18,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -104,25 +105,34 @@ public class InventoryListener implements Listener {
                     checkInventoryInvItem.handleClickEvent(player, target);
                 }
             }
-            return;
         }
+    }
 
-        // Right-click-to-duel: when in lobby, right-clicking a player sends a duel request
-        // Only triggers when the player is holding the unranked item
-        if (ConfigManager.getBoolean("MATCH-SETTINGS.DUEL.RIGHT-CLICK-TO-DUEL")
+    // Sword-to-duel: when in lobby, hitting a player with the unranked sword sends a duel request
+    // Only triggers when the player is holding the unranked item
+    @EventHandler
+    public void onPlayerAttackEntity(EntityDamageByEntityEvent e) {
+        if (!(e.getDamager() instanceof Player player)) return;
+        if (!(e.getEntity() instanceof Player target)) return;
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        if (ConfigManager.getBoolean("MATCH-SETTINGS.DUEL.SWORD-TO-DUEL")
                 && profile.getStatus().equals(ProfileStatus.LOBBY)
                 && !profile.isParty()
                 && player.hasPermission("zpp.duel")) {
+
             Inventory inventory = InventoryManager.getInstance().getPlayerInventory(player);
-            if (inventory != null) {
-                ItemStack itemInHand = ClassImport.getClasses().getPlayerUtil().getPlayerMainHand(player);
-                if (itemInHand != null && itemInHand.getType() != Material.AIR && itemInHand.hasItemMeta()) {
-                    InvItem heldInvItem = inventory.getInvItem(itemInHand.getItemMeta().getDisplayName(), itemInHand.getType());
-                    if (heldInvItem instanceof dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.UnrankedInvItem) {
-                        player.performCommand("duel " + target.getName());
-                    }
-                }
-            }
+            if (inventory == null) return;
+            ItemStack itemInHand = ClassImport.getClasses().getPlayerUtil().getPlayerMainHand(player);
+            if (itemInHand == null || itemInHand.getType() == Material.AIR || !itemInHand.hasItemMeta()) return;
+
+            InvItem heldInvItem = inventory.getInvItem(itemInHand.getItemMeta().getDisplayName(), itemInHand.getType());
+            if (!(heldInvItem instanceof dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.UnrankedInvItem))
+                return;
+
+            e.setCancelled(true);
+            player.performCommand("duel " + target.getName());
         }
     }
 
