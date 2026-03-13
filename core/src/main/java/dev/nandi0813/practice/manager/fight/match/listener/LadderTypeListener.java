@@ -327,7 +327,7 @@ public abstract class LadderTypeListener implements Listener {
             return;
         }
 
-        if (!isWithinBuildLimits(block, match, player)) {
+        if (!isWithinBuildLimits(block.getRelative(e.getBlockFace()), match, player)) {
             e.setCancelled(true);
             return;
         }
