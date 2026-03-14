@@ -1,5 +1,6 @@
 package dev.nandi0813.practice_1_8_8.listener;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.party.Party;
@@ -8,7 +9,6 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.ChatFormatUtil;
 import dev.nandi0813.practice.util.Common;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -24,7 +24,7 @@ public class PlayerChatListener implements Listener {
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
         Party party = PartyManager.getInstance().getParty(player);
-        String message = MiniMessage.miniMessage().escapeTags(e.getMessage());
+        String message = ZonePractice.getMiniMessage().escapeTags(e.getMessage());
 
         // --- Party chat ---
         if (ConfigManager.getBoolean("CHAT.PARTY-CHAT-ENABLED") && profile.isParty() && party != null && message.startsWith("@")) {
