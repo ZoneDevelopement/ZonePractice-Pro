@@ -12,7 +12,7 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.BedUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import org.bukkit.Location;
@@ -253,7 +253,7 @@ public class ArenaSetupListener implements Listener {
 
         if (isOutsideRegion(player, arena, block.getLocation())) return;
 
-        BedLocation bedLocation = ClassImport.getClasses().getBedUtil().getBedLocation(block);
+        BedLocation bedLocation = BedUtil.getBedLocation(block);
 
         if (action == Action.LEFT_CLICK_BLOCK) {
             arena.setBedLoc1(bedLocation);

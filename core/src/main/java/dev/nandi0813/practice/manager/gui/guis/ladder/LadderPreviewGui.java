@@ -6,7 +6,7 @@ import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
-import dev.nandi0813.practice.module.interfaces.KitData;
+import dev.nandi0813.practice.moved.KitData;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;

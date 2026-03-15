@@ -10,8 +10,7 @@ import dev.nandi0813.practice.manager.leaderboard.types.LbMainType;
 import dev.nandi0813.practice.manager.leaderboard.types.LbSecondaryType;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.module.interfaces.ItemCreateUtil;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import org.bukkit.Material;
@@ -30,7 +29,7 @@ public enum LbGuiUtil {
     // if it says not used don't listen to it, buggy
     public static ItemStack createProfileStatItem(Profile profile, Player opener) {
         String playerName = profile.getPlayer().getName();
-        ItemStack itemStack = ClassImport.getClasses().getItemMaterialUtil().getPlayerHead(profile.getPlayer());
+        ItemStack itemStack = ItemCreateUtil.getPlayerHead(profile.getPlayer());
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         String displayName;
@@ -91,7 +90,7 @@ public enum LbGuiUtil {
     }
 
     public static ItemStack createProfileAllStatItem(Profile profile) {
-        ItemStack itemStack = ClassImport.getClasses().getItemMaterialUtil().getPlayerHead(profile.getPlayer());
+        ItemStack itemStack = ItemCreateUtil.getPlayerHead(profile.getPlayer());
         ItemMeta itemMeta = itemStack.getItemMeta();
         List<String> lore = new ArrayList<>();
 
@@ -164,7 +163,7 @@ public enum LbGuiUtil {
             }
         }
 
-        return ClassImport.getClasses().getItemCreateUtil().createItem(ladder.getIcon(), GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.LADDER-LEADERBOARD.NAME")
+        return ItemCreateUtil.createItem(ladder.getIcon(), GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.LADDER-LEADERBOARD.NAME")
                         .replace("%ladder%", ladder.getDisplayName())
                         .replace("%number%", String.valueOf(showPlayers))
                 , lore);
@@ -217,7 +216,7 @@ public enum LbGuiUtil {
             }
         }
 
-        return ClassImport.getClasses().getItemCreateUtil().createItem(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.NAME").replace("%number%", String.valueOf(showPlayers)), Material.valueOf(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.MATERIAL")), lore);
+        return ItemCreateUtil.createItem(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.NAME").replace("%number%", String.valueOf(showPlayers)), Material.valueOf(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.MATERIAL")), lore);
     }
 
     public static ItemStack createWinLbItem(NormalLadder ladder) {
@@ -266,7 +265,7 @@ public enum LbGuiUtil {
             }
         }
 
-        return ClassImport.getClasses().getItemCreateUtil().createItem(ladder.getIcon(), GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.LADDER-LEADERBOARD.NAME")
+        return ItemCreateUtil.createItem(ladder.getIcon(), GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.LADDER-LEADERBOARD.NAME")
                         .replace("%ladder%", ladder.getDisplayName())
                         .replace("%number%", String.valueOf(showPlayers))
                 , lore);
@@ -319,7 +318,7 @@ public enum LbGuiUtil {
             }
         }
 
-        return ClassImport.getClasses().getItemCreateUtil().createItem(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.NAME").replace("%number%", String.valueOf(showPlayers)), Material.valueOf(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.MATERIAL")), lore);
+        return ItemCreateUtil.createItem(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.NAME").replace("%number%", String.valueOf(showPlayers)), Material.valueOf(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.MATERIAL")), lore);
     }
 
     public static ItemStack getCacheInfoItem() {
@@ -332,9 +331,9 @@ public enum LbGuiUtil {
         lore.add("&7Next update: &eWithin 5 minutes");
         lore.add("&8&m------------------------");
 
-        return ClassImport.getClasses().getItemCreateUtil().createItem(
+        return ItemCreateUtil.createItem(
                 "&eAuto-Update Info",
-                ClassImport.getClasses().getItemMaterialUtil().getClock(),
+                Material.CLOCK,
                 lore
         );
     }

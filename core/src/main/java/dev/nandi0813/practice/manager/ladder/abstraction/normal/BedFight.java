@@ -13,7 +13,7 @@ import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.RespawnableL
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.BedUtil;
 import dev.nandi0813.practice.util.Cuboid;
 import lombok.Getter;
 import lombok.Setter;
@@ -77,7 +77,7 @@ public abstract class BedFight extends NormalLadder implements RespawnableLadder
     }
 
     protected static void onBedDestroy(final @NotNull BlockBreakEvent e, final @NotNull Match match) {
-        if (ClassImport.getClasses().getBedUtil().onBedBreak(e, match)) {
+        if (BedUtil.onBedBreak(e, match)) {
             SoundManager.getInstance().getSound(SoundType.BED_BREAK).play(match.getPlayers());
         }
     }

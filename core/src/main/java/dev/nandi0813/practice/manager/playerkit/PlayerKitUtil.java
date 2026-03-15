@@ -1,6 +1,6 @@
 package dev.nandi0813.practice.manager.playerkit;
 
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.LadderUtil;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +16,7 @@ public enum PlayerKitUtil {
      *   <li>{@code MATERIAL} – plain material, e.g. {@code ARROW}</li>
      *   <li>{@code MATERIAL::NUMBER} – material with a legacy damage/data value (1.8), e.g. {@code WOOL::14}</li>
      *   <li>{@code MATERIAL::NAMED_TYPE} – material with a named sub-type resolved via
-     *       {@link dev.nandi0813.practice.module.interfaces.LadderUtil#getPotionItem(String)},
+     *       {@link LadderUtil#getPotionItem(String)},
      *       e.g. {@code TIPPED_ARROW::LONG_NIGHT_VISION}, {@code LINGERING_POTION::SPEED},
      *       {@code SPLASH_POTION::STRENGTH}</li>
      * </ul>
@@ -33,7 +33,7 @@ public enum PlayerKitUtil {
                     return new ItemStack(Material.valueOf(split[0]), 1, Short.parseShort(suffix));
                 } else {
                     // Named sub-type (PotionType, etc.) – delegate to the version-specific impl
-                    return ClassImport.getClasses().getLadderUtil().getPotionItem(string);
+                    return LadderUtil.getPotionItem(string);
                 }
             } else if (string.equalsIgnoreCase("")) {
                 return new ItemStack(Material.AIR);

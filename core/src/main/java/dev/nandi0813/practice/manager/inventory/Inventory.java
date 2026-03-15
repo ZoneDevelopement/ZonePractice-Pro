@@ -3,7 +3,6 @@ package dev.nandi0813.practice.manager.inventory;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.ExtraInvItem;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvArmor;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvItem;
-import dev.nandi0813.practice.module.util.ClassImport;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -54,7 +53,7 @@ public abstract class Inventory {
         if (currentInventory != null)
             currentInventory.getPlayers().remove(player);
 
-        ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
 
         players.add(player);
 

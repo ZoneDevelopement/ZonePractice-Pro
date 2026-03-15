@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.ladder.abstraction.normal;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.NormalArena;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.arena.util.PortalLocation;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.Round;
@@ -13,7 +14,7 @@ import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersV
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.DeathCause;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ChangedBlock;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -89,11 +90,11 @@ public abstract class PortalFight extends NormalLadder {
 
         if (!e.isCancelled()) {
             e.getBlockPlaced().setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), match));
-            match.addBlockChange(ClassImport.createChangeBlock(e));
+            match.addBlockChange(new ChangedBlock(e));
 
             Block underBlock = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
-            if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock))
-                match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
+            if (ArenaUtil.turnsToDirt(underBlock))
+                match.getFightChange().addArenaBlockChange(new ChangedBlock(underBlock));
         }
     }
 
@@ -111,11 +112,11 @@ public abstract class PortalFight extends NormalLadder {
             // whether the actual break is permitted. addBlockChange would tag the block with
             // PLACED_IN_FIGHT, causing LadderTypeListener to treat it as a player-placed block
             // and allow the break even when breakAllBlocks is disabled.
-            match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(e.getBlock()));
+            match.getFightChange().addArenaBlockChange(new ChangedBlock(e.getBlock()));
 
             Block underBlock = e.getBlock().getLocation().subtract(0, 1, 0).getBlock();
             if (underBlock.getType() == Material.DIRT) {
-                match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
+                match.getFightChange().addArenaBlockChange(new ChangedBlock(underBlock));
             }
         }
     }

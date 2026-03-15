@@ -1,10 +1,10 @@
 package dev.nandi0813.practice.manager.fight.event.events.duel.brackets;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.event.enums.EventStatus;
 import dev.nandi0813.practice.manager.fight.event.events.duel.interfaces.DuelFight;
 import dev.nandi0813.practice.manager.fight.event.events.duel.interfaces.DuelListener;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
-import dev.nandi0813.practice.module.util.ClassImport;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
@@ -55,13 +55,13 @@ public class BracketsListener extends DuelListener {
             for (Player eventPlayer : brackets.getPlayers()) {
                 if (duelFight.getPlayers().contains(eventPlayer)) return;
 
-                ClassImport.getClasses().getEntityHider().hideEntity(eventPlayer, e.getEntity());
+                ZonePractice.getEntityHider().hideEntity(eventPlayer, e.getEntity());
             }
 
             for (Player eventSpectator : brackets.getSpectators()) {
                 if (duelFight.getSpectators().contains(eventSpectator)) return;
 
-                ClassImport.getClasses().getEntityHider().hideEntity(eventSpectator, e.getEntity());
+                ZonePractice.getEntityHider().hideEntity(eventSpectator, e.getEntity());
             }
         }
     }

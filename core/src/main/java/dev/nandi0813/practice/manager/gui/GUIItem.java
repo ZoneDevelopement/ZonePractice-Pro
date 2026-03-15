@@ -1,7 +1,7 @@
 package dev.nandi0813.practice.manager.gui;
 
-import dev.nandi0813.practice.module.interfaces.ItemCreateUtil;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
+import dev.nandi0813.practice.moved.LadderUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
@@ -134,7 +134,7 @@ public class GUIItem {
             }
 
             if (durability > 0) {
-                ClassImport.getClasses().getLadderUtil().setDurability(itemStack, durability);
+                LadderUtil.setDurability(itemStack, durability);
             }
         }
 
@@ -149,12 +149,12 @@ public class GUIItem {
             }
 
             if (glowing && enchantments.isEmpty()) {
-                itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+                itemMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
             }
 
             // Apply unbreakable status if set (for modern versions to prevent durability bars)
             if (unbreakable) {
-                itemMeta = ClassImport.getClasses().getLadderUtil().setUnbreakable(itemMeta, true);
+                itemMeta = LadderUtil.setUnbreakable(itemMeta, true);
             }
 
             if (!itemFlags.isEmpty()) {

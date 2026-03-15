@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.ladder.type;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
@@ -12,7 +13,8 @@ import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.BedFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ChangedBlock;
+import dev.nandi0813.practice.moved.LadderUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -135,7 +137,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
         Action action = e.getAction();
 
         if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
-        ItemStack fireballItem = ClassImport.getClasses().getPlayerUtil().getItemInUse(player, ClassImport.getClasses().getItemMaterialUtil().getFireball());
+        ItemStack fireballItem = dev.nandi0813.practice.moved.PlayerUtil.getItemInUse(player, Material.FIRE_CHARGE);
         if (fireballItem == null) {
             return;
         }
@@ -146,12 +148,12 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
         if (ladder.fireballCooldown <= 0) return;
 
-        if (!ClassImport.getClasses().getItemCooldownHandler().handleFireballMatch(
+        if (!dev.nandi0813.practice.moved.ModernItemCooldownHandler.handleFireballMatch(
                 player, ladder.fireballCooldown, "MATCH.COOLDOWN.FIREBALL")) {
             return;
         }
 
-        final Fireball fireball = ClassImport.getClasses().getPlayerUtil().shootFireball(player, FIREBALL_SPEED);
+        final Fireball fireball = dev.nandi0813.practice.moved.PlayerUtil.shootFireball(player, FIREBALL_SPEED);
         fireball.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), match));
         fireball.setMetadata(FIREBALL_FIGHT_FIREBALL, new FixedMetadataValue(ZonePractice.getInstance(), match));
         fireball.setIsIncendiary(false);
@@ -159,9 +161,9 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
         fireballItem.setAmount(fireballItem.getAmount() - 1);
         if (fireballItem.getAmount() == 0) {
-            ClassImport.getClasses().getPlayerUtil().setItemInUseIf(
+            dev.nandi0813.practice.moved.PlayerUtil.setItemInUseIf(
                     player,
-                    ClassImport.getClasses().getItemMaterialUtil().getFireball(),
+                    Material.FIRE_CHARGE,
                     null);
         }
         player.updateInventory();
@@ -187,14 +189,14 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
     private static void onBlockPlace(final @NotNull BlockPlaceEvent e, final @NotNull Match match) {
         Block block = e.getBlockPlaced();
         if (block.getType().equals(Material.TNT)) {
-            ClassImport.getClasses().getLadderUtil().placeTnt(e, match);
+            LadderUtil.placeTnt(e, match);
         } else {
             block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), match));
-            match.addBlockChange(ClassImport.createChangeBlock(e));
+            match.addBlockChange(new ChangedBlock(e));
 
             Block underBlock = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
-            if (ClassImport.getClasses().getArenaUtil().turnsToDirt(underBlock))
-                match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(underBlock));
+            if (ArenaUtil.turnsToDirt(underBlock))
+                match.getFightChange().addArenaBlockChange(new ChangedBlock(underBlock));
         }
     }
 
@@ -224,7 +226,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
             }
 
             e.setDamage(0);
-            ClassImport.getClasses().getPlayerUtil().applyFireballKnockback(player, fireball);
+            dev.nandi0813.practice.moved.PlayerUtil.applyFireballKnockback(player, fireball);
         } else if (e.getDamager() instanceof TNTPrimed tnt) {
             MetadataValue mv = BlockUtil.getMetadata(tnt, FIREBALL_FIGHT_TNT);
             if (ListenerUtil.checkMetaData(mv)) {
@@ -238,7 +240,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
             if (mv2.value() instanceof Player shooter) {
                 if (shooter == player || !TeamUtil.isSaveTeamMate(match, shooter, player)) {
-                    ClassImport.getClasses().getPlayerUtil().applyTntKnockback(player, tnt);
+                    dev.nandi0813.practice.moved.PlayerUtil.applyTntKnockback(player, tnt);
                     e.setDamage(0);
                 } else if (TeamUtil.isSaveTeamMate(match, shooter, player)) {
                     e.setCancelled(true);
@@ -305,7 +307,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
             // Filter to only destroyable blocks — MatchTntListener will track + break them naturally.
             e.blockList().removeIf(block -> {
                 if (block.getType().equals(Material.TNT)) return false;                     // keep → chain-explodes
-                if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)) return false; // keep → destroyable
+                if (ArenaUtil.containsDestroyableBlock(match.getLadder(), block)) return false; // keep → destroyable
                 if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                       // keep → player placed
                 if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;  // remove → support under player block
                 return true;                                                                 // remove → pure arena block
@@ -322,7 +324,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
         // Filter to only destroyable blocks — MatchTntListener will track + break them naturally.
         e.blockList().removeIf(block -> {
             if (block.getType().equals(Material.TNT)) return false;                     // keep → chain-explodes
-            if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)) return false; // keep → destroyable
+            if (ArenaUtil.containsDestroyableBlock(match.getLadder(), block)) return false; // keep → destroyable
             if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                       // keep → player placed
             if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;  // remove → support under player block
             return true;                                                                 // remove → pure arena block

@@ -1,6 +1,6 @@
 package dev.nandi0813.practice.manager.playerkit.items;
 
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.LadderUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -82,7 +82,7 @@ public class KitItem {
     }
 
     public boolean isUnbreakable() {
-        return ClassImport.getClasses().getLadderUtil().isUnbreakable(itemStack);
+        return LadderUtil.isUnbreakable(itemStack);
     }
 
     // Setters
@@ -95,12 +95,12 @@ public class KitItem {
 
     public void setUnbreakable(boolean unbreakable) {
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta = ClassImport.getClasses().getLadderUtil().setUnbreakable(itemMeta, unbreakable);
+        itemMeta = LadderUtil.setUnbreakable(itemMeta, unbreakable);
         itemStack.setItemMeta(itemMeta);
     }
 
     public void setDurability(int durability) {
-        itemStack = ClassImport.getClasses().getLadderUtil().setDurability(itemStack, durability);
+        itemStack = LadderUtil.setDurability(itemStack, durability);
     }
 
     public KitItem setAmount(int amount) {

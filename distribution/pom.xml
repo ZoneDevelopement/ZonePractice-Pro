@@ -28,20 +28,6 @@
             <version>${project.parent.version}</version>
             <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <groupId>dev.nandi0813</groupId>
-            <artifactId>practice-spigot_modern</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>dev.nandi0813</groupId>
-            <artifactId>practice-spigot_1_8_8</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>

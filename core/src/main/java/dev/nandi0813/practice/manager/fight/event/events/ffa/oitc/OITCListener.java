@@ -7,7 +7,6 @@ import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Cuboid;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
@@ -128,7 +127,7 @@ public class OITCListener extends FFAListener {
 
             if (!event.getStatus().equals(EventStatus.LIVE)) {
                 Player player = e.getPlayer();
-                if (ClassImport.getClasses().getPlayerUtil().isItemInUse(player, Material.BOW)) {
+                if (dev.nandi0813.practice.moved.PlayerUtil.isItemInUse(player, Material.BOW)) {
                     e.setCancelled(true);
                     player.updateInventory();
                 }

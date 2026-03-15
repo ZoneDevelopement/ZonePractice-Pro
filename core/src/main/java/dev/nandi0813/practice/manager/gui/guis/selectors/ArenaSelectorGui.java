@@ -17,7 +17,7 @@ import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.party.matchrequest.PartyRequest;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.Bukkit;
@@ -71,7 +71,7 @@ public class ArenaSelectorGui extends MatchStarterGui {
                 for (String line : GUIFile.getStringList("GUIS.SELECTORS.ARENA-SELECTOR.ICONS.ARENA-ICON.LORE"))
                     lore.add(line.replace("%arena%", arena.getDisplayName()));
 
-                ItemStack icon = ClassImport.getClasses().getItemCreateUtil().createItem(arena.getIcon(), GUIFile.getString("GUIS.SELECTORS.ARENA-SELECTOR.ICONS.ARENA-ICON.NAME").replace("%arena%", arena.getDisplayName()), lore);
+                ItemStack icon = ItemCreateUtil.createItem(arena.getIcon(), GUIFile.getString("GUIS.SELECTORS.ARENA-SELECTOR.ICONS.ARENA-ICON.NAME").replace("%arena%", arena.getDisplayName()), lore);
 
                 int slot = inventory.firstEmpty();
                 inventory.setItem(slot, icon);

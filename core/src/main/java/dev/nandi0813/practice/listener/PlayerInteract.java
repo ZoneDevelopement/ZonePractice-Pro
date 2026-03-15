@@ -3,7 +3,6 @@ package dev.nandi0813.practice.listener;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.module.util.ClassImport;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -32,7 +31,7 @@ public class PlayerInteract implements Listener {
                 if (profile.getStatus().equals(ProfileStatus.MATCH) || profile.getStatus().equals(ProfileStatus.EVENT)) {
                     // Soup listener
                     if (action.equals(Action.RIGHT_CLICK_BLOCK) || action.equals(Action.RIGHT_CLICK_AIR)) {
-                        if (item != null && item.getType().equals(ClassImport.getClasses().getItemMaterialUtil().getMushroomSoup())) {
+                        if (item != null && item.getType().equals(Material.MUSHROOM_STEW)) {
                             int food = player.getFoodLevel();
                             double health = player.getHealth();
                             double maxHealth = player.getMaxHealth();

@@ -14,9 +14,8 @@ import dev.nandi0813.practice.manager.ladder.enums.WeightClassType;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.module.interfaces.ItemCreateUtil;
-import dev.nandi0813.practice.module.util.ClassImport;
-import dev.nandi0813.practice.module.util.VersionChecker;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
+import dev.nandi0813.practice.moved.VersionChecker;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
@@ -135,16 +134,14 @@ public class CustomLadderEditorGui extends GUI {
                 if (inventory.getItem(i) == null)
                     inventory.setItem(i, fillerItem);
 
-            if (Objects.requireNonNull(VersionChecker.getBukkitVersion()).isSecondHand()) {
-                if (customKit.getExtra() != null) {
-                    if (customKit.getExtra().length > 0) {
-                        inventory.setItem(14, customKit.getExtra()[0]);
-                    } else {
-                        inventory.setItem(14, null);
-                    }
+            if (customKit.getExtra() != null) {
+                if (customKit.getExtra().length > 0) {
+                    inventory.setItem(14, customKit.getExtra()[0]);
                 } else {
-                    inventory.setItem(14, GUIManager.getDUMMY_ITEM());
+                    inventory.setItem(14, null);
                 }
+            } else {
+                inventory.setItem(14, GUIManager.getDUMMY_ITEM());
             }
 
             updatePlayers();
@@ -207,14 +204,12 @@ public class CustomLadderEditorGui extends GUI {
         NormalLadder ladder = customLadderEditorGui.getLadder();
 
         if (ladder.isEnabled() && ladder.isEditable() && !ladder.isFrozen()) {
-            ItemStack[] inventoryStorageContent = ClassImport.getClasses().getPlayerUtil().getInventoryStorageContent(player);
+            ItemStack[] inventoryStorageContent = dev.nandi0813.practice.moved.PlayerUtil.getInventoryStorageContent(player);
             customKit.setInventory(inventoryStorageContent);
-            if (Objects.requireNonNull(VersionChecker.getBukkitVersion()).isSecondHand()) {
-                customKit.setExtra(new ItemStack[]{this.gui.get(1).getItem(14)});
-            }
+            customKit.setExtra(new ItemStack[]{this.gui.get(1).getItem(14)});
         }
 
-        ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
@@ -234,7 +229,7 @@ public class CustomLadderEditorGui extends GUI {
         Profile playerProfile = ProfileManager.getInstance().getProfile(player);
         playerProfile.setStatus(ProfileStatus.EDITOR);
 
-        ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
 
         Map<Integer, CustomKit> kits;
         if (ranked) kits = profile.getRankedCustomKits().get(ladder);

@@ -7,7 +7,6 @@ import dev.nandi0813.practice.manager.gui.setup.ladder.LadderSetupManager;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -42,7 +41,7 @@ public enum IconArg {
             return;
         }
 
-        ItemStack icon = ClassImport.getClasses().getPlayerUtil().getPlayerMainHand(player);
+        ItemStack icon = dev.nandi0813.practice.moved.PlayerUtil.getPlayerMainHand(player);
         if (icon == null || icon.getType().equals(Material.AIR)) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.LADDER.ARGUMENTS.ICON.NO-ITEM").replace("%ladder%", ladder.getDisplayName()));
             return;

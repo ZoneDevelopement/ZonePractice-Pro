@@ -2,7 +2,6 @@ package dev.nandi0813.practice.manager.ladder.settings.handlers;
 
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.ladder.settings.SettingHandler;
-import dev.nandi0813.practice.module.util.ClassImport;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -44,7 +43,7 @@ public class GoldenAppleSettingHandler implements SettingHandler<Integer> {
             return false; // Golden heads don't have cooldown
         }
 
-        ClassImport.getClasses().getItemCooldownHandler().handleGoldenAppleMatch(
+        dev.nandi0813.practice.moved.ModernItemCooldownHandler.handleGoldenAppleMatch(
                 player,
                 cooldown,
                 e,

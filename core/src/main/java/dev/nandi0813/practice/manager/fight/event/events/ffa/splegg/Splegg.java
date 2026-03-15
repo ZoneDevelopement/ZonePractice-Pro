@@ -1,7 +1,6 @@
 package dev.nandi0813.practice.manager.fight.event.events.ffa.splegg;
 
 import dev.nandi0813.practice.manager.fight.event.events.ffa.interfaces.FFAEvent;
-import dev.nandi0813.practice.module.util.ClassImport;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
@@ -28,7 +27,7 @@ public class Splegg extends FFAEvent {
 
     @Override
     protected void loadInventory(Player player) {
-        ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
         player.getInventory().addItem(this.getEventData().getEggLauncher());
         player.updateInventory();
     }

@@ -5,8 +5,7 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.manager.ladder.util.LadderKnockback;
-import dev.nandi0813.practice.module.interfaces.KitData;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.KitData;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -75,7 +74,7 @@ public abstract class Ladder {
         this.name = name;
         this.displayName = name;
         this.type = type;
-        this.kitData = ClassImport.createKitData();
+        this.kitData = new KitData();
         this.ladderKnockback = new LadderKnockback();
     }
 
@@ -85,7 +84,7 @@ public abstract class Ladder {
         if (ladder.getIcon() != null) {
             this.icon = ladder.getIcon().clone();
         }
-        this.kitData = ClassImport.createKitData(ladder.getKitData());
+        this.kitData = new KitData(ladder.getKitData());
         this.type = ladder.getType();
         this.enabled = ladder.isEnabled();
         this.ladderKnockback = new LadderKnockback(ladder.getLadderKnockback());

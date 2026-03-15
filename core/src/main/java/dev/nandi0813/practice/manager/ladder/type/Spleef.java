@@ -7,7 +7,7 @@ import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.PermanentConfig;
 import lombok.Getter;
 import lombok.Setter;
@@ -71,14 +71,14 @@ public class Spleef extends NormalLadder implements LadderHandle, CustomConfig {
 
         e.setCancelled(true);
         if (snow.getType().equals(Material.SNOW_BLOCK)) {
-            match.addBlockChange(ClassImport.createChangeBlock(snow));
+            match.addBlockChange(new ChangedBlock(snow));
             snow.setType(Material.AIR);
 
             // Give one snowball per block broken when snowball mode is active.
             // Uses the version-abstracted getSnowball() (SNOW_BALL on 1.8.8, SNOWBALL on modern).
             if (snowballMode) {
                 player.getInventory().addItem(
-                        new ItemStack(ClassImport.getClasses().getItemMaterialUtil().getSnowball(), 1));
+                        new ItemStack(Material.SNOWBALL, 1));
                 player.updateInventory();
             }
         }
@@ -105,7 +105,7 @@ public class Spleef extends NormalLadder implements LadderHandle, CustomConfig {
         if (!hitBlock.getType().equals(Material.SNOW_BLOCK)) return;
         if (!match.getArena().getCuboid().contains(hitBlock)) return;
 
-        match.addBlockChange(ClassImport.createChangeBlock(hitBlock));
+        match.addBlockChange(new ChangedBlock(hitBlock));
         hitBlock.setType(Material.AIR);
     }
 
@@ -144,9 +144,9 @@ public class Spleef extends NormalLadder implements LadderHandle, CustomConfig {
         if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) return;
 
         Material block = player.getLocation().getBlock().getType();
-        if (block.equals(Material.WATER) || block.equals(ClassImport.getClasses().getItemMaterialUtil().getWater())) {
+        if (block.equals(Material.WATER)) {
             match.killPlayer(player, null, DeathCause.SPLEEF.getMessage());
-        } else if (block.equals(Material.LAVA) || block.equals(ClassImport.getClasses().getItemMaterialUtil().getLava())) {
+        } else if (block.equals(Material.LAVA)) {
             match.killPlayer(player, null, DeathCause.SPLEEF.getMessage());
         }
     }

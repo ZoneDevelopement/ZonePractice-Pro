@@ -1,7 +1,7 @@
 package dev.nandi0813.practice.manager.fight.event.setup;
 
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -115,7 +115,7 @@ public class EventSpawnMarkerManager {
         armorStand.teleport(facingLoc);
 
         // Give it a sword to hold (to make it more visible)
-        ItemStack sword = ClassImport.getClasses().getItemCreateUtil().createItem("&cSpawn Marker", org.bukkit.Material.DIAMOND_SWORD);
+        ItemStack sword = ItemCreateUtil.createItem("&cSpawn Marker", org.bukkit.Material.DIAMOND_SWORD);
         armorStand.setItemInHand(sword);
 
         // Make it invulnerable and persistent

@@ -18,8 +18,6 @@
 
     <modules>
         <module>core</module>
-        <module>spigot_1_8_8</module>
-        <module>spigot_modern</module>
         <module>distribution</module>
     </modules>
 

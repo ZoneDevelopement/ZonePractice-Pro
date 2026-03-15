@@ -9,7 +9,6 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.server.WorldEnum;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -98,7 +97,7 @@ public class InventoryListener implements Listener {
             if (inventory == null) return;
 
             if (inventory instanceof StaffInventory) {
-                ItemStack itemInHand = ClassImport.getClasses().getPlayerUtil().getPlayerMainHand(player);
+                ItemStack itemInHand = dev.nandi0813.practice.moved.PlayerUtil.getPlayerMainHand(player);
                 InvItem invItem = inventory.getInvItem(itemInHand.getItemMeta().getDisplayName(), itemInHand.getType());
 
                 if (invItem instanceof CheckInventoryInvItem checkInventoryInvItem) {
@@ -124,7 +123,7 @@ public class InventoryListener implements Listener {
 
             Inventory inventory = InventoryManager.getInstance().getPlayerInventory(player);
             if (inventory == null) return;
-            ItemStack itemInHand = ClassImport.getClasses().getPlayerUtil().getPlayerMainHand(player);
+            ItemStack itemInHand = dev.nandi0813.practice.moved.PlayerUtil.getPlayerMainHand(player);
             if (itemInHand == null || itemInHand.getType() == Material.AIR || !itemInHand.hasItemMeta()) return;
 
             InvItem heldInvItem = inventory.getInvItem(itemInHand.getItemMeta().getDisplayName(), itemInHand.getType());

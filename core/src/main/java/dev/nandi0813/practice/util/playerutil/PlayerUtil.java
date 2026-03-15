@@ -4,7 +4,6 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -25,7 +24,7 @@ public enum PlayerUtil {
         player.setGameMode(GameMode.SURVIVAL);
         player.setAllowFlight(fly);
         player.setFlying(fly);
-        ClassImport.getClasses().getPlayerUtil().setCollidesWithEntities(player, entityCollide);
+        dev.nandi0813.practice.moved.PlayerUtil.setCollidesWithEntities(player, entityCollide);
 
         if (ZonePractice.getInstance().isEnabled()) {
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setFireTicks(0), 2L);
@@ -33,7 +32,7 @@ public enum PlayerUtil {
             player.setFireTicks(0);
         }
 
-        if (deleteInv) ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+        if (deleteInv) dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
 
         for (PotionEffect potionEffect : player.getActivePotionEffects())
             player.removePotionEffect(potionEffect.getType());

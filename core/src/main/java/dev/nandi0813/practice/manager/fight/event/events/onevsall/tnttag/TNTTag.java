@@ -311,14 +311,14 @@ public class TNTTag extends Event {
     }
 
     private static void setResistancePotion(Player player) {
-        player.removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10000 * 20, 125));
+        player.removePotionEffect(PotionEffectType.RESISTANCE);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 10000 * 20, 125));
     }
 
     public static final String TNT_TAG_TNT_METADATA = "ZPP_TNT_TAG_TNT";
 
     private void sendExplosion(Location location) {
-        TNTPrimed tnt = (TNTPrimed) location.getWorld().spawnEntity(location.subtract(-0.5, 0, -0.5), EntityType.PRIMED_TNT);
+        TNTPrimed tnt = (TNTPrimed) location.getWorld().spawnEntity(location.subtract(-0.5, 0, -0.5), EntityType.TNT);
         tnt.setMetadata(TNT_TAG_TNT_METADATA, new FixedMetadataValue(ZonePractice.getInstance(), this));
         tnt.setFuseTicks(1);
     }

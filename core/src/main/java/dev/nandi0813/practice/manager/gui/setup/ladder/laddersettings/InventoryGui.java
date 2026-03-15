@@ -10,8 +10,8 @@ import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.ladder.LadderSetupManager;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
-import dev.nandi0813.practice.module.interfaces.KitData;
-import dev.nandi0813.practice.module.util.VersionChecker;
+import dev.nandi0813.practice.moved.KitData;
+import dev.nandi0813.practice.moved.VersionChecker;
 import dev.nandi0813.practice.util.ArmorUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
@@ -32,10 +32,6 @@ import org.bukkit.potion.PotionEffect;
 import java.util.*;
 
 public class InventoryGui extends GUI {
-
-    private static final boolean secondHand = Optional.ofNullable(VersionChecker.getBukkitVersion())
-            .map(VersionChecker.BukkitVersion::isSecondHand)
-            .orElse(false);
 
     @Getter
     private final NormalLadder ladder;
@@ -90,11 +86,8 @@ public class InventoryGui extends GUI {
                     inventory.setItem(i, armorContent.get(i - 50));
                 }
 
-                if (secondHand) {
-                    if (kitData.getExtra() != null)
-                        inventory.setItem(49, kitData.getExtra()[0]);
-                } else
-                    inventory.setItem(49, GUIManager.getFILLER_ITEM());
+                if (kitData.getExtra() != null)
+                    inventory.setItem(49, kitData.getExtra()[0]);
             }
 
             updatePlayers();
@@ -153,11 +146,9 @@ public class InventoryGui extends GUI {
         for (int i = 0; i < 27; i++) inventoryContent.add(inventory.getItem(i));
         for (int i = 50; i < 54; i++) armorContent.add(inventory.getItem(i));
 
-        if (secondHand) {
-            List<ItemStack> extraContent = new ArrayList<>();
-            extraContent.add(inventory.getItem(49));
-            kitData.setExtra(extraContent.toArray(new ItemStack[0]));
-        }
+        List<ItemStack> extraContent = new ArrayList<>();
+        extraContent.add(inventory.getItem(49));
+        kitData.setExtra(extraContent.toArray(new ItemStack[0]));
 
         kitData.setStorage(inventoryContent.toArray(new ItemStack[0]));
         kitData.setArmor(armorContent.toArray(new ItemStack[0]));

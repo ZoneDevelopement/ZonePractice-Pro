@@ -3,7 +3,7 @@ package dev.nandi0813.practice.util.playerutil;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public enum ProfileStatData {
     ;

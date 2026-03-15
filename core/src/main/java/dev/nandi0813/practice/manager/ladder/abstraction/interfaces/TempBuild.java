@@ -1,10 +1,11 @@
 package dev.nandi0813.practice.manager.ladder.abstraction.interfaces;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.fightmapchange.BlockPosition;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.Location;
@@ -40,11 +41,11 @@ public interface TempBuild {
                 MetadataValue mv = BlockUtil.getMetadata(relative, PLACED_IN_FIGHT);
                 if (ListenerUtil.checkMetaData(mv) || relative.getType().isSolid()) continue;
 
-                match.getFightChange().addBlockChange(ClassImport.createChangeBlock(block), player, buildDelay);
+                match.getFightChange().addBlockChange(new ChangedBlock(block), player, buildDelay);
 
                 Block b2 = block.getLocation().subtract(0, 1, 0).getBlock();
-                if (ClassImport.getClasses().getArenaUtil().turnsToDirt(b2))
-                    match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(b2));
+                if (ArenaUtil.turnsToDirt(b2))
+                    match.getFightChange().addArenaBlockChange(new ChangedBlock(b2));
             }
         }
     }
@@ -57,11 +58,11 @@ public interface TempBuild {
 
         block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), match));
 
-        match.getFightChange().addBlockChange(ClassImport.createChangeBlock(e), player, buildDelay);
+        match.getFightChange().addBlockChange(new ChangedBlock(e), player, buildDelay);
 
         Block block2 = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
-        if (ClassImport.getClasses().getArenaUtil().turnsToDirt(block2))
-            match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(block2));
+        if (ArenaUtil.turnsToDirt(block2))
+            match.getFightChange().addArenaBlockChange(new ChangedBlock(block2));
     }
 
     static void onBlockBreak(final @NotNull BlockBreakEvent e, final @NotNull Match match) {

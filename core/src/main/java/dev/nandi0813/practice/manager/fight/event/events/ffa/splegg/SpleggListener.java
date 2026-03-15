@@ -3,7 +3,7 @@ package dev.nandi0813.practice.manager.fight.event.events.ffa.splegg;
 import dev.nandi0813.practice.manager.fight.event.enums.EventStatus;
 import dev.nandi0813.practice.manager.fight.event.events.ffa.interfaces.FFAListener;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.Cuboid;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -54,9 +54,9 @@ public class SpleggListener extends FFAListener {
                 event.killPlayer(player, false);
             } else {
                 Material block = player.getLocation().getBlock().getType();
-                if (block.equals(Material.WATER) || block.equals(ClassImport.getClasses().getItemMaterialUtil().getWater())) {
+                if (block.equals(Material.WATER)) {
                     event.killPlayer(player, false);
-                } else if (block.equals(Material.LAVA) || block.equals(ClassImport.getClasses().getItemMaterialUtil().getLava())) {
+                } else if (block.equals(Material.LAVA)) {
                     event.killPlayer(player, false);
                 }
             }
@@ -72,7 +72,7 @@ public class SpleggListener extends FFAListener {
                 return;
             }
 
-            ItemStack item = ClassImport.getClasses().getPlayerUtil().getItemInUse(player, splegg.getEventData().getEggLauncher().getType());
+            ItemStack item = dev.nandi0813.practice.moved.PlayerUtil.getItemInUse(player, splegg.getEventData().getEggLauncher().getType());
             if (item != null) {
                 Egg egg = player.launchProjectile(Egg.class);
                 egg.setCustomName("SPLEGG");
@@ -109,7 +109,7 @@ public class SpleggListener extends FFAListener {
             String materialName = hitBlockType.name();
             // Check if block is wool - works for both 1.8.8 (WOOL) and modern versions (WHITE_WOOL, RED_WOOL, etc.)
             if (materialName.equals("WOOL") || materialName.endsWith("_WOOL")) {
-                splegg.getFightChange().addBlockChange(ClassImport.createChangeBlock(hitBlock));
+                splegg.getFightChange().addBlockChange(new ChangedBlock(hitBlock));
 
                 hitBlock.setType(Material.AIR);
                 splegg.getShotBlocks().replace(player, splegg.getShotBlocks().get(player) + 1);

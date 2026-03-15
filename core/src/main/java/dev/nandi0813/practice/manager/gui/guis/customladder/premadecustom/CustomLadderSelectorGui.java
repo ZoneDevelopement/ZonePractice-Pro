@@ -9,7 +9,7 @@ import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.module.interfaces.ItemCreateUtil;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.entity.Player;

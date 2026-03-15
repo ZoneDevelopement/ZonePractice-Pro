@@ -14,7 +14,6 @@ import dev.nandi0813.practice.manager.playerkit.StaticItems;
 import dev.nandi0813.practice.manager.playerkit.items.KitItem;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import net.wesjd.anvilgui.AnvilGUI;
@@ -217,7 +216,7 @@ public class MainGUI extends GUI {
     public void open(Player player) {
         super.open(player);
 
-        ClassImport.getClasses().getPlayerUtil().setActiveInventoryTitle(
+        dev.nandi0813.practice.moved.PlayerUtil.setActiveInventoryTitle(
                 player,
                 StaticItems.MAIN_GUI_TITLE.replace("%name%", customLadder.getDisplayName())
         );

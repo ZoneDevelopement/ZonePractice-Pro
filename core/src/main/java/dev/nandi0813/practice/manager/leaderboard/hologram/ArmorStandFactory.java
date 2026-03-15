@@ -1,6 +1,6 @@
 package dev.nandi0813.practice.manager.leaderboard.hologram;
 
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Location;
@@ -48,7 +48,7 @@ public class ArmorStandFactory {
         stand.setCustomName(StringUtil.CC(text));
         stand.setBasePlate(false);
         stand.setArms(false);
-        ClassImport.getClasses().getArenaUtil().setArmorStandInvulnerable(stand);
+        ArenaUtil.setArmorStandInvulnerable(stand);
     }
 
     /**

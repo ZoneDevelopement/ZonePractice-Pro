@@ -5,7 +5,6 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,7 +43,7 @@ public class DuelRequest {
                     .replace("%arena%", arenaName)
                     .replace("%rounds%", String.valueOf(rounds))
                     .replace("%target%", target.getName())
-                    .replace("%targetPing%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(target)))
+                    .replace("%targetPing%", String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(target)))
             );
         }
 
@@ -54,7 +53,7 @@ public class DuelRequest {
                     .replace("%arena%", arenaName)
                     .replace("%rounds%", String.valueOf(rounds))
                     .replace("%sender%", sender.getName())
-                    .replace("%senderPing%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(sender)))
+                    .replace("%senderPing%", String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(sender)))
             );
         }
     }

@@ -11,7 +11,6 @@ import dev.nandi0813.practice.manager.fight.event.util.EventUtil;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.cooldown.CooldownObject;
@@ -56,7 +55,7 @@ public class EventListener implements Listener {
             return;
         }
 
-        ItemStack item = ClassImport.getClasses().getPlayerUtil().getItemInUse(player, EventManager.PLAYER_TRACKER.getType());
+        ItemStack item = dev.nandi0813.practice.moved.PlayerUtil.getItemInUse(player, EventManager.PLAYER_TRACKER.getType());
         if (item == null) {
             return;
         }

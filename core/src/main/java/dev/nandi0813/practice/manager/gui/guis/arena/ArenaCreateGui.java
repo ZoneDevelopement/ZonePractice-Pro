@@ -13,7 +13,7 @@ import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import lombok.Getter;
@@ -61,7 +61,7 @@ public class ArenaCreateGui extends GUI {
         inventory.setItem(16, null);
 
         for (ArenaType type : ArenaType.values()) {
-            ItemStack item = ClassImport.getClasses().getItemCreateUtil().createItem("&e" + type.getName(), type.getIcon());
+            ItemStack item = ItemCreateUtil.createItem("&e" + type.getName(), type.getIcon());
             ItemMeta itemMeta = item.getItemMeta();
             itemMeta.setLore(type.getDescription());
             item.setItemMeta(itemMeta);

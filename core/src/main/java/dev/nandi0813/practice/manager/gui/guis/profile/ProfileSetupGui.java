@@ -17,7 +17,8 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.RankedBan;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
+import dev.nandi0813.practice.moved.PlayerUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
@@ -197,7 +198,7 @@ public class ProfileSetupGui extends GUI {
     }
 
     private static ItemStack getBasicInfoItem(Profile profile) {
-        GUIItem guiItem = new GUIItem(ClassImport.getClasses().getItemMaterialUtil().getPlayerHead(profile.getPlayer()));
+        GUIItem guiItem = new GUIItem(ItemCreateUtil.getPlayerHead(profile.getPlayer()));
         guiItem.setName(GUIFile.getString("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.BASIC-INFO.NAME"));
         guiItem.setLore(GUIFile.getStringList("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.BASIC-INFO.LORE"));
 
@@ -228,7 +229,7 @@ public class ProfileSetupGui extends GUI {
                     .replace("%health%", String.valueOf(player.getHealth()))
                     .replace("%food%", String.valueOf(player.getFoodLevel()))
                     .replace("%hit_delay%", String.valueOf(player.getMaximumNoDamageTicks()))
-                    .replace("%ping%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(player)))
+                    .replace("%ping%", String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(player)))
                     .get();
     }
 

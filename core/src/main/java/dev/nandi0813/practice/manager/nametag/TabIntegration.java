@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.nametag;
 
+import dev.nandi0813.practice.moved.PlayerUtil;
 import lombok.Getter;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
@@ -431,9 +432,7 @@ public class TabIntegration {
                 .append(lobbySuffix);
 
             // Use internal Bukkit method to set the tablist name (not TAB API)
-            dev.nandi0813.practice.module.util.ClassImport.getClasses()
-                .getPlayerUtil()
-                .setPlayerListName(player, tabListName);
+            PlayerUtil.setPlayerListName(player, tabListName);
 
         } catch (Exception e) {
             // Silently fail - this is best-effort

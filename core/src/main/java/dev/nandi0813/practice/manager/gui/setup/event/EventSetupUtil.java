@@ -2,7 +2,7 @@ package dev.nandi0813.practice.manager.gui.setup.event;
 
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -22,7 +22,7 @@ public enum EventSetupUtil {
         lore.add("&6&lRIGHT-CLICK &7marks the second corner.");
         lore.add("");
         lore.add("&c&lNote: &7This can't be undone.");
-        return ClassImport.getClasses().getItemCreateUtil().createItem("&bCorner Marker", Material.STICK, lore);
+        return ItemCreateUtil.createItem("&bCorner Marker", Material.STICK, lore);
     }
 
     public static ItemStack getBroadcastIntervalItem(final int broadcastInterval) {

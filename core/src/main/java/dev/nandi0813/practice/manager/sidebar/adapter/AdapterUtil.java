@@ -12,7 +12,6 @@ import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.partyvsp
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.entity.Player;
@@ -42,7 +41,7 @@ public enum AdapterUtil {
      * Gets player ping as string or "N/A" if offline
      */
     private static String getPingString(Player player) {
-        return player.isOnline() ? String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(player)) : "N/A";
+        return player.isOnline() ? String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(player)) : "N/A";
     }
 
     /**
@@ -54,7 +53,7 @@ public enum AdapterUtil {
                 .replaceText(replace("%totalRounds%", String.valueOf(match.getLadder().getRounds())))
                 .replaceText(replace("%roundDuration%", match.getCurrentRound().getFormattedTime()))
                 .replaceText(replace("%matchDuration%", match.getFormattedTime()))
-                .replaceText(replace("%ping%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(player))))
+                .replaceText(replace("%ping%", String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(player))))
                 .replaceText(replace("%arena%", match.getArena().getDisplayName()))
                 .replaceText(replace("%ladder%", match.getLadder().getDisplayName()));
     }
@@ -203,7 +202,7 @@ public enum AdapterUtil {
                 .replaceText(replace("%players%", String.valueOf(ffa.getPlayers().size())))
                 .replaceText(replace("%spectators%", String.valueOf(ffa.getSpectators().size())))
                 .replaceText(replace("%nextReset%", ffa.getBuildRollback() != null ? ffa.getBuildRollback().getFormattedTime() : "N/A"))
-                .replaceText(replace("%ping%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(player))))
+                .replaceText(replace("%ping%", String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(player))))
                 .replaceText(replace("%ladder%", ffa.getPlayers().get(player).getDisplayName()))
                 .replaceText(replace("%arena%", ffa.getArena().getDisplayName()))
                 .replaceText(replace("%kills%", String.valueOf(statistic.getKills())))

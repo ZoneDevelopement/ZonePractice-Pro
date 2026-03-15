@@ -7,7 +7,6 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDi
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerScoreboardObjective;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateScore;
 import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.module.util.ClassImport;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -45,7 +44,7 @@ public class BelowNameManager implements PacketListener {
                     continue;
                 }
 
-                double health = ClassImport.getClasses().getPlayerUtil().getPlayerHealth(otherPlayer);
+                double health = dev.nandi0813.practice.moved.PlayerUtil.getPlayerHealth(otherPlayer);
                 int hp = (int) Math.round(health);
 
                 Component formattedHealth = Component.text(String.format("%.1f", health));

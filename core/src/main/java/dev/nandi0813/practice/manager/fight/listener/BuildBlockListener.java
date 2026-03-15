@@ -1,11 +1,12 @@
 package dev.nandi0813.practice.manager.fight.listener;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
 import dev.nandi0813.practice.manager.fight.util.FightUtil;
 import dev.nandi0813.practice.manager.fight.match.Match;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -50,8 +51,8 @@ public class BuildBlockListener implements Listener {
     /** Track the block under a placed block if it will turn to dirt (grass → dirt). */
     private static void trackUnderBlockIfDirt(Block block, Spectatable spectatable) {
         Block under = block.getLocation().subtract(0, 1, 0).getBlock();
-        if (ClassImport.getClasses().getArenaUtil().turnsToDirt(under)) {
-            spectatable.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(under));
+        if (ArenaUtil.turnsToDirt(under)) {
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(under));
         }
     }
 
@@ -78,7 +79,7 @@ public class BuildBlockListener implements Listener {
             if (!(mv.value() instanceof Spectatable spectatable)) return;
             if (!spectatable.isBuild()) return;
 
-            spectatable.addBlockChange(ClassImport.createChangeBlock(block));
+            spectatable.addBlockChange(new ChangedBlock(block));
             return;
         }
 
@@ -87,7 +88,7 @@ public class BuildBlockListener implements Listener {
         if (spectatable == null || !spectatable.isBuild()) return;
 
         var ladder = (spectatable instanceof Match match) ? match.getLadder() : null;
-        if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(ladder, block)) {
+        if (ArenaUtil.containsDestroyableBlock(ladder, block)) {
             BlockUtil.breakBlock(spectatable, block);
             e.setCancelled(true);
         }
@@ -115,7 +116,7 @@ public class BuildBlockListener implements Listener {
             block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), spectatable));
         }
 
-        spectatable.addBlockChange(ClassImport.createChangeBlock(e));
+        spectatable.addBlockChange(new ChangedBlock(e));
         trackUnderBlockIfDirt(block, spectatable);
     }
 
