@@ -15,6 +15,7 @@ import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.entity.Player;
+import org.intellij.lang.annotations.RegExp;
 
 public enum AdapterUtil {
     ;
@@ -26,14 +27,14 @@ public enum AdapterUtil {
     /**
      * Creates a text replacement config for a simple string replacement
      */
-    private static TextReplacementConfig replace(String placeholder, String value) {
+    private static TextReplacementConfig replace(@RegExp String placeholder, String value) {
         return TextReplacementConfig.builder().match(placeholder).replacement(value).build();
     }
 
     /**
      * Creates a text replacement config for a component replacement
      */
-    private static TextReplacementConfig replace(String placeholder, Component value) {
+    private static TextReplacementConfig replace(@RegExp String placeholder, Component value) {
         return TextReplacementConfig.builder().match(placeholder).replacement(value).build();
     }
 
@@ -89,7 +90,7 @@ public enum AdapterUtil {
     /**
      * Replaces colored player name placeholders for boxing (team color + player name)
      */
-    private static Component replaceColoredPlayerName(Component line, String placeholder, TeamEnum team, Player player) {
+    private static Component replaceColoredPlayerName(Component line, @RegExp String placeholder, TeamEnum team, Player player) {
         if (player == null) return line.replaceText(replace(placeholder, Component.empty()));
         return line.replaceText(replace(placeholder, team.getColor().append(Component.text(player.getName()))));
     }
@@ -125,17 +126,12 @@ public enum AdapterUtil {
         line = replaceCommonMatchPlaceholders(line, match, player);
 
         // Handle match type specific placeholders
-        switch (match.getType()) {
-            case DUEL:
-                return handleDuelPlaceholders(line, (Duel) match, player);
-            case PARTY_FFA:
-                return handlePartyFFAPlaceholders(line, (PartyFFA) match, player);
-            case PARTY_SPLIT:
-                return handlePartySplitPlaceholders(line, (PartySplit) match);
-            case PARTY_VS_PARTY:
-                return handlePartyVsPartyPlaceholders(line, (PartyVsParty) match, player);
-        }
-        return line;
+        return switch (match.getType()) {
+            case DUEL -> handleDuelPlaceholders(line, (Duel) match, player);
+            case PARTY_FFA -> handlePartyFFAPlaceholders(line, (PartyFFA) match, player);
+            case PARTY_SPLIT -> handlePartySplitPlaceholders(line, (PartySplit) match);
+            case PARTY_VS_PARTY -> handlePartyVsPartyPlaceholders(line, (PartyVsParty) match, player);
+        };
     }
 
     private static Component handleDuelPlaceholders(Component line, Duel duel, Player player) {
@@ -237,17 +233,12 @@ public enum AdapterUtil {
         }
 
         // Handle match type specific placeholders
-        switch (match.getType()) {
-            case DUEL:
-                return handleSpectatorDuelPlaceholders(line, (Duel) match);
-            case PARTY_FFA:
-                return handleSpectatorPartyFFAPlaceholders(line, (PartyFFA) match);
-            case PARTY_SPLIT:
-                return handleSpectatorPartySplitPlaceholders(line, (PartySplit) match);
-            case PARTY_VS_PARTY:
-                return handleSpectatorPartyVsPartyPlaceholders(line, (PartyVsParty) match);
-        }
-        return line;
+        return switch (match.getType()) {
+            case DUEL -> handleSpectatorDuelPlaceholders(line, (Duel) match);
+            case PARTY_FFA -> handleSpectatorPartyFFAPlaceholders(line, (PartyFFA) match);
+            case PARTY_SPLIT -> handleSpectatorPartySplitPlaceholders(line, (PartySplit) match);
+            case PARTY_VS_PARTY -> handleSpectatorPartyVsPartyPlaceholders(line, (PartyVsParty) match);
+        };
     }
 
     private static Component handleSpectatorDuelPlaceholders(Component line, Duel duel) {

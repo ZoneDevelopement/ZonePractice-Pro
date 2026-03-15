@@ -1,6 +1,5 @@
 package dev.nandi0813.practice.manager.nametag;
 
-import dev.nandi0813.practice.moved.VersionChecker;
 import lombok.Data;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -8,7 +7,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Data
 public class FakeTeam {

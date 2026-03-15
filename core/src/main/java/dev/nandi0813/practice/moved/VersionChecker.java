@@ -60,7 +60,7 @@ public enum VersionChecker {
     @Getter
     public enum BukkitVersion {
         v1_20_R4, // 1.20.6
-        v1_21_R3; // 1.21.X
+        v1_21_R3 // 1.21.X
     }
 
 }

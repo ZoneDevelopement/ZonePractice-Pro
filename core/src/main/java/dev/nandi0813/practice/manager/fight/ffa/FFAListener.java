@@ -16,12 +16,10 @@ import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.moved.ChangedBlock;
+import dev.nandi0813.practice.moved.ModernItemCooldownHandler;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
-import dev.nandi0813.practice.util.StringUtil;
-import dev.nandi0813.practice.util.cooldown.CooldownObject;
-import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -43,7 +41,6 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
@@ -125,12 +122,7 @@ public abstract class FFAListener implements Listener {
         Ladder ladder = ffa.getPlayers().get(player);
         if (ladder.getGoldenAppleCooldown() < 1) return;
 
-        dev.nandi0813.practice.moved.ModernItemCooldownHandler.handleGoldenAppleFFA(
-                player,
-                ladder.getGoldenAppleCooldown(),
-                e,
-                "FFA.GAME.COOLDOWN.GOLDEN-APPLE"
-        );
+        ModernItemCooldownHandler.handleGoldenApple(player, ladder.getGoldenAppleCooldown(), e);
     }
 
     @EventHandler

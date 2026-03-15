@@ -11,12 +11,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
-/**
- * Handles firework rocket cooldown for elytra boost in modern Minecraft versions.
- * This prevents spam-boosting with firework rockets when flying with elytra.
- * Delegates to {@link dev.nandi0813.practice.module.interfaces.ItemCooldownHandler}
- * so the modern implementation can apply a native hotbar visual cooldown.
- */
 public class FireworkRocketCooldownListener implements Listener {
 
     @EventHandler
@@ -32,13 +26,8 @@ public class FireworkRocketCooldownListener implements Listener {
             int duration = ffa.getPlayers().get(player).getFireworkRocketCooldown();
             if (duration <= 0) return;
 
-            dev.nandi0813.practice.moved.ModernItemCooldownHandler.handleFireworkRocketFFA(
-                    player,
-                    ffa.getFightPlayers().get(player),
-                    duration,
-                    null,
-                    "MATCH.COOLDOWN.FIREWORK-ROCKET-COOLDOWN"
-            );
+            ModernItemCooldownHandler.handleFireworkRocket(player, duration, null);
+
             return;
         }
 
@@ -53,13 +42,7 @@ public class FireworkRocketCooldownListener implements Listener {
                 return;
             }
 
-            dev.nandi0813.practice.moved.ModernItemCooldownHandler.handleFireworkRocketMatch(
-                    player,
-                    match.getMatchPlayers().get(player),
-                    duration,
-                    null,
-                    "MATCH.COOLDOWN.FIREWORK-ROCKET-COOLDOWN"
-            );
+            ModernItemCooldownHandler.handleFireworkRocket(player, duration, null);
         }
     }
 }

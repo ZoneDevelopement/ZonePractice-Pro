@@ -20,10 +20,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProfileLadderStats extends GUI {
 
@@ -36,7 +33,7 @@ public class ProfileLadderStats extends GUI {
         this.profile = profile;
         this.backTo = backTo;
 
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.TITLE").replace("%player%", profile.getPlayer().getName()), 6));
+        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.TITLE").replace("%player%", Objects.requireNonNull(profile.getPlayer().getName())), 6));
 
         build();
     }

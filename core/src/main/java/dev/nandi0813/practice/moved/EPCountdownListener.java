@@ -5,7 +5,6 @@ import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
-import dev.nandi0813.practice.util.PermanentConfig;
 import io.papermc.paper.event.player.PlayerItemCooldownEvent;
 import org.bukkit.Material;
 import org.bukkit.entity.EnderPearl;
@@ -75,14 +74,8 @@ public class EPCountdownListener implements Listener {
                 return;
             }
 
-            dev.nandi0813.practice.moved.ModernItemCooldownHandler.handleEnderPearlFFA(
-                    player,
-                    ffa.getFightPlayers().get(player),
-                    duration,
-                    PermanentConfig.FFA_EXP_BAR,
-                    e,
-                    "FFA.GAME.COOLDOWN.ENDER-PEARL"
-            );
+            ModernItemCooldownHandler.handleEnderPearl(player, duration, e);
+
             return;
         }
 
@@ -98,14 +91,7 @@ public class EPCountdownListener implements Listener {
                 return;
             }
 
-            dev.nandi0813.practice.moved.ModernItemCooldownHandler.handleEnderPearlMatch(
-                    player,
-                    match.getMatchPlayers().get(player),
-                    duration,
-                    PermanentConfig.MATCH_EXP_BAR,
-                    e,
-                    "MATCH.COOLDOWN.ENDER-PEARL"
-            );
+            ModernItemCooldownHandler.handleEnderPearl(player, duration, e);
         }
     }
 

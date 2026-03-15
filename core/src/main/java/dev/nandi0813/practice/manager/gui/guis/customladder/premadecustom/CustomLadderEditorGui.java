@@ -15,7 +15,6 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.moved.ItemCreateUtil;
-import dev.nandi0813.practice.moved.VersionChecker;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
@@ -273,7 +272,7 @@ public class CustomLadderEditorGui extends GUI {
             ItemCreateUtil.hideItemFlags(effectItemMeta);
 
             List<String> lore = new ArrayList<>();
-            for (String line : effectItem.getItemMeta().getLore()) {
+            for (String line : Objects.requireNonNull(effectItem.getItemMeta().getLore())) {
                 if (line.contains("%effects%")) lore.addAll(effects);
                 else lore.add(line);
             }

@@ -18,7 +18,6 @@ import dev.nandi0813.practice.manager.profile.RankedBan;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
 import dev.nandi0813.practice.moved.ItemCreateUtil;
-import dev.nandi0813.practice.moved.PlayerUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
@@ -236,20 +235,16 @@ public class ProfileSetupGui extends GUI {
     private static ItemStack getGameItem(Profile profile) {
         ProfileStatus profileStatus = profile.getStatus();
 
-        switch (profileStatus) {
-            case OFFLINE:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.OFFLINE").get();
-            case MATCH:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-MATCH").get();
-            case FFA:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-FFA").get();
-            case EVENT:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-EVENT").get();
-            case SPECTATE:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.SPECTATING").get();
-            default:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.NOTHING").get();
-        }
+        return switch (profileStatus) {
+            case OFFLINE ->
+                    GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.OFFLINE").get();
+            case MATCH -> GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-MATCH").get();
+            case FFA -> GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-FFA").get();
+            case EVENT -> GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-EVENT").get();
+            case SPECTATE ->
+                    GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.SPECTATING").get();
+            default -> GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.NOTHING").get();
+        };
     }
 
     private static ItemStack getPartyItem(Profile profile) {

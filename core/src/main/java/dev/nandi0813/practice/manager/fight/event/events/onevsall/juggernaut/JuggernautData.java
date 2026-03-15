@@ -23,9 +23,7 @@ public class JuggernautData extends EventData {
             juggernautKitData.saveData(this.config, "juggernaut-kit");
         }
 
-        if (playerKitData != null) {
-            playerKitData.saveData(this.config, "player-kit");
-        }
+        playerKitData.saveData(this.config, "player-kit");
     }
 
     @Override

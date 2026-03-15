@@ -15,6 +15,8 @@ import dev.nandi0813.practice.manager.ladder.abstraction.normal.BedFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.moved.LadderUtil;
+import dev.nandi0813.practice.moved.ModernItemCooldownHandler;
+import dev.nandi0813.practice.moved.PlayerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -148,12 +150,11 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
         if (ladder.fireballCooldown <= 0) return;
 
-        if (!dev.nandi0813.practice.moved.ModernItemCooldownHandler.handleFireballMatch(
-                player, ladder.fireballCooldown, "MATCH.COOLDOWN.FIREBALL")) {
+        if (!ModernItemCooldownHandler.handleFireballMatch(player, ladder.fireballCooldown)) {
             return;
         }
 
-        final Fireball fireball = dev.nandi0813.practice.moved.PlayerUtil.shootFireball(player, FIREBALL_SPEED);
+        final Fireball fireball = PlayerUtil.shootFireball(player, FIREBALL_SPEED);
         fireball.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), match));
         fireball.setMetadata(FIREBALL_FIGHT_FIREBALL, new FixedMetadataValue(ZonePractice.getInstance(), match));
         fireball.setIsIncendiary(false);
@@ -161,7 +162,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
         fireballItem.setAmount(fireballItem.getAmount() - 1);
         if (fireballItem.getAmount() == 0) {
-            dev.nandi0813.practice.moved.PlayerUtil.setItemInUseIf(
+            PlayerUtil.setItemInUseIf(
                     player,
                     Material.FIRE_CHARGE,
                     null);
