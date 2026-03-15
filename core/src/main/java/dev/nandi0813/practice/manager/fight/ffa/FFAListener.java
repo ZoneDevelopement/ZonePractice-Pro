@@ -299,7 +299,7 @@ public class FFAListener implements Listener {
             return;
         }
 
-        if (block.getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(ffa.getArena())) {
+        if (block.getRelative(e.getBlockFace()).getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(ffa.getArena())) {
             Common.sendMMMessage(player, LanguageManager.getString("FFA.GAME.CANT-BUILD-OVER-LIMIT"));
             e.setCancelled(true);
         }

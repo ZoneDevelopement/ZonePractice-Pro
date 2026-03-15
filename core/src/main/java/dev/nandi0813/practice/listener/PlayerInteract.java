@@ -77,14 +77,4 @@ public class PlayerInteract implements Listener {
     public void onPlayerSleep(PlayerBedEnterEvent e) {
         e.setCancelled(true);
     }
-
-    @EventHandler
-    public void enderPearlTpFix(PlayerTeleportEvent e) {
-        if (e.getCause().equals(PlayerTeleportEvent.TeleportCause.ENDER_PEARL)) {
-            e.getTo().setX(Math.floor(e.getTo().getX()) + 0.5f);
-            e.getTo().setY(Math.floor(e.getTo().getY()) + 0.5f);
-            e.getTo().setZ(Math.floor(e.getTo().getZ()) + 0.5f);
-        }
-    }
-
 }

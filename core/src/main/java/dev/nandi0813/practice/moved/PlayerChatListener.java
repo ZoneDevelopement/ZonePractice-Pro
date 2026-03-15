@@ -30,7 +30,9 @@ public class PlayerChatListener implements Listener {
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
         Party party = PartyManager.getInstance().getParty(player);
-        String message = PlainTextComponentSerializer.plainText().serialize(e.message());
+        String message = ZonePractice.getMiniMessage().escapeTags(
+                PlainTextComponentSerializer.plainText().serialize(e.message())
+        );
 
         // --- Party chat ---
         if (ConfigManager.getBoolean("CHAT.PARTY-CHAT-ENABLED") && profile.isParty() && party != null && message.startsWith("@")) {
