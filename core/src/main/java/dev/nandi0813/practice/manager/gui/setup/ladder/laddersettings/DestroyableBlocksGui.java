@@ -11,7 +11,9 @@ import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.util.BasicItem;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
+import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,6 +23,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
@@ -68,7 +71,13 @@ public class DestroyableBlocksGui extends GUI {
                 for (int i = 0; i <= INVENTORY_LAST_SLOT; i++) {
                     if (i == BACK_SLOT) continue;
                     if (inventory.getItem(i) == null) {
-                        inventory.setItem(i, new ItemStack(block.getMaterial(), 1, block.getDamage()));
+                        ItemStack blockItem = new ItemStack(block.getMaterial(), 1);
+                        ItemMeta blockMeta = blockItem.getItemMeta();
+                        if (blockMeta instanceof Damageable damageable) {
+                            damageable.setDamage(block.getDamage());
+                            blockItem.setItemMeta(damageable);
+                        }
+                        inventory.setItem(i, blockItem);
                         break;
                     }
                 }
@@ -131,7 +140,7 @@ public class DestroyableBlocksGui extends GUI {
             if (i == BACK_SLOT) continue;
             ItemStack itemStack = this.gui.get(1).getItem(i);
             if (itemStack != null && !itemStack.getType().equals(Material.AIR)) {
-                BasicItem block = new BasicItem(itemStack.getType(), itemStack.getDurability());
+                BasicItem block = new BasicItem(itemStack.getType(), Common.getItemDamage(itemStack));
                 basicItems.add(block);
             }
         }
@@ -168,8 +177,8 @@ public class DestroyableBlocksGui extends GUI {
                             itemStack.setAmount(1);
                             if (itemStack.hasItemMeta()) {
                                 ItemMeta itemMeta = itemStack.getItemMeta();
-                                itemMeta.setDisplayName(itemStack.getType().getData().getSimpleName());
-                                itemMeta.setLore(null);
+                                itemMeta.displayName(Component.text(StringUtil.getNormalizedName(itemStack.getType().name())));
+                                itemMeta.lore(null);
                                 itemMeta.getItemFlags().clear();
                                 itemStack.setItemMeta(itemMeta);
                             }

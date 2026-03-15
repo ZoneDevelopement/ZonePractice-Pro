@@ -19,11 +19,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 
 public class EventSetupListener implements Listener {
@@ -74,7 +70,7 @@ public class EventSetupListener implements Listener {
         Action action = event.getAction();
 
         if (player.isSneaking()) {
-            handleModeSwitch(player, session, eventData, action);
+            handleModeSwitch(player, session, action);
             return;
         }
 
@@ -122,7 +118,7 @@ public class EventSetupListener implements Listener {
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
         Player player = event.getPlayer();
 
-        if (!setupManager.isSettingUp(player) || !setupManager.isSetupWand(player.getItemInHand())) {
+        if (!setupManager.isSettingUp(player) || !setupManager.isSetupWand(player.getInventory().getItemInMainHand())) {
             return;
         }
 
@@ -144,7 +140,7 @@ public class EventSetupListener implements Listener {
             return;
         }
 
-        int spawnIndex = markerManager.getSpawnIndex(armorStand, eventData);
+        int spawnIndex = markerManager.getSpawnIndex(armorStand);
         if (spawnIndex == -1) {
             player.sendMessage(Common.colorize("&cCouldn't find spawn point for this marker."));
             return;
@@ -216,7 +212,7 @@ public class EventSetupListener implements Listener {
         }
     }
 
-    private void handleModeSwitch(Player player, EventWandSetupManager.SetupSession session, EventData eventData, Action action) {
+    private void handleModeSwitch(Player player, EventWandSetupManager.SetupSession session, Action action) {
         if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
             session.setCurrentMode(setupManager.getNextMode(session.getCurrentMode()));
         } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {

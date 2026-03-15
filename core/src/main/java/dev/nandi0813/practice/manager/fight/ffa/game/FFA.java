@@ -51,6 +51,13 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
     private boolean open;
 
+    /** Tracks the last player that dealt damage to another player, for void-kill attribution. */
+    private final Map<UUID, UUID> lastAttackerMap = new HashMap<>();
+    /** Timestamp (ms) of the last attacker hit, keyed by victim UUID. */
+    private final Map<UUID, Long> lastAttackerTime = new HashMap<>();
+    /** How long (ms) a last-attacker is considered valid for void attribution. */
+    private static final long LAST_ATTACKER_EXPIRY_MS = 4_000L;
+
     public FFA(FFAArena arena) {
         this.arena = arena;
         this.build = arena.isBuild();
@@ -166,6 +173,19 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         if (!players.containsKey(player))
             return;
 
+        // If no explicit killer and the death message is the plain void message,
+        // check whether a recent attacker should be credited instead.
+        if (killer == null) {
+            Player lastAttacker = getLastAttacker(player);
+            if (lastAttacker != null && deathMessage != null
+                    && deathMessage.equals(dev.nandi0813.practice.manager.fight.util.DeathCause.VOID.getMessage())) {
+                killer = lastAttacker;
+                deathMessage = dev.nandi0813.practice.manager.fight.util.DeathCause.VOID_BY_PLAYER
+                        .getMessage()
+                        .replace("%killer%", killer.getName());
+            }
+        }
+
         fightPlayers.get(player).die(deathMessage, statistics.get(player));
         fightPlayers.get(player).getProfile().getStats().getLadderStat(players.get(player)).increaseDeaths();
 
@@ -186,6 +206,32 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                     teleportPlayer(player), 1L);
         }
+    }
+
+    /**
+     * Records that {@code attacker} last hit {@code victim}.
+     * Called from damage listeners so void deaths can be attributed correctly.
+     */
+    public void recordAttack(Player victim, Player attacker) {
+        if (victim == attacker) return;
+
+        lastAttackerMap.put(victim.getUniqueId(), attacker.getUniqueId());
+        lastAttackerTime.put(victim.getUniqueId(), System.currentTimeMillis());
+    }
+
+    /**
+     * Returns the last player who hit {@code victim} within the expiry window,
+     * or {@code null} if there is none.
+     */
+    public @org.jetbrains.annotations.Nullable Player getLastAttacker(Player victim) {
+        Long time = lastAttackerTime.get(victim.getUniqueId());
+        if (time == null || System.currentTimeMillis() - time > LAST_ATTACKER_EXPIRY_MS) return null;
+        UUID attackerUuid = lastAttackerMap.get(victim.getUniqueId());
+        if (attackerUuid == null) return null;
+        for (Player p : players.keySet()) {
+            if (attackerUuid.equals(p.getUniqueId())) return p;
+        }
+        return null;
     }
 
     public void teleportPlayer(Player player) {
@@ -220,6 +266,12 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         Bukkit.getPluginManager().callEvent(ffaSpectateStartEvent);
         if (ffaSpectateStartEvent.isCancelled()) {
             return;
+        }
+
+        // If the spectator was spectating another match/FFA, remove them first.
+        Spectatable previousSpectatable = SpectatorManager.getInstance().getSpectators().get(player);
+        if (previousSpectatable != null) {
+            previousSpectatable.removeSpectator(player);
         }
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
@@ -291,7 +343,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     public GUIItem getSpectatorMenuItem() {
         return GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.FFA-ICON")
                 .setMaterial(arena.getIcon().getType())
-                .setDamage(arena.getIcon().getDurability())
+                .setDamage(Common.getItemDamage(arena.getIcon()))
                 .replace("%players%", String.valueOf(players.size()))
                 .replace("%spectators%", String.valueOf(spectators.size()))
                 .replace("%arena%", arena.getDisplayName())

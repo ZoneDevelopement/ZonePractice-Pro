@@ -22,7 +22,6 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -53,7 +52,7 @@ public class Duel extends Match implements Team {
         this.type = MatchType.DUEL;
         this.ranked = ranked;
 
-        this.player1 = players.get(0);
+        this.player1 = players.getFirst();
         this.playerProfiles.put(player1, ProfileManager.getInstance().getProfile(player1));
         NametagManager.getInstance().setNametag(player1, TeamEnum.TEAM1.getPrefix(), TeamEnum.TEAM1.getNameColor(), TeamEnum.TEAM1.getSuffix(), 20);
 
@@ -144,7 +143,7 @@ public class Duel extends Match implements Team {
                     new TempKillPlayer(round, player, respawnableLadder.getRespawnTime());
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_TEMP_DEATH).play(this.getPeople());
                 });
-                ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
                 player.setHealth(20);
                 break;
 
@@ -155,7 +154,7 @@ public class Duel extends Match implements Team {
                     this.teleportPlayer(player);
                     endRound = true;
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
-                    ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                    dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
                     player.setHealth(20);
                 } else if (isScoringLadder()) {
                     // Scoring ladder (like Boxing) - death doesn't end round
@@ -164,8 +163,8 @@ public class Duel extends Match implements Team {
                     // Default death behavior for standard ladders
                     this.getCurrentStat(player).end(true);
                     PlayerUtil.setFightPlayer(player);
-                    addEntityChange(ClassImport.getClasses().getPlayerUtil().dropPlayerInventory(player));
-                    ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+                    addEntityChange(dev.nandi0813.practice.moved.PlayerUtil.dropPlayerInventory(player));
+                    dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
                     player.setHealth(20);
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
                     endRound = true;

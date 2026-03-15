@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.nametag;
 
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
+import dev.nandi0813.practice.moved.PlayerUtil;
 import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -279,7 +280,7 @@ public class NametagManager {
             }
 
             // Set the tab list name to maintain lobby formatting
-            dev.nandi0813.practice.module.util.ClassImport.getClasses().getPlayerUtil().setPlayerListName(player, tabListName);
+            PlayerUtil.setPlayerListName(player, tabListName);
         } catch (Exception e) {
             // Silently fail - this is a best-effort preservation
         }

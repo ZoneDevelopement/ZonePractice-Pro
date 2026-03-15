@@ -3,9 +3,13 @@ package dev.nandi0813.practice.manager.arena.setup;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
+import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -106,28 +110,28 @@ public class SpawnMarkerManager {
         armorStand.setGravity(false);
         armorStand.setCanPickupItems(false);
         armorStand.setCustomNameVisible(true);
-        armorStand.setCustomName(dev.nandi0813.practice.util.StringUtil.CC(name));
+        armorStand.customName(Component.text(dev.nandi0813.practice.util.StringUtil.CC(name)));
         armorStand.setMarker(false); // Don't use marker mode so it has full size
         armorStand.setBasePlate(false);
         armorStand.setArms(true);
 
         // Make it invulnerable and prevent interaction
-        ClassImport.getClasses().getArenaUtil().setArmorStandInvulnerable(armorStand);
+        ArenaUtil.setArmorStandInvulnerable(armorStand);
 
         // Give diamond sword to right hand
-        ItemStack sword = ClassImport.getClasses().getItemMaterialUtil().getSword();
-        ClassImport.getClasses().getArenaUtil().setArmorStandItemInHand(armorStand, sword, true);
+        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+        ArenaUtil.setArmorStandItemInHand(armorStand, sword, true);
 
         // Set arm pose to hold sword naturally (slight angle)
         armorStand.setRightArmPose(new EulerAngle(Math.toRadians(280), Math.toRadians(10), 0));
 
         // Set player head (Steve head) for helmet
-        ItemStack playerHead = ClassImport.getClasses().getItemMaterialUtil().getDefaultPlayerHead();
-        armorStand.setHelmet(playerHead);
+        ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
+        armorStand.getEquipment().setHelmet(playerHead);
 
         // Set red boots for visibility
-        ItemStack boots = ClassImport.getClasses().getItemMaterialUtil().getRedBoots();
-        armorStand.setBoots(boots);
+        ItemStack boots = ItemCreateUtil.getRedBoots();
+        armorStand.getEquipment().setBoots(boots);
 
         // Track this armor stand
         markerStandIds.add(armorStand.getUniqueId());
@@ -148,13 +152,13 @@ public class SpawnMarkerManager {
         labelStand.setGravity(false);
         labelStand.setCanPickupItems(false);
         labelStand.setCustomNameVisible(true);
-        labelStand.setCustomName(dev.nandi0813.practice.util.StringUtil.CC(text));
+        labelStand.customName(Component.text(dev.nandi0813.practice.util.StringUtil.CC(text)));
         labelStand.setMarker(true); // Tiny marker mode
         labelStand.setBasePlate(false);
         labelStand.setSmall(true); // Make it small
 
         // Make it invulnerable
-        ClassImport.getClasses().getArenaUtil().setArmorStandInvulnerable(labelStand);
+        ArenaUtil.setArmorStandInvulnerable(labelStand);
 
         // Track this armor stand too
         markerStandIds.add(labelStand.getUniqueId());
@@ -331,10 +335,10 @@ public class SpawnMarkerManager {
         for (org.bukkit.entity.Entity entity : world.getEntities()) {
             if (entity instanceof ArmorStand armorStand) {
                 // Check if this looks like one of our markers but isn't tracked
-                if (armorStand.getCustomName() != null &&
+                String customName = armorStand.customName() == null ? null : Common.serializeComponentToLegacyString(armorStand.customName());
+                if (customName != null &&
                         !markerStandIds.contains(armorStand.getUniqueId())) {
 
-                    String customName = armorStand.getCustomName();
                     // Check if it matches our marker naming patterns
                     if (customName.contains("Spawn") || customName.contains("Right-click to remove")) {
                         toRemove.add(armorStand);

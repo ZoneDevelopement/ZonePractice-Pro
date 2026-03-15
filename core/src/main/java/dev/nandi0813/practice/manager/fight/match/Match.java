@@ -29,8 +29,7 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
-import dev.nandi0813.practice.module.interfaces.ChangedBlock;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.StringUtil;
@@ -164,16 +163,16 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             if (players.contains(player)) {
                 for (Entity entity : arena.getCuboid().getEntities()) {
                     if (!(entity instanceof Player)) {
-                        ClassImport.getClasses().getEntityHider().hideEntity(player, entity);
+                        ZonePractice.getEntityHider().hideEntity(player, entity);
                     }
                 }
             } else if (spectators.contains(player)) {
                 for (Entity entity : arena.getCuboid().getEntities()) {
                     if (!(entity instanceof Player)) {
                         if (fightChange.containsEntity(entity))
-                            ClassImport.getClasses().getEntityHider().showEntity(player, entity);
+                            ZonePractice.getEntityHider().showEntity(player, entity);
                         else
-                            ClassImport.getClasses().getEntityHider().hideEntity(player, entity);
+                            ZonePractice.getEntityHider().hideEntity(player, entity);
                     }
                 }
             }
@@ -220,7 +219,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
         // check whether a recent attacker should be credited instead.
         if (killer == null) {
             Player lastAttacker = getLastAttacker(player);
-            if (lastAttacker != null && deathMessage != null
+            if (lastAttacker != null && !lastAttacker.equals(player) && deathMessage != null
                     && deathMessage.equals(dev.nandi0813.practice.manager.fight.util.DeathCause.VOID.getMessage())) {
                 killer = lastAttacker;
                 deathMessage = dev.nandi0813.practice.manager.fight.util.DeathCause.VOID_BY_PLAYER
@@ -455,7 +454,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
 
         if (!ladder.isBuild()) {
             for (Player player : MatchManager.getInstance().getHidePlayers(this)) {
-                ClassImport.getClasses().getEntityHider().hideEntity(player, entity);
+                ZonePractice.getEntityHider().hideEntity(player, entity);
             }
         }
     }
@@ -564,7 +563,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     public GUIItem getSpectatorMenuItem() {
         return GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.MATCH-ICON")
                 .setMaterial(ladder.getIcon().getType())
-                .setDamage(ladder.getIcon().getDurability())
+                .setDamage(Common.getItemDamage(ladder.getIcon()))
                 .replace("%match_id%", id)
                 .replace("%weight_class%", ((this instanceof Duel && ((Duel) this).isRanked()) ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName()))
                 .replace("%match_type%", type.getName(false))

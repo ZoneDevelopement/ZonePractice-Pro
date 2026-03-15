@@ -2,28 +2,10 @@ package dev.nandi0813.practice.manager.gui.setup.event;
 
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
-import dev.nandi0813.practice.module.util.ClassImport;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public enum EventSetupUtil {
     ;
-
-    // Marker item
-    public static ItemStack getMarkerItem(EventData eventData) {
-        List<String> lore = new ArrayList<>();
-        lore.add("");
-        lore.add("&eEvent: &b" + eventData.getType().getName());
-        lore.add("");
-        lore.add("&e&lLEFT-CLICK &7marks the first corner.");
-        lore.add("&6&lRIGHT-CLICK &7marks the second corner.");
-        lore.add("");
-        lore.add("&c&lNote: &7This can't be undone.");
-        return ClassImport.getClasses().getItemCreateUtil().createItem("&bCorner Marker", Material.STICK, lore);
-    }
 
     public static ItemStack getBroadcastIntervalItem(final int broadcastInterval) {
         return GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-SETTINGS.ICONS.BROADCAST-INTERVAL").replace("%broadcastInterval%", String.valueOf(broadcastInterval)).get();

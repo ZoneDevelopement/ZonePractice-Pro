@@ -14,15 +14,14 @@ import dev.nandi0813.practice.manager.ladder.enums.WeightClassType;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.module.interfaces.ItemCreateUtil;
-import dev.nandi0813.practice.module.util.ClassImport;
-import dev.nandi0813.practice.module.util.VersionChecker;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.cooldown.CooldownObject;
 import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -122,10 +121,7 @@ public class CustomLadderEditorGui extends GUI {
 
             if (ladder.getCustomKitExtraItems().get(ranked) != null) {
                 for (ItemStack item : ladder.getCustomKitExtraItems().get(ranked)) {
-                    if (item != null)
-                        inventory.setItem(inventory.firstEmpty(), item);
-                    else
-                        inventory.setItem(inventory.firstEmpty(), GUIManager.getDUMMY_ITEM());
+                    inventory.setItem(inventory.firstEmpty(), Objects.requireNonNullElseGet(item, GUIManager::getDUMMY_ITEM));
                 }
             }
 
@@ -135,16 +131,14 @@ public class CustomLadderEditorGui extends GUI {
                 if (inventory.getItem(i) == null)
                     inventory.setItem(i, fillerItem);
 
-            if (Objects.requireNonNull(VersionChecker.getBukkitVersion()).isSecondHand()) {
-                if (customKit.getExtra() != null) {
-                    if (customKit.getExtra().length > 0) {
-                        inventory.setItem(14, customKit.getExtra()[0]);
-                    } else {
-                        inventory.setItem(14, null);
-                    }
+            if (customKit.getExtra() != null) {
+                if (customKit.getExtra().length > 0) {
+                    inventory.setItem(14, customKit.getExtra()[0]);
                 } else {
-                    inventory.setItem(14, GUIManager.getDUMMY_ITEM());
+                    inventory.setItem(14, null);
                 }
+            } else {
+                inventory.setItem(14, GUIManager.getDUMMY_ITEM());
             }
 
             updatePlayers();
@@ -207,14 +201,12 @@ public class CustomLadderEditorGui extends GUI {
         NormalLadder ladder = customLadderEditorGui.getLadder();
 
         if (ladder.isEnabled() && ladder.isEditable() && !ladder.isFrozen()) {
-            ItemStack[] inventoryStorageContent = ClassImport.getClasses().getPlayerUtil().getInventoryStorageContent(player);
+            ItemStack[] inventoryStorageContent = dev.nandi0813.practice.moved.PlayerUtil.getInventoryStorageContent(player);
             customKit.setInventory(inventoryStorageContent);
-            if (Objects.requireNonNull(VersionChecker.getBukkitVersion()).isSecondHand()) {
-                customKit.setExtra(new ItemStack[]{this.gui.get(1).getItem(14)});
-            }
+            customKit.setExtra(new ItemStack[]{this.gui.get(1).getItem(14)});
         }
 
-        ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
@@ -234,7 +226,7 @@ public class CustomLadderEditorGui extends GUI {
         Profile playerProfile = ProfileManager.getInstance().getProfile(player);
         playerProfile.setStatus(ProfileStatus.EDITOR);
 
-        ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
 
         Map<Integer, CustomKit> kits;
         if (ranked) kits = profile.getRankedCustomKits().get(ladder);
@@ -267,7 +259,7 @@ public class CustomLadderEditorGui extends GUI {
             List<String> effects = new ArrayList<>();
             for (PotionEffect potionEffect : ladder.getKitData().getEffects()) {
                 effects.add(GUIFile.getString("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.HAS-EFFECT.FORMAT")
-                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getName().replace("_", " ").toLowerCase()))
+                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getKey().getKey().replace("_", " ").toLowerCase()))
                         .replace("%amplifier%", String.valueOf(potionEffect.getAmplifier() + 1))
                         .replace("%time%", StringUtil.formatMillisecondsToMinutes((potionEffect.getDuration() / 20) * 1000L))
                 );
@@ -278,11 +270,12 @@ public class CustomLadderEditorGui extends GUI {
             ItemCreateUtil.hideItemFlags(effectItemMeta);
 
             List<String> lore = new ArrayList<>();
-            for (String line : effectItem.getItemMeta().getLore()) {
+            for (Component lineComponent : Objects.requireNonNull(effectItem.getItemMeta().lore())) {
+                String line = Common.serializeComponentToLegacyString(lineComponent);
                 if (line.contains("%effects%")) lore.addAll(effects);
                 else lore.add(line);
             }
-            effectItemMeta.setLore(lore);
+            effectItemMeta.lore(lore.stream().map(Common::legacyToComponent).toList());
             effectItem.setItemMeta(effectItemMeta);
             return effectItem;
         } else {

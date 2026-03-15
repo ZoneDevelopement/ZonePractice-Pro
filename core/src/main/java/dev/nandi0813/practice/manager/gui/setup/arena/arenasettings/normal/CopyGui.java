@@ -14,7 +14,6 @@ import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaSetupUtil;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.PageUtil;
@@ -164,7 +163,7 @@ public class CopyGui extends GUI {
                     return;
                 }
 
-                Location location = ClassImport.getClasses().getArenaCopyUtil().createCopy(profile, arena);
+                Location location = ZonePractice.getArenaCopyUtilListener().createCopy(profile, arena);
                 if (!ConfigManager.getBoolean("ARENA.TELEPORT-TO-COPY")) return;
 
                 player.teleport(location);

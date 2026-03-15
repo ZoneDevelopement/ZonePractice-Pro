@@ -2,41 +2,43 @@ package dev.nandi0813.practice.manager.fight.ffa;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.DeathCause;
+import dev.nandi0813.practice.manager.fight.util.FightUtil;
 import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
+import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.moved.ChangedBlock;
+import dev.nandi0813.practice.moved.ModernItemCooldownHandler;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
-import dev.nandi0813.practice.util.StringUtil;
-import dev.nandi0813.practice.util.cooldown.CooldownObject;
-import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
@@ -49,7 +51,7 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
  * This listener only handles player-specific FFA game logic (damage, movement, crafting, etc.)
  * and the build validation gates (cancel the event before MONITOR fires for BuildBlockListener).</p>
  */
-public abstract class FFAListener implements Listener {
+public class FFAListener implements Listener {
 
     @EventHandler
     public void onRegen(EntityRegainHealthEvent e) {
@@ -98,7 +100,7 @@ public abstract class FFAListener implements Listener {
             }
             if (clickedBlock.getType().equals(Material.CHEST) || clickedBlock.getType().equals(Material.TRAPPED_CHEST)) {
                 if (!ffa.isBuild()) return;
-                ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(clickedBlock));
+                ffa.getFightChange().addBlockChange(new ChangedBlock(clickedBlock));
             }
         }
     }
@@ -118,12 +120,7 @@ public abstract class FFAListener implements Listener {
         Ladder ladder = ffa.getPlayers().get(player);
         if (ladder.getGoldenAppleCooldown() < 1) return;
 
-        ClassImport.getClasses().getItemCooldownHandler().handleGoldenAppleFFA(
-                player,
-                ladder.getGoldenAppleCooldown(),
-                e,
-                "FFA.GAME.COOLDOWN.GOLDEN-APPLE"
-        );
+        ModernItemCooldownHandler.handleGoldenApple(player, ladder.getGoldenAppleCooldown(), e);
     }
 
     @EventHandler
@@ -143,12 +140,12 @@ public abstract class FFAListener implements Listener {
         // ProjectileLaunch won't remove them on ground-hit, hide from players in
         // other arenas, and schedule a 5-minute vanilla-style self-removal.
         if (e.getEntity() instanceof Arrow arrow) {
-            arrow.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), ffa));
+            BlockUtil.setMetadata(arrow, FIGHT_ENTITY, ffa);
 
             // Hide from every online player NOT in this FFA
             for (org.bukkit.entity.Player online : ZonePractice.getInstance().getServer().getOnlinePlayers()) {
                 if (!ffa.getPlayers().containsKey(online) && !ffa.getSpectators().contains(online)) {
-                    ClassImport.getClasses().getEntityHider().hideEntity(online, arrow);
+                    ZonePractice.getEntityHider().hideEntity(online, arrow);
                 }
             }
         }
@@ -211,8 +208,8 @@ public abstract class FFAListener implements Listener {
         Block block = e.getBlock();
 
         // Blocks placed during the fight — allow breaking (tracking done by BuildBlockListener)
-        if (block.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Object mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Object.class);
             if (ListenerUtil.checkMetaData(mv)) {
                 e.setCancelled(true);
             }
@@ -230,7 +227,7 @@ public abstract class FFAListener implements Listener {
         if (ALLOW_DESTROYABLE_BLOCK) {
             NormalLadder ladder = ffa.getPlayers().get(player);
             if (ladder != null) {
-                if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(ladder, block)) {
+                if (ArenaUtil.containsDestroyableBlock(ladder, block)) {
                     BlockUtil.breakBlock(ffa, block);
                 }
             }
@@ -240,7 +237,7 @@ public abstract class FFAListener implements Listener {
         // natural arena block for rollback and allow the break.
         NormalLadder currentLadder = ffa.getPlayers().get(player);
         if (currentLadder != null && currentLadder.isBreakAllBlocks()) {
-            ffa.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(block));
+            ffa.getFightChange().addArenaBlockChange(new ChangedBlock(block));
             return; // do NOT cancel — let the break happen
         }
 
@@ -302,7 +299,7 @@ public abstract class FFAListener implements Listener {
             return;
         }
 
-        if (block.getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(ffa.getArena())) {
+        if (block.getRelative(e.getBlockFace()).getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(ffa.getArena())) {
             Common.sendMMMessage(player, LanguageManager.getString("FFA.GAME.CANT-BUILD-OVER-LIMIT"));
             e.setCancelled(true);
         }
@@ -346,13 +343,14 @@ public abstract class FFAListener implements Listener {
     }
 
     @EventHandler
-    public void onItemPickup(PlayerPickupItemEvent e) {
-        Player player = e.getPlayer();
+    public void onItemPickup(EntityPickupItemEvent e) {
+        if (!(e.getEntity() instanceof Player player)) return;
+
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
 
         // Prevent picking up items (e.g. arrows) that have been hidden from this player
-        if (!ClassImport.getClasses().getEntityHider().canSee(player, e.getItem())) {
+        if (!ZonePractice.getEntityHider().canSee(player, e.getItem())) {
             e.setCancelled(true);
             return;
         }
@@ -360,5 +358,70 @@ public abstract class FFAListener implements Listener {
         e.setCancelled(false);
     }
 
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent e) {
+        Player player = e.getPlayer();
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) return;
+
+        FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
+        if (ffa == null) return;
+
+        e.setCancelled(true);
+
+        DamageSource damageSource = e.getDamageSource();
+
+        // Void deaths are already handled by onPlayerMove in the core FFAListener.
+        // Skip here to avoid sending the death message twice.
+        if (damageSource.getDamageType().equals(DamageType.OUT_OF_WORLD)) {
+            return;
+        }
+
+        Player killer = null;
+        if (damageSource.getCausingEntity() instanceof Entity damageEntity) {
+            killer = FightUtil.getKiller(damageEntity);
+        }
+
+        DeathCause cause = dev.nandi0813.practice.moved.FightUtil.convert(damageSource.getDamageType());
+        ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
+
+        if (killer != null) {
+            Statistic statistic = ffa.getStatistics().get(killer);
+            statistic.setKills(statistic.getKills() + 1);
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
+        if (!(e.getEntity() instanceof Player target)) {
+            return;
+        }
+
+        Profile profile = ProfileManager.getInstance().getProfile(target);
+        if (profile == null) return;
+
+        FFA ffa = FFAManager.getInstance().getFFAByPlayer(target);
+        if (ffa == null) return;
+
+        // Resolve the attacker (direct hit or projectile shooter)
+        Player attacker = null;
+        if (e.getDamager() instanceof Player damager) {
+            attacker = damager;
+        } else if (e.getDamager() instanceof Projectile projectile) {
+            if (projectile.getShooter() instanceof Player shooter) {
+                attacker = shooter;
+
+                if (projectile instanceof Arrow) {
+                    arrowDisplayHearth(shooter, target, e.getFinalDamage());
+                }
+            }
+        }
+
+        // Record the attacker for void-kill attribution
+        if (attacker != null) {
+            ffa.recordAttack(target, attacker);
+        }
+    }
 
 }

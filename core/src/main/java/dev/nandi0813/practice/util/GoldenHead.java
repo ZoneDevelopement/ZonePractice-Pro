@@ -5,6 +5,8 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -40,7 +42,10 @@ public class GoldenHead implements Listener {
             String[] split = effect.split("::");
             if (split.length != 3) continue;
 
-            PotionEffectType type = PotionEffectType.getByName(split[0]);
+            PotionEffectType type = Registry.EFFECT.get(NamespacedKey.minecraft(split[0].toLowerCase()));
+            if (type == null) {
+                type = Registry.EFFECT.get(NamespacedKey.minecraft(split[0].replace(' ', '_').toLowerCase()));
+            }
             if (type == null) continue;
 
             if (StringUtil.isNotInteger(split[1])) continue;
@@ -80,7 +85,7 @@ public class GoldenHead implements Listener {
         int amount = item.getAmount();
 
         if (amount == 1)
-            player.setItemInHand(null);
+            player.getInventory().setItemInMainHand(null);
         else
             item.setAmount(amount - 1);
 
@@ -101,7 +106,7 @@ public class GoldenHead implements Listener {
             }
 
             if (activate)
-                player.addPotionEffect(effect, true);
+                player.addPotionEffect(effect);
         }
 
         player.updateInventory();

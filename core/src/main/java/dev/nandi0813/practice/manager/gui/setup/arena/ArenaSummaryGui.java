@@ -10,6 +10,7 @@ import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.PageUtil;
 import lombok.Getter;
@@ -180,7 +181,7 @@ public class ArenaSummaryGui extends GUI {
 
         if (arena.getIcon() != null) {
             guiItem.setMaterial(arena.getIcon().getType());
-            guiItem.setDamage(arena.getIcon().getDurability());
+            guiItem.setDamage(Common.getItemDamage(arena.getIcon()));
         }
 
         guiItem
@@ -199,7 +200,7 @@ public class ArenaSummaryGui extends GUI {
 
         if (arena.getIcon() != null) {
             guiItem.setMaterial(arena.getIcon().getType());
-            guiItem.setDamage(arena.getIcon().getDurability());
+            guiItem.setDamage(Common.getItemDamage(arena.getIcon()));
         }
 
         guiItem

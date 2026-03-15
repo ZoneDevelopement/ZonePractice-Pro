@@ -1,12 +1,14 @@
 package dev.nandi0813.practice.manager.fight.event.setup;
 
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -52,10 +54,11 @@ public class EventSpawnMarkerManager {
                             .filter(entity -> entity instanceof ArmorStand)
                             .forEach(entity -> {
                                 ArmorStand stand = (ArmorStand) entity;
+                                String customName = stand.customName() == null ? null : Common.serializeComponentToLegacyString(stand.customName());
                                 // Only remove armor stands that look like our markers
-                                if (stand.getCustomName() != null &&
-                                    (stand.getCustomName().contains("Spawn #") ||
-                                     stand.getCustomName().contains("Right-click to remove"))) {
+                                if (customName != null &&
+                                    (customName.contains("Spawn #") ||
+                                     customName.contains("Right-click to remove"))) {
                                     stand.remove();
                                 }
                             });
@@ -77,7 +80,7 @@ public class EventSpawnMarkerManager {
 
                     // Create second armor stand above for instruction text
                     Location labelLoc = spawnLoc.clone().add(0, 2.3, 0);
-                    ArmorStand labelStand = createLabelOnly(labelLoc, "&7(Right-click to remove)");
+                    ArmorStand labelStand = createLabelOnly(labelLoc);
                     if (labelStand != null) {
                         markers.add(labelStand);
                     }
@@ -106,7 +109,7 @@ public class EventSpawnMarkerManager {
         armorStand.setGravity(false);
         armorStand.setCanPickupItems(false);
         armorStand.setCustomNameVisible(true);
-        armorStand.setCustomName(Common.colorize(name));
+        armorStand.customName(Component.text(Common.colorize(name)));
 
         // Make the armor stand face the same direction (yaw) as the saved spawn location
         Location facingLoc = markerLoc.clone();
@@ -115,8 +118,8 @@ public class EventSpawnMarkerManager {
         armorStand.teleport(facingLoc);
 
         // Give it a sword to hold (to make it more visible)
-        ItemStack sword = ClassImport.getClasses().getItemCreateUtil().createItem("&cSpawn Marker", org.bukkit.Material.DIAMOND_SWORD);
-        armorStand.setItemInHand(sword);
+        ItemStack sword = ItemCreateUtil.createItem("&cSpawn Marker", org.bukkit.Material.DIAMOND_SWORD);
+        armorStand.getEquipment().setItem(EquipmentSlot.HAND, sword);
 
         // Make it invulnerable and persistent
         armorStand.setRemoveWhenFarAway(false);
@@ -128,7 +131,7 @@ public class EventSpawnMarkerManager {
     /**
      * Creates a small invisible armor stand just for displaying text label
      */
-    private ArmorStand createLabelOnly(Location location, String text) {
+    private ArmorStand createLabelOnly(Location location) {
         if (location == null || location.getWorld() == null) return null;
 
         ArmorStand labelStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
@@ -136,7 +139,7 @@ public class EventSpawnMarkerManager {
         labelStand.setGravity(false);
         labelStand.setCanPickupItems(false);
         labelStand.setCustomNameVisible(true);
-        labelStand.setCustomName(Common.colorize(text));
+        labelStand.customName(Component.text(Common.colorize("&7(Right-click to remove)")));
         labelStand.setMarker(true); // Make it small
         labelStand.setRemoveWhenFarAway(false);
 
@@ -180,13 +183,6 @@ public class EventSpawnMarkerManager {
     }
 
     /**
-     * Checks if markers are currently shown for an event
-     */
-    public boolean hasMarkers(EventData eventData) {
-        return eventMarkers.containsKey(eventData) && !eventMarkers.get(eventData).isEmpty();
-    }
-
-    /**
      * Checks if an armor stand is a spawn marker
      */
     public boolean isMarker(ArmorStand armorStand) {
@@ -199,21 +195,9 @@ public class EventSpawnMarkerManager {
     }
 
     /**
-     * Finds which event a marker armor stand belongs to
-     */
-    public EventData findEventForMarker(ArmorStand armorStand) {
-        for (Map.Entry<EventData, List<ArmorStand>> entry : eventMarkers.entrySet()) {
-            if (entry.getValue().contains(armorStand)) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
-
-    /**
      * Gets the spawn index for a given marker armor stand
      */
-    public int getSpawnIndex(ArmorStand armorStand, EventData eventData) {
+    public int getSpawnIndex(ArmorStand armorStand) {
         return markerToSpawnIndex.getOrDefault(armorStand.getUniqueId(), -1);
     }
 }

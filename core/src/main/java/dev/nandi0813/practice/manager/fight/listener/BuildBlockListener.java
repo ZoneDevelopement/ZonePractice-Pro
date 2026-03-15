@@ -1,11 +1,11 @@
 package dev.nandi0813.practice.manager.fight.listener;
 
-import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.manager.fight.util.BlockUtil;
-import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
-import dev.nandi0813.practice.manager.fight.util.FightUtil;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.fight.match.Match;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
+import dev.nandi0813.practice.manager.fight.util.FightUtil;
+import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
+import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -13,8 +13,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
@@ -28,8 +26,7 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
  * {@link FightUtil#getActiveBuildSpectatables()}.
  * <p>
  * All world-driven block events (pistons, liquid flow, form, spread, explosions, TNT,
- * falling blocks) are handled by the version-specific {@code MatchTntListener} which
- * already covers all Spectatables via the same {@code getActiveBuildSpectatables()} helper.
+ * falling blocks) are handled by {@link dev.nandi0813.practice.moved.BuildListener}.
  */
 public class BuildBlockListener implements Listener {
 
@@ -50,8 +47,8 @@ public class BuildBlockListener implements Listener {
     /** Track the block under a placed block if it will turn to dirt (grass → dirt). */
     private static void trackUnderBlockIfDirt(Block block, Spectatable spectatable) {
         Block under = block.getLocation().subtract(0, 1, 0).getBlock();
-        if (ClassImport.getClasses().getArenaUtil().turnsToDirt(under)) {
-            spectatable.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(under));
+        if (ArenaUtil.turnsToDirt(under)) {
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(under));
         }
     }
 
@@ -72,13 +69,12 @@ public class BuildBlockListener implements Listener {
         Block block = e.getBlock();
 
         // Case 1: block was placed during the fight — track it for rollback
-        if (block.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
-            if (ListenerUtil.checkMetaData(mv)) return;
-            if (!(mv.value() instanceof Spectatable spectatable)) return;
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Spectatable spectatable = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(spectatable)) return;
             if (!spectatable.isBuild()) return;
 
-            spectatable.addBlockChange(ClassImport.createChangeBlock(block));
+            spectatable.addBlockChange(new ChangedBlock(block));
             return;
         }
 
@@ -87,7 +83,7 @@ public class BuildBlockListener implements Listener {
         if (spectatable == null || !spectatable.isBuild()) return;
 
         var ladder = (spectatable instanceof Match match) ? match.getLadder() : null;
-        if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(ladder, block)) {
+        if (ArenaUtil.containsDestroyableBlock(ladder, block)) {
             BlockUtil.breakBlock(spectatable, block);
             e.setCancelled(true);
         }
@@ -105,18 +101,19 @@ public class BuildBlockListener implements Listener {
         Block block = e.getBlockPlaced();
 
         Spectatable spectatable;
-        if (block.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
-            if (ListenerUtil.checkMetaData(mv) || !(mv.value() instanceof Spectatable s)) return;
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Spectatable s = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(s)) return;
             spectatable = s;
         } else {
             spectatable = getByBlock(block);
             if (spectatable == null || !spectatable.isBuild()) return;
-            block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+            BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
         }
 
-        spectatable.addBlockChange(ClassImport.createChangeBlock(e));
+        spectatable.addBlockChange(new ChangedBlock(e));
         trackUnderBlockIfDirt(block, spectatable);
     }
+
 
 }

@@ -7,6 +7,7 @@ import dev.nandi0813.practice.manager.fight.match.Round;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIType;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -35,8 +36,11 @@ public class MatchStatsGui extends GUI {
         this.uuid = uuid;
         this.player = Bukkit.getOfflinePlayer(uuid);
 
-        for (Round round : match.getRounds().values())
-            stats.put(round.getRoundNumber(), round.getStatistics().get(uuid));
+        for (Round round : match.getRounds().values()) {
+            Statistic statistic = round.getStatistics().get(uuid);
+            if (statistic != null)
+                stats.put(round.getRoundNumber(), statistic);
+        }
 
         build();
     }
@@ -56,9 +60,9 @@ public class MatchStatsGui extends GUI {
             while (stats.containsKey(round)) {
                 String title;
                 if (match.getLadder().getRounds() == 1)
-                    title = GUIFile.getString("GUIS.MATCH-STATISTICS.TITLE.SINGLE-ROUND").replace("%player%", player.getName());
+                    title = GUIFile.getString("GUIS.MATCH-STATISTICS.TITLE.SINGLE-ROUND").replace("%player%", Objects.requireNonNull(player.getName()));
                 else
-                    title = GUIFile.getString("GUIS.MATCH-STATISTICS.TITLE.MULTIPLE-ROUND").replace("%player%", player.getName()).replace("%round%", String.valueOf(round));
+                    title = GUIFile.getString("GUIS.MATCH-STATISTICS.TITLE.MULTIPLE-ROUND").replace("%player%", Objects.requireNonNull(player.getName())).replace("%round%", String.valueOf(round));
                 gui.put(round, InventoryUtil.createInventory(title, 6));
 
                 Statistic roundStatistic = stats.get(round);
@@ -75,7 +79,7 @@ public class MatchStatsGui extends GUI {
                     if (i < 27) inventory.setItem(i, inventoryContent.get(i + 9));
                     else inventory.setItem(i, firstLine.get(i - 27));
 
-                    if (inventoryContent.get(i) != null && inventoryContent.get(i).getType().equals(Material.POTION) && inventoryContent.get(i).getDurability() == 16421)
+                    if (inventoryContent.get(i) != null && inventoryContent.get(i).getType().equals(Material.POTION) && Common.getItemDamage(inventoryContent.get(i)) == 16421)
                         healthPotionsLeft++;
                 }
 
@@ -140,7 +144,7 @@ public class MatchStatsGui extends GUI {
             List<String> effects = new ArrayList<>();
             for (PotionEffect potionEffect : roundStatistic.getEndPotionEffects()) {
                 effects.add(GUIFile.getString("GUIS.MATCH-STATISTICS.ICONS.EFFECT.HAS-EFFECT.FORMAT")
-                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getName().replace("_", " ").toLowerCase()))
+                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getKey().getKey().replace("_", " ").toLowerCase()))
                         .replace("%amplifier%", String.valueOf(potionEffect.getAmplifier() + 1))
                         .replace("%time%", StringUtil.formatMillisecondsToMinutes((potionEffect.getDuration() / 20) * 1000L))
                 );
@@ -157,7 +161,7 @@ public class MatchStatsGui extends GUI {
             ItemStack item = GUIFile.getGuiItem("GUIS.MATCH-STATISTICS.ICONS.EFFECT.HAS-EFFECT.ICON").get();
             ItemMeta itemMeta = item.getItemMeta();
 
-            itemMeta.setLore(lore);
+            itemMeta.lore(StringUtil.CC(lore).stream().map(Common::legacyToComponent).toList());
             item.setItemMeta(itemMeta);
 
             return item;

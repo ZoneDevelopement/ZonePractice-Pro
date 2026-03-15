@@ -24,7 +24,7 @@ import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.party.matchrequest.PartyRequest;
 import dev.nandi0813.practice.manager.profile.Profile;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.Bukkit;
@@ -81,7 +81,7 @@ public class LadderSelectorGui extends GUI {
                     for (String line : GUIFile.getStringList("GUIS.SELECTORS.LADDER-SELECTOR.ICONS.LADDER.LORE"))
                         lore.add(line.replace("%ladder%", ladder.getDisplayName()));
 
-                    ItemStack icon = ClassImport.getClasses().getItemCreateUtil().createItem(ladder.getIcon(), GUIFile.getString("GUIS.SELECTORS.LADDER-SELECTOR.ICONS.LADDER.NAME").replace("%ladder%", ladder.getDisplayName()), lore);
+                    ItemStack icon = ItemCreateUtil.createItem(ladder.getIcon(), GUIFile.getString("GUIS.SELECTORS.LADDER-SELECTOR.ICONS.LADDER.NAME").replace("%ladder%", ladder.getDisplayName()), lore);
 
                     int slot = inventory.firstEmpty();
                     gui.get(1).setItem(slot, icon);

@@ -1,8 +1,9 @@
 package dev.nandi0813.practice.manager.leaderboard.hologram;
 
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.experimental.UtilityClass;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -45,10 +46,10 @@ public class ArmorStandFactory {
         stand.setVisible(false);
         stand.setGravity(false);
         stand.setCustomNameVisible(true);
-        stand.setCustomName(StringUtil.CC(text));
+        stand.customName(Component.text(StringUtil.CC(text)));
         stand.setBasePlate(false);
         stand.setArms(false);
-        ClassImport.getClasses().getArenaUtil().setArmorStandInvulnerable(stand);
+        ArenaUtil.setArmorStandInvulnerable(stand);
     }
 
     /**
@@ -58,7 +59,7 @@ public class ArmorStandFactory {
      * @param text The new display text (will be color-coded)
      */
     public void updateText(@NotNull ArmorStand stand, @NotNull String text) {
-        stand.setCustomName(StringUtil.CC(text));
+        stand.customName(Component.text(StringUtil.CC(text)));
     }
 
     /**

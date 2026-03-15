@@ -17,7 +17,7 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.RankedBan;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
@@ -29,6 +29,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
+
 public class ProfileSetupGui extends GUI {
 
     private final Profile profile;
@@ -39,7 +41,7 @@ public class ProfileSetupGui extends GUI {
         this.profile = profile;
         this.profileLadderStats = new ProfileLadderStats(profile, this);
 
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.PLAYER-INFORMATION.MAIN-PAGE.TITLE").replace("%player%", profile.getPlayer().getName()), 4));
+        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.PLAYER-INFORMATION.MAIN-PAGE.TITLE").replace("%player%", Objects.requireNonNull(profile.getPlayer().getName())), 4));
 
         build();
     }
@@ -197,7 +199,7 @@ public class ProfileSetupGui extends GUI {
     }
 
     private static ItemStack getBasicInfoItem(Profile profile) {
-        GUIItem guiItem = new GUIItem(ClassImport.getClasses().getItemMaterialUtil().getPlayerHead(profile.getPlayer()));
+        GUIItem guiItem = new GUIItem(ItemCreateUtil.getPlayerHead(profile.getPlayer()));
         guiItem.setName(GUIFile.getString("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.BASIC-INFO.NAME"));
         guiItem.setLore(GUIFile.getStringList("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.BASIC-INFO.LORE"));
 
@@ -219,36 +221,34 @@ public class ProfileSetupGui extends GUI {
 
         if (profile.getStatus().equals(ProfileStatus.OFFLINE) || player == null)
             return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.PLAYER-OFFLINE").get();
-        else
+        else {
+            player.playerListName();
             return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.PLAYER-ONLINE")
                     .replace("%world%", player.getWorld().getName())
                     .replace("%gamemode%", player.getGameMode().name())
                     .replace("%flying%", String.valueOf(player.isFlying()))
-                    .replace("%tablist_name%", player.getPlayerListName())
+                    .replace("%tablist_name%", Common.serializeComponentToLegacyString(player.playerListName()))
                     .replace("%health%", String.valueOf(player.getHealth()))
                     .replace("%food%", String.valueOf(player.getFoodLevel()))
                     .replace("%hit_delay%", String.valueOf(player.getMaximumNoDamageTicks()))
-                    .replace("%ping%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(player)))
+                    .replace("%ping%", String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(player)))
                     .get();
+        }
     }
 
     private static ItemStack getGameItem(Profile profile) {
         ProfileStatus profileStatus = profile.getStatus();
 
-        switch (profileStatus) {
-            case OFFLINE:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.OFFLINE").get();
-            case MATCH:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-MATCH").get();
-            case FFA:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-FFA").get();
-            case EVENT:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-EVENT").get();
-            case SPECTATE:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.SPECTATING").get();
-            default:
-                return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.NOTHING").get();
-        }
+        return switch (profileStatus) {
+            case OFFLINE ->
+                    GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.OFFLINE").get();
+            case MATCH -> GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-MATCH").get();
+            case FFA -> GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-FFA").get();
+            case EVENT -> GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.IN-EVENT").get();
+            case SPECTATE ->
+                    GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.SPECTATING").get();
+            default -> GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.GAME.NOTHING").get();
+        };
     }
 
     private static ItemStack getPartyItem(Profile profile) {

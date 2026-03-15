@@ -42,10 +42,6 @@ public enum LadderUtil {
                 Common.sendMMMessage(player, LanguageManager.getString("LADDER.STATUS-CHANGE.NO-CONTENT"));
                 return;
             }
-            if (ladder.getMatchTypes().isEmpty()) {
-                Common.sendMMMessage(player, LanguageManager.getString("LADDER.STATUS-CHANGE.NO-MATCHTYPE-ASSIGNED"));
-                return;
-            }
             if (ladder instanceof SkyWars && ((SkyWars) ladder).getSkyWarsLoot() == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("LADDER.STATUS-CHANGE.SKYWARS.NO-LOOT"));
                 return;

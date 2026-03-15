@@ -9,7 +9,7 @@ import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.module.interfaces.ItemCreateUtil;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.entity.Player;
@@ -48,10 +48,9 @@ public class CustomLadderSelectorGui extends GUI {
                 ItemStack icon = ladder.getIcon();
                 ItemMeta iconMeta = icon.getItemMeta();
                 if (iconMeta != null) {
-                    iconMeta.setDisplayName(GUIFile.getString("GUIS.KIT-EDITOR.LADDER-SELECTOR.ICONS.NAME")
+                    iconMeta.displayName(Common.legacyToComponent(GUIFile.getString("GUIS.KIT-EDITOR.LADDER-SELECTOR.ICONS.NAME")
                             .replace("%ladder%", ladder.getDisplayName())
-                            .replace("%ladderOriginal%", ladder.getName())
-                    );
+                            .replace("%ladderOriginal%", ladder.getName())));
                     ItemCreateUtil.hideItemFlags(iconMeta);
 
                     List<String> lore = new ArrayList<>();
@@ -61,7 +60,7 @@ public class CustomLadderSelectorGui extends GUI {
                                 .replace("%ladderOriginal%", ladder.getName()))
                         ;
                     }
-                    iconMeta.setLore(lore);
+                    iconMeta.lore(lore.stream().map(Common::legacyToComponent).toList());
                     icon.setItemMeta(iconMeta);
                 }
 

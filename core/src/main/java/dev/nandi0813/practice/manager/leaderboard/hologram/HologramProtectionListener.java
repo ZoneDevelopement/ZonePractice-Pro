@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.leaderboard.hologram;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -94,7 +95,7 @@ public class HologramProtectionListener implements Listener {
         }
 
         ArmorStand deadStand = (ArmorStand) entity;
-        String customName = deadStand.getCustomName();
+        String customName = deadStand.customName() == null ? null : Common.serializeComponentToLegacyString(deadStand.customName());
         var location = deadStand.getLocation();
 
         // Schedule respawn for next tick

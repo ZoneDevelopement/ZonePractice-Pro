@@ -36,7 +36,7 @@ public enum SpectateArg {
         }
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
-        if (!profile.getStatus().equals(ProfileStatus.LOBBY)) {
+        if (!profile.getStatus().equals(ProfileStatus.LOBBY) && !profile.getStatus().equals(ProfileStatus.SPECTATE)) {
             Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.SPECTATE.CANT-JOIN-FFA"));
             return;
         }
@@ -48,7 +48,7 @@ public enum SpectateArg {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         List<String> arguments = new ArrayList<>();
 
-        if (!profile.getStatus().equals(ProfileStatus.LOBBY))
+        if (!profile.getStatus().equals(ProfileStatus.LOBBY) && !profile.getStatus().equals(ProfileStatus.SPECTATE))
             return arguments;
 
         if (args.length == 2) {

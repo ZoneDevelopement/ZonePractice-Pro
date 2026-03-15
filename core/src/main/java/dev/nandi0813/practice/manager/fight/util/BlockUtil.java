@@ -1,13 +1,12 @@
 package dev.nandi0813.practice.manager.fight.util;
 
-import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.block.Block;
-import org.bukkit.metadata.MetadataValue;
-import org.bukkit.metadata.Metadatable;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 
 public enum BlockUtil {
     ;
@@ -15,14 +14,14 @@ public enum BlockUtil {
     public static void breakBlock(Match match, Block block) {
         if (match == null) return;
 
-        match.addBlockChange(ClassImport.createChangeBlock(block));
+        match.addBlockChange(new ChangedBlock(block));
         block.breakNaturally();
     }
 
     public static void breakBlock(FFA ffa, Block block) {
         if (ffa == null) return;
 
-        ffa.getFightChange().addBlockChange(ClassImport.createChangeBlock(block));
+        ffa.getFightChange().addBlockChange(new ChangedBlock(block));
         block.breakNaturally();
     }
 
@@ -38,13 +37,40 @@ public enum BlockUtil {
         }
     }
 
-    public static MetadataValue getMetadata(Metadatable metadatable, String tag) {
-        for (MetadataValue mv : metadatable.getMetadata(tag)) {
-            if (mv != null && mv.getOwningPlugin() == ZonePractice.getInstance()) {
-                return mv;
-            }
-        }
-        return null;
+    public static void setMetadata(Block block, String tag, Object value) {
+        PersistentTagUtil.setBlockTag(block, tag, value);
+    }
+
+    public static void setMetadata(Entity entity, String tag, Object value) {
+        PersistentTagUtil.setEntityTag(entity, tag, value);
+    }
+
+    public static <T> T getMetadata(Block block, String tag, Class<T> type) {
+        return PersistentTagUtil.getBlockTag(block, tag, type);
+    }
+
+    public static <T> T getMetadata(Entity entity, String tag, Class<T> type) {
+        return PersistentTagUtil.getEntityTag(entity, tag, type);
+    }
+
+    public static <T> T getMetadata(Item item, String tag, Class<T> type) {
+        return PersistentTagUtil.getTag(item, tag, type);
+    }
+
+    public static boolean hasMetadata(Block block, String tag) {
+        return PersistentTagUtil.hasBlockTag(block, tag);
+    }
+
+    public static boolean hasMetadata(Entity entity, String tag) {
+        return PersistentTagUtil.hasEntityTag(entity, tag);
+    }
+
+    public static boolean hasMetadata(Item item, String tag) {
+        return PersistentTagUtil.hasTag(item, tag);
+    }
+
+    public static void clearMetadata(Block block, String tag) {
+        PersistentTagUtil.clearBlockTag(block, tag);
     }
 
 }

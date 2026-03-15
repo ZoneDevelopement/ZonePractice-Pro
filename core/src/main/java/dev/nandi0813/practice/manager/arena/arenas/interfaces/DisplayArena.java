@@ -16,15 +16,14 @@ import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -62,7 +61,7 @@ public abstract class DisplayArena extends NormalArena {
         this.icon = icon.clone();
 
         if (icon.hasItemMeta())
-            this.displayName = StringUtil.CC(icon.getItemMeta().getDisplayName());
+            this.displayName = StringUtil.CC(Common.getItemDisplayName(icon));
         else
             this.displayName = name;
     }

@@ -10,8 +10,7 @@ import dev.nandi0813.practice.manager.profile.enums.ProfileWorldTime;
 import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.manager.profile.group.GroupManager;
 import dev.nandi0813.practice.manager.profile.statistics.ProfileStat;
-import dev.nandi0813.practice.module.interfaces.actionbar.ActionBar;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ActionBar;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import lombok.Setter;
@@ -72,7 +71,7 @@ public class Profile {
 
     private RankedBan rankedBan = new RankedBan();
     private ProfileSettingsGui settingsGui;
-    private ActionBar actionBar = ClassImport.createActionBarClass(this);
+    private ActionBar actionBar = new ActionBar(this);
 
     // Custom ladder
     private PlayerCustomKitSelector playerCustomKitSelector;

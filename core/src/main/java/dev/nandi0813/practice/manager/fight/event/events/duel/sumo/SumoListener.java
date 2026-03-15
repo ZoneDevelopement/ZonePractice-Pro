@@ -4,7 +4,6 @@ import dev.nandi0813.practice.manager.fight.event.enums.EventStatus;
 import dev.nandi0813.practice.manager.fight.event.events.duel.interfaces.DuelFight;
 import dev.nandi0813.practice.manager.fight.event.events.duel.interfaces.DuelListener;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
-import dev.nandi0813.practice.module.util.ClassImport;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -69,13 +68,13 @@ public class SumoListener extends DuelListener {
                 Material blockBelow = playerLoc.clone().subtract(0, 1, 0).getBlock().getType();
 
                 // Check if player is in/touching water
-                if (blockAtPlayer.equals(Material.WATER) || blockAtPlayer.equals(ClassImport.getClasses().getItemMaterialUtil().getWater()) ||
-                    blockBelow.equals(Material.WATER) || blockBelow.equals(ClassImport.getClasses().getItemMaterialUtil().getWater())) {
+                if (blockAtPlayer.equals(Material.WATER) ||
+                    blockBelow.equals(Material.WATER)) {
                     duelFight.endFight(player);
                 }
                 // Check if player is in/touching lava
-                else if (blockAtPlayer.equals(Material.LAVA) || blockAtPlayer.equals(ClassImport.getClasses().getItemMaterialUtil().getLava()) ||
-                         blockBelow.equals(Material.LAVA) || blockBelow.equals(ClassImport.getClasses().getItemMaterialUtil().getLava())) {
+                else if (blockAtPlayer.equals(Material.LAVA) ||
+                         blockBelow.equals(Material.LAVA)) {
                     duelFight.endFight(player);
                 }
             }

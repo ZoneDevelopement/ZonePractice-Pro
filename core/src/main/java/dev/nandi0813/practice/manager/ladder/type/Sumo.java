@@ -6,7 +6,6 @@ import dev.nandi0813.practice.manager.fight.util.DeathCause;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.module.util.ClassImport;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -44,13 +43,11 @@ public class Sumo extends NormalLadder implements LadderHandle {
         Material blockBelow = playerLoc.clone().subtract(0, 1, 0).getBlock().getType();
 
         // Check if player is in/touching water
-        if (blockAtPlayer.equals(Material.WATER) || blockAtPlayer.equals(ClassImport.getClasses().getItemMaterialUtil().getWater()) ||
-            blockBelow.equals(Material.WATER) || blockBelow.equals(ClassImport.getClasses().getItemMaterialUtil().getWater())) {
+        if (blockAtPlayer.equals(Material.WATER) || blockBelow.equals(Material.WATER)) {
             match.killPlayer(player, null, DeathCause.SUMO.getMessage());
         }
         // Check if player is in/touching lava
-        else if (blockAtPlayer.equals(Material.LAVA) || blockAtPlayer.equals(ClassImport.getClasses().getItemMaterialUtil().getLava()) ||
-                 blockBelow.equals(Material.LAVA) || blockBelow.equals(ClassImport.getClasses().getItemMaterialUtil().getLava())) {
+        else if (blockAtPlayer.equals(Material.LAVA) || blockBelow.equals(Material.LAVA)) {
             match.killPlayer(player, null, DeathCause.SUMO.getMessage());
         }
     }

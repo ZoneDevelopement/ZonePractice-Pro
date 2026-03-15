@@ -72,8 +72,8 @@ public class ArenaMainGui extends GUI {
                 .replace("%arenaDisplayName%", ffaArena.getDisplayName())
                 .replace("%arenaName%", ffaArena.getName())
                 .replace("%arenaType%", ffaArena.getType().toString())
-                .setMaterial(ffaArena.getIcon() != null && ffaArena.getIcon().getType() != null ? ffaArena.getIcon().getType() : null)
-                .setDamage(ffaArena.getIcon() != null && ffaArena.getIcon().getDurability() != 0 ? ffaArena.getIcon().getDurability() : -1)
+                .setMaterial(ffaArena.getIcon() != null ? ffaArena.getIcon().getType() : null)
+                .setDamage(ffaArena.getIcon() != null && Common.getItemDamage(ffaArena.getIcon()) != 0 ? Common.getItemDamage(ffaArena.getIcon()) : -1)
                 .get());
 
         inventory.setItem(11, ffaArena.isEnabled() ? STATUS_ENABLED_ITEM : STATUS_DISABLED_ITEM);

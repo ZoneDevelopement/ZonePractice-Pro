@@ -29,6 +29,7 @@ import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.*;
 import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
+import dev.nandi0813.practice.manager.fight.ffa.FFAListener;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.listener.BuildBlockListener;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
@@ -44,10 +45,8 @@ import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
-import dev.nandi0813.practice.module.util.ClassImport;
-import dev.nandi0813.practice.module.util.VersionChecker;
+import dev.nandi0813.practice.moved.*;
 import dev.nandi0813.practice.util.*;
-import dev.nandi0813.practice.util.UpdateChecker;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import lombok.Getter;
@@ -74,6 +73,10 @@ public final class ZonePractice extends JavaPlugin {
     private static BukkitAudiences adventure;
     @Getter
     private static MiniMessage miniMessage;
+    @Getter
+    private static EntityHider entityHider;
+    @Getter
+    private static ArenaCopyUtilListener arenaCopyUtilListener;
 
     @Getter
     private static volatile boolean fullyLoaded = false;
@@ -91,6 +94,9 @@ public final class ZonePractice extends JavaPlugin {
         instance = this;
         adventure = BukkitAudiences.create(this);
         miniMessage = MiniMessage.miniMessage();
+        entityHider = new EntityHider(this, EntityHider.Policy.BLACKLIST);
+        arenaCopyUtilListener = new ArenaCopyUtilListener();
+
         PacketEvents.getAPI().init();
         metrics = new Metrics(this, 16055);
 
@@ -355,7 +361,6 @@ public final class ZonePractice extends JavaPlugin {
      */
     private void registerListeners(PluginManager pm) {
         pm.registerEvents(new BuildBlockListener(), this);
-        pm.registerEvents(ClassImport.getClasses().getBuildListener(), this);
 
         pm.registerEvents(new PlayerPreLogin(), this);
         pm.registerEvents(new PlayerJoin(), this);
@@ -367,6 +372,15 @@ public final class ZonePractice extends JavaPlugin {
         pm.registerEvents(new PlayerCommandPreprocess(), this);
         pm.registerEvents(new EntityDamage(), this);
         pm.registerEvents(new ArenaListener(), this);
+        pm.registerEvents(new StatisticListener(), this);
+        pm.registerEvents(arenaCopyUtilListener, this);
+        pm.registerEvents(new BuildListener(), this);
+        pm.registerEvents(new ItemOffHandListener(), this);
+        pm.registerEvents(new dev.nandi0813.practice.moved.ArenaListener(), this);
+        pm.registerEvents(new FFAListener(), this);
+        pm.registerEvents(new EPCountdownListener(), this);
+        pm.registerEvents(new FireworkRocketCooldownListener(), this);
+        pm.registerEvents(new PlayerChatListener(), this);
     }
 
 }

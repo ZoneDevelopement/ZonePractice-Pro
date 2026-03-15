@@ -11,7 +11,7 @@ import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
@@ -54,9 +54,9 @@ public class LadderCreateGui extends GUI {
             inventory.setItem(i, GUIManager.getFILLER_ITEM());
 
         for (LadderType type : LadderType.values()) {
-            ItemStack item = ClassImport.getClasses().getItemCreateUtil().createItem("&e" + type.getName(), type.getIcon());
+            ItemStack item = ItemCreateUtil.createItem("&e" + type.getName(), type.getIcon());
             ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setLore(StringUtil.CC(type.getDescription()));
+            itemMeta.lore(StringUtil.CC(type.getDescription()).stream().map(Common::legacyToComponent).toList());
             item.setItemMeta(itemMeta);
 
             int slot = inventory.firstEmpty();

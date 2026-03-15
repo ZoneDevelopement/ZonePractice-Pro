@@ -12,6 +12,7 @@ import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.queue.QueueManager;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -23,11 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class QueueSelectorGui extends GUI {
 
@@ -41,14 +38,6 @@ public abstract class QueueSelectorGui extends GUI {
     private final Map<Integer, NormalLadder> firstCategoryLadderSlots = new HashMap<>();
     private final Map<Integer, NormalLadder> secondCategoryLadderSlots = new HashMap<>();
 
-    /**
-     * Stores the unresolved template lore for each active ladder slot so the
-     * real-time ticker can apply fresh %in_queue% / %in_fight% values without
-     * rebuilding the entire inventory layout.
-     *
-     * key   = pageId (1 or 2)
-     * value = map of slot → template ItemStack (with un-replaced placeholders)
-     */
     private final Map<Integer, Map<Integer, ItemStack>> templateItems = new HashMap<>();
 
     private long lastUpdateTime = -1L;
@@ -182,21 +171,23 @@ public abstract class QueueSelectorGui extends GUI {
 
                 // Replace dynamic placeholders in display name
                 if (meta.hasDisplayName()) {
-                    meta.setDisplayName(meta.getDisplayName()
+                    String replaced = Common.serializeComponentToLegacyString(meta.displayName())
                             .replace("%in_queue%", String.valueOf(inQueue))
-                            .replace("%in_fight%", String.valueOf(inFight)));
+                            .replace("%in_fight%", String.valueOf(inFight));
+                    meta.displayName(Common.legacyToComponent(replaced));
                 }
 
                 // Replace dynamic placeholders in lore
-                List<String> lore = meta.getLore();
+                List<net.kyori.adventure.text.Component> lore = meta.lore();
                 if (lore != null) {
                     List<String> newLore = new ArrayList<>();
-                    for (String line : lore) {
+                    for (net.kyori.adventure.text.Component lineComponent : lore) {
+                        String line = Common.serializeComponentToLegacyString(lineComponent);
                         newLore.add(line
                                 .replace("%in_queue%", String.valueOf(inQueue))
                                 .replace("%in_fight%", String.valueOf(inFight)));
                     }
-                    meta.setLore(newLore);
+                    meta.lore(newLore.stream().map(Common::legacyToComponent).toList());
                 }
 
                 updated.setItemMeta(meta);

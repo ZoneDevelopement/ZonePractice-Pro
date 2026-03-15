@@ -1,54 +1,62 @@
 package dev.nandi0813.practice.manager.fight.match.listener;
 
+import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.event.EventManager;
+import dev.nandi0813.practice.manager.fight.event.events.duel.brackets.Brackets;
+import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.manager.fight.match.runnable.game.BridgeArrowRunnable;
+import dev.nandi0813.practice.manager.fight.match.util.KnockbackUtil;
+import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
+import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.DeathCause;
+import dev.nandi0813.practice.manager.fight.util.FightUtil;
 import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
+import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
+import dev.nandi0813.practice.manager.ladder.enums.KnockbackType;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.manager.ladder.type.Bridges;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.manager.spectator.SpectatorManager;
+import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
 import dev.nandi0813.practice.util.PermanentConfig;
 import dev.nandi0813.practice.util.cooldown.CooldownObject;
 import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.ThrownExpBottle;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 
+import static dev.nandi0813.practice.manager.arena.util.ArenaUtil.containsDestroyableBlock;
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
-public abstract class LadderTypeListener implements Listener {
+public class LadderTypeListener implements Listener {
 
     // ========== HELPER METHODS ==========
 
@@ -91,13 +99,11 @@ public abstract class LadderTypeListener implements Listener {
      * Extracts match from item metadata.
      */
     protected Match getMatchFromItemMetadata(Item item) {
-        if (!item.hasMetadata(HIDDEN_ITEM)) return null;
+        if (!BlockUtil.hasMetadata(item, HIDDEN_ITEM)) return null;
 
-        MetadataValue metadataValue = BlockUtil.getMetadata(item, HIDDEN_ITEM);
+        Match metadataValue = BlockUtil.getMetadata(item, HIDDEN_ITEM, Match.class);
         if (ListenerUtil.checkMetaData(metadataValue)) return null;
-        if (!(metadataValue.value() instanceof Match)) return null;
-
-        return (Match) metadataValue.value();
+        return metadataValue;
     }
 
     /**
@@ -156,7 +162,7 @@ public abstract class LadderTypeListener implements Listener {
                 Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
                 if (match != null && match.getLadder() instanceof dev.nandi0813.practice.manager.ladder.type.Spleef spleef
                         && spleef.isSnowballMode()) {
-                    snowball.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), match));
+                    BlockUtil.setMetadata(snowball, FIGHT_ENTITY, match);
                 }
             }
         }
@@ -166,10 +172,10 @@ public abstract class LadderTypeListener implements Listener {
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent e) {
         Entity entity = e.getEntity();
-        MetadataValue mv = BlockUtil.getMetadata(entity, FIGHT_ENTITY);
+        Match mv = BlockUtil.getMetadata(entity, FIGHT_ENTITY, Match.class);
         if (ListenerUtil.checkMetaData(mv)) return;
 
-        if (!(mv.value() instanceof Match match)) return;
+        Match match = mv;
 
         if (match.getLadder() instanceof LadderHandle ladderHandle) {
             ladderHandle.handleEvents(e, match);
@@ -194,7 +200,7 @@ public abstract class LadderTypeListener implements Listener {
             if (roundStatus.equals(RoundStatus.START) && item != null &&
                     (
                             item.getType().equals(Material.POTION) ||
-                                    item.getType().equals(ClassImport.getClasses().getItemMaterialUtil().getSplashPotion()) ||
+                                    item.getType().equals(Material.SPLASH_POTION) ||
                                     item.getType().isEdible()
                     )) {
                 e.setCancelled(false);
@@ -232,8 +238,8 @@ public abstract class LadderTypeListener implements Listener {
         Block block = e.getBlock();
 
         // Blocks placed during the fight — allow breaking (tracking done by BuildBlockListener)
-        if (block.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Object mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Object.class);
             if (ListenerUtil.checkMetaData(mv)) {
                 e.setCancelled(true);
             }
@@ -247,14 +253,14 @@ public abstract class LadderTypeListener implements Listener {
         }
 
         // Handle destroyable blocks (beds, etc.)
-        if (ClassImport.getClasses().getArenaUtil().containsDestroyableBlock(match.getLadder(), block)) {
+        if (containsDestroyableBlock(match.getLadder(), block)) {
             BlockUtil.breakBlock(match, block);
         }
 
         // When break-all-blocks is enabled, track the natural arena block for rollback
         // and allow the break — the player can destroy any block in the arena.
         if (match.getLadder().isBreakAllBlocks()) {
-            match.getFightChange().addArenaBlockChange(ClassImport.createChangeBlock(block));
+            match.getFightChange().addArenaBlockChange(new ChangedBlock(block));
             return; // do NOT cancel — let the break happen
         }
 
@@ -327,7 +333,7 @@ public abstract class LadderTypeListener implements Listener {
             return;
         }
 
-        if (!isWithinBuildLimits(block, match, player)) {
+        if (!isWithinBuildLimits(block.getRelative(e.getBlockFace()), match, player)) {
             e.setCancelled(true);
             return;
         }
@@ -433,7 +439,7 @@ public abstract class LadderTypeListener implements Listener {
 
         Entity entity = e.getItemDrop();
         match.addEntityChange(entity);
-        entity.setMetadata(HIDDEN_ITEM, new FixedMetadataValue(ZonePractice.getInstance(), match));
+        BlockUtil.setMetadata(entity, HIDDEN_ITEM, match);
     }
 
     @EventHandler
@@ -460,7 +466,7 @@ public abstract class LadderTypeListener implements Listener {
             return;
         }
 
-        if (!ClassImport.getClasses().getEntityHider().canSee(player, e.getItem())) {
+        if (!ZonePractice.getEntityHider().canSee(player, e.getItem())) {
             e.setCancelled(true);
             return;
         }
@@ -511,10 +517,215 @@ public abstract class LadderTypeListener implements Listener {
         // register it for rollback cleanup (and hiding from players in other matches),
         // and schedule a 5-minute vanilla-style self-removal.
         if (e.getProjectile() instanceof org.bukkit.entity.Arrow arrow) {
-            arrow.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), match));
+            BlockUtil.setMetadata(arrow, FIGHT_ENTITY, match);
             match.addEntityChange(arrow); // hides from other-arena players + rollback tracking
         }
     }
 
+    @EventHandler
+    public void onPlayerDamage(EntityDamageEvent e) {
+        if (!(e.getEntity() instanceof Player player)) return;
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) return;
+
+        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+        if (match == null) return;
+
+        if (ListenerUtil.cancelEvent(match, player)) {
+            e.setDamage(0);
+            e.setCancelled(true);
+            return;
+        }
+
+        if (e instanceof EntityDamageByEntityEvent) {
+            onEntityDamageByEntity((EntityDamageByEntityEvent) e);
+        }
+
+        if (match.getLadder() instanceof LadderHandle ladderHandle) {
+            ladderHandle.handleEvents(e, match);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent e) {
+        Player player = e.getEntity();
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) return;
+
+        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+        if (match == null) return;
+
+        e.setCancelled(true);
+
+        DamageSource damageSource = e.getDamageSource();
+        Player killer;
+        if (damageSource.getCausingEntity() instanceof Entity damageEntity) {
+            killer = FightUtil.getKiller(damageEntity);
+        } else {
+            killer = null;
+        }
+
+        DeathCause cause = dev.nandi0813.practice.moved.FightUtil.convert(damageSource.getDamageType());
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
+                match.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown")), 1L);
+
+        if (killer != null) {
+            Statistic statistic = match.getCurrentStat(killer);
+            statistic.setKills(statistic.getKills() + 1);
+        }
+    }
+
+    private static void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
+        if (!(e.getEntity() instanceof Player target)) return;
+
+        Player attacker = null;
+        if (e.getDamager() instanceof Player) {
+            attacker = (Player) e.getDamager();
+        } else if (e.getDamager() instanceof Projectile projectile) {
+            if (projectile.getShooter() instanceof Player) {
+                attacker = (Player) projectile.getShooter();
+
+                if (projectile instanceof Arrow) {
+                    arrowDisplayHearth(attacker, target, e.getFinalDamage());
+                }
+            }
+        }
+
+        if (attacker == null) return;
+
+        Profile attackerProfile = ProfileManager.getInstance().getProfile(attacker);
+        Profile targetProfile = ProfileManager.getInstance().getProfile(target);
+
+        if (!attackerProfile.getStatus().equals(ProfileStatus.MATCH)) return;
+        if (!targetProfile.getStatus().equals(ProfileStatus.MATCH)) return;
+
+        Match match = MatchManager.getInstance().getLiveMatchByPlayer(attacker);
+        if (match != MatchManager.getInstance().getLiveMatchByPlayer(target)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) return;
+
+        boolean cancel = match.getCurrentStat(attacker).isSet() || match.getCurrentStat(target).isSet();
+
+        if (!cancel) {
+            cancel = TeamUtil.isSaveTeamMate(match, attacker, target);
+        }
+
+        if (cancel) {
+            e.setCancelled(true);
+            return;
+        } else {
+            if (match.getLadder() instanceof LadderHandle ladderHandle) {
+                ladderHandle.handleEvents(e, match);
+            }
+        }
+
+        // Always record the attacker for void-kill attribution,
+        // regardless of whether the event was cancelled by a ladder handler.
+        match.recordAttack(target, attacker);
+
+        if (!e.isCancelled() && !match.getLadder().getLadderKnockback().getKnockbackType().equals(KnockbackType.DEFAULT)) {
+            KnockbackUtil.setPlayerKnockback(target, match.getLadder().getLadderKnockback().getKnockbackType());
+        }
+    }
+
+    @EventHandler
+    public void onExpPickup(PlayerPickupExperienceEvent e) {
+        Player player = e.getPlayer();
+
+        if (SpectatorManager.getInstance().getSpectators().containsKey(player)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityTarget(EntityTargetEvent e) {
+        if (!(e.getTarget() instanceof Player player)) {
+            return;
+        }
+
+        if (SpectatorManager.getInstance().getSpectators().containsKey(player)) {
+            e.setCancelled(true);
+        }
+    }
+
+    /**
+     * Prevents players from swapping items in their hands before they have chosen a kit.
+     */
+    @EventHandler
+    public void onPlayerSwapHandItemsEvent(PlayerSwapHandItemsEvent e) {
+        Player player = e.getPlayer();
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        if (profile.getStatus() == ProfileStatus.MATCH) {
+            Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+            if (match != null) {
+                MatchFightPlayer matchFightPlayer = match.getMatchPlayers().get(player);
+                if (!matchFightPlayer.isHasChosenKit()) {
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    /**
+     * Prevents players from swapping items in their hands before they have chosen a kit.
+     * Or when they are in the kit editor.
+     */
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent e) {
+        if (!(e.getWhoClicked() instanceof Player player)) {
+            return;
+        }
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        if (e.getAction().equals(InventoryAction.HOTBAR_SWAP)) {
+            switch (profile.getStatus()) {
+                case MATCH -> {
+                    Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+                    if (match != null) {
+                        MatchFightPlayer matchFightPlayer = match.getMatchPlayers().get(player);
+                        if (!matchFightPlayer.isHasChosenKit()) {
+                            e.setCancelled(true);
+                        }
+                    }
+                }
+                case EDITOR -> e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onWindCharge(ProjectileLaunchEvent e) {
+        if (!(e.getEntity() instanceof WindCharge)) {
+            return;
+        }
+
+        if (!(e.getEntity().getShooter() instanceof Player player)) {
+            return;
+        }
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        switch (profile.getStatus()) {
+            case MATCH -> {
+                Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+                if (match != null && !match.getLadder().isBuild()) {
+                    Common.sendMMMessage(player, LanguageManager.getString("MATCH.ONLY-CHARGE-WIND"));
+                    e.setCancelled(true);
+                }
+            }
+            case EVENT -> {
+                Event event = EventManager.getInstance().getEventByPlayer(player);
+                if (event instanceof Brackets) {
+                    Common.sendMMMessage(player, LanguageManager.getString("MATCH.ONLY-CHARGE-WIND"));
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
 
 }

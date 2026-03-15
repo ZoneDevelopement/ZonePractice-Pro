@@ -2,9 +2,9 @@ package dev.nandi0813.practice.manager.arena.arenas.interfaces;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import lombok.Getter;
@@ -96,7 +96,7 @@ public abstract class BasicArena {
     public void loadChunks() {
         if (this.cuboid != null) {
             Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
-                ClassImport.getClasses().getArenaUtil().loadArenaChunks(this);
+                ArenaUtil.loadArenaChunks(this);
 
                 if (ArenaManager.LOAD_CHUNKS) {
                     // Collect only chunks that are already loaded — this avoids

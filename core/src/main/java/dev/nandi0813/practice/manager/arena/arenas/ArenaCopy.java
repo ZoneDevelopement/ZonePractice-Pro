@@ -1,7 +1,7 @@
 package dev.nandi0813.practice.manager.arena.arenas;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.NormalArena;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 
@@ -18,7 +18,7 @@ public class ArenaCopy extends NormalArena {
     }
 
     public void delete() {
-        ClassImport.getClasses().getArenaCopyUtil().deleteArena(mainArena.getDisplayName(), cuboid);
+        ZonePractice.getArenaCopyUtilListener().deleteArena(mainArena.getDisplayName(), cuboid);
         mainArena.getArenaFile().getConfig().set("copies." + name, null);
     }
 

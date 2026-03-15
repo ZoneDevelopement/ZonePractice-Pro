@@ -1,7 +1,6 @@
 package dev.nandi0813.practice.manager.arena;
 
 import dev.nandi0813.practice.manager.backend.LanguageManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import org.bukkit.Material;
@@ -12,7 +11,7 @@ public enum ArenaType {
 
     BASIC(LanguageManager.getString("ARENA.ARENA-TYPES.BASIC.NAME"), Material.DIAMOND_SWORD, false, LanguageManager.getList("ARENA.ARENA-TYPES.BASIC.DESCRIPTION")),
     BUILD(LanguageManager.getString("ARENA.ARENA-TYPES.BUILD.NAME"), Material.IRON_PICKAXE, true, LanguageManager.getList("ARENA.ARENA-TYPES.BUILD.DESCRIPTION")),
-    FFA(LanguageManager.getString("ARENA.ARENA-TYPES.FFA.NAME"), ClassImport.getClasses().getItemMaterialUtil().getGoldSword(), false, LanguageManager.getList("ARENA.ARENA-TYPES.FFA.DESCRIPTION"));
+    FFA(LanguageManager.getString("ARENA.ARENA-TYPES.FFA.NAME"), Material.GOLDEN_SWORD, false, LanguageManager.getList("ARENA.ARENA-TYPES.FFA.DESCRIPTION"));
 
     private final String name;
     @Getter
