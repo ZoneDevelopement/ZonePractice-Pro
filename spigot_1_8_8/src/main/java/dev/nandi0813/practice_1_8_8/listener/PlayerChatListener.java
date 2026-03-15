@@ -1,5 +1,6 @@
 package dev.nandi0813.practice_1_8_8.listener;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.party.Party;
@@ -23,7 +24,7 @@ public class PlayerChatListener implements Listener {
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
         Party party = PartyManager.getInstance().getParty(player);
-        String message = e.getMessage();
+        String message = ZonePractice.getMiniMessage().escapeTags(e.getMessage());
 
         // --- Party chat ---
         if (ConfigManager.getBoolean("CHAT.PARTY-CHAT-ENABLED") && profile.isParty() && party != null && message.startsWith("@")) {
