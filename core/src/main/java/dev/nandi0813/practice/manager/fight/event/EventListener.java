@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.fight.event.events.ffa.lms.LMS;
 import dev.nandi0813.practice.manager.fight.event.events.onevsall.tnttag.TNTTag;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
 import dev.nandi0813.practice.manager.fight.event.util.EventUtil;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
@@ -144,7 +145,7 @@ public class EventListener implements Listener {
     public void onEntityExplode(EntityExplodeEvent e) {
         Entity entity = e.getEntity();
 
-        if (entity.hasMetadata(TNTTag.TNT_TAG_TNT_METADATA)) {
+        if (BlockUtil.hasMetadata(entity, TNTTag.TNT_TAG_TNT_METADATA)) {
             e.blockList().clear();
         }
     }

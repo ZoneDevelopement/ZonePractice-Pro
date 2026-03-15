@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.playerkit.items;
 
 import dev.nandi0813.practice.moved.LadderUtil;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -88,7 +89,7 @@ public class KitItem {
     // Setters
     public KitItem setName(String name) {
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(StringUtil.CC(name));
+        itemMeta.displayName(Common.legacyToComponent(StringUtil.CC(name)));
         itemStack.setItemMeta(itemMeta);
         return this;
     }

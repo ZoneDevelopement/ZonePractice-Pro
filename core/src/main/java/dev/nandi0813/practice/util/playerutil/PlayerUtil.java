@@ -7,6 +7,8 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
@@ -47,7 +49,14 @@ public enum PlayerUtil {
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setHealth(20), 2L);
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setFireTicks(0), 2L);
             player.setFoodLevel(25);
-            player.resetMaxHealth();
+            AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
+            if (maxHealth != null) {
+                maxHealth.setBaseValue(maxHealth.getDefaultValue());
+
+                if (player.getHealth() > maxHealth.getValue()) {
+                    player.setHealth(maxHealth.getValue());
+                }
+            }
             player.setFallDistance(0);
             player.setWalkSpeed(0.2F);
             for (PotionEffect potionEffect : player.getActivePotionEffects())

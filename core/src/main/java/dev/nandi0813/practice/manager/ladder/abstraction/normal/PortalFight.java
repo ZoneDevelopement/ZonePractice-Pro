@@ -1,6 +1,5 @@
 package dev.nandi0813.practice.manager.ladder.abstraction.normal;
 
-import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.NormalArena;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.arena.util.PortalLocation;
@@ -23,8 +22,6 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
@@ -89,7 +86,7 @@ public abstract class PortalFight extends NormalLadder {
         }
 
         if (!e.isCancelled()) {
-            e.getBlockPlaced().setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), match));
+            BlockUtil.setMetadata(e.getBlockPlaced(), PLACED_IN_FIGHT, match);
             match.addBlockChange(new ChangedBlock(e));
 
             Block underBlock = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
@@ -123,15 +120,10 @@ public abstract class PortalFight extends NormalLadder {
 
     protected static void onLiquidFlow(final @NotNull BlockFromToEvent e) {
         Block block = e.getBlock();
-        if (!block.hasMetadata(PLACED_IN_FIGHT)) return;
+        if (!BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return;
 
-        MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
-        if (mv == null) return;
-        if (mv.value() == null) return;
-
-        // Check for Match specifically (portal fights are only in matches)
-        if (!(mv.value() instanceof Match)) return;
-        Match match = (Match) mv.value();
+        Match match = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Match.class);
+        if (match == null) return;
 
         NormalArena arena = match.getArena();
 

@@ -132,11 +132,10 @@ public class OtherPartiesGui extends GUI {
                 lore.add(line);
         }
 
-        itemMeta.setDisplayName(GUIFile.getString("GUIS.PARTY.OTHER-PARTIES.ICONS.PARTY-ITEM.NAME")
+        itemMeta.displayName(Common.legacyToComponent(GUIFile.getString("GUIS.PARTY.OTHER-PARTIES.ICONS.PARTY-ITEM.NAME")
                 .replace("%leader%", party.getLeader().getName())
-                .replace("%partySize%", String.valueOf(party.getMembers().size()))
-        );
-        itemMeta.setLore(lore);
+                .replace("%partySize%", String.valueOf(party.getMembers().size()))));
+        itemMeta.lore(lore.stream().map(Common::legacyToComponent).toList());
 
         ItemCreateUtil.hideItemFlags(itemMeta);
         itemStack.setItemMeta(itemMeta);

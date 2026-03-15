@@ -10,12 +10,11 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GUIItem {
 
@@ -91,12 +90,20 @@ public class GUIItem {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            this.name = itemMeta.getDisplayName();
-            this.lore = itemMeta.getLore();
+            if (itemMeta.hasDisplayName() && itemMeta.displayName() != null) {
+                this.name = Common.serializeComponentToLegacyString(itemMeta.displayName());
+            }
+            if (itemMeta.lore() != null) {
+                this.lore = Objects.requireNonNull(itemMeta.lore()).stream()
+                        .map(Common::serializeComponentToLegacyString)
+                        .collect(Collectors.toList());
+            }
             this.glowing = itemMeta.hasEnchants();
+            if (itemMeta instanceof Damageable damageable) {
+                this.damage = (short) damageable.getDamage();
+            }
         }
         this.amount = itemStack.getAmount();
-        this.damage = itemStack.getDurability();
         this.material = itemStack.getType();
         // Preserve the full ItemStack so special meta (e.g. PotionMeta) is not lost
         this.baseItemStack = itemStack.clone();
@@ -130,7 +137,7 @@ public class GUIItem {
             } else if (damage == -1) {
                 itemStack = new ItemStack(material, amount);
             } else {
-                itemStack = new ItemStack(material, amount, damage);
+                itemStack = new ItemStack(material, amount);
             }
 
             if (durability > 0) {
@@ -140,12 +147,19 @@ public class GUIItem {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
+            if (damage != -1 && itemMeta instanceof Damageable damageable) {
+                damageable.setDamage(damage);
+                itemMeta = damageable;
+            }
+
             if (name != null) {
-                itemMeta.setDisplayName(StringUtil.CC(name));
+                itemMeta.displayName(Common.legacyToComponent(StringUtil.CC(name)));
             }
 
             if (lore != null) {
-                itemMeta.setLore(StringUtil.CC(lore));
+                itemMeta.lore(StringUtil.CC(lore).stream()
+                        .map(Common::legacyToComponent)
+                        .collect(Collectors.toList()));
             }
 
             if (glowing && enchantments.isEmpty()) {
@@ -182,17 +196,24 @@ public class GUIItem {
         } else if (damage == -1) {
             itemStack = new ItemStack(material, amount);
         } else {
-            itemStack = new ItemStack(material, amount, damage);
+            itemStack = new ItemStack(material, amount);
         }
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
+            if (damage != -1 && itemMeta instanceof Damageable damageable) {
+                damageable.setDamage(damage);
+                itemMeta = damageable;
+            }
+
             if (name != null) {
-                itemMeta.setDisplayName(StringUtil.CC(name));
+                itemMeta.displayName(Common.legacyToComponent(StringUtil.CC(name)));
             }
 
             if (lore != null) {
-                itemMeta.setLore(StringUtil.CC(lore));
+                itemMeta.lore(StringUtil.CC(lore).stream()
+                        .map(Common::legacyToComponent)
+                        .collect(Collectors.toList()));
             }
             
             itemStack.setItemMeta(itemMeta);

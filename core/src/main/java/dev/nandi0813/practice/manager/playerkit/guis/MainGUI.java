@@ -230,7 +230,7 @@ public class MainGUI extends GUI {
             return false;
         }
 
-        for (Enchantment enchantment : Enchantment.values()) {
+        for (Enchantment enchantment : Common.getAllEnchantments()) {
             if (enchantment.canEnchantItem(itemStack)) {
                 return true;
             }

@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
 import dev.nandi0813.practice.manager.inventory.Inventory;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvItem;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.queueitems.EventQueueLeaveInvItem;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -35,7 +36,8 @@ public class EventQueueInventory extends Inventory {
 
                 ItemStack item = invItem.getItem().clone();
                 ItemMeta itemMeta = item.getItemMeta();
-                itemMeta.setDisplayName(StringUtil.CC(itemMeta.getDisplayName().replace("%event%", event.getType().getName())));
+                String displayName = Common.serializeComponentToLegacyString(itemMeta.displayName());
+                itemMeta.displayName(Common.legacyToComponent(StringUtil.CC(displayName.replace("%event%", event.getType().getName()))));
                 item.setItemMeta(itemMeta);
 
                 playerInventory.setItem(slot, item);

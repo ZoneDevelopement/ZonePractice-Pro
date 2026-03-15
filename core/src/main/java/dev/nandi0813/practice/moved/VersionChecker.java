@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.moved;
 
+import dev.nandi0813.practice.ZonePractice;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 
@@ -30,7 +31,7 @@ public enum VersionChecker {
                     final String mcVersion = extractMcVersion(versionString);
 
                     if (mcVersion == null) {
-                        Bukkit.getLogger().warning("Could not extract MC version from: " + versionString);
+                        ZonePractice.getInstance().getLogger().warning("Could not extract MC version from: " + versionString);
                         bukkitVersion = null;
                         return null;
                     }
@@ -41,7 +42,7 @@ public enum VersionChecker {
                         bukkitVersion = BukkitVersion.v1_21_R3;
                     else {
                         // Unknown version - keep null but log for visibility
-                        Bukkit.getLogger().warning("Unsupported MC version: " + mcVersion);
+                        ZonePractice.getInstance().getLogger().warning("Unsupported MC version: " + mcVersion);
                         bukkitVersion = null;
                     }
                 }

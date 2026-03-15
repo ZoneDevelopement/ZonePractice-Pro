@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.fight.event.events.ffa.lms;
 import dev.nandi0813.practice.manager.fight.event.enums.EventStatus;
 import dev.nandi0813.practice.manager.fight.event.events.ffa.interfaces.FFAListener;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -11,6 +12,8 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+
+import java.util.Objects;
 
 public class LMSListener extends FFAListener {
 
@@ -31,7 +34,7 @@ public class LMSListener extends FFAListener {
 
             if (player.getHealth() - e.getFinalDamage() <= 0) {
                 e.setDamage(0);
-                player.setHealth(player.getMaxHealth());
+                player.setHealth(Objects.requireNonNull(player.getAttribute(Attribute.MAX_HEALTH)).getValue());
                 event.killPlayer(player, false);
             }
         }
@@ -47,10 +50,9 @@ public class LMSListener extends FFAListener {
 
     @Override
     public void onPlayerMove(Event event, PlayerMoveEvent e) {
-        if (event instanceof LMS) {
+        if (event instanceof LMS lms) {
             if (event.getStatus().equals(EventStatus.LIVE)) {
                 Player player = e.getPlayer();
-                LMS lms = (LMS) event;
 
                 if (!lms.getEventData().getCuboid().contains(player.getLocation())) {
                     lms.killPlayer(player, true);

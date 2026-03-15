@@ -6,6 +6,7 @@ import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.playerkit.StaticItems;
 import dev.nandi0813.practice.manager.playerkit.items.KitItem;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import net.wesjd.anvilgui.AnvilGUI;
@@ -46,7 +47,7 @@ public class EnchantGUI extends GUI {
         inventory.setItem(44, StaticItems.ENCHANT_GUI_CHANGE_DURABILITY_ICON);
         inventory.setItem(53, StaticItems.ENCHANT_GUI_CLEAR_ENCHANTS_ICON);
 
-        for (Enchantment enchantment : Enchantment.values()) {
+        for (Enchantment enchantment : Common.getAllEnchantments()) {
             String name = kitItem.getMaterial().name().toLowerCase();
 
             if (!enchantment.canEnchantItem(kitItem.get()))
@@ -63,7 +64,7 @@ public class EnchantGUI extends GUI {
 
             if (!disabled) {
                 icons.put(
-                        StaticItems.ENCHANT_GUI_ENCHANT_ICON.cloneItem().replace("%enchantment%", StringUtil.getNormalizedName(enchantment.getName())).get(),
+                        StaticItems.ENCHANT_GUI_ENCHANT_ICON.cloneItem().replace("%enchantment%", StringUtil.getNormalizedName(enchantment.getKey().getKey())).get(),
                         enchantment
                 );
             }

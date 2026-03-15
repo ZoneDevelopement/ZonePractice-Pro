@@ -563,7 +563,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     public GUIItem getSpectatorMenuItem() {
         return GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.MATCH-ICON")
                 .setMaterial(ladder.getIcon().getType())
-                .setDamage(ladder.getIcon().getDurability())
+                .setDamage(Common.getItemDamage(ladder.getIcon()))
                 .replace("%match_id%", id)
                 .replace("%weight_class%", ((this instanceof Duel && ((Duel) this).isRanked()) ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName()))
                 .replace("%match_type%", type.getName(false))

@@ -52,7 +52,7 @@ public class Duel extends Match implements Team {
         this.type = MatchType.DUEL;
         this.ranked = ranked;
 
-        this.player1 = players.get(0);
+        this.player1 = players.getFirst();
         this.playerProfiles.put(player1, ProfileManager.getInstance().getProfile(player1));
         NametagManager.getInstance().setNametag(player1, TeamEnum.TEAM1.getPrefix(), TeamEnum.TEAM1.getNameColor(), TeamEnum.TEAM1.getSuffix(), 20);
 

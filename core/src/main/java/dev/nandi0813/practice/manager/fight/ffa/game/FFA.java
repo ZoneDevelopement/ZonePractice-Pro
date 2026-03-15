@@ -343,7 +343,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     public GUIItem getSpectatorMenuItem() {
         return GUIFile.getGuiItem("GUIS.SPECTATOR-MENU.ICONS.FFA-ICON")
                 .setMaterial(arena.getIcon().getType())
-                .setDamage(arena.getIcon().getDurability())
+                .setDamage(Common.getItemDamage(arena.getIcon()))
                 .replace("%players%", String.valueOf(players.size()))
                 .replace("%spectators%", String.valueOf(spectators.size()))
                 .replace("%arena%", arena.getDisplayName())

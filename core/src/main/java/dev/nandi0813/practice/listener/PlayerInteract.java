@@ -4,6 +4,7 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,6 +14,8 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Objects;
 
 public class PlayerInteract implements Listener {
 
@@ -34,7 +37,7 @@ public class PlayerInteract implements Listener {
                         if (item != null && item.getType().equals(Material.MUSHROOM_STEW)) {
                             int food = player.getFoodLevel();
                             double health = player.getHealth();
-                            double maxHealth = player.getMaxHealth();
+                            double maxHealth = Objects.requireNonNull(player.getAttribute(Attribute.MAX_HEALTH)).getValue();
                             double regen = 6.5;
 
                             if (food < 20) e.setCancelled(true);
@@ -42,10 +45,10 @@ public class PlayerInteract implements Listener {
                             if (health == maxHealth) return;
 
                             if ((health + regen) < maxHealth) {
-                                player.getInventory().getItemInHand().setType(Material.BOWL);
+                                player.getInventory().setItemInMainHand(new ItemStack(Material.BOWL));
                                 player.setHealth(health + regen);
                             } else if ((health + regen) >= maxHealth) {
-                                player.getInventory().getItemInHand().setType(Material.BOWL);
+                                player.getInventory().setItemInMainHand(new ItemStack(Material.BOWL));
                                 player.setHealth(maxHealth);
                             }
                             player.updateInventory();

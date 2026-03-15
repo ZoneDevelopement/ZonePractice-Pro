@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.util.fightmapchange;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
@@ -112,7 +113,7 @@ public class FightChangeOptimized {
         // Store Spectatable (Match/Event/FFA) for efficient metadata caching in BlockFromToEvent
         if (existing == null && spectatable != null) {
             Block block = change.getLocation().getBlock();
-            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+            BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
         }
     }
 
@@ -354,8 +355,8 @@ public class FightChangeOptimized {
         for (Block block : cuboid) {
             String typeName = block.getType().name();
             if (typeName.equals("FIRE") || typeName.equals("SOUL_FIRE")) {
-                block.setType(org.bukkit.Material.AIR, false);
-                block.removeMetadata(PLACED_IN_FIGHT, ZonePractice.getInstance());
+                block.setBlockData(org.bukkit.Material.AIR.createBlockData(), false);
+                BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
             }
         }
     }

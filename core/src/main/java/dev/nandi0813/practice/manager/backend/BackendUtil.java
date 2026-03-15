@@ -70,9 +70,12 @@ public enum BackendUtil {
                 }
 
                 try {
-                    Enchantment enchantment = Enchantment.getByName(enchantmentSplit[0]);
+                    Enchantment enchantment = Common.resolveEnchantment(enchantmentSplit[0]);
                     int level = Integer.parseInt(enchantmentSplit[1]);
 
+                    if (enchantment == null) {
+                        throw new IllegalArgumentException("Enchantment not found: " + enchantmentSplit[0]);
+                    }
                     if (enchantment.getStartLevel() > level) {
                         level = enchantment.getStartLevel();
                     }

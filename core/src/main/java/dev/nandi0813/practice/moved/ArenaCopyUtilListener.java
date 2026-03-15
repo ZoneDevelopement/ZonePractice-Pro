@@ -298,7 +298,7 @@ public class ArenaCopyUtilListener implements Listener {
                             continue;
                         }
 
-                        block.setType(Material.AIR);
+                        block.setBlockData(Material.AIR.createBlockData());
                         changeCounter++;
                     }
                 } catch (Exception e) {

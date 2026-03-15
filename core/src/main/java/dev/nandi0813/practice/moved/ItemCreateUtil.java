@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.moved;
 
 import dev.nandi0813.practice.util.StringUtil;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -12,6 +13,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemCreateUtil {
 
@@ -20,8 +22,8 @@ public class ItemCreateUtil {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.setDisplayName(StringUtil.CC(displayname));
-            itemMeta.setLore(StringUtil.CC(lore));
+            itemMeta.displayName(Component.text(StringUtil.CC(displayname)));
+            itemMeta.lore(StringUtil.CC(lore).stream().map(Component::text).collect(Collectors.toList()));
 
             if (itemMeta instanceof Damageable)
                 ((Damageable) itemMeta).setDamage(damage);
@@ -37,7 +39,7 @@ public class ItemCreateUtil {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.setDisplayName(StringUtil.CC(displayname));
+            itemMeta.displayName(Component.text(StringUtil.CC(displayname)));
 
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
@@ -64,7 +66,7 @@ public class ItemCreateUtil {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.setDisplayName(StringUtil.CC(displayname));
+            itemMeta.displayName(Component.text(StringUtil.CC(displayname)));
 
             if (itemMeta instanceof Damageable)
                 ((Damageable) itemMeta).setDamage(damage);
@@ -80,8 +82,8 @@ public class ItemCreateUtil {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.setDisplayName(StringUtil.CC(displayname));
-            itemMeta.setLore(StringUtil.CC(lore));
+            itemMeta.displayName(Component.text(StringUtil.CC(displayname)));
+            itemMeta.lore(StringUtil.CC(lore).stream().map(Component::text).collect(Collectors.toList()));
 
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
@@ -94,8 +96,8 @@ public class ItemCreateUtil {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.setDisplayName(StringUtil.CC(displayname));
-            itemMeta.setLore(StringUtil.CC(lore));
+            itemMeta.displayName(Component.text(StringUtil.CC(displayname)));
+            itemMeta.lore(StringUtil.CC(lore).stream().map(Component::text).collect(Collectors.toList()));
 
             if (itemMeta instanceof Damageable)
                 ((Damageable) itemMeta).setDamage(damage);
@@ -111,7 +113,7 @@ public class ItemCreateUtil {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.setLore(StringUtil.CC(lore));
+            itemMeta.lore(StringUtil.CC(lore).stream().map(Component::text).collect(Collectors.toList()));
 
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
@@ -124,8 +126,8 @@ public class ItemCreateUtil {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.setDisplayName(StringUtil.CC(name));
-            itemMeta.setLore(StringUtil.CC(lore));
+            itemMeta.displayName(Component.text(StringUtil.CC(name)));
+            itemMeta.lore(StringUtil.CC(lore).stream().map(Component::text).collect(Collectors.toList()));
 
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
@@ -146,25 +148,6 @@ public class ItemCreateUtil {
         hideItemFlags(itemMeta);
         item.setItemMeta(itemMeta);
         return item;
-    }
-
-    public static short getDurabilityByColor(char c) {
-        return switch (c) {
-            case '0' -> Short.parseShort("15");
-            case '1', '9' -> Short.parseShort("11");
-            case '2' -> Short.parseShort("13");
-            case '3' -> Short.parseShort("9");
-            case '4', 'c' -> Short.parseShort("14");
-            case '5' -> Short.parseShort("10");
-            case '6' -> Short.parseShort("35");
-            case '7' -> Short.parseShort("8");
-            case '8' -> Short.parseShort("7");
-            case 'a' -> Short.parseShort("5");
-            case 'b' -> Short.parseShort("3");
-            case 'd' -> Short.parseShort("6");
-            case 'e' -> Short.parseShort("4");
-            default -> 0;
-        };
     }
 
     public static ItemStack getPlayerHead(OfflinePlayer player) {

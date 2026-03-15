@@ -95,7 +95,7 @@ public class ChangedBlock {
         Block currentBlock = location.getBlock();
 
         try {
-            currentBlock.setType(material);
+            currentBlock.setBlockData(material.createBlockData());
             currentBlock.setBlockData(blockData);
             currentBlock.getState().setType(material);
             currentBlock.getState().setBlockData(blockData);
@@ -110,7 +110,7 @@ public class ChangedBlock {
         } catch (Exception e) {
             // Handle BlockData compatibility issues
             // Just set the block type without the problematic block data
-            currentBlock.setType(material);
+            currentBlock.setBlockData(material.createBlockData());
             currentBlock.getState().setType(material);
             currentBlock.getState().update();
         }

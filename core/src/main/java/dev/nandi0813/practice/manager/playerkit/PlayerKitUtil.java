@@ -4,6 +4,8 @@ import dev.nandi0813.practice.moved.LadderUtil;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public enum PlayerKitUtil {
     ;
@@ -30,7 +32,13 @@ public enum PlayerKitUtil {
                 // If the part after :: is numeric it's a legacy damage/data value (1.8 only)
                 boolean isNumeric = suffix.chars().allMatch(Character::isDigit);
                 if (isNumeric) {
-                    return new ItemStack(Material.valueOf(split[0]), 1, Short.parseShort(suffix));
+                    ItemStack itemStack = new ItemStack(Material.valueOf(split[0]), 1);
+                    ItemMeta itemMeta = itemStack.getItemMeta();
+                    if (itemMeta instanceof Damageable damageable) {
+                        damageable.setDamage(Short.parseShort(suffix));
+                        itemStack.setItemMeta(damageable);
+                    }
+                    return itemStack;
                 } else {
                     // Named sub-type (PotionType, etc.) – delegate to the version-specific impl
                     return LadderUtil.getPotionItem(string);

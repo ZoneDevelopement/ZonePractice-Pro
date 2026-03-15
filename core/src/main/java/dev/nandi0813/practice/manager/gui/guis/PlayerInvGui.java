@@ -90,7 +90,7 @@ public class PlayerInvGui extends GUI {
             List<String> effects = new ArrayList<>();
             for (PotionEffect potionEffect : target.getActivePotionEffects()) {
                 effects.add(GUIFile.getString("GUIS.PLAYER-INVENTORY.ICONS.EFFECT.FORMAT")
-                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getName().replace("_", " ").toLowerCase()))
+                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getKey().getKey().replace("_", " ").toLowerCase()))
                         .replace("%amplifier%", String.valueOf(potionEffect.getAmplifier() + 1))
                         .replace("%time%", StringUtil.formatMillisecondsToMinutes((potionEffect.getDuration() / 20) * 1000L))
                 );

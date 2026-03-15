@@ -140,7 +140,10 @@ public enum StaticItems {
             List<Enchantment> enchantments = new ArrayList<>();
             for (String enchantment : PlayerKitManager.getInstance().getList("DISABLED-ENCHANTS." + path)) {
                 try {
-                    enchantments.add(Enchantment.getByName(enchantment));
+                    Enchantment parsed = Common.resolveEnchantment(enchantment);
+                    if (parsed != null) {
+                        enchantments.add(parsed);
+                    }
                 } catch (Exception e) {
                     Common.sendConsoleMMMessage("<red>Invalid enchantment name: " + enchantment);
                 }

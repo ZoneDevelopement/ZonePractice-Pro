@@ -6,6 +6,7 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
+import dev.nandi0813.practice.moved.PlayerUtil;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -40,8 +41,8 @@ public enum IconArg {
             return;
         }
 
-        ItemStack icon = dev.nandi0813.practice.moved.PlayerUtil.getPlayerMainHand(player);
-        if (icon == null || icon.getType().equals(Material.AIR)) {
+        ItemStack icon = PlayerUtil.getPlayerMainHand(player);
+        if (icon.getType().equals(Material.AIR)) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.ICON.ICON-IN-HAND"));
             return;
         }

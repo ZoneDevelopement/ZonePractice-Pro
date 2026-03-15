@@ -2,6 +2,7 @@ package dev.nandi0813.practice.moved;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.ladder.type.FireballFight;
 import dev.nandi0813.practice.util.Common;
 import net.kyori.adventure.text.Component;
@@ -19,7 +20,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 
@@ -135,16 +135,16 @@ public class LadderUtil {
             }
 
             Block block = e.getBlock();
-            block.setType(Material.AIR);
+            block.setBlockData(Material.AIR.createBlockData());
             block.getState().update();
 
             TNTPrimed tnt = (TNTPrimed) block.getWorld().spawnEntity(block.getLocation().subtract(-0.5, 0, -0.5), EntityType.TNT);
-            tnt.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), match));
+            BlockUtil.setMetadata(tnt, FIGHT_ENTITY, match);
             tnt.setIsIncendiary(false);
 
             if (match.getLadder() instanceof FireballFight) {
-                tnt.setMetadata(FireballFight.FIREBALL_FIGHT_TNT, new FixedMetadataValue(ZonePractice.getInstance(), match));
-                tnt.setMetadata(FireballFight.FIREBALL_FIGHT_TNT_SHOOTER, new FixedMetadataValue(ZonePractice.getInstance(), e.getPlayer()));
+                BlockUtil.setMetadata(tnt, FireballFight.FIREBALL_FIGHT_TNT, match);
+                BlockUtil.setMetadata(tnt, FireballFight.FIREBALL_FIGHT_TNT_SHOOTER, e.getPlayer());
             }
         }, 2L);
     }

@@ -1,12 +1,12 @@
 package dev.nandi0813.practice.manager.nametag;
 
 import dev.nandi0813.practice.moved.PlayerUtil;
+import dev.nandi0813.practice.util.PermanentConfig;
 import lombok.Getter;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
 import me.neznamy.tab.api.nametag.NameTagManager;
 import me.neznamy.tab.api.tablist.TabListFormatManager;
-import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -121,12 +121,9 @@ public class TabIntegration {
                     prefixStr = prefixStr + colorCode;
                 }
                 nameTagManager.setPrefix(tabPlayer, prefixStr);
-            } else if (colorCode != null) {
+            } else {
                 // No prefix text, but we have a color - set color as prefix
                 nameTagManager.setPrefix(tabPlayer, colorCode);
-            } else {
-                // No prefix and no color
-                nameTagManager.setPrefix(tabPlayer, "");
             }
 
             // Set the suffix

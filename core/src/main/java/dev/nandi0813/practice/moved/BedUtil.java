@@ -34,13 +34,13 @@ public class BedUtil {
 
     public static void placeBed(Location loc, BlockFace face) {
         Block bedFoot = loc.getBlock();
-        bedFoot.setType(Material.RED_BED);
+        bedFoot.setBlockData(Material.RED_BED.createBlockData());
         Bed bedFootData = (Bed) Bukkit.createBlockData(Material.RED_BED);
         bedFootData.setPart(Bed.Part.FOOT);
         bedFootData.setFacing(face);
 
         Block bedHead = bedFoot.getRelative(face);
-        bedHead.setType(Material.RED_BED);
+        bedHead.setBlockData(Material.RED_BED.createBlockData());
         Bed bedHeadData = (Bed) Bukkit.createBlockData(Material.RED_BED);
         bedHeadData.setPart(Bed.Part.HEAD);
         bedHeadData.setFacing(face);
@@ -98,8 +98,8 @@ public class BedUtil {
 
             match.addBlockChange(new ChangedBlock(bedLocation.getBlock()));
 
-            head.setType(Material.AIR);
-            bedLocation.getBlock().setType(Material.AIR);
+            head.setBlockData(Material.AIR.createBlockData());
+            bedLocation.getBlock().setBlockData(Material.AIR.createBlockData());
         }
 
         return destroy;

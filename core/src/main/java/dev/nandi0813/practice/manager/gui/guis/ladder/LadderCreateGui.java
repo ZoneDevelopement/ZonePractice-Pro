@@ -56,7 +56,7 @@ public class LadderCreateGui extends GUI {
         for (LadderType type : LadderType.values()) {
             ItemStack item = ItemCreateUtil.createItem("&e" + type.getName(), type.getIcon());
             ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setLore(StringUtil.CC(type.getDescription()));
+            itemMeta.lore(StringUtil.CC(type.getDescription()).stream().map(Common::legacyToComponent).toList());
             item.setItemMeta(itemMeta);
 
             int slot = inventory.firstEmpty();

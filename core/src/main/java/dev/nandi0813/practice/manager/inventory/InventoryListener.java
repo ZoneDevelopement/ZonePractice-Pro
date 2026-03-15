@@ -19,12 +19,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class InventoryListener implements Listener {
@@ -58,15 +58,16 @@ public class InventoryListener implements Listener {
         }
 
         InvItem invItem;
+        String itemDisplayName = Common.getItemDisplayName(item);
         if (ServerManager.getInstance().getInWorld().get(player).equals(WorldEnum.LOBBY) && !player.hasPermission("zpp.admin")) {
-            invItem = inventory.getHoldItem(item.getItemMeta().getDisplayName(), item.getType(), e.getPlayer().getInventory().getHeldItemSlot());
+            invItem = inventory.getHoldItem(itemDisplayName, item.getType(), e.getPlayer().getInventory().getHeldItemSlot());
         } else {
             int slot = -1;
             if (profile.getStatus().equals(ProfileStatus.QUEUE)) {
                 slot = e.getPlayer().getInventory().getHeldItemSlot();
             }
 
-            invItem = inventory.getHoldItem(item.getItemMeta().getDisplayName(), item.getType(), slot);
+            invItem = inventory.getHoldItem(itemDisplayName, item.getType(), slot);
         }
 
         if (invItem != null) {
@@ -98,7 +99,7 @@ public class InventoryListener implements Listener {
 
             if (inventory instanceof StaffInventory) {
                 ItemStack itemInHand = dev.nandi0813.practice.moved.PlayerUtil.getPlayerMainHand(player);
-                InvItem invItem = inventory.getInvItem(itemInHand.getItemMeta().getDisplayName(), itemInHand.getType());
+                InvItem invItem = inventory.getInvItem(Common.getItemDisplayName(itemInHand), itemInHand.getType());
 
                 if (invItem instanceof CheckInventoryInvItem checkInventoryInvItem) {
                     checkInventoryInvItem.handleClickEvent(player, target);
@@ -124,9 +125,9 @@ public class InventoryListener implements Listener {
             Inventory inventory = InventoryManager.getInstance().getPlayerInventory(player);
             if (inventory == null) return;
             ItemStack itemInHand = dev.nandi0813.practice.moved.PlayerUtil.getPlayerMainHand(player);
-            if (itemInHand == null || itemInHand.getType() == Material.AIR || !itemInHand.hasItemMeta()) return;
+            if (itemInHand.getType() == Material.AIR || !itemInHand.hasItemMeta()) return;
 
-            InvItem heldInvItem = inventory.getInvItem(itemInHand.getItemMeta().getDisplayName(), itemInHand.getType());
+            InvItem heldInvItem = inventory.getInvItem(Common.getItemDisplayName(itemInHand), itemInHand.getType());
             if (!(heldInvItem instanceof dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.UnrankedInvItem))
                 return;
 
@@ -194,8 +195,9 @@ public class InventoryListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerPickupItem(PlayerPickupItemEvent e) {
-        Player player = e.getPlayer();
+    public void onPlayerPickupItem(EntityPickupItemEvent e) {
+        if (!(e.getEntity() instanceof Player player)) return;
+
         Profile profile = ProfileManager.getInstance().getProfile(player);
         ProfileStatus profileStatus = profile.getStatus();
 

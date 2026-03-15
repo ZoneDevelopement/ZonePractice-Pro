@@ -5,10 +5,13 @@ import dev.nandi0813.practice.manager.fight.event.enums.EventStatus;
 import dev.nandi0813.practice.manager.fight.event.events.duel.interfaces.DuelFight;
 import dev.nandi0813.practice.manager.fight.event.events.duel.interfaces.DuelListener;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
+
+import java.util.Objects;
 
 public class BracketsListener extends DuelListener {
 
@@ -34,7 +37,7 @@ public class BracketsListener extends DuelListener {
 
             if (player.getHealth() - e.getFinalDamage() <= 0) {
                 e.setDamage(0);
-                player.setHealth(player.getMaxHealth());
+                player.setHealth(Objects.requireNonNull(player.getAttribute(Attribute.MAX_HEALTH)).getValue());
 
                 brackets.killPlayer(player, true);
             }

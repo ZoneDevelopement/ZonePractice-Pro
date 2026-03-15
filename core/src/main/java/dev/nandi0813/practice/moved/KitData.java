@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -66,8 +67,19 @@ public class KitData {
             this.armor = ItemSerializationUtil.itemStackArrayFromBase64(config.getString(armorPath));
         if (config.isString(extraPath))
             this.extra = ItemSerializationUtil.itemStackArrayFromBase64(config.getString(extraPath));
-        if (config.isSet(effectsPath))
-            this.effects = (List<PotionEffect>) config.get(effectsPath);
+        if (config.isSet(effectsPath)) {
+            this.effects = new ArrayList<>();
+            Object rawEffects = config.get(effectsPath);
+            if (rawEffects instanceof List<?> list) {
+                for (Object entry : list) {
+                    if (entry instanceof PotionEffect potionEffect) {
+                        this.effects.add(potionEffect);
+                    }
+                }
+            } else if (rawEffects instanceof PotionEffect[] array) {
+                this.effects.addAll(Arrays.asList(array));
+            }
+        }
     }
 
     public void setKitData(final Player player, final boolean setEffect) {

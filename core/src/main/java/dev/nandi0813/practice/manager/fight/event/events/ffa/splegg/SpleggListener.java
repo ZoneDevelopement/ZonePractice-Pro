@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.fight.event.events.ffa.interfaces.FFAListe
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
 import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.Cuboid;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Egg;
@@ -75,7 +76,7 @@ public class SpleggListener extends FFAListener {
             ItemStack item = dev.nandi0813.practice.moved.PlayerUtil.getItemInUse(player, splegg.getEventData().getEggLauncher().getType());
             if (item != null) {
                 Egg egg = player.launchProjectile(Egg.class);
-                egg.setCustomName("SPLEGG");
+                egg.customName(Component.text("SPLEGG"));
                 splegg.getShotEggs().replace(player, splegg.getShotEggs().get(player) + 1);
             }
         }
@@ -87,8 +88,7 @@ public class SpleggListener extends FFAListener {
             Player player = e.getPlayer();
 
             Egg egg = e.getEgg();
-            if (egg.getCustomName() == null) return;
-            if (!egg.getCustomName().equals("SPLEGG")) return;
+            if (!Component.text("SPLEGG").equals(egg.customName())) return;
 
             e.setHatching(false);
             e.setNumHatches((byte) 0);
@@ -111,7 +111,7 @@ public class SpleggListener extends FFAListener {
             if (materialName.equals("WOOL") || materialName.endsWith("_WOOL")) {
                 splegg.getFightChange().addBlockChange(new ChangedBlock(hitBlock));
 
-                hitBlock.setType(Material.AIR);
+                hitBlock.setBlockData(Material.AIR.createBlockData());
                 splegg.getShotBlocks().replace(player, splegg.getShotBlocks().get(player) + 1);
             }
         }

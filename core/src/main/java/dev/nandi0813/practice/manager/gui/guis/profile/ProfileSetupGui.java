@@ -29,6 +29,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
+
 public class ProfileSetupGui extends GUI {
 
     private final Profile profile;
@@ -39,7 +41,7 @@ public class ProfileSetupGui extends GUI {
         this.profile = profile;
         this.profileLadderStats = new ProfileLadderStats(profile, this);
 
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.PLAYER-INFORMATION.MAIN-PAGE.TITLE").replace("%player%", profile.getPlayer().getName()), 4));
+        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.PLAYER-INFORMATION.MAIN-PAGE.TITLE").replace("%player%", Objects.requireNonNull(profile.getPlayer().getName())), 4));
 
         build();
     }
@@ -219,17 +221,19 @@ public class ProfileSetupGui extends GUI {
 
         if (profile.getStatus().equals(ProfileStatus.OFFLINE) || player == null)
             return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.PLAYER-OFFLINE").get();
-        else
+        else {
+            player.playerListName();
             return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.ONLINE-INFO.PLAYER-ONLINE")
                     .replace("%world%", player.getWorld().getName())
                     .replace("%gamemode%", player.getGameMode().name())
                     .replace("%flying%", String.valueOf(player.isFlying()))
-                    .replace("%tablist_name%", player.getPlayerListName())
+                    .replace("%tablist_name%", Common.serializeComponentToLegacyString(player.playerListName()))
                     .replace("%health%", String.valueOf(player.getHealth()))
                     .replace("%food%", String.valueOf(player.getFoodLevel()))
                     .replace("%hit_delay%", String.valueOf(player.getMaximumNoDamageTicks()))
                     .replace("%ping%", String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(player)))
                     .get();
+        }
     }
 
     private static ItemStack getGameItem(Profile profile) {

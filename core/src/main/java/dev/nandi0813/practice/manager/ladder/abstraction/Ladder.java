@@ -6,6 +6,7 @@ import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.manager.ladder.util.LadderKnockback;
 import dev.nandi0813.practice.moved.KitData;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -125,8 +126,9 @@ public abstract class Ladder {
 
         this.icon = icon.clone();
 
-        if (icon.hasItemMeta() && icon.getItemMeta().getDisplayName() != null && !icon.getItemMeta().getDisplayName().equalsIgnoreCase(" "))
-            this.displayName = StringUtil.CC(icon.getItemMeta().getDisplayName());
+        String iconDisplayName = Common.getItemDisplayName(icon);
+        if (!iconDisplayName.isBlank())
+            this.displayName = StringUtil.CC(iconDisplayName);
         else
             this.displayName = name;
     }

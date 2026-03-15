@@ -86,7 +86,7 @@ public class SkyWars extends NormalLadder implements CustomConfig, LadderHandle 
         match.addBlockChange(new ChangedBlock(chest));
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                chest.setType(Material.AIR), 2L);
+                chest.setBlockData(Material.AIR.createBlockData()), 2L);
     }
 
 }

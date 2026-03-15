@@ -11,6 +11,7 @@ import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
 import dev.nandi0813.practice.manager.fight.event.runnables.DurationRunnable;
 import dev.nandi0813.practice.manager.fight.event.runnables.StartRunnable;
 import dev.nandi0813.practice.manager.fight.event.util.EventUtil;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
@@ -24,7 +25,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -319,7 +319,7 @@ public class TNTTag extends Event {
 
     private void sendExplosion(Location location) {
         TNTPrimed tnt = (TNTPrimed) location.getWorld().spawnEntity(location.subtract(-0.5, 0, -0.5), EntityType.TNT);
-        tnt.setMetadata(TNT_TAG_TNT_METADATA, new FixedMetadataValue(ZonePractice.getInstance(), this));
+        BlockUtil.setMetadata(tnt, TNT_TAG_TNT_METADATA, this);
         tnt.setFuseTicks(1);
     }
 

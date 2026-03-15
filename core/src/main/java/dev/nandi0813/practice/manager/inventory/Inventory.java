@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.inventory;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.ExtraInvItem;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvArmor;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvItem;
+import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public abstract class Inventory {
@@ -84,7 +86,7 @@ public abstract class Inventory {
         YamlConfiguration config = InventoryManager.getInstance().getConfig();
 
         if (config.isConfigurationSection(type.getPath() + ".EXTRA")) {
-            for (String itemPath : config.getConfigurationSection(type.getPath() + ".EXTRA").getKeys(false)) {
+            for (String itemPath : Objects.requireNonNull(config.getConfigurationSection(type.getPath() + ".EXTRA")).getKeys(false)) {
                 ExtraInvItem extraInvItem = new ExtraInvItem(type.getPath() + ".EXTRA." + itemPath);
 
                 invItems.add(extraInvItem);
@@ -102,15 +104,15 @@ public abstract class Inventory {
 
     protected InvItem getInvItem(final String name, final Material material) {
         return invItems.stream().filter(invItem ->
-                invItem.getItem().getItemMeta().getDisplayName().equalsIgnoreCase(name) &&
+                Common.getItemDisplayName(invItem.getItem()).equalsIgnoreCase(name) &&
                         invItem.getItem().getType().equals(material) &&
                         invItem.getSlot() != -1
         ).findFirst().orElse(null);
     }
 
-    protected InvItem getInvItem(Class<?> c) {
+    protected InvItem getInvItem() {
         return invItems.stream().filter(invItem ->
-                invItem.getClass().equals(c) &&
+                invItem.getClass().equals(dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.RematchInvItem.class) &&
                         invItem.getSlot() != -1
         ).findFirst().orElse(null);
     }

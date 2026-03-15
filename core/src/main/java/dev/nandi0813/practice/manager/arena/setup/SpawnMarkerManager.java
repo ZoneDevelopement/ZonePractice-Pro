@@ -5,7 +5,9 @@ import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.moved.ItemCreateUtil;
+import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
@@ -108,7 +110,7 @@ public class SpawnMarkerManager {
         armorStand.setGravity(false);
         armorStand.setCanPickupItems(false);
         armorStand.setCustomNameVisible(true);
-        armorStand.setCustomName(dev.nandi0813.practice.util.StringUtil.CC(name));
+        armorStand.customName(Component.text(dev.nandi0813.practice.util.StringUtil.CC(name)));
         armorStand.setMarker(false); // Don't use marker mode so it has full size
         armorStand.setBasePlate(false);
         armorStand.setArms(true);
@@ -125,11 +127,11 @@ public class SpawnMarkerManager {
 
         // Set player head (Steve head) for helmet
         ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
-        armorStand.setHelmet(playerHead);
+        armorStand.getEquipment().setHelmet(playerHead);
 
         // Set red boots for visibility
         ItemStack boots = ItemCreateUtil.getRedBoots();
-        armorStand.setBoots(boots);
+        armorStand.getEquipment().setBoots(boots);
 
         // Track this armor stand
         markerStandIds.add(armorStand.getUniqueId());
@@ -150,7 +152,7 @@ public class SpawnMarkerManager {
         labelStand.setGravity(false);
         labelStand.setCanPickupItems(false);
         labelStand.setCustomNameVisible(true);
-        labelStand.setCustomName(dev.nandi0813.practice.util.StringUtil.CC(text));
+        labelStand.customName(Component.text(dev.nandi0813.practice.util.StringUtil.CC(text)));
         labelStand.setMarker(true); // Tiny marker mode
         labelStand.setBasePlate(false);
         labelStand.setSmall(true); // Make it small
@@ -333,10 +335,10 @@ public class SpawnMarkerManager {
         for (org.bukkit.entity.Entity entity : world.getEntities()) {
             if (entity instanceof ArmorStand armorStand) {
                 // Check if this looks like one of our markers but isn't tracked
-                if (armorStand.getCustomName() != null &&
+                String customName = armorStand.customName() == null ? null : Common.serializeComponentToLegacyString(armorStand.customName());
+                if (customName != null &&
                         !markerStandIds.contains(armorStand.getUniqueId())) {
 
-                    String customName = armorStand.getCustomName();
                     // Check if it matches our marker naming patterns
                     if (customName.contains("Spawn") || customName.contains("Right-click to remove")) {
                         toRemove.add(armorStand);

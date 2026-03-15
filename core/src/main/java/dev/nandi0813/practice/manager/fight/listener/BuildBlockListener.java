@@ -1,11 +1,10 @@
 package dev.nandi0813.practice.manager.fight.listener;
 
-import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
-import dev.nandi0813.practice.manager.fight.util.BlockUtil;
-import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
-import dev.nandi0813.practice.manager.fight.util.FightUtil;
 import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
+import dev.nandi0813.practice.manager.fight.util.FightUtil;
+import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
 import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.block.Block;
@@ -14,8 +13,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
@@ -73,10 +70,9 @@ public class BuildBlockListener implements Listener {
         Block block = e.getBlock();
 
         // Case 1: block was placed during the fight — track it for rollback
-        if (block.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
-            if (ListenerUtil.checkMetaData(mv)) return;
-            if (!(mv.value() instanceof Spectatable spectatable)) return;
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Spectatable spectatable = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(spectatable)) return;
             if (!spectatable.isBuild()) return;
 
             spectatable.addBlockChange(new ChangedBlock(block));
@@ -106,14 +102,14 @@ public class BuildBlockListener implements Listener {
         Block block = e.getBlockPlaced();
 
         Spectatable spectatable;
-        if (block.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
-            if (ListenerUtil.checkMetaData(mv) || !(mv.value() instanceof Spectatable s)) return;
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Spectatable s = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(s)) return;
             spectatable = s;
         } else {
             spectatable = getByBlock(block);
             if (spectatable == null || !spectatable.isBuild()) return;
-            block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+            BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
         }
 
         spectatable.addBlockChange(new ChangedBlock(e));

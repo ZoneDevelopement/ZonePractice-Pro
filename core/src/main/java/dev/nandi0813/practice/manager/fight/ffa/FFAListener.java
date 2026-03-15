@@ -39,8 +39,6 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
@@ -142,7 +140,7 @@ public abstract class FFAListener implements Listener {
         // ProjectileLaunch won't remove them on ground-hit, hide from players in
         // other arenas, and schedule a 5-minute vanilla-style self-removal.
         if (e.getEntity() instanceof Arrow arrow) {
-            arrow.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), ffa));
+            BlockUtil.setMetadata(arrow, FIGHT_ENTITY, ffa);
 
             // Hide from every online player NOT in this FFA
             for (org.bukkit.entity.Player online : ZonePractice.getInstance().getServer().getOnlinePlayers()) {
@@ -210,8 +208,8 @@ public abstract class FFAListener implements Listener {
         Block block = e.getBlock();
 
         // Blocks placed during the fight — allow breaking (tracking done by BuildBlockListener)
-        if (block.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Object mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Object.class);
             if (ListenerUtil.checkMetaData(mv)) {
                 e.setCancelled(true);
             }
@@ -345,8 +343,9 @@ public abstract class FFAListener implements Listener {
     }
 
     @EventHandler
-    public void onItemPickup(PlayerPickupItemEvent e) {
-        Player player = e.getPlayer();
+    public void onItemPickup(EntityPickupItemEvent e) {
+        if (!(e.getEntity() instanceof Player player)) return;
+
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
 

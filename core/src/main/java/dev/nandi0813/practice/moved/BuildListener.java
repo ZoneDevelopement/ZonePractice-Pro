@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.FightUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
@@ -23,8 +24,6 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +85,7 @@ public class BuildListener implements Listener {
      * {@code spectatable} and records it for rollback.
      */
     protected static void tagAndTrack(Block block, Spectatable spectatable) {
-        block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+        BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
         spectatable.addBlockChange(new ChangedBlock(block));
     }
 
@@ -115,7 +114,7 @@ public class BuildListener implements Listener {
     private static void trackDependentBlocksAbove(Block base, Spectatable spectatable) {
         Block above = base.getRelative(0, 1, 0);
         while (ArenaUtil.requiresSupport(above)) {
-            if (!above.hasMetadata(PLACED_IN_FIGHT)) {
+            if (!BlockUtil.hasMetadata(above, PLACED_IN_FIGHT)) {
                 spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(above));
             }
             above = above.getRelative(0, 1, 0);
@@ -152,15 +151,15 @@ public class BuildListener implements Listener {
         blockList.removeIf(block -> {
             if (block.getType().equals(Material.TNT)) return false;                    // keep → chain-explodes
             if (ArenaUtil.containsDestroyableBlock(l, block)) return false; // keep → destroyable
-            if (block.hasMetadata(PLACED_IN_FIGHT)) return false;                      // keep → player placed
+            if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return false;                      // keep → player placed
             if (breakAll) return false;                                                 // keep → break-all-blocks active
-            if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true; // remove → support block protected
+            if (BlockUtil.hasMetadata(block.getRelative(0, 1, 0), PLACED_IN_FIGHT)) return true; // remove → support block protected
             return true;                                                                // remove → pure arena block
         });
 
         for (Block block : blockList) {
             if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
-            if (block.hasMetadata(PLACED_IN_FIGHT)) {
+            if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
                 spectatable.addBlockChange(new ChangedBlock(block));
             } else {
                 // Natural arena block — use addArenaBlockChange so no PLACED_IN_FIGHT
@@ -193,14 +192,14 @@ public class BuildListener implements Listener {
             e.blockList().removeIf(block -> {
                 if (block.getType().equals(Material.TNT)) return false;
                 if (ArenaUtil.containsDestroyableBlock(l, block)) return false;
-                if (block.hasMetadata(PLACED_IN_FIGHT)) return false;
+                if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return false;
                 if (breakAll) return false;
-                if (block.getRelative(0, 1, 0).hasMetadata(PLACED_IN_FIGHT)) return true;
+                if (BlockUtil.hasMetadata(block.getRelative(0, 1, 0), PLACED_IN_FIGHT)) return true;
                 return true;
             });
             for (Block block : e.blockList()) {
                 if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
-                if (block.hasMetadata(PLACED_IN_FIGHT)) {
+                if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
                     spectatable.addBlockChange(new ChangedBlock(block));
                 } else {
                     spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
@@ -335,7 +334,7 @@ public class BuildListener implements Listener {
         org.bukkit.Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
             Block formed = location.getBlock();
             if (formed.getType() == Material.AIR) return;
-            if (formed.hasMetadata(PLACED_IN_FIGHT)) return;
+            if (BlockUtil.hasMetadata(formed, PLACED_IN_FIGHT)) return;
             tagAndTrack(formed, spectatable);
         }, 2L);
     }
@@ -361,11 +360,11 @@ public class BuildListener implements Listener {
 
         // The liquid will be placed on the face the player clicked
         Block liquidSourceBlock = e.getBlockClicked().getRelative(e.getBlockFace());
-        if (liquidSourceBlock.hasMetadata(PLACED_IN_FIGHT)) return; // already tracked
+        if (BlockUtil.hasMetadata(liquidSourceBlock, PLACED_IN_FIGHT)) return; // already tracked
 
         // Capture while still AIR (or pre-existing material) so rollback restores correctly
         spectatable.getFightChange().addBlockChange(new ChangedBlock(liquidSourceBlock));
-        liquidSourceBlock.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+        BlockUtil.setMetadata(liquidSourceBlock, PLACED_IN_FIGHT, spectatable);
     }
 
     // =========================================================================
@@ -381,9 +380,9 @@ public class BuildListener implements Listener {
         Match match = null;
 
         // Fast path: source block already tagged — O(1) lookup
-        if (fromBlock.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = fromBlock.getMetadata(PLACED_IN_FIGHT).get(0);
-            if (mv.value() instanceof Spectatable s) {
+        if (BlockUtil.hasMetadata(fromBlock, PLACED_IN_FIGHT)) {
+            Spectatable s = BlockUtil.getMetadata(fromBlock, PLACED_IN_FIGHT, Spectatable.class);
+            if (s != null) {
                 spectatable = s;
                 if (spectatable instanceof Match m) match = m;
             }
@@ -397,7 +396,7 @@ public class BuildListener implements Listener {
 
             // Tag the block so future flow events from it hit the fast path and can be
             // properly cancelled after match end.
-            fromBlock.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+            BlockUtil.setMetadata(fromBlock, PLACED_IN_FIGHT, spectatable);
 
             if (spectatable instanceof Match m) match = m;
         }
@@ -417,8 +416,8 @@ public class BuildListener implements Listener {
 
         // Track all destination blocks so all flowing liquids inside the arena are
         // properly recorded for rollback — whether the source is player-placed or natural.
-        if (!toBlock.hasMetadata(PLACED_IN_FIGHT)) {
-            toBlock.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+        if (!BlockUtil.hasMetadata(toBlock, PLACED_IN_FIGHT)) {
+            BlockUtil.setMetadata(toBlock, PLACED_IN_FIGHT, spectatable);
             spectatable.getFightChange().addBlockChange(new ChangedBlock(toBlock));
         }
     }
@@ -433,9 +432,9 @@ public class BuildListener implements Listener {
 
         Spectatable spectatable = null;
 
-        if (source.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = source.getMetadata(PLACED_IN_FIGHT).get(0);
-            if (mv.value() instanceof Spectatable s) {
+        if (BlockUtil.hasMetadata(source, PLACED_IN_FIGHT)) {
+            Spectatable s = BlockUtil.getMetadata(source, PLACED_IN_FIGHT, Spectatable.class);
+            if (s != null) {
                 spectatable = s;
             }
         }
@@ -457,7 +456,7 @@ public class BuildListener implements Listener {
         final Spectatable finalSpectatable = spectatable;
         final Block newBlock = e.getNewState().getBlock();
         org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
-            if (newBlock.hasMetadata(PLACED_IN_FIGHT)) return;
+            if (BlockUtil.hasMetadata(newBlock, PLACED_IN_FIGHT)) return;
             tagAndTrack(newBlock, finalSpectatable);
         });
     }
@@ -480,9 +479,9 @@ public class BuildListener implements Listener {
         Spectatable spectatable = null;
 
         // Fast path: block already tagged
-        if (block.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = block.getMetadata(PLACED_IN_FIGHT).get(0);
-            if (mv.value() instanceof Spectatable s) {
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Spectatable s = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (s != null) {
                 spectatable = s;
             }
         }
@@ -503,7 +502,7 @@ public class BuildListener implements Listener {
         }
 
         // Track the block's original state for rollback
-        if (block.hasMetadata(PLACED_IN_FIGHT)) {
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
             spectatable.addBlockChange(new ChangedBlock(block));
         } else {
             spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
@@ -518,7 +517,7 @@ public class BuildListener implements Listener {
         final Spectatable finalSpectatable = spectatable;
         org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
             String typeName = block.getType().name();
-            if ((typeName.equals("FIRE") || typeName.equals("SOUL_FIRE")) && !block.hasMetadata(PLACED_IN_FIGHT)) {
+            if ((typeName.equals("FIRE") || typeName.equals("SOUL_FIRE")) && !BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
                 tagAndTrack(block, finalSpectatable);
             }
         });
@@ -541,7 +540,7 @@ public class BuildListener implements Listener {
         for (Block adj : adjacent) {
             String typeName = adj.getType().name();
             if (!typeName.equals("FIRE") && !typeName.equals("SOUL_FIRE")) continue;
-            if (adj.hasMetadata(PLACED_IN_FIGHT)) continue;
+            if (BlockUtil.hasMetadata(adj, PLACED_IN_FIGHT)) continue;
 
             tagAndTrack(adj, spectatable);
         }
@@ -573,19 +572,19 @@ public class BuildListener implements Listener {
         boolean isLanding = e.getTo() != Material.AIR;
 
         // Fast path: entity was tagged when it first started falling inside the arena
-        if (fallingBlock.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = fallingBlock.getMetadata(PLACED_IN_FIGHT).get(0);
-            if (!(mv.value() instanceof Spectatable spectatable)) return;
+        if (BlockUtil.hasMetadata(fallingBlock, PLACED_IN_FIGHT)) {
+            Spectatable spectatable = BlockUtil.getMetadata(fallingBlock, PLACED_IN_FIGHT, Spectatable.class);
+            if (spectatable == null) return;
 
             if (isLanding) {
                 // Landing spot is still AIR at LOWEST — record as AIR so rollback clears it
-                if (!affectedBlock.hasMetadata(PLACED_IN_FIGHT)) {
+                if (!BlockUtil.hasMetadata(affectedBlock, PLACED_IN_FIGHT)) {
                     spectatable.getFightChange().addArenaBlockChange(
                             new ChangedBlock(affectedBlock, Material.AIR));
                 }
             } else {
                 // Start falling: block is still its original material — capture it now
-                if (!affectedBlock.hasMetadata(PLACED_IN_FIGHT)) {
+                if (!BlockUtil.hasMetadata(affectedBlock, PLACED_IN_FIGHT)) {
                     spectatable.getFightChange().addArenaBlockChange(
                             new ChangedBlock(affectedBlock));
                 }
@@ -599,16 +598,16 @@ public class BuildListener implements Listener {
         if (spectatable == null || !spectatable.isBuild()) return;
 
         // Tag entity so fast path handles the landing event
-        fallingBlock.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+        BlockUtil.setMetadata(fallingBlock, PLACED_IN_FIGHT, spectatable);
         spectatable.addEntityChange(fallingBlock);
 
         if (isLanding) {
-            if (!affectedBlock.hasMetadata(PLACED_IN_FIGHT)) {
+            if (!BlockUtil.hasMetadata(affectedBlock, PLACED_IN_FIGHT)) {
                 spectatable.getFightChange().addArenaBlockChange(
                         new ChangedBlock(affectedBlock, Material.AIR));
             }
         } else {
-            if (!affectedBlock.hasMetadata(PLACED_IN_FIGHT)) {
+            if (!BlockUtil.hasMetadata(affectedBlock, PLACED_IN_FIGHT)) {
                 spectatable.getFightChange().addArenaBlockChange(
                         new ChangedBlock(affectedBlock));
             }

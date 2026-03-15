@@ -42,7 +42,7 @@ public enum IconArg {
         }
 
         ItemStack icon = dev.nandi0813.practice.moved.PlayerUtil.getPlayerMainHand(player);
-        if (icon == null || icon.getType().equals(Material.AIR)) {
+        if (icon.getType().equals(Material.AIR)) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.LADDER.ARGUMENTS.ICON.NO-ITEM").replace("%ladder%", ladder.getDisplayName()));
             return;
         }

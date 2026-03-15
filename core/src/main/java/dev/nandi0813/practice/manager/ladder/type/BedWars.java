@@ -1,9 +1,9 @@
 package dev.nandi0813.practice.manager.ladder.type;
 
-import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.BedFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
@@ -18,7 +18,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
@@ -60,7 +59,7 @@ public class BedWars extends BedFight implements LadderHandle {
         if (block.getType().equals(Material.TNT)) {
             LadderUtil.placeTnt(e, match);
         } else {
-            block.setMetadata(PLACED_IN_FIGHT, new FixedMetadataValue(ZonePractice.getInstance(), match));
+            BlockUtil.setMetadata(block, PLACED_IN_FIGHT, match);
             match.addBlockChange(new ChangedBlock(e));
 
             Block underBlock = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();

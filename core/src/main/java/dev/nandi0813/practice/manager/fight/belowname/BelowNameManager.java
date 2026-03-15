@@ -8,8 +8,8 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSc
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateScore;
 import dev.nandi0813.practice.ZonePractice;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -29,7 +29,7 @@ public class BelowNameManager implements PacketListener {
     }
 
     private final String objectiveName = "ZPP_BELOW_NAME";
-    private final Component displayName = Component.text(ChatColor.RED + "♥");
+    private final Component displayName = Component.text("♥", NamedTextColor.RED);
 
     private final Map<Player, User> registeredUsers = Collections.synchronizedMap(new HashMap<>());
 

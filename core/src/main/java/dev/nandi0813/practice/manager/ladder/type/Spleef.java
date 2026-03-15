@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.ladder.type;
 
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.DeathCause;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
@@ -22,7 +23,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.BlockIterator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,13 +66,12 @@ public class Spleef extends NormalLadder implements LadderHandle, CustomConfig {
         if (match.getCurrentStat(player).isSet()) return;
 
         Block snow = e.getBlock();
-        if (snow == null) return;
         if (!match.getArena().getCuboid().contains(snow)) return;
 
         e.setCancelled(true);
         if (snow.getType().equals(Material.SNOW_BLOCK)) {
             match.addBlockChange(new ChangedBlock(snow));
-            snow.setType(Material.AIR);
+            snow.setBlockData(Material.AIR.createBlockData());
 
             // Give one snowball per block broken when snowball mode is active.
             // Uses the version-abstracted getSnowball() (SNOW_BALL on 1.8.8, SNOWBALL on modern).
@@ -95,8 +94,8 @@ public class Spleef extends NormalLadder implements LadderHandle, CustomConfig {
         if (!(e.getEntity() instanceof Snowball snowball)) return;
 
         // Only handle snowballs that belong to this match.
-        MetadataValue mv = snowball.getMetadata(PermanentConfig.FIGHT_ENTITY).stream().findFirst().orElse(null);
-        if (mv == null || !(mv.value() instanceof Match hitMatch) || !hitMatch.equals(match)) return;
+        Match hitMatch = BlockUtil.getMetadata(snowball, PermanentConfig.FIGHT_ENTITY, Match.class);
+        if (hitMatch == null || !hitMatch.equals(match)) return;
 
         if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) return;
 
@@ -106,7 +105,7 @@ public class Spleef extends NormalLadder implements LadderHandle, CustomConfig {
         if (!match.getArena().getCuboid().contains(hitBlock)) return;
 
         match.addBlockChange(new ChangedBlock(hitBlock));
-        hitBlock.setType(Material.AIR);
+        hitBlock.setBlockData(Material.AIR.createBlockData());
     }
 
     /**

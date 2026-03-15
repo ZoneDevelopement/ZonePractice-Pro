@@ -63,7 +63,7 @@ public class ArenaCreateGui extends GUI {
         for (ArenaType type : ArenaType.values()) {
             ItemStack item = ItemCreateUtil.createItem("&e" + type.getName(), type.getIcon());
             ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setLore(type.getDescription());
+            itemMeta.lore(type.getDescription().stream().map(Common::legacyToComponent).toList());
             item.setItemMeta(itemMeta);
 
             int slot = inventory.firstEmpty();

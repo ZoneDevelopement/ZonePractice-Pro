@@ -51,8 +51,6 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 
 import static dev.nandi0813.practice.manager.arena.util.ArenaUtil.containsDestroyableBlock;
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
@@ -101,13 +99,11 @@ public abstract class LadderTypeListener implements Listener {
      * Extracts match from item metadata.
      */
     protected Match getMatchFromItemMetadata(Item item) {
-        if (!item.hasMetadata(HIDDEN_ITEM)) return null;
+        if (!BlockUtil.hasMetadata(item, HIDDEN_ITEM)) return null;
 
-        MetadataValue metadataValue = BlockUtil.getMetadata(item, HIDDEN_ITEM);
+        Match metadataValue = BlockUtil.getMetadata(item, HIDDEN_ITEM, Match.class);
         if (ListenerUtil.checkMetaData(metadataValue)) return null;
-        if (!(metadataValue.value() instanceof Match)) return null;
-
-        return (Match) metadataValue.value();
+        return metadataValue;
     }
 
     /**
@@ -166,7 +162,7 @@ public abstract class LadderTypeListener implements Listener {
                 Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
                 if (match != null && match.getLadder() instanceof dev.nandi0813.practice.manager.ladder.type.Spleef spleef
                         && spleef.isSnowballMode()) {
-                    snowball.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), match));
+                    BlockUtil.setMetadata(snowball, FIGHT_ENTITY, match);
                 }
             }
         }
@@ -176,10 +172,10 @@ public abstract class LadderTypeListener implements Listener {
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent e) {
         Entity entity = e.getEntity();
-        MetadataValue mv = BlockUtil.getMetadata(entity, FIGHT_ENTITY);
+        Match mv = BlockUtil.getMetadata(entity, FIGHT_ENTITY, Match.class);
         if (ListenerUtil.checkMetaData(mv)) return;
 
-        if (!(mv.value() instanceof Match match)) return;
+        Match match = mv;
 
         if (match.getLadder() instanceof LadderHandle ladderHandle) {
             ladderHandle.handleEvents(e, match);
@@ -242,8 +238,8 @@ public abstract class LadderTypeListener implements Listener {
         Block block = e.getBlock();
 
         // Blocks placed during the fight — allow breaking (tracking done by BuildBlockListener)
-        if (block.hasMetadata(PLACED_IN_FIGHT)) {
-            MetadataValue mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT);
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Object mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Object.class);
             if (ListenerUtil.checkMetaData(mv)) {
                 e.setCancelled(true);
             }
@@ -443,7 +439,7 @@ public abstract class LadderTypeListener implements Listener {
 
         Entity entity = e.getItemDrop();
         match.addEntityChange(entity);
-        entity.setMetadata(HIDDEN_ITEM, new FixedMetadataValue(ZonePractice.getInstance(), match));
+        BlockUtil.setMetadata(entity, HIDDEN_ITEM, match);
     }
 
     @EventHandler
@@ -521,7 +517,7 @@ public abstract class LadderTypeListener implements Listener {
         // register it for rollback cleanup (and hiding from players in other matches),
         // and schedule a 5-minute vanilla-style self-removal.
         if (e.getProjectile() instanceof org.bukkit.entity.Arrow arrow) {
-            arrow.setMetadata(FIGHT_ENTITY, new FixedMetadataValue(ZonePractice.getInstance(), match));
+            BlockUtil.setMetadata(arrow, FIGHT_ENTITY, match);
             match.addEntityChange(arrow); // hides from other-arena players + rollback tracking
         }
     }
