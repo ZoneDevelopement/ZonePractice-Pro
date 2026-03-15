@@ -56,7 +56,7 @@ import static dev.nandi0813.practice.manager.arena.util.ArenaUtil.containsDestro
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
-public abstract class LadderTypeListener implements Listener {
+public class LadderTypeListener implements Listener {
 
     // ========== HELPER METHODS ==========
 

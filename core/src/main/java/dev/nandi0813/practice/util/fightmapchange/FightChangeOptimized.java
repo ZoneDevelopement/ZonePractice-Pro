@@ -337,7 +337,8 @@ public class FightChangeOptimized {
             entry.getValue().changedBlock.reset();
 
             Block block = BlockPosition.getBlock(world, entry.getKey());
-            block.removeMetadata(PLACED_IN_FIGHT, ZonePractice.getInstance());
+            // PLACED_IN_FIGHT uses PersistentTagUtil, so clear through BlockUtil.
+            BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
 
             iterator.remove();
         }
@@ -434,7 +435,8 @@ public class FightChangeOptimized {
                     blockEntry.changedBlock.reset();
 
                     Block block = BlockPosition.getBlock(world, pos);
-                    block.removeMetadata(PLACED_IN_FIGHT, ZonePractice.getInstance());
+                    // PLACED_IN_FIGHT uses PersistentTagUtil, so clear through BlockUtil.
+                    BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
 
                     blocks.remove(pos); // Remove from live map
                 }

@@ -326,17 +326,20 @@ public class BuildListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockForm(BlockFormEvent e) {
-        final Location location = e.getBlock().getLocation();
-        final Spectatable spectatable = getByBlock(e.getBlock());
+        final Block formed = e.getBlock();
+        final Spectatable spectatable = getByBlock(formed);
         if (spectatable == null || !spectatable.isBuild()) return;
 
-        // 2-tick delay to guarantee the block has been written to the world
-        org.bukkit.Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-            Block formed = location.getBlock();
-            if (formed.getType() == Material.AIR) return;
-            if (BlockUtil.hasMetadata(formed, PLACED_IN_FIGHT)) return;
-            tagAndTrack(formed, spectatable);
-        }, 2L);
+        Block below = formed.getRelative(0, -1, 0);
+        if (ArenaUtil.turnsToDirt(below)) {
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(below));
+        }
+
+        // Track generated block directly so rollback does not miss short-lived form changes.
+        spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(formed));
+        if (!BlockUtil.hasMetadata(formed, PLACED_IN_FIGHT)) {
+            BlockUtil.setMetadata(formed, PLACED_IN_FIGHT, spectatable);
+        }
     }
 
     // =========================================================================

@@ -26,8 +26,7 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
  * {@link FightUtil#getActiveBuildSpectatables()}.
  * <p>
  * All world-driven block events (pistons, liquid flow, form, spread, explosions, TNT,
- * falling blocks) are handled by the version-specific {@code MatchTntListener} which
- * already covers all Spectatables via the same {@code getActiveBuildSpectatables()} helper.
+ * falling blocks) are handled by {@link dev.nandi0813.practice.moved.BuildListener}.
  */
 public class BuildBlockListener implements Listener {
 
@@ -115,5 +114,6 @@ public class BuildBlockListener implements Listener {
         spectatable.addBlockChange(new ChangedBlock(e));
         trackUnderBlockIfDirt(block, spectatable);
     }
+
 
 }

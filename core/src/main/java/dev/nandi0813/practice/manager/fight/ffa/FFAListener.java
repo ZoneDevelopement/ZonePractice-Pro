@@ -51,7 +51,7 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
  * This listener only handles player-specific FFA game logic (damage, movement, crafting, etc.)
  * and the build validation gates (cancel the event before MONITOR fires for BuildBlockListener).</p>
  */
-public abstract class FFAListener implements Listener {
+public class FFAListener implements Listener {
 
     @EventHandler
     public void onRegen(EntityRegainHealthEvent e) {
