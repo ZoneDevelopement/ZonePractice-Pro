@@ -112,12 +112,56 @@ public class ServerManager implements Listener {
 
     public void loadLobby() {
         try {
-            // Reload backend to ensure Location objects are properly deserialized now that worlds are loaded
+            // Reload backend to ensure data is current now that worlds are loaded.
             BackendManager.reload();
-            lobby = (Location) BackendManager.getConfig().get("lobby");
+
+            Object lobbyObj = BackendManager.getConfig().get("lobby");
+            if (lobbyObj instanceof Location) {
+                // Old format: Location was stored as a ConfigurationSerializable ("==" key).
+                // Read it, then immediately migrate to the new primitive-field format so
+                // future async saves never attempt to serialize a Location object again.
+                lobby = (Location) lobbyObj;
+                if (lobby.getWorld() != null) {
+                    writeLobbyPrimitives(lobby);
+                    BackendManager.save();
+                    Common.sendConsoleMMMessage("<yellow>Migrated lobby location to primitive-field format in backend.yml.");
+                }
+            } else if (BackendManager.getConfig().isConfigurationSection("lobby")) {
+                // New format: plain fields — world, x, y, z, yaw, pitch.
+                String worldName = BackendManager.getConfig().getString("lobby.world");
+                if (worldName != null) {
+                    World world = Bukkit.getWorld(worldName);
+                    lobby = new Location(
+                            world,
+                            BackendManager.getConfig().getDouble("lobby.x"),
+                            BackendManager.getConfig().getDouble("lobby.y"),
+                            BackendManager.getConfig().getDouble("lobby.z"),
+                            (float) BackendManager.getConfig().getDouble("lobby.yaw"),
+                            (float) BackendManager.getConfig().getDouble("lobby.pitch")
+                    );
+                }
+            }
         } catch (Exception e) {
             Common.sendConsoleMMMessage("<red>Lobby cannot be found.");
         }
+    }
+
+    /**
+     * Writes the lobby location to the BackendManager config as individual primitive fields
+     * (world name + x/y/z/yaw/pitch) so that no {@link org.bukkit.configuration.serialization.ConfigurationSerializable}
+     * object is ever stored in the config. This prevents SnakeYAML from calling
+     * {@link Location#serialize()} during async saves, which can throw a NullPointerException
+     * if the Location's world {@code WeakReference} has been cleared.
+     */
+    private void writeLobbyPrimitives(Location location) {
+        // Remove any existing entry (could be a Location object or an old section)
+        BackendManager.getConfig().set("lobby", null);
+        BackendManager.getConfig().set("lobby.world", location.getWorld().getName());
+        BackendManager.getConfig().set("lobby.x", location.getX());
+        BackendManager.getConfig().set("lobby.y", location.getY());
+        BackendManager.getConfig().set("lobby.z", location.getZ());
+        BackendManager.getConfig().set("lobby.yaw", (double) location.getYaw());
+        BackendManager.getConfig().set("lobby.pitch", (double) location.getPitch());
     }
 
     public void setLobby(Player player, Location newLobby) {
@@ -125,7 +169,7 @@ public class ServerManager implements Listener {
         newLobby.getWorld().setSpawnLocation(newLobby.getBlockX(), newLobby.getBlockY(), newLobby.getBlockZ());
         InventoryManager.getInstance().setLobbyInventory(player, true);
 
-        BackendManager.getConfig().set("lobby", lobby);
+        writeLobbyPrimitives(newLobby);
         BackendManager.save();
     }
 
