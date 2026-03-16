@@ -54,8 +54,7 @@ public class MatchManager {
         // Register start command listener
         Bukkit.getPluginManager().registerEvents(new StartListener(), practice);
 
-        Bukkit.getPluginManager().registerEvents(new LadderTypeListener() {
-        }, practice);
+        Bukkit.getPluginManager().registerEvents(new LadderTypeListener(), practice);
 
         this.belowNameManager = BelowNameManager.getInstance();
         PacketEvents.getAPI().getEventManager().registerListener(this.belowNameManager, PacketListenerPriority.NORMAL);

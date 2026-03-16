@@ -324,16 +324,33 @@ public class BuildListener implements Listener {
     // BLOCK FORM (cobblestone / obsidian generators, ice, etc.)
     // =========================================================================
 
+    /**
+     * Tracks blocks that turn to dirt when another block forms on top (e.g., grass
+     * becoming dirt when cobblestone is generated via lava). This runs at LOWEST priority
+     * to capture the block's state BEFORE it changes to dirt.
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBlockFormLowest(BlockFormEvent e) {
+        final Block formed = e.getBlock();
+        final Spectatable spectatable = getByBlock(formed);
+        if (spectatable == null || !spectatable.isBuild()) return;
+
+        Block below = formed.getRelative(0, -1, 0);
+        // At LOWEST, the block below is still grass/mycelium/etc. before conversion.
+        // Capture its current state so rollback restores the exact original type.
+        if (ArenaUtil.turnsToDirt(below)) {
+            Material originalMaterial = below.getType();
+            spectatable.getFightChange().addArenaBlockChange(
+                    new ChangedBlock(below, originalMaterial));
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockForm(BlockFormEvent e) {
         final Block formed = e.getBlock();
         final Spectatable spectatable = getByBlock(formed);
         if (spectatable == null || !spectatable.isBuild()) return;
 
-        Block below = formed.getRelative(0, -1, 0);
-        if (ArenaUtil.turnsToDirt(below)) {
-            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(below));
-        }
 
         // Track generated block directly so rollback does not miss short-lived form changes.
         spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(formed));
@@ -373,6 +390,30 @@ public class BuildListener implements Listener {
     // =========================================================================
     // LIQUID FLOW
     // =========================================================================
+
+    /**
+     * Tracks blocks that turn to dirt when lava flows on top (e.g., grass
+     * becoming dirt when lava spreads over it). This runs at LOWEST priority
+     * to capture the block's state BEFORE it changes to dirt.
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBlockFromToLowest(BlockFromToEvent e) {
+        Block toBlock = e.getToBlock();
+        Spectatable spectatable = getByBlock(toBlock);
+        if (spectatable == null || !spectatable.isBuild()) return;
+
+        // Only handle lava flows (lava turns grass to dirt naturally)
+        Block fromBlock = e.getBlock();
+        if (!fromBlock.isLiquid()) return;
+
+        // At LOWEST, the destination block is still grass/mycelium/etc. before conversion.
+        // Capture its current state so rollback restores the exact original type.
+        if (ArenaUtil.turnsToDirt(toBlock)) {
+            Material originalMaterial = toBlock.getType();
+            spectatable.getFightChange().addArenaBlockChange(
+                    new ChangedBlock(toBlock, originalMaterial));
+        }
+    }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockFromTo(BlockFromToEvent e) {
@@ -462,6 +503,28 @@ public class BuildListener implements Listener {
             if (BlockUtil.hasMetadata(newBlock, PLACED_IN_FIGHT)) return;
             tagAndTrack(newBlock, finalSpectatable);
         });
+    }
+
+    // =========================================================================
+    // BLOCK FADE (grass → dirt, ice melt, etc.)
+    // =========================================================================
+
+    /**
+     * Tracks blocks that fade to another type (e.g. grass/mycelium turning to dirt when
+     * water is above and blocks light, or ice melting). Runs at LOWEST so the block still
+     * holds its original material when captured.
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBlockFade(BlockFadeEvent e) {
+        Block block = e.getBlock();
+        if (!ArenaUtil.turnsToDirt(block)) return;
+
+        Spectatable spectatable = getByBlock(block);
+        if (spectatable == null || !spectatable.isBuild()) return;
+
+        // At LOWEST the block is still grass/mycelium/etc. — capture the original type.
+        spectatable.getFightChange().addArenaBlockChange(
+                new ChangedBlock(block, block.getType()));
     }
 
     // =========================================================================
