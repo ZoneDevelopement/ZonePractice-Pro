@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.duel;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.util.Common;
@@ -43,7 +44,7 @@ public class DuelRequest {
                     .replace("%arena%", arenaName)
                     .replace("%rounds%", String.valueOf(rounds))
                     .replace("%target%", target.getName())
-                    .replace("%targetPing%", String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(target)))
+                    .replace("%targetPing%", String.valueOf(PlayerUtil.getPing(target)))
             );
         }
 
@@ -53,7 +54,7 @@ public class DuelRequest {
                     .replace("%arena%", arenaName)
                     .replace("%rounds%", String.valueOf(rounds))
                     .replace("%sender%", sender.getName())
-                    .replace("%senderPing%", String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(sender)))
+                    .replace("%senderPing%", String.valueOf(PlayerUtil.getPing(sender)))
             );
         }
     }

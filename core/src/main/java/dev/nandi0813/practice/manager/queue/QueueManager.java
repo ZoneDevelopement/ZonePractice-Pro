@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.queue;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
@@ -85,7 +86,7 @@ public class QueueManager implements Listener {
             return;
         }
 
-        if (dev.nandi0813.practice.moved.PlayerUtil.getPing(player) > ConfigManager.getInt("QUEUE.RANKED.MAX-PING")) {
+        if (PlayerUtil.getPing(player) > ConfigManager.getInt("QUEUE.RANKED.MAX-PING")) {
             Common.sendMMMessage(player, LanguageManager.getString("QUEUES.RANKED.HIGH-PING"));
             player.closeInventory();
             return;

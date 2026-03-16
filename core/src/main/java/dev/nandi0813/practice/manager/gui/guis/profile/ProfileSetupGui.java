@@ -9,6 +9,7 @@ import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIManager;
@@ -17,9 +18,9 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.RankedBan;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
-import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
+import dev.nandi0813.practice.util.ItemCreateUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.Bukkit;
@@ -231,7 +232,7 @@ public class ProfileSetupGui extends GUI {
                     .replace("%health%", String.valueOf(player.getHealth()))
                     .replace("%food%", String.valueOf(player.getFoodLevel()))
                     .replace("%hit_delay%", String.valueOf(player.getMaximumNoDamageTicks()))
-                    .replace("%ping%", String.valueOf(dev.nandi0813.practice.moved.PlayerUtil.getPing(player)))
+                    .replace("%ping%", String.valueOf(PlayerUtil.getPing(player)))
                     .get();
         }
     }

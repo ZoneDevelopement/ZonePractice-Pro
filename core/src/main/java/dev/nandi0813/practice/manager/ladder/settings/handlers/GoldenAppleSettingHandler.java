@@ -1,8 +1,8 @@
 package dev.nandi0813.practice.manager.ladder.settings.handlers;
 
 import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.util.ModernItemCooldownHandler;
 import dev.nandi0813.practice.manager.ladder.settings.SettingHandler;
-import dev.nandi0813.practice.moved.ModernItemCooldownHandler;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;

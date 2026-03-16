@@ -143,7 +143,7 @@ public class Duel extends Match implements Team {
                     new TempKillPlayer(round, player, respawnableLadder.getRespawnTime());
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_TEMP_DEATH).play(this.getPeople());
                 });
-                dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+                dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
                 player.setHealth(20);
                 break;
 
@@ -154,7 +154,7 @@ public class Duel extends Match implements Team {
                     this.teleportPlayer(player);
                     endRound = true;
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
-                    dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+                    dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
                     player.setHealth(20);
                 } else if (isScoringLadder()) {
                     // Scoring ladder (like Boxing) - death doesn't end round
@@ -163,8 +163,8 @@ public class Duel extends Match implements Team {
                     // Default death behavior for standard ladders
                     this.getCurrentStat(player).end(true);
                     PlayerUtil.setFightPlayer(player);
-                    addEntityChange(dev.nandi0813.practice.moved.PlayerUtil.dropPlayerInventory(player));
-                    dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+                    addEntityChange(dev.nandi0813.practice.manager.fight.util.PlayerUtil.dropPlayerInventory(player));
+                    dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
                     player.setHealth(20);
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
                     endRound = true;

@@ -2,7 +2,7 @@ package dev.nandi0813.practice.manager.fight.event.enums;
 
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
-import dev.nandi0813.practice.moved.ItemCreateUtil;
+import dev.nandi0813.practice.util.ItemCreateUtil;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

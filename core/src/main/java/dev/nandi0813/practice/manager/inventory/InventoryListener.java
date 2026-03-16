@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.inventory;
 
 import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.inventory.inventories.StaffInventory;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvItem;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.staffitems.CheckInventoryInvItem;
@@ -25,6 +26,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class InventoryListener implements Listener {
@@ -98,7 +100,7 @@ public class InventoryListener implements Listener {
             if (inventory == null) return;
 
             if (inventory instanceof StaffInventory) {
-                ItemStack itemInHand = dev.nandi0813.practice.moved.PlayerUtil.getPlayerMainHand(player);
+                ItemStack itemInHand = PlayerUtil.getPlayerMainHand(player);
                 InvItem invItem = inventory.getInvItem(Common.getItemDisplayName(itemInHand), itemInHand.getType());
 
                 if (invItem instanceof CheckInventoryInvItem checkInventoryInvItem) {
@@ -124,7 +126,7 @@ public class InventoryListener implements Listener {
 
             Inventory inventory = InventoryManager.getInstance().getPlayerInventory(player);
             if (inventory == null) return;
-            ItemStack itemInHand = dev.nandi0813.practice.moved.PlayerUtil.getPlayerMainHand(player);
+            ItemStack itemInHand = PlayerUtil.getPlayerMainHand(player);
             if (itemInHand.getType() == Material.AIR || !itemInHand.hasItemMeta()) return;
 
             InvItem heldInvItem = inventory.getInvItem(Common.getItemDisplayName(itemInHand), itemInHand.getType());
@@ -254,6 +256,20 @@ public class InventoryListener implements Listener {
             case EDITOR:
                 e.setCancelled(true);
                 break;
+        }
+    }
+
+    @EventHandler
+    public void onItemSwitchHand(PlayerSwapHandItemsEvent e) {
+        Player player = e.getPlayer();
+        if (player.isOp() || player.hasPermission("*")) return;
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        if (profile == null) return;
+
+        switch (profile.getStatus()) {
+            case LOBBY, QUEUE, EDITOR, SPECTATE -> e.setCancelled(true);
         }
     }
 

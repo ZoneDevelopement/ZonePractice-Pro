@@ -1,6 +1,5 @@
-package dev.nandi0813.practice.moved;
+package dev.nandi0813.practice.util;
 
-import dev.nandi0813.practice.util.StringUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Material;

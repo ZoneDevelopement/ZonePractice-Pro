@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.moved;
+package dev.nandi0813.practice.manager.fight.util;
 
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketListener;

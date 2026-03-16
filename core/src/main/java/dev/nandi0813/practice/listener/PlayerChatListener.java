@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.moved;
+package dev.nandi0813.practice.listener;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
@@ -9,8 +9,8 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.ChatFormatUtil;
 import dev.nandi0813.practice.util.Common;
-import dev.nandi0813.practice.util.SoftDependUtil;
 import dev.nandi0813.practice.util.PAPIUtil;
+import dev.nandi0813.practice.util.SoftDependUtil;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;

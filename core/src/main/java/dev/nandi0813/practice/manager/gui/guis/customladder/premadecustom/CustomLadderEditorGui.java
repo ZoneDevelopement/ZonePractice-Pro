@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.enums.WeightClass;
 import dev.nandi0813.practice.manager.fight.match.util.CustomKit;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
@@ -14,9 +15,9 @@ import dev.nandi0813.practice.manager.ladder.enums.WeightClassType;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
+import dev.nandi0813.practice.util.ItemCreateUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.cooldown.CooldownObject;
 import dev.nandi0813.practice.util.cooldown.PlayerCooldown;
@@ -201,12 +202,12 @@ public class CustomLadderEditorGui extends GUI {
         NormalLadder ladder = customLadderEditorGui.getLadder();
 
         if (ladder.isEnabled() && ladder.isEditable() && !ladder.isFrozen()) {
-            ItemStack[] inventoryStorageContent = dev.nandi0813.practice.moved.PlayerUtil.getInventoryStorageContent(player);
+            ItemStack[] inventoryStorageContent = PlayerUtil.getInventoryStorageContent(player);
             customKit.setInventory(inventoryStorageContent);
             customKit.setExtra(new ItemStack[]{this.gui.get(1).getItem(14)});
         }
 
-        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+        PlayerUtil.clearInventory(player);
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
@@ -226,7 +227,7 @@ public class CustomLadderEditorGui extends GUI {
         Profile playerProfile = ProfileManager.getInstance().getProfile(player);
         playerProfile.setStatus(ProfileStatus.EDITOR);
 
-        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+        PlayerUtil.clearInventory(player);
 
         Map<Integer, CustomKit> kits;
         if (ranked) kits = profile.getRankedCustomKits().get(ladder);

@@ -26,7 +26,7 @@ public enum PlayerUtil {
         player.setGameMode(GameMode.SURVIVAL);
         player.setAllowFlight(fly);
         player.setFlying(fly);
-        dev.nandi0813.practice.moved.PlayerUtil.setCollidesWithEntities(player, entityCollide);
+        dev.nandi0813.practice.manager.fight.util.PlayerUtil.setCollidesWithEntities(player, entityCollide);
 
         if (ZonePractice.getInstance().isEnabled()) {
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setFireTicks(0), 2L);
@@ -34,7 +34,7 @@ public enum PlayerUtil {
             player.setFireTicks(0);
         }
 
-        if (deleteInv) dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+        if (deleteInv) dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
 
         for (PotionEffect potionEffect : player.getActivePotionEffects())
             player.removePotionEffect(potionEffect.getType());

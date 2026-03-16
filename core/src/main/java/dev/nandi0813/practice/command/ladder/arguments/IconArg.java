@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.command.ladder.arguments;
 
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.ladder.LadderSetupManager;
@@ -41,7 +42,7 @@ public enum IconArg {
             return;
         }
 
-        ItemStack icon = dev.nandi0813.practice.moved.PlayerUtil.getPlayerMainHand(player);
+        ItemStack icon = PlayerUtil.getPlayerMainHand(player);
         if (icon.getType().equals(Material.AIR)) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.LADDER.ARGUMENTS.ICON.NO-ITEM").replace("%ladder%", ladder.getDisplayName()));
             return;

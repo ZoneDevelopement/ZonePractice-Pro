@@ -25,14 +25,7 @@ public enum Common {
 
     public static void send(CommandSender sender, Component component) {
         if (sender == null) return;
-
-        try {
-            sender.getClass().getMethod("sendMessage", Component.class).invoke(sender, component);
-            return;
-        } catch (Throwable ignored) { }
-
-        String legacy = LegacyComponentSerializer.legacySection().serialize(component);
-        sender.sendMessage(legacy.isEmpty() ? " " : legacy);
+        sender.sendMessage(component);
     }
 
     public static void sendMMMessage(Player player, String line) {

@@ -1,7 +1,7 @@
 package dev.nandi0813.practice.manager.nametag;
 
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
-import dev.nandi0813.practice.moved.PlayerUtil;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

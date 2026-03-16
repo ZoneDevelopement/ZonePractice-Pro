@@ -1,8 +1,8 @@
 package dev.nandi0813.practice.manager.fight.event.setup;
 
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
-import dev.nandi0813.practice.moved.ItemCreateUtil;
 import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.ItemCreateUtil;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;

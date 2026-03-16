@@ -1,6 +1,6 @@
 package dev.nandi0813.practice.manager.playerkit.items;
 
-import dev.nandi0813.practice.moved.LadderUtil;
+import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import org.bukkit.Bukkit;

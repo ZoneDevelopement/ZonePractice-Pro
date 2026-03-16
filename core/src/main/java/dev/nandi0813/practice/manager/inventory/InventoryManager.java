@@ -75,7 +75,7 @@ public class InventoryManager extends ConfigFile {
             if (playerInv != null) {
                 playerInv.getPlayers().remove(player);
             }
-            dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+            dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
             return;
         }
 

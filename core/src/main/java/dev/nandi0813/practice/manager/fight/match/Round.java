@@ -11,10 +11,10 @@ import dev.nandi0813.practice.manager.fight.match.runnable.round.RoundStartRunna
 import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
 import dev.nandi0813.practice.manager.fight.match.util.MatchUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
+import dev.nandi0813.practice.manager.fight.util.BedUtil;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.moved.BedUtil;
 import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;

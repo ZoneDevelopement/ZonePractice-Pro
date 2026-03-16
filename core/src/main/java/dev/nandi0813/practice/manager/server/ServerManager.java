@@ -210,7 +210,7 @@ public class ServerManager implements Listener {
             if (from != null && !from.equals(WorldEnum.OTHER)) {
                 if (profile.getStatus().equals(ProfileStatus.LOBBY)) {
                     ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.OFFLINE);
-                    dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+                    dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
                     SidebarManager.getInstance().unLoadSidebar(player);
                 }
             }

@@ -2,7 +2,7 @@ package dev.nandi0813.practice.manager.fight.event.events.duel.brackets;
 
 import dev.nandi0813.practice.manager.fight.event.enums.EventType;
 import dev.nandi0813.practice.manager.fight.event.events.duel.interfaces.DuelEventData;
-import dev.nandi0813.practice.moved.KitData;
+import dev.nandi0813.practice.util.KitData;
 import lombok.Getter;
 
 import java.io.IOException;

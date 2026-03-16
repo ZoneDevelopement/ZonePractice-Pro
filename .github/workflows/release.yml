@@ -27,21 +27,6 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Install Local Dependencies
-        run: |
-          # Ensure this path matches your repo structure
-          if [ -f "libs/PaperSpigot-1.8.8-R0.1-SNAPSHOT.jar" ]; then
-            mvn install:install-file \
-              -Dfile=libs/PaperSpigot-1.8.8-R0.1-SNAPSHOT.jar \
-              -DgroupId=org.github.paperspigot \
-              -DartifactId=paperspigot-api \
-              -Dversion=1.8.8-R0.1-SNAPSHOT \
-              -Dpackaging=jar \
-              -DgeneratePom=true
-          else
-            echo "Warning: Local dependency not found, skipping install."
-          fi
-
       - name: Check Version & Tag
         id: check_version
         run: |

@@ -18,7 +18,7 @@ public class Sumo extends DuelEvent {
 
     @Override
     public void teleport(Player player, Location location) {
-        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+        dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
         PlayerUtil.setFightPlayer(player);
 
         player.teleport(location);

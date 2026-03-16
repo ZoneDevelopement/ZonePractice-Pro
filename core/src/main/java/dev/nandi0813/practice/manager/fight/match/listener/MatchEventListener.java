@@ -5,7 +5,7 @@ import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
 import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
-import dev.nandi0813.practice.moved.ChangedBlock;
+import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;

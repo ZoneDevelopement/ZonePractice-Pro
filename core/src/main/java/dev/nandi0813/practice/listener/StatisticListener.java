@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.moved;
+package dev.nandi0813.practice.listener;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
@@ -7,6 +7,7 @@ import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.type.Boxing;
 import dev.nandi0813.practice.manager.profile.Profile;
@@ -66,7 +67,7 @@ public class StatisticListener implements Listener {
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
-        if (dev.nandi0813.practice.moved.PlayerUtil.getItemInUse(player, Material.FISHING_ROD) != null) {
+        if (PlayerUtil.getItemInUse(player, Material.FISHING_ROD) != null) {
             return;
         }
 

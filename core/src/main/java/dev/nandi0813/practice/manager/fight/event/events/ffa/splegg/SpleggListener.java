@@ -3,7 +3,8 @@ package dev.nandi0813.practice.manager.fight.event.events.ffa.splegg;
 import dev.nandi0813.practice.manager.fight.event.enums.EventStatus;
 import dev.nandi0813.practice.manager.fight.event.events.ffa.interfaces.FFAListener;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
-import dev.nandi0813.practice.moved.ChangedBlock;
+import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.util.Cuboid;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -73,7 +74,7 @@ public class SpleggListener extends FFAListener {
                 return;
             }
 
-            ItemStack item = dev.nandi0813.practice.moved.PlayerUtil.getItemInUse(player, splegg.getEventData().getEggLauncher().getType());
+            ItemStack item = PlayerUtil.getItemInUse(player, splegg.getEventData().getEggLauncher().getType());
             if (item != null) {
                 Egg egg = player.launchProjectile(Egg.class);
                 egg.customName(Component.text("SPLEGG"));

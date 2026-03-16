@@ -15,10 +15,7 @@ import dev.nandi0813.practice.manager.fight.match.runnable.game.BridgeArrowRunna
 import dev.nandi0813.practice.manager.fight.match.util.KnockbackUtil;
 import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
-import dev.nandi0813.practice.manager.fight.util.BlockUtil;
-import dev.nandi0813.practice.manager.fight.util.DeathCause;
-import dev.nandi0813.practice.manager.fight.util.FightUtil;
-import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
+import dev.nandi0813.practice.manager.fight.util.*;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
@@ -29,7 +26,6 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
-import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
@@ -567,7 +563,7 @@ public class LadderTypeListener implements Listener {
             killer = null;
         }
 
-        DeathCause cause = dev.nandi0813.practice.moved.FightUtil.convert(damageSource.getDamageType());
+        DeathCause cause = FightUtil.convert(damageSource.getDamageType());
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                 match.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown")), 1L);
 

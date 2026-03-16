@@ -1,7 +1,7 @@
 package dev.nandi0813.practice.manager.playerkit;
 
 import dev.nandi0813.practice.manager.playerkit.items.KitItem;
-import dev.nandi0813.practice.moved.KitData;
+import dev.nandi0813.practice.util.KitData;
 import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 

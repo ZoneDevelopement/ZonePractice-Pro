@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.ladder.settings.handlers;
 
 import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.ladder.settings.SettingHandler;
 import org.bukkit.entity.Player;
 
@@ -27,7 +28,7 @@ public class HitDelaySettingHandler implements SettingHandler<Integer> {
 
             // For modern versions (1.9+), also set the attack speed attribute
             // This enables spam-clicking for combo mode when hitDelay is low
-            dev.nandi0813.practice.moved.PlayerUtil.setAttackSpeed(player, hitDelay);
+            PlayerUtil.setAttackSpeed(player, hitDelay);
         }
     }
 

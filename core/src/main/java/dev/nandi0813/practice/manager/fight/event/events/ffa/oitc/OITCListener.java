@@ -4,6 +4,7 @@ import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.event.enums.EventStatus;
 import dev.nandi0813.practice.manager.fight.event.events.ffa.interfaces.FFAListener;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
@@ -127,7 +128,7 @@ public class OITCListener extends FFAListener {
 
             if (!event.getStatus().equals(EventStatus.LIVE)) {
                 Player player = e.getPlayer();
-                if (dev.nandi0813.practice.moved.PlayerUtil.isItemInUse(player, Material.BOW)) {
+                if (PlayerUtil.isItemInUse(player, Material.BOW)) {
                     e.setCancelled(true);
                     player.updateInventory();
                 }

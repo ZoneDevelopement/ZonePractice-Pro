@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.playerkit.guis;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
@@ -216,7 +217,7 @@ public class MainGUI extends GUI {
     public void open(Player player) {
         super.open(player);
 
-        dev.nandi0813.practice.moved.PlayerUtil.setActiveInventoryTitle(
+        PlayerUtil.setActiveInventoryTitle(
                 player,
                 StaticItems.MAIN_GUI_TITLE.replace("%name%", customLadder.getDisplayName())
         );

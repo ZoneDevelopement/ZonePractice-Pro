@@ -2,7 +2,6 @@ package dev.nandi0813.practice.manager.fight.util;
 
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
-import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;

@@ -1,8 +1,8 @@
 package dev.nandi0813.practice.manager.playerkit;
 
 import dev.nandi0813.practice.manager.gui.GUIItem;
+import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.manager.playerkit.items.EditorIcon;
-import dev.nandi0813.practice.moved.LadderUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Pair;
 import org.bukkit.enchantments.Enchantment;

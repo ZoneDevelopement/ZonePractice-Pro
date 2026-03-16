@@ -9,6 +9,7 @@ import dev.nandi0813.practice.manager.fight.event.events.onevsall.tnttag.TNTTag;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
 import dev.nandi0813.practice.manager.fight.event.util.EventUtil;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
@@ -56,7 +57,7 @@ public class EventListener implements Listener {
             return;
         }
 
-        ItemStack item = dev.nandi0813.practice.moved.PlayerUtil.getItemInUse(player, EventManager.PLAYER_TRACKER.getType());
+        ItemStack item = PlayerUtil.getItemInUse(player, EventManager.PLAYER_TRACKER.getType());
         if (item == null) {
             return;
         }

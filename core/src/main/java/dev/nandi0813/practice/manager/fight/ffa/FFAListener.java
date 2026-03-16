@@ -6,17 +6,12 @@ import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
-import dev.nandi0813.practice.manager.fight.util.BlockUtil;
-import dev.nandi0813.practice.manager.fight.util.DeathCause;
-import dev.nandi0813.practice.manager.fight.util.FightUtil;
-import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
+import dev.nandi0813.practice.manager.fight.util.*;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.moved.ChangedBlock;
-import dev.nandi0813.practice.moved.ModernItemCooldownHandler;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
@@ -383,7 +378,7 @@ public class FFAListener implements Listener {
             killer = FightUtil.getKiller(damageEntity);
         }
 
-        DeathCause cause = dev.nandi0813.practice.moved.FightUtil.convert(damageSource.getDamageType());
+        DeathCause cause = FightUtil.convert(damageSource.getDamageType());
         ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
         if (killer != null) {

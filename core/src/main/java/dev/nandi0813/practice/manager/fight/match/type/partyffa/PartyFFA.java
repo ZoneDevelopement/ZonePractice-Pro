@@ -10,16 +10,16 @@ import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.util.MatchPlayerUtil;
+import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
-import dev.nandi0813.practice.manager.party.Party;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
+import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
-import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
@@ -101,7 +101,7 @@ public class PartyFFA extends Match {
                     new TempKillPlayer(round, player, respawnableLadder.getRespawnTime());
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_TEMP_DEATH).play(this.getPeople());
                 });
-                dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+                dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
                 player.setHealth(20);
                 return;
 
@@ -118,9 +118,9 @@ public class PartyFFA extends Match {
                 PlayerUtil.setFightPlayer(player);
 
                 if (ladder.isDropInventoryPartyGames())
-                    addEntityChange(dev.nandi0813.practice.moved.PlayerUtil.dropPlayerInventory(player));
+                    addEntityChange(dev.nandi0813.practice.manager.fight.util.PlayerUtil.dropPlayerInventory(player));
                 else
-                    dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+                    dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
 
                 // Send a death notification message
                 String playerDieMsg = LanguageManager.getString("MATCH.PARTY-FFA.PLAYER-DIE");

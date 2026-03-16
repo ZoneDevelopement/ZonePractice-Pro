@@ -1,6 +1,5 @@
-package dev.nandi0813.practice.moved;
+package dev.nandi0813.practice.util;
 
-import dev.nandi0813.practice.util.ItemSerializationUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.file.FileConfiguration;

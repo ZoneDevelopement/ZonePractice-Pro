@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.moved;
+package dev.nandi0813.practice.manager.fight.util;
 
 import dev.nandi0813.practice.ZonePractice;
 import org.bukkit.Bukkit;

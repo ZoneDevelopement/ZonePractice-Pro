@@ -1,5 +1,7 @@
-package dev.nandi0813.practice.manager.arena;
+package dev.nandi0813.practice.manager.arena.listener;
 
+import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
@@ -8,6 +10,7 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import org.bukkit.Location;
@@ -20,6 +23,11 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
+
+import static dev.nandi0813.practice.manager.arena.ArenaManager.LOADED_CHUNKS;
+import static dev.nandi0813.practice.manager.arena.ArenaManager.LOAD_CHUNKS;
 
 public class ArenaListener implements Listener {
 
@@ -140,6 +148,35 @@ public class ArenaListener implements Listener {
                     }
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent e) {
+        if (LOAD_CHUNKS) {
+            if (LOADED_CHUNKS.contains(e.getChunk())) {
+                // Use addPluginChunkTicket to force-keep the chunk loaded.
+                // This is safe from recursion (unlike getChunkAtAsync which can
+                // trigger chunk scheduling → more unloads → StackOverflowError).
+                e.getChunk().addPluginChunkTicket(ZonePractice.getInstance());
+            }
+        }
+    }
+
+    @EventHandler
+    public void onWorldUnload(WorldUnloadEvent e) {
+        if (e.getWorld() == ArenaWorldUtil.getArenasWorld()) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if (e.getWorld() == ArenaWorldUtil.getArenasCopyWorld()) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if (ServerManager.getLobby() != null && ServerManager.getLobby().getWorld() == e.getWorld()) {
+            e.setCancelled(true);
         }
     }
 

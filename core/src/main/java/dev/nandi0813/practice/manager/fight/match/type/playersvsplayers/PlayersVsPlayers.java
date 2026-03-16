@@ -72,7 +72,7 @@ public abstract class PlayersVsPlayers extends Match implements Team {
                     new TempKillPlayer(round, player, respawnableLadder.getRespawnTime());
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_TEMP_DEATH).play(this.getPeople());
                 });
-                dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+                dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
                 player.setHealth(20);
                 break;
 
@@ -88,7 +88,7 @@ public abstract class PlayersVsPlayers extends Match implements Team {
                     else
                         MatchPlayerUtil.hidePlayerPartyGames(player, this.players);
 
-                    dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+                    dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
                     player.setHealth(20);
                 } else if (isScoringLadder()) {
                     // Scoring ladder (like Boxing) - death doesn't end round
@@ -101,9 +101,9 @@ public abstract class PlayersVsPlayers extends Match implements Team {
                     PlayerUtil.setFightPlayer(player);
 
                     if (ladder.isDropInventoryPartyGames())
-                        addEntityChange(dev.nandi0813.practice.moved.PlayerUtil.dropPlayerInventory(player));
+                        addEntityChange(dev.nandi0813.practice.manager.fight.util.PlayerUtil.dropPlayerInventory(player));
                     else
-                        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+                        dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
 
                     if (this.getLanguagePath() != null) {
                         String teamDeathMSG = LanguageManager.getString(this.getLanguagePath() + ".PLAYER-DIE");
@@ -122,7 +122,7 @@ public abstract class PlayersVsPlayers extends Match implements Team {
                     else
                         MatchPlayerUtil.hidePlayerPartyGames(player, this.players);
 
-                    dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+                    dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
                     player.setHealth(20);
                 }
                 break;

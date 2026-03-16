@@ -1,9 +1,10 @@
 package dev.nandi0813.practice.manager.fight.match.util;
 
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
-import dev.nandi0813.practice.moved.KitData;
-import dev.nandi0813.practice.moved.LadderUtil;
+import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
+import dev.nandi0813.practice.util.KitData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -20,7 +21,7 @@ public enum KitUtil {
     }
 
     public static void loadKit(Player player, TeamEnum team, ItemStack[] armor, ItemStack[] inventory, ItemStack[] extra) {
-        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+        PlayerUtil.clearInventory(player);
 
         if (team == null) {
             LadderUtil.loadInventory(player, armor, inventory, extra);

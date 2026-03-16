@@ -22,8 +22,9 @@ import dev.nandi0813.practice.command.spectate.SpectateCommand;
 import dev.nandi0813.practice.command.staff.StaffCommand;
 import dev.nandi0813.practice.command.statistics.StatisticsCommand;
 import dev.nandi0813.practice.listener.*;
-import dev.nandi0813.practice.manager.arena.ArenaListener;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
+import dev.nandi0813.practice.manager.arena.listener.ArenaCopyUtilListener;
+import dev.nandi0813.practice.manager.arena.listener.ArenaListener;
 import dev.nandi0813.practice.manager.arena.setup.SpawnMarkerManager;
 import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.*;
@@ -32,7 +33,11 @@ import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAListener;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.listener.BuildBlockListener;
+import dev.nandi0813.practice.manager.fight.listener.BuildListener;
+import dev.nandi0813.practice.manager.fight.listener.EPCountdownListener;
+import dev.nandi0813.practice.manager.fight.listener.FireworkRocketCooldownListener;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.fight.util.EntityHider;
 import dev.nandi0813.practice.manager.fight.util.EntityHiderListener;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
@@ -45,7 +50,6 @@ import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
-import dev.nandi0813.practice.moved.*;
 import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -101,7 +105,7 @@ public final class ZonePractice extends JavaPlugin {
         metrics = new Metrics(this, 16055);
 
         if (VersionChecker.getBukkitVersion() == null) {
-            Common.sendConsoleMMMessage("<red>Unsupported server version! Please use 1.8.8 or 1.8.9 or 1.20.6 or 1.21.X");
+            Common.sendConsoleMMMessage("<red>Unsupported server version! Please use 1.20.6 or 1.21.X");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -375,8 +379,6 @@ public final class ZonePractice extends JavaPlugin {
         pm.registerEvents(new StatisticListener(), this);
         pm.registerEvents(arenaCopyUtilListener, this);
         pm.registerEvents(new BuildListener(), this);
-        pm.registerEvents(new ItemOffHandListener(), this);
-        pm.registerEvents(new dev.nandi0813.practice.moved.ArenaListener(), this);
         pm.registerEvents(new FFAListener(), this);
         pm.registerEvents(new EPCountdownListener(), this);
         pm.registerEvents(new FireworkRocketCooldownListener(), this);

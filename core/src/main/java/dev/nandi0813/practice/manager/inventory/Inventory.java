@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.inventory;
 
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.ExtraInvItem;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvArmor;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvItem;
@@ -55,7 +56,7 @@ public abstract class Inventory {
         if (currentInventory != null)
             currentInventory.getPlayers().remove(player);
 
-        dev.nandi0813.practice.moved.PlayerUtil.clearInventory(player);
+        PlayerUtil.clearInventory(player);
 
         players.add(player);
 

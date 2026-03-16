@@ -3,9 +3,9 @@ package dev.nandi0813.practice.manager.fight.listener;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
+import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import dev.nandi0813.practice.manager.fight.util.FightUtil;
 import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
-import dev.nandi0813.practice.moved.ChangedBlock;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -26,7 +26,7 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
  * {@link FightUtil#getActiveBuildSpectatables()}.
  * <p>
  * All world-driven block events (pistons, liquid flow, form, spread, explosions, TNT,
- * falling blocks) are handled by {@link dev.nandi0813.practice.moved.BuildListener}.
+ * falling blocks) are handled by {@link BuildListener}.
  */
 public class BuildBlockListener implements Listener {
 

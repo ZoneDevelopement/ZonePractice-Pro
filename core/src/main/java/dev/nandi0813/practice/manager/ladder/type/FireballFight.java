@@ -6,17 +6,12 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
-import dev.nandi0813.practice.manager.fight.util.BlockUtil;
-import dev.nandi0813.practice.manager.fight.util.DeathCause;
-import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
+import dev.nandi0813.practice.manager.fight.util.*;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.BedFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.moved.ChangedBlock;
-import dev.nandi0813.practice.moved.LadderUtil;
-import dev.nandi0813.practice.moved.ModernItemCooldownHandler;
-import dev.nandi0813.practice.moved.PlayerUtil;
+import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -137,7 +132,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
         Action action = e.getAction();
 
         if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
-        ItemStack fireballItem = dev.nandi0813.practice.moved.PlayerUtil.getItemInUse(player, Material.FIRE_CHARGE);
+        ItemStack fireballItem = PlayerUtil.getItemInUse(player, Material.FIRE_CHARGE);
         if (fireballItem == null) {
             return;
         }
@@ -225,7 +220,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
             }
 
             e.setDamage(0);
-            dev.nandi0813.practice.moved.PlayerUtil.applyFireballKnockback(player, fireball);
+            PlayerUtil.applyFireballKnockback(player, fireball);
         } else if (e.getDamager() instanceof TNTPrimed tnt) {
             Match mv = BlockUtil.getMetadata(tnt, FIREBALL_FIGHT_TNT, Match.class);
             if (ListenerUtil.checkMetaData(mv)) {
@@ -239,7 +234,7 @@ public class FireballFight extends BedFight implements CustomConfig, LadderHandl
 
             if (mv2 instanceof Player shooter) {
                 if (shooter == player || !TeamUtil.isSaveTeamMate(match, shooter, player)) {
-                    dev.nandi0813.practice.moved.PlayerUtil.applyTntKnockback(player, tnt);
+                    PlayerUtil.applyTntKnockback(player, tnt);
                     e.setDamage(0);
                 } else if (TeamUtil.isSaveTeamMate(match, shooter, player)) {
                     e.setCancelled(true);

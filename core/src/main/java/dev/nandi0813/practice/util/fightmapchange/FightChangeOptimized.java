@@ -2,7 +2,7 @@ package dev.nandi0813.practice.util.fightmapchange;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
-import dev.nandi0813.practice.moved.ChangedBlock;
+import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.interfaces.Spectatable;

@@ -19,7 +19,7 @@ public enum MatchPlayerUtil {
 
         PlayerUtil.setFightPlayer(hider);
 
-        dev.nandi0813.practice.moved.PlayerUtil.setCollidesWithEntities(hider, false);
+        dev.nandi0813.practice.manager.fight.util.PlayerUtil.setCollidesWithEntities(hider, false);
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
             hider.setAllowFlight(true);

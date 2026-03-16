@@ -1,6 +1,6 @@
 package dev.nandi0813.practice.manager.nametag;
 
-import dev.nandi0813.practice.moved.PlayerUtil;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.util.PermanentConfig;
 import lombok.Getter;
 import me.neznamy.tab.api.TabAPI;

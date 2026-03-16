@@ -5,8 +5,8 @@ import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.event.enums.EventType;
 import dev.nandi0813.practice.manager.fight.event.events.duel.brackets.BracketsData;
 import dev.nandi0813.practice.manager.fight.event.util.EventUtil;
-import dev.nandi0813.practice.moved.KitData;
 import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.KitData;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
