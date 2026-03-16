@@ -3,19 +3,19 @@ package dev.nandi0813.practice.manager.leaderboard.hologram;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.TextDisplay;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a single line in a hologram display.
- * Each HologramLine manages exactly ONE ArmorStand entity with strict lifecycle management.
+ * Each HologramLine manages exactly ONE TextDisplay entity with strict lifecycle management.
  *
  * <p>Key responsibilities:</p>
  * <ul>
- *   <li>Spawning/despawning armor stand entities</li>
+ *   <li>Spawning/despawning text display entities</li>
  *   <li>Updating display text without flicker</li>
- *   <li>Auto-recovery when armor stands are removed externally</li>
+ *   <li>Auto-recovery when displays are removed externally</li>
  *   <li>Thread-safe state tracking</li>
  * </ul>
  */
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public class HologramLine {
 
     @Setter
-    private ArmorStand entity;
+    private TextDisplay entity;
     private Location location;
     private String text = "";
     private boolean spawned;
@@ -37,17 +37,17 @@ public class HologramLine {
     }
 
     /**
-     * Spawns the armor stand at the specified location.
+     * Spawns the text display at the specified location.
      * This method is idempotent - calling multiple times won't create duplicates.
      *
      * @param loc  The spawn location
      * @param text The display text (supports color codes)
-     * @return The spawned ArmorStand, or existing one if already spawned
+     * @return The spawned TextDisplay, or existing one if already spawned
      */
     @Nullable
-    public ArmorStand spawn(@NotNull Location loc, @NotNull String text) {
+    public TextDisplay spawn(@NotNull Location loc, @NotNull String text) {
         // Return existing if already alive
-        if (spawned && ArmorStandFactory.isAlive(entity)) {
+        if (spawned && TextDisplayFactory.isAlive(entity)) {
             return entity;
         }
 
@@ -58,14 +58,14 @@ public class HologramLine {
             return null;
         }
 
-        this.entity = ArmorStandFactory.create(location, text);
+        this.entity = TextDisplayFactory.create(location, text);
         this.spawned = (entity != null);
 
         return entity;
     }
 
     /**
-     * Despawns and removes the armor stand entity.
+     * Despawns and removes the text display entity.
      * The line can be respawned later with {@link #spawn(Location, String)}.
      */
     public void despawn() {
@@ -73,14 +73,14 @@ public class HologramLine {
             return;
         }
 
-        ArmorStandFactory.safeRemove(entity);
+        TextDisplayFactory.safeRemove(entity);
         entity = null;
         spawned = false;
     }
 
     /**
      * Updates the display text.
-     * If the armor stand was externally removed, it will be automatically respawned.
+     * If the display was externally removed, it will be automatically respawned.
      *
      * @param newText The new display text (supports color codes)
      */
@@ -88,19 +88,19 @@ public class HologramLine {
         this.text = newText;
 
         // If entity is alive, just update the text
-        if (ArmorStandFactory.isAlive(entity)) {
-            ArmorStandFactory.updateText(entity, newText);
+        if (TextDisplayFactory.isAlive(entity)) {
+            TextDisplayFactory.updateText(entity, newText);
             return;
         }
 
         // Auto-respawn if entity was killed externally
         if (spawned && location != null && location.getWorld() != null) {
-            this.entity = ArmorStandFactory.create(location, newText);
+                this.entity = TextDisplayFactory.create(location, newText);
         }
     }
 
     /**
-     * Teleports the armor stand to a new location.
+     * Teleports the text display to a new location.
      *
      * @param newLoc The new location
      * @return true if teleported successfully
@@ -115,12 +115,12 @@ public class HologramLine {
     }
 
     /**
-     * Checks if this line has a valid, alive armor stand.
+     * Checks if this line has a valid, alive text display.
      *
      * @return true if the entity is alive
      */
     public boolean isValid() {
-        return spawned && ArmorStandFactory.isAlive(entity);
+        return spawned && TextDisplayFactory.isAlive(entity);
     }
 
     /**
@@ -132,7 +132,7 @@ public class HologramLine {
         if (location != null) {
             return location.getY();
         }
-        return ArmorStandFactory.isAlive(entity) ? entity.getLocation().getY() : 0;
+        return TextDisplayFactory.isAlive(entity) ? entity.getLocation().getY() : 0;
     }
 
     /**
@@ -151,7 +151,7 @@ public class HologramLine {
         this.text = newText;
 
         entity.teleport(newLoc);
-        ArmorStandFactory.updateText(entity, newText);
+        TextDisplayFactory.updateText(entity, newText);
 
         return true;
     }
@@ -161,7 +161,7 @@ public class HologramLine {
      * Use as a recovery method when normal despawn might not work.
      */
     public void forceClean() {
-        ArmorStandFactory.safeRemove(entity);
+        TextDisplayFactory.safeRemove(entity);
         entity = null;
         spawned = false;
     }
