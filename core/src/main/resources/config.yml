@@ -1,4 +1,4 @@
-VERSION: 18
+VERSION: 19
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -488,6 +488,8 @@ EVENT:
     NAME: "Splegg"
     WINNER-COMMAND:
       - "practice ranked add %player% 3"
+    BREAKABLE-MATERIALS: # Generic entries like WOOL or TERRACOTTA also match colored variants.
+      - "WOOL"
     EGG-LAUNCHER-ITEM:
       NAME: "&aShoot The Blocks &7(Right-Click)"
       MATERIAL: IRON_SHOVEL

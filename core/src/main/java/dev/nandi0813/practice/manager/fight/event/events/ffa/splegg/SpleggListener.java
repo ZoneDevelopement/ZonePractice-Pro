@@ -21,6 +21,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
 
+import java.util.List;
+
 public class SpleggListener extends FFAListener {
 
     @Override
@@ -107,16 +109,34 @@ public class SpleggListener extends FFAListener {
             if (!event.getEventData().getCuboid().contains(hitBlock.getLocation())) return;
 
             Material hitBlockType = hitBlock.getType();
-            String materialName = hitBlockType.name();
-            // Check if block is wool - works for both 1.8.8 (WOOL) and modern versions (WHITE_WOOL, RED_WOOL, etc.)
-            if (materialName.equals("WOOL") || materialName.endsWith("_WOOL")) {
-                splegg.getFightChange().addBlockChange(new ChangedBlock(hitBlock));
+            if (!isBreakableMaterial(hitBlockType, splegg.getEventData().getBreakableMaterials())) return;
 
-                hitBlock.setBlockData(Material.AIR.createBlockData());
-                splegg.getShotBlocks().replace(player, splegg.getShotBlocks().get(player) + 1);
-            }
+            splegg.getFightChange().addBlockChange(new ChangedBlock(hitBlock));
+            hitBlock.setBlockData(Material.AIR.createBlockData());
+            splegg.getShotBlocks().replace(player, splegg.getShotBlocks().get(player) + 1);
         }
     }
+
+    private boolean isBreakableMaterial(Material blockType, List<String> allowedMaterials) {
+        String materialName = blockType.name();
+
+        for (String allowedMaterial : allowedMaterials) {
+            if (allowedMaterial == null || allowedMaterial.isEmpty()) {
+                continue;
+            }
+
+            if (materialName.equals(allowedMaterial)) {
+                return true;
+            }
+
+            if (materialName.contains("_") && materialName.endsWith("_" + allowedMaterial)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     @Override
     public void onPlayerDropItem(Event event, PlayerDropItemEvent e) {
