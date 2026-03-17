@@ -23,6 +23,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
@@ -30,6 +31,18 @@ import static dev.nandi0813.practice.manager.arena.ArenaManager.LOADED_CHUNKS;
 import static dev.nandi0813.practice.manager.arena.ArenaManager.LOAD_CHUNKS;
 
 public class ArenaListener implements Listener {
+
+    @EventHandler
+    public void onPlayerPortalEvent(PlayerPortalEvent e) {
+        Player player = e.getPlayer();
+        World world = player.getWorld();
+
+        if (world.equals(ArenaWorldUtil.getArenasCopyWorld())) {
+            e.setCancelled(true);
+        } else if (world.equals(ArenaWorldUtil.getArenasWorld())) {
+            e.setCancelled(true);
+        }
+    }
 
     @EventHandler ( priority = EventPriority.HIGHEST )
     public void onBlockBreak(BlockBreakEvent e) {
