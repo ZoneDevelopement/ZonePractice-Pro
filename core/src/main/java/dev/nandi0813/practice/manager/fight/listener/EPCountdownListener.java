@@ -76,7 +76,6 @@ public class EPCountdownListener implements Listener {
             }
 
             ModernItemCooldownHandler.handleEnderPearl(player, duration, e);
-
             return;
         }
 

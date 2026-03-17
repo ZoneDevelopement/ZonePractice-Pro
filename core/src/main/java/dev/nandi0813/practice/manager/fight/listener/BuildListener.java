@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import dev.nandi0813.practice.manager.fight.util.FightUtil;
+import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
@@ -81,6 +82,14 @@ public class BuildListener implements Listener {
         return getByLocation(block.getLocation());
     }
 
+    /** Track the block under a placed block if it will naturally turn to dirt (grass -> dirt). */
+    private static void trackUnderBlockIfDirt(Block block, Spectatable spectatable) {
+        Block under = block.getRelative(0, -1, 0);
+        if (ArenaUtil.turnsToDirt(under)) {
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(under));
+        }
+    }
+
     /**
      * Tags {@code block} with {@code PLACED_IN_FIGHT} metadata pointing to
      * {@code spectatable} and records it for rollback.
@@ -96,6 +105,82 @@ public class BuildListener implements Listener {
      */
     protected static Ladder ladderOf(Spectatable spectatable) {
         return (spectatable instanceof Match) ? ((Match) spectatable).getLadder() : null;
+    }
+
+    /**
+     * Applies explosion block filtering rules and tracks all surviving changed blocks for rollback.
+     */
+    private static void filterAndTrackExplosionBlocks(List<Block> blockList, Spectatable spectatable) {
+        final Ladder l = ladderOf(spectatable);
+        final boolean breakAll = spectatable.isBreakAllBlocks();
+
+        blockList.removeIf(block -> {
+            if (block.getType().equals(Material.TNT)) return false;                    // keep -> chain-explodes
+            if (ArenaUtil.containsDestroyableBlock(l, block)) return false;            // keep -> destroyable
+            if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return false;           // keep -> player placed
+            if (breakAll) return false;                                                 // keep -> break-all-blocks active
+            if (BlockUtil.hasMetadata(block.getRelative(0, 1, 0), PLACED_IN_FIGHT)) return true; // remove -> support block protected
+            return true;                                                                // remove -> pure arena block
+        });
+
+        for (Block block : blockList) {
+            if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
+            if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+                spectatable.addBlockChange(new ChangedBlock(block));
+            } else {
+                // Natural arena block -> use addArenaBlockChange so no PLACED_IN_FIGHT metadata is set.
+                spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
+            }
+            trackDependentBlocksAbove(block, spectatable);
+        }
+    }
+
+    // =========================================================================
+    // PLAYER-DRIVEN BLOCK EVENTS (merged from BuildBlockListener)
+    // =========================================================================
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockBreak(BlockBreakEvent e) {
+        Block block = e.getBlock();
+
+        // Case 1: block was placed during the fight -> track it for rollback.
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Spectatable spectatable = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(spectatable)) return;
+            if (!spectatable.isBuild()) return;
+
+            spectatable.addBlockChange(new ChangedBlock(block));
+            return;
+        }
+
+        // Case 2: natural arena block -> only allow configured destroyable blocks.
+        Spectatable spectatable = getByBlock(block);
+        if (spectatable == null || !spectatable.isBuild()) return;
+
+        var ladder = (spectatable instanceof Match match) ? match.getLadder() : null;
+        if (ArenaUtil.containsDestroyableBlock(ladder, block)) {
+            BlockUtil.breakBlock(spectatable, block);
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockPlace(BlockPlaceEvent e) {
+        Block block = e.getBlockPlaced();
+
+        Spectatable spectatable;
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            Spectatable s = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(s)) return;
+            spectatable = s;
+        } else {
+            spectatable = getByBlock(block);
+            if (spectatable == null || !spectatable.isBuild()) return;
+            BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
+        }
+
+        spectatable.addBlockChange(new ChangedBlock(e));
+        trackUnderBlockIfDirt(block, spectatable);
     }
 
     // =========================================================================
@@ -146,29 +231,7 @@ public class BuildListener implements Listener {
             }
         }
 
-        final Ladder l = ladderOf(spectatable);
-        final boolean breakAll = spectatable.isBreakAllBlocks();
-
-        blockList.removeIf(block -> {
-            if (block.getType().equals(Material.TNT)) return false;                    // keep → chain-explodes
-            if (ArenaUtil.containsDestroyableBlock(l, block)) return false; // keep → destroyable
-            if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return false;                      // keep → player placed
-            if (breakAll) return false;                                                 // keep → break-all-blocks active
-            if (BlockUtil.hasMetadata(block.getRelative(0, 1, 0), PLACED_IN_FIGHT)) return true; // remove → support block protected
-            return true;                                                                // remove → pure arena block
-        });
-
-        for (Block block : blockList) {
-            if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
-            if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
-                spectatable.addBlockChange(new ChangedBlock(block));
-            } else {
-                // Natural arena block — use addArenaBlockChange so no PLACED_IN_FIGHT
-                // metadata is set (players can't break it manually) but it is restored.
-                spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
-            }
-            trackDependentBlocksAbove(block, spectatable);
-        }
+        filterAndTrackExplosionBlocks(blockList, spectatable);
     }
 
     @EventHandler
@@ -188,25 +251,7 @@ public class BuildListener implements Listener {
                     return;
                 }
             }
-            final Ladder l = ladderOf(spectatable);
-            final boolean breakAll = spectatable.isBreakAllBlocks();
-            e.blockList().removeIf(block -> {
-                if (block.getType().equals(Material.TNT)) return false;
-                if (ArenaUtil.containsDestroyableBlock(l, block)) return false;
-                if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return false;
-                if (breakAll) return false;
-                if (BlockUtil.hasMetadata(block.getRelative(0, 1, 0), PLACED_IN_FIGHT)) return true;
-                return true;
-            });
-            for (Block block : e.blockList()) {
-                if (block.getType() == Material.TNT || block.getType() == Material.AIR) continue;
-                if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
-                    spectatable.addBlockChange(new ChangedBlock(block));
-                } else {
-                    spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
-                }
-                trackDependentBlocksAbove(block, spectatable);
-            }
+            filterAndTrackExplosionBlocks(e.blockList(), spectatable);
             return;
         }
 

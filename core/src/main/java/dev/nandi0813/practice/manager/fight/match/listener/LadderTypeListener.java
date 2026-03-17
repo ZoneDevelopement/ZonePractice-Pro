@@ -233,7 +233,7 @@ public class LadderTypeListener implements Listener {
 
         Block block = e.getBlock();
 
-        // Blocks placed during the fight — allow breaking (tracking done by BuildBlockListener)
+        // Blocks placed during the fight — allow breaking (tracking done by BuildListener)
         if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
             Object mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Object.class);
             if (ListenerUtil.checkMetaData(mv)) {
@@ -294,7 +294,7 @@ public class LadderTypeListener implements Listener {
         }
 
         delegateToLadderHandle(e, match);
-        // Tagging and tracking handled by BuildBlockListener at MONITOR priority
+        // Tagging and tracking handled by BuildListener at MONITOR priority
     }
 
 

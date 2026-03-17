@@ -32,7 +32,6 @@ import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAListener;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
-import dev.nandi0813.practice.manager.fight.listener.BuildBlockListener;
 import dev.nandi0813.practice.manager.fight.listener.BuildListener;
 import dev.nandi0813.practice.manager.fight.listener.EPCountdownListener;
 import dev.nandi0813.practice.manager.fight.listener.FireworkRocketCooldownListener;
@@ -364,7 +363,6 @@ public final class ZonePractice extends JavaPlugin {
      * It registers all the events that are used in the plugin
      */
     private void registerListeners(PluginManager pm) {
-        pm.registerEvents(new BuildBlockListener(), this);
 
         pm.registerEvents(new PlayerPreLogin(), this);
         pm.registerEvents(new PlayerJoin(), this);

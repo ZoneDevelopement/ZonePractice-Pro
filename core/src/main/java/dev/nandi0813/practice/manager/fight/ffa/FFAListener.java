@@ -42,9 +42,9 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
  * FFA-specific event listener.
  *
  * <p>Block tracking / rollback events (break, place, piston, liquid, explosion, etc.)
- * are handled by the unified {@link dev.nandi0813.practice.manager.fight.listener.BuildBlockListener}.
+ * are handled by the unified {@link dev.nandi0813.practice.manager.fight.listener.BuildListener}.
  * This listener only handles player-specific FFA game logic (damage, movement, crafting, etc.)
- * and the build validation gates (cancel the event before MONITOR fires for BuildBlockListener).</p>
+ * and the build validation gates (cancel the event before MONITOR fires for BuildListener).</p>
  */
 public class FFAListener implements Listener {
 
@@ -186,7 +186,7 @@ public class FFAListener implements Listener {
 
     /**
      * Validates FFA build rules (build enabled, build limits).
-     * Actual block tracking is done by {@link dev.nandi0813.practice.manager.fight.listener.BuildBlockListener}.
+     * Actual block tracking is done by {@link dev.nandi0813.practice.manager.fight.listener.BuildListener}.
      */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
@@ -202,7 +202,7 @@ public class FFAListener implements Listener {
 
         Block block = e.getBlock();
 
-        // Blocks placed during the fight — allow breaking (tracking done by BuildBlockListener)
+        // Blocks placed during the fight — allow breaking (tracking done by BuildListener)
         if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
             Object mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Object.class);
             if (ListenerUtil.checkMetaData(mv)) {
@@ -241,7 +241,7 @@ public class FFAListener implements Listener {
 
     /**
      * Validates FFA build rules (build enabled, arena boundary, build limits) and tags block.
-     * Actual tracking is done by {@link dev.nandi0813.practice.manager.fight.listener.BuildBlockListener}.
+     * Actual tracking is done by {@link dev.nandi0813.practice.manager.fight.listener.BuildListener}.
      */
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
@@ -268,12 +268,12 @@ public class FFAListener implements Listener {
             Common.sendMMMessage(player, LanguageManager.getString("FFA.GAME.CANT-BUILD-OVER-LIMIT"));
             e.setCancelled(true);
         }
-        // Tagging and tracking handled by BuildBlockListener at MONITOR priority
+        // Tagging and tracking handled by BuildListener at MONITOR priority
     }
 
     /**
      * Validates FFA bucket rules and tags the target block.
-     * Actual tracking is done by {@link dev.nandi0813.practice.manager.fight.listener.BuildBlockListener}.
+     * Actual tracking is done by {@link dev.nandi0813.practice.manager.fight.listener.BuildListener}.
      */
     @EventHandler
     public void onBucketEmpty(PlayerBucketEmptyEvent e) {
