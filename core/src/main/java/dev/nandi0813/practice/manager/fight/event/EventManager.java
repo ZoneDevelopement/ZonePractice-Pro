@@ -31,6 +31,8 @@ import dev.nandi0813.practice.manager.fight.event.interfaces.EventListenerInterf
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.guis.EventHostGui;
 import dev.nandi0813.practice.manager.gui.setup.event.EventSetupManager;
+import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StartUpCallback;
 import lombok.Getter;
@@ -133,14 +135,44 @@ public class EventManager {
         }
     }
 
-    public void startEvent(Player starter, EventType eventType) {
+    public boolean startEvent(Player starter, EventType eventType) {
         if (eventType == null) {
-            return;
+            return false;
         }
 
         if (!getEventData().get(eventType).isEnabled()) {
             ZonePractice.getInstance().getLogger().warning("Event " + eventType.getName() + " is not enabled.");
-            return;
+            return false;
+        }
+
+        if (starter != null) {
+            if (!starter.hasPermission("zpp.event.host") ||
+                    (!starter.hasPermission("zpp.event.host." + eventType.name().toLowerCase()) && !starter.hasPermission("zpp.event.host.all"))) {
+                Common.sendMMMessage(starter, LanguageManager.getString("EVENT.CANT-HOST-EVENT").replace("%event%", eventType.getName()));
+                return false;
+            }
+
+            Profile starterProfile = ProfileManager.getInstance().getProfile(starter);
+            if (starterProfile == null || starterProfile.getEventStartLeft() <= 0) {
+                Common.sendMMMessage(starter, LanguageManager.getString("EVENT.CANT-HOST-EVENT-TODAY"));
+                return false;
+            }
+        }
+
+        if (!this.events.isEmpty() && ConfigManager.getBoolean("EVENT.MULTIPLE")) {
+            for (Event liveEvent : this.events) {
+                if (liveEvent.getStatus().equals(dev.nandi0813.practice.manager.fight.event.enums.EventStatus.COLLECTING)) {
+                    if (starter != null) {
+                        Common.sendMMMessage(starter, LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.HOST.CANT-HOST-NOW"));
+                    }
+                    return false;
+                }
+            }
+        } else if (!this.events.isEmpty() && !ConfigManager.getBoolean("EVENT.MULTIPLE")) {
+            if (starter != null) {
+                Common.sendMMMessage(starter, LanguageManager.getString("EVENT.ONLY-ONE-EVENT"));
+            }
+            return false;
         }
 
         if (this.isEventLive(eventType)) {
@@ -149,7 +181,7 @@ public class EventManager {
             else
                 Common.sendConsoleMMMessage(LanguageManager.getString("EVENT.CANT-START-EVENT").replace("%event%", eventType.getName()));
 
-            return;
+            return false;
         }
 
         Event event = switch (eventType) {
@@ -163,7 +195,19 @@ public class EventManager {
         };
 
         events.add(event);
-        event.startQueue();
+        if (!event.startQueue()) {
+            events.remove(event);
+            return false;
+        }
+
+        if (starter != null) {
+            Profile starterProfile = ProfileManager.getInstance().getProfile(starter);
+            if (starterProfile != null) {
+                starterProfile.setEventStartLeft(Math.max(0, starterProfile.getEventStartLeft() - 1));
+            }
+        }
+
+        return true;
     }
 
     public boolean isEventLive(EventType eventType) {

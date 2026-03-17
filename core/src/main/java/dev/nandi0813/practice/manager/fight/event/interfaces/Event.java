@@ -126,15 +126,15 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
 
     public abstract void killPlayer(Player player, boolean teleport);
 
-    public void startQueue() {
+    public boolean startQueue() {
         EventStartEvent event = new EventStartEvent(this);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
-            return;
+            return false;
         }
 
         if (!this.status.equals(EventStatus.COLLECTING)) {
-            return;
+            return false;
         }
 
         this.queueRunnable.begin();
@@ -150,6 +150,8 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
         if (starter instanceof Player) {
             this.addPlayer((Player) starter);
         }
+
+        return true;
     }
 
     public void stopQueue() {

@@ -2,13 +2,10 @@ package dev.nandi0813.practice.manager.fight.event.runnables.queue;
 
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
-import dev.nandi0813.practice.manager.profile.Profile;
-import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.server.sound.SoundEffect;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.util.interfaces.Runnable;
-import org.bukkit.entity.Player;
 
 public class QueueStartRunnable extends Runnable {
 
@@ -42,11 +39,6 @@ public class QueueStartRunnable extends Runnable {
             this.cancel();
             event.start();
             event.getQueueRunnable().cancel();
-
-            if (event.getStarter() instanceof Player starter) {
-                Profile starterProfile = ProfileManager.getInstance().getProfile(starter);
-                starterProfile.setEventStartLeft(starterProfile.getEventStartLeft() - 1);
-            }
         }
 
         this.seconds--;
