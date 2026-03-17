@@ -19,9 +19,8 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Mannequin;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -169,10 +168,12 @@ public enum ArenaUtil {
 
     public static void setGamerules(World world) {
         world.setSpawnLocation(0, 60, 0);
-        world.setGameRuleValue("doDaylightCycle", "false");
-        world.setGameRuleValue("doMobSpawning", "false");
-        world.setGameRuleValue("showDeathMessages", "false");
-        world.setGameRuleValue("doFireTick", "false");
+        world.setGameRule(GameRules.SPAWN_MOBS, false);
+        world.setGameRule(GameRules.SHOW_DEATH_MESSAGES, false);
+        world.setGameRule(GameRules.ADVANCE_WEATHER, false);
+        world.setGameRule(GameRules.ALLOW_ENTERING_NETHER_USING_PORTALS, false);
+        world.setGameRule(GameRules.RAIDS, false);
+        world.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES, false);
     }
 
     public static void saveBedData(final YamlConfiguration config, final String path, final BedLocation bedLocation) {
@@ -277,22 +278,22 @@ public enum ArenaUtil {
         }
     }
 
-    public static void setArmorStandItemInHand(ArmorStand armorStand, ItemStack item, boolean rightHand) {
-        if (armorStand == null) return;
+    public static void setMannequinItemInHand(Mannequin mannequin, ItemStack item, boolean rightHand) {
+        if (mannequin == null) return;
+        if (mannequin.getEquipment() == null) return;
 
         if (rightHand) {
-            armorStand.setItem(EquipmentSlot.HAND, item);
+            mannequin.getEquipment().setItemInMainHand(item);
         } else {
-            armorStand.setItem(EquipmentSlot.OFF_HAND, item);
+            mannequin.getEquipment().setItemInOffHand(item);
         }
     }
 
-    public static void setArmorStandInvulnerable(ArmorStand armorStand) {
-        if (armorStand == null) return;
-        armorStand.setInvulnerable(true);
-        // Make armor stands non-persistent so they don't survive server restarts
-        // This prevents orphaned armor stands (markers and holograms) from appearing after restart
-        armorStand.setPersistent(false);
+    public static void setMannequinInvulnerable(Mannequin mannequin) {
+        if (mannequin == null) return;
+        mannequin.setInvulnerable(true);
+        // Keep setup markers non-persistent so they do not survive server restarts.
+        mannequin.setPersistent(false);
     }
 
 }

@@ -178,8 +178,6 @@ public abstract class Hologram {
         }
     }
 
-    // ArmorStand custom names rendered ~2 blocks above entity position.
-    // TextDisplay renders at entity position, so preserve existing configured hologram locations by adding this lift.
     private static final double BASE_HEIGHT_OFFSET = 2.2;
 
     private List<Location> calculatePositions(int count, List<Double> spacings) {

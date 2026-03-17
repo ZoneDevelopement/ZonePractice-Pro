@@ -10,14 +10,17 @@ import dev.nandi0813.practice.util.Common;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Mannequin;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.*;
 
@@ -127,7 +130,7 @@ public class EventSetupListener implements Listener {
             return;
         }
 
-        if (!(event.getRightClicked() instanceof ArmorStand armorStand)) {
+        if (!(event.getRightClicked() instanceof Mannequin mannequin)) {
             return;
         }
 
@@ -136,11 +139,11 @@ public class EventSetupListener implements Listener {
         EventData eventData = session.getEventData();
         EventSpawnMarkerManager markerManager = EventSpawnMarkerManager.getInstance();
 
-        if (!markerManager.isMarker(armorStand)) {
+        if (!markerManager.isMarker(mannequin)) {
             return;
         }
 
-        int spawnIndex = markerManager.getSpawnIndex(armorStand);
+        int spawnIndex = markerManager.getSpawnIndex(mannequin);
         if (spawnIndex == -1) {
             player.sendMessage(Common.colorize("&cCouldn't find spawn point for this marker."));
             return;
@@ -153,22 +156,12 @@ public class EventSetupListener implements Listener {
         player.sendMessage(Common.colorize("&aRemoved spawn point #" + (spawnIndex + 1) + ". Remaining: " + eventData.getSpawns().size()));
     }
 
-    // Prevent players from manipulating marker armor stands
+    // Prevent damage to marker mannequins
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
-        ArmorStand armorStand = event.getRightClicked();
+    public void onMarkerDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Mannequin mannequin)) return;
 
-        if (EventSpawnMarkerManager.getInstance().isMarker(armorStand)) {
-            event.setCancelled(true);
-        }
-    }
-
-    // Prevent damage to marker armor stands
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onArmorStandDamage(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof ArmorStand armorStand)) return;
-
-        if (!EventSpawnMarkerManager.getInstance().isMarker(armorStand)) return;
+        if (!EventSpawnMarkerManager.getInstance().isMarker(mannequin)) return;
 
         // Cancel damage in all cases
         event.setCancelled(true);
@@ -188,7 +181,7 @@ public class EventSetupListener implements Listener {
         // Check if in correct mode
         if (session.getCurrentMode() != EventSetupMode.SPAWN_POINTS) return;
 
-        // Left-click on armor stand = Remove last spawn (same as left-click on block)
+        // Left-click on mannequin marker = Remove last spawn (same as left-click on block)
         if (!eventData.getSpawns().isEmpty()) {
             int index = eventData.getSpawns().size() - 1;
             eventData.getSpawns().remove(index);

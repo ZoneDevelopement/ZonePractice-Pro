@@ -6,16 +6,15 @@ import dev.nandi0813.practice.util.ItemCreateUtil;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.entity.Mannequin;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
 /**
- * Manages armor stand markers that show spawn positions in event setup mode.
- * Armor stands face the direction the player will spawn and hold a sword.
+ * Manages mannequin markers that show spawn positions in event setup mode.
+ * Mannequins face the direction the player will spawn and hold a sword.
  */
 @Getter
 public class EventSpawnMarkerManager {
@@ -29,10 +28,10 @@ public class EventSpawnMarkerManager {
         return instance;
     }
 
-    // Maps each event to its list of marker armor stands
-    private final Map<EventData, List<ArmorStand>> eventMarkers = new HashMap<>();
+    // Maps each event to its list of marker mannequins
+    private final Map<EventData, List<Mannequin>> eventMarkers = new HashMap<>();
 
-    // Maps armor stand UUID to spawn index for spawn removal
+    // Maps mannequin UUID to spawn index for spawn removal
     private final Map<UUID, Integer> markerToSpawnIndex = new HashMap<>();
 
     /**
@@ -44,43 +43,43 @@ public class EventSpawnMarkerManager {
         // Clear existing markers first
         clearMarkers(eventData);
 
-        // Additionally, clear any orphaned armor stands near spawn locations that might have been left behind
+        // Additionally, clear any orphaned mannequins near spawn locations that might have been left behind
         // This prevents duplicates from previous sessions or crashes
         if (eventData.getSpawns() != null && !eventData.getSpawns().isEmpty()) {
             for (Location spawnLoc : eventData.getSpawns()) {
                 if (spawnLoc != null && spawnLoc.getWorld() != null) {
-                    // Remove any nearby armor stands (within 3 blocks) to clean up orphans
+                    // Remove any nearby mannequins (within 3 blocks) to clean up orphans
                     spawnLoc.getWorld().getNearbyEntities(spawnLoc, 3, 3, 3).stream()
-                            .filter(entity -> entity instanceof ArmorStand)
+                            .filter(entity -> entity instanceof Mannequin)
                             .forEach(entity -> {
-                                ArmorStand stand = (ArmorStand) entity;
-                                String customName = stand.customName() == null ? null : Common.serializeComponentToLegacyString(stand.customName());
-                                // Only remove armor stands that look like our markers
+                                Mannequin mannequin = (Mannequin) entity;
+                                String customName = mannequin.customName() == null ? null : Common.serializeComponentToLegacyString(mannequin.customName());
+                                // Only remove mannequins that look like our markers
                                 if (customName != null &&
                                     (customName.contains("Spawn #") ||
                                      customName.contains("Right-click to remove"))) {
-                                    stand.remove();
+                                    mannequin.remove();
                                 }
                             });
                 }
             }
         }
 
-        List<ArmorStand> markers = new ArrayList<>();
+        List<Mannequin> markers = new ArrayList<>();
 
         List<Location> spawns = eventData.getSpawns();
         if (!spawns.isEmpty()) {
             int index = 0;
             for (Location spawnLoc : spawns) {
-                ArmorStand marker = createMarker(spawnLoc, "&c&lSpawn #" + (index + 1));
+                Mannequin marker = createMarker(spawnLoc, "&c&lSpawn #" + (index + 1));
                 if (marker != null) {
                     markers.add(marker);
                     // Track this main marker to its spawn index
                     markerToSpawnIndex.put(marker.getUniqueId(), index);
 
-                    // Create second armor stand above for instruction text
+                    // Create second mannequin above for instruction text
                     Location labelLoc = spawnLoc.clone().add(0, 2.3, 0);
-                    ArmorStand labelStand = createLabelOnly(labelLoc);
+                    Mannequin labelStand = createLabelOnly(labelLoc);
                     if (labelStand != null) {
                         markers.add(labelStand);
                     }
@@ -95,52 +94,64 @@ public class EventSpawnMarkerManager {
     }
 
     /**
-     * Creates an armor stand marker at the specified location
+     * Creates a mannequin marker at the specified location
      */
-    private ArmorStand createMarker(Location location, String name) {
+    private Mannequin createMarker(Location location, String name) {
         if (location == null || location.getWorld() == null) return null;
 
-        // Spawn armor stand at exact player spawn position
+        // Spawn mannequin at exact player spawn position
         Location markerLoc = location.clone();
-        ArmorStand armorStand = (ArmorStand) markerLoc.getWorld().spawnEntity(markerLoc, EntityType.ARMOR_STAND);
+        Mannequin mannequin = (Mannequin) markerLoc.getWorld().spawnEntity(markerLoc, EntityType.MANNEQUIN);
 
-        // Configure armor stand to look like a player
-        armorStand.setVisible(true); // Show body to represent player
-        armorStand.setGravity(false);
-        armorStand.setCanPickupItems(false);
-        armorStand.setCustomNameVisible(true);
-        armorStand.customName(Component.text(Common.colorize(name)));
+        // Configure mannequin to look like a player marker while staying static.
+        mannequin.setInvisible(false); // Show body to represent player
+        mannequin.setGravity(false);
+        mannequin.setCanPickupItems(false);
+        mannequin.setCustomNameVisible(true);
+        mannequin.customName(Component.text(Common.colorize(name)));
+        mannequin.setAI(false);
+        mannequin.setCollidable(false);
+        mannequin.setSilent(true);
+        mannequin.setImmovable(true);
 
-        // Make the armor stand face the same direction (yaw) as the saved spawn location
+        // Make the mannequin face the same direction (yaw) as the saved spawn location
         Location facingLoc = markerLoc.clone();
         facingLoc.setYaw(location.getYaw());
         facingLoc.setPitch(0.0f);
-        armorStand.teleport(facingLoc);
+        mannequin.teleport(facingLoc);
 
         // Give it a sword to hold (to make it more visible)
         ItemStack sword = ItemCreateUtil.createItem("&cSpawn Marker", org.bukkit.Material.DIAMOND_SWORD);
-        armorStand.getEquipment().setItem(EquipmentSlot.HAND, sword);
+        if (mannequin.getEquipment() != null) {
+            mannequin.getEquipment().setItemInMainHand(sword);
+        }
 
-        // Make it invulnerable and persistent
-        armorStand.setRemoveWhenFarAway(false);
-        armorStand.setMarker(false);
+        // Make it invulnerable and non-persistent.
+        mannequin.setInvulnerable(true);
+        mannequin.setPersistent(false);
+        mannequin.setRemoveWhenFarAway(false);
 
-        return armorStand;
+        return mannequin;
     }
 
     /**
-     * Creates a small invisible armor stand just for displaying text label
+     * Creates a small invisible mannequin just for displaying text label
      */
-    private ArmorStand createLabelOnly(Location location) {
+    private Mannequin createLabelOnly(Location location) {
         if (location == null || location.getWorld() == null) return null;
 
-        ArmorStand labelStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
-        labelStand.setVisible(false);
+        Mannequin labelStand = (Mannequin) location.getWorld().spawnEntity(location, EntityType.MANNEQUIN);
+        labelStand.setInvisible(true);
         labelStand.setGravity(false);
         labelStand.setCanPickupItems(false);
         labelStand.setCustomNameVisible(true);
         labelStand.customName(Component.text(Common.colorize("&7(Right-click to remove)")));
-        labelStand.setMarker(true); // Make it small
+        labelStand.setAI(false);
+        labelStand.setCollidable(false);
+        labelStand.setSilent(true);
+        labelStand.setImmovable(true);
+        labelStand.setInvulnerable(true);
+        labelStand.setPersistent(false);
         labelStand.setRemoveWhenFarAway(false);
 
         return labelStand;
@@ -150,9 +161,9 @@ public class EventSpawnMarkerManager {
      * Clears all markers for a specific event
      */
     public void clearMarkers(EventData eventData) {
-        List<ArmorStand> markers = eventMarkers.get(eventData);
+        List<Mannequin> markers = eventMarkers.get(eventData);
         if (markers != null) {
-            for (ArmorStand marker : markers) {
+            for (Mannequin marker : markers) {
                 markerToSpawnIndex.remove(marker.getUniqueId());
                 marker.remove();
             }
@@ -164,8 +175,8 @@ public class EventSpawnMarkerManager {
      * Clears all markers for all events
      */
     public void clearAllMarkers() {
-        for (List<ArmorStand> markers : eventMarkers.values()) {
-            for (ArmorStand marker : markers) {
+        for (List<Mannequin> markers : eventMarkers.values()) {
+            for (Mannequin marker : markers) {
                 markerToSpawnIndex.remove(marker.getUniqueId());
                 marker.remove();
             }
@@ -183,11 +194,11 @@ public class EventSpawnMarkerManager {
     }
 
     /**
-     * Checks if an armor stand is a spawn marker
+     * Checks if a mannequin is a spawn marker
      */
-    public boolean isMarker(ArmorStand armorStand) {
-        for (List<ArmorStand> markers : eventMarkers.values()) {
-            if (markers.contains(armorStand)) {
+    public boolean isMarker(Mannequin mannequin) {
+        for (List<Mannequin> markers : eventMarkers.values()) {
+            if (markers.contains(mannequin)) {
                 return true;
             }
         }
@@ -195,9 +206,9 @@ public class EventSpawnMarkerManager {
     }
 
     /**
-     * Gets the spawn index for a given marker armor stand
+     * Gets the spawn index for a given marker mannequin
      */
-    public int getSpawnIndex(ArmorStand armorStand) {
-        return markerToSpawnIndex.getOrDefault(armorStand.getUniqueId(), -1);
+    public int getSpawnIndex(Mannequin mannequin) {
+        return markerToSpawnIndex.getOrDefault(mannequin.getUniqueId(), -1);
     }
 }
