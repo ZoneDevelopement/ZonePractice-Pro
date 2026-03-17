@@ -3,6 +3,7 @@ package dev.nandi0813.practice.listener;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
+import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -12,12 +13,34 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 
 public class PlayerInteract implements Listener {
+
+    @EventHandler
+    public void onFlowerPotManipulate(PlayerFlowerPotManipulateEvent e) {
+        // Only block taking flowers out of pots; placing flowers remains unchanged.
+        if (e.isPlacing()) {
+            return;
+        }
+
+        Profile profile = ProfileManager.getInstance().getProfile(e.getPlayer());
+        if (profile == null) {
+            return;
+        }
+
+        switch (profile.getStatus()) {
+            case MATCH:
+            case FFA:
+            case EVENT:
+                e.setCancelled(true);
+                break;
+            default:
+                break;
+        }
+    }
 
     @EventHandler
     public void onSoup(PlayerInteractEvent e) {
