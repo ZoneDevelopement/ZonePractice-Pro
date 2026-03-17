@@ -36,6 +36,7 @@ public class EventSetupListener implements Listener {
      */
     private final Set<UUID> interactCooldown = new HashSet<>();
     private final Set<UUID> entityInteractCooldown = new HashSet<>();
+    private final Set<UUID> markerDamageCooldown = new HashSet<>();
 
     public EventSetupListener(EventWandSetupManager setupManager) {
         this.setupManager = setupManager;
@@ -216,6 +217,13 @@ public class EventSetupListener implements Listener {
 
         // Check if the damager is a player (left-click)
         if (!(event.getDamager() instanceof Player player)) return;
+
+        // Some client/server combos can emit duplicate damage callbacks for one swing.
+        if (!markerDamageCooldown.add(player.getUniqueId())) return;
+        org.bukkit.Bukkit.getScheduler().runTask(
+                ZonePractice.getInstance(),
+                () -> markerDamageCooldown.remove(player.getUniqueId())
+        );
 
         // Check if player is in setup mode
         if (!setupManager.isSettingUp(player)) return;
