@@ -1,17 +1,17 @@
 package dev.nandi0813.practice.manager.playerkit;
 
 import dev.nandi0813.practice.manager.playerkit.items.KitItem;
-import dev.nandi0813.practice.module.interfaces.KitData;
-import dev.nandi0813.practice.module.util.VersionChecker;
+import dev.nandi0813.practice.util.KitData;
 import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 public class KitItems {
-
-    private static final boolean SECOND_HAND = Objects.requireNonNull(VersionChecker.getBukkitVersion()).isSecondHand();
 
     private final KitData kitData;
 
@@ -40,14 +40,10 @@ public class KitItems {
             boots = new KitItem(StaticItems.MAIN_GUI_BOOTS_PLACEHOLDER_ICON);
         }
 
-        if (SECOND_HAND) {
-            if (kitData.getExtra() != null) {
-                offhand = new KitItem(StaticItems.MAIN_GUI_OFF_HAND_PLACEHOLDER_ICON, kitData.getExtra()[0]);
-            } else {
-                offhand = new KitItem(StaticItems.MAIN_GUI_OFF_HAND_PLACEHOLDER_ICON);
-            }
+        if (kitData.getExtra() != null) {
+            offhand = new KitItem(StaticItems.MAIN_GUI_OFF_HAND_PLACEHOLDER_ICON, kitData.getExtra()[0]);
         } else {
-            offhand = null;
+            offhand = new KitItem(StaticItems.MAIN_GUI_OFF_HAND_PLACEHOLDER_ICON);
         }
 
         if (kitData.getStorage() != null) {
@@ -75,10 +71,7 @@ public class KitItems {
         slots.put(11, chest);
         slots.put(12, legs);
         slots.put(13, boots);
-
-        if (SECOND_HAND) {
-            slots.put(15, offhand);
-        }
+        slots.put(15, offhand);
 
         for (int i = 18; i <= 44; i++) {
             slots.put(i, inventory.get(i - 18));
@@ -126,12 +119,9 @@ public class KitItems {
     }
 
     public void save() {
-        if (SECOND_HAND) {
-            List<ItemStack> extraContent = new ArrayList<>();
-            extraContent.add(offhand.get());
-            this.kitData.setExtra(extraContent.toArray(new ItemStack[0]));
-        }
-
+        List<ItemStack> extraContent = new ArrayList<>();
+        extraContent.add(offhand.get());
+        this.kitData.setExtra(extraContent.toArray(new ItemStack[0]));
         this.kitData.setStorage(this.getInventoryContent().toArray(new ItemStack[0]));
         this.kitData.setArmor(this.getArmorContent().toArray(new ItemStack[0]));
     }

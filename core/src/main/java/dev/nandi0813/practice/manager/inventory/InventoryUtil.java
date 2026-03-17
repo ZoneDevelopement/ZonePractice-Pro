@@ -2,12 +2,12 @@ package dev.nandi0813.practice.manager.inventory;
 
 import dev.nandi0813.api.Utilities.PlayerNametag;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.nametag.TabIntegration;
 import dev.nandi0813.practice.manager.nametag.TeamPacketBlocker;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.group.Group;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
@@ -42,7 +42,7 @@ public enum InventoryUtil {
                 if (tabIntegration != null && tabIntegration.isAvailable()) {
                     tabIntegration.setTabListName(player, listName);
                 } else {
-                    ClassImport.getClasses().getPlayerUtil().setPlayerListName(player, listName);
+                    PlayerUtil.setPlayerListName(player, listName);
                 }
 
                 // ── Nametag management (above-head prefix / suffix / color) ──

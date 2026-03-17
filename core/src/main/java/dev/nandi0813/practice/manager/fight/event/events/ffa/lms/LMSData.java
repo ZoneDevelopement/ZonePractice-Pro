@@ -2,8 +2,7 @@ package dev.nandi0813.practice.manager.fight.event.events.ffa.lms;
 
 import dev.nandi0813.practice.manager.fight.event.enums.EventType;
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
-import dev.nandi0813.practice.module.interfaces.KitData;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.util.KitData;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -11,7 +10,7 @@ import java.io.IOException;
 @Getter
 public class LMSData extends EventData {
 
-    private final KitData kitData = ClassImport.createKitData();
+    private final KitData kitData = new KitData();
 
     public LMSData() {
         super(EventType.LMS);

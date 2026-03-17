@@ -1,7 +1,7 @@
 package dev.nandi0813.practice.manager.fight.event.events.ffa.lms;
 
 import dev.nandi0813.practice.manager.fight.event.events.ffa.interfaces.FFAEvent;
-import dev.nandi0813.practice.module.interfaces.KitData;
+import dev.nandi0813.practice.util.KitData;
 import org.bukkit.entity.Player;
 
 public class LMS extends FFAEvent {

@@ -8,7 +8,6 @@ import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,7 @@ public enum EffectArg {
             return;
         }
 
-        List<PotionEffect> effects = (List<PotionEffect>) player.getActivePotionEffects();
+        List<PotionEffect> effects = new ArrayList<>(player.getActivePotionEffects());
         if (effects.isEmpty()) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.LADDER.ARGUMENTS.EFFECT.NO-EFFECTS"));
             return;
@@ -51,17 +50,7 @@ public enum EffectArg {
     }
 
     public static List<String> tabComplete(Player player, String[] args) {
-        List<String> arguments = new ArrayList<>();
-        if (!player.hasPermission("zpp.setup")) return arguments;
-
-        if (args.length == 3) {
-            for (Ladder ladder : LadderManager.getInstance().getLadders())
-                arguments.add(ladder.getName());
-
-            return StringUtil.copyPartialMatches(args[2], arguments, new ArrayList<>());
-        }
-
-        return arguments;
+        return IconArg.tabComplete(player, args);
     }
 
 }

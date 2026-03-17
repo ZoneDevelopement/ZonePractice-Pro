@@ -13,7 +13,6 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.server.ServerManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.ItemSerializationUtil;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
@@ -76,7 +75,7 @@ public class InventoryManager extends ConfigFile {
             if (playerInv != null) {
                 playerInv.getPlayers().remove(player);
             }
-            ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+            dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
             return;
         }
 

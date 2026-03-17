@@ -19,7 +19,7 @@ For detailed guides on setup, configuration, and feature usage, please visit our
 
 ## Supported Versions
 
-- Primary targets: **1.8.8**, **1.8.9** (legacy), and **modern 1.20.6 / 1.21.X**
+- Primary targets: **1.20.6 / 1.21.X**
 - Actual supported versions are detected at runtime via the `VersionChecker`
 - The plugin automatically disables itself on unsupported versions
 
@@ -45,11 +45,8 @@ shaded into ZonePractice.
 
 ## Repository Structure
 
-- **core/** – main logic and shared systems (`practice-core-*.jar`)
-- **spigot_1_8_8/** – legacy 1.8.8 platform build
-- **spigot_modern/** – modern 1.20.x / 1.21.x builds
+- **core/** – main logic (`practice-core-*.jar`)
 - **distribution/** – release packaging (`ZonePractice Pro v*.jar`)
-- **libs/** – helper jars and forked server builds for development
 
 ---
 
@@ -74,11 +71,6 @@ system before cloning or pulling updates:
 ## Building
 
 1. **Prerequisites:** Install JDK (Java 21 recommended for modern builds, _it is not gonna work on Java 25_) and Maven.
-2. **Install Local Dependencies:**
-   Since the PaperSpigot API is not available in public repositories, install it manually from the `libs` folder:
-   ```bash
-   mvn install:install-file -Dfile=libs/PaperSpigot-1.8.8-R0.1-SNAPSHOT.jar -DgroupId=org.github.paperspigot -DartifactId=paperspigot-api -Dversion=1.8.8-R0.1-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
-   ```
 3. **Build the Project:**
    ```bash
    mvn clean package
@@ -94,7 +86,7 @@ system before cloning or pulling updates:
 
 - Default configuration files are generated automatically. Templates live under `core/src/main/resources/<version>/` (
   e.g., `config.yml`, `divisions.yml`, `guis.yml`, `inventories.yml`).
-- `config.yml` includes a `VERSION` field (e.g., 13 for the legacy 1.8.8 template). Review updated templates when
+- `config.yml` includes a `VERSION` field (e.g., 13). Review updated templates when
   upgrading.
 - Optional MySQL storage is available via the `MYSQL-DATABASE` section; back up configs before enabling.
 - Read console output for version validation, warnings and load messages.
@@ -256,7 +248,7 @@ Defined in `plugin.yml`:
 
 ### MySQL Errors
 
-- Verify MySQL settings in `1.8.8/config.yml` or `modern/config.yml`
+- Verify MySQL settings in `config.yml`
 - Ensure the database accepts external connections
 - JDBC is handled via `DriverManager`; ensure a suitable MySQL driver is available
 

@@ -10,12 +10,7 @@ import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.ladder.LadderSetupManager;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
-import dev.nandi0813.practice.module.interfaces.KitData;
-import dev.nandi0813.practice.module.util.VersionChecker;
-import dev.nandi0813.practice.util.ArmorUtil;
-import dev.nandi0813.practice.util.Common;
-import dev.nandi0813.practice.util.InventoryUtil;
-import dev.nandi0813.practice.util.StringUtil;
+import dev.nandi0813.practice.util.*;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -29,13 +24,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class InventoryGui extends GUI {
-
-    private static final boolean secondHand = Optional.ofNullable(VersionChecker.getBukkitVersion())
-            .map(VersionChecker.BukkitVersion::isSecondHand)
-            .orElse(false);
 
     @Getter
     private final NormalLadder ladder;
@@ -90,11 +84,8 @@ public class InventoryGui extends GUI {
                     inventory.setItem(i, armorContent.get(i - 50));
                 }
 
-                if (secondHand) {
-                    if (kitData.getExtra() != null)
-                        inventory.setItem(49, kitData.getExtra()[0]);
-                } else
-                    inventory.setItem(49, GUIManager.getFILLER_ITEM());
+                if (kitData.getExtra() != null)
+                    inventory.setItem(49, kitData.getExtra()[0]);
             }
 
             updatePlayers();
@@ -153,11 +144,9 @@ public class InventoryGui extends GUI {
         for (int i = 0; i < 27; i++) inventoryContent.add(inventory.getItem(i));
         for (int i = 50; i < 54; i++) armorContent.add(inventory.getItem(i));
 
-        if (secondHand) {
-            List<ItemStack> extraContent = new ArrayList<>();
-            extraContent.add(inventory.getItem(49));
-            kitData.setExtra(extraContent.toArray(new ItemStack[0]));
-        }
+        List<ItemStack> extraContent = new ArrayList<>();
+        extraContent.add(inventory.getItem(49));
+        kitData.setExtra(extraContent.toArray(new ItemStack[0]));
 
         kitData.setStorage(inventoryContent.toArray(new ItemStack[0]));
         kitData.setArmor(armorContent.toArray(new ItemStack[0]));
@@ -178,7 +167,7 @@ public class InventoryGui extends GUI {
             List<String> effectStrings = new ArrayList<>();
             for (PotionEffect potionEffect : effects)
                 effectStrings.add(GUIFile.getString("GUIS.SETUP.LADDER.INVENTORY.ICONS.EFFECTS.HAS-EFFECT.EFFECT-FORMAT")
-                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getName().replace("_", " ").toLowerCase()))
+                        .replace("%name%", StringUtils.capitalize(potionEffect.getType().getKey().getKey().replace("_", " ").toLowerCase()))
                         .replace("%amplifier%", String.valueOf(potionEffect.getAmplifier() + 1))
                         .replace("%time%", StringUtil.formatMillisecondsToMinutes((potionEffect.getDuration() / 20) * 1000L))
                 );

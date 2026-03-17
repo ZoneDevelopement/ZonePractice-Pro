@@ -1,6 +1,5 @@
 package dev.nandi0813.practice.manager.arena.util;
 
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Cuboid;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -29,10 +28,8 @@ public class PortalLocation {
     }
 
     public void setPortal() {
-        Material material = ClassImport.getClasses().getItemMaterialUtil().getEndPortal();
-
         for (Block block : cuboid.getBlocks()) {
-            block.setType(material);
+            block.setBlockData(Material.END_PORTAL.createBlockData());
             block.getState().update();
         }
     }
@@ -49,10 +46,6 @@ public class PortalLocation {
 
     public boolean isIn(Player player) {
         return cuboid.contains(player.getLocation());
-    }
-
-    public boolean isInsidePortalProtection(Location location, int maxDistance) {
-        return (center.distance(location) + 1) <= maxDistance;
     }
 
     public boolean isInsidePortalProtection(Block block, int maxDistance) {

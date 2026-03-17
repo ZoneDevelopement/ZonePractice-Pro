@@ -6,8 +6,8 @@ import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.ItemCreateUtil;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -35,14 +35,14 @@ public enum ArenaSetupUtil {
         }
 
         if (arena.getIcon() != null) {
-            return ClassImport.getClasses().getItemCreateUtil().createItem(
+            return ItemCreateUtil.createItem(
                     arena.getIcon(),
                     GUIFile.getString("GUIS.SETUP.ARENA.ARENA-MAIN.ICONS.ARENA-NAME.NAME")
                             .replace("%arenaDisplayName%", arena.getDisplayName())
                             .replace("%arenaName%", arena.getName()),
                     lore);
         } else {
-            return ClassImport.getClasses().getItemCreateUtil().createItem(
+            return ItemCreateUtil.createItem(
                     GUIFile.getString("GUIS.SETUP.ARENA.ARENA-MAIN.ICONS.ARENA-NAME.NAME")
                             .replace("%arenaDisplayName%", arena.getDisplayName())
                             .replace("%arenaName%", arena.getName()),

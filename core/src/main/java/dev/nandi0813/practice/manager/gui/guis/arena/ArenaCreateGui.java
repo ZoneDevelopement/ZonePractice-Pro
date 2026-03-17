@@ -13,9 +13,9 @@ import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
+import dev.nandi0813.practice.util.ItemCreateUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -61,9 +61,9 @@ public class ArenaCreateGui extends GUI {
         inventory.setItem(16, null);
 
         for (ArenaType type : ArenaType.values()) {
-            ItemStack item = ClassImport.getClasses().getItemCreateUtil().createItem("&e" + type.getName(), type.getIcon());
+            ItemStack item = ItemCreateUtil.createItem("&e" + type.getName(), type.getIcon());
             ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setLore(type.getDescription());
+            itemMeta.lore(type.getDescription().stream().map(Common::legacyToComponent).toList());
             item.setItemMeta(itemMeta);
 
             int slot = inventory.firstEmpty();

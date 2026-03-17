@@ -5,6 +5,7 @@ import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
 import dev.nandi0813.practice.manager.fight.belowname.BelowNameManager;
+import dev.nandi0813.practice.manager.fight.match.listener.LadderTypeListener;
 import dev.nandi0813.practice.manager.fight.match.listener.MatchEventListener;
 import dev.nandi0813.practice.manager.fight.match.listener.MatchLifecycleListener;
 import dev.nandi0813.practice.manager.fight.match.listener.StartListener;
@@ -52,6 +53,8 @@ public class MatchManager {
 
         // Register start command listener
         Bukkit.getPluginManager().registerEvents(new StartListener(), practice);
+
+        Bukkit.getPluginManager().registerEvents(new LadderTypeListener(), practice);
 
         this.belowNameManager = BelowNameManager.getInstance();
         PacketEvents.getAPI().getEventManager().registerListener(this.belowNameManager, PacketListenerPriority.NORMAL);
@@ -155,6 +158,23 @@ public class MatchManager {
             if (rematchRequest.getPlayers().contains(player))
                 return rematchRequest;
         return null;
+    }
+
+    public void invalidateRematch(RematchRequest rematchRequest) {
+        if (rematchRequest == null) return;
+
+        if (rematches.remove(rematchRequest)) {
+            rematchRequest.invalidate();
+        }
+    }
+
+    public void invalidateRematchByPlayer(Player player) {
+        if (player == null) return;
+
+        RematchRequest rematchRequest = getRematchRequest(player);
+        if (rematchRequest != null) {
+            invalidateRematch(rematchRequest);
+        }
     }
 
 }

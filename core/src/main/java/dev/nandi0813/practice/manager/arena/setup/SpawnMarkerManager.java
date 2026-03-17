@@ -3,19 +3,23 @@ package dev.nandi0813.practice.manager.arena.setup;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
+import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.ItemCreateUtil;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Mannequin;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 /**
- * Manages armor stand markers that show spawn positions in arena setup mode.
- * Armor stands face the direction the player will spawn and hold a sword.
+ * Manages mannequin markers that show spawn positions in arena setup mode.
+ * Mannequins face the direction the player will spawn and hold a sword.
  */
 @Getter
 public class SpawnMarkerManager {
@@ -29,13 +33,13 @@ public class SpawnMarkerManager {
         return instance;
     }
 
-    // Map: Arena -> List of marker armor stands
-    private final Map<DisplayArena, List<ArmorStand>> arenaMarkers = new HashMap<>();
+    // Map: Arena -> List of marker mannequins
+    private final Map<DisplayArena, List<Mannequin>> arenaMarkers = new HashMap<>();
 
-    // Set of all marker armor stand UUIDs for quick lookup
+    // Set of all marker mannequin UUIDs for quick lookup
     private final Set<UUID> markerStandIds = new HashSet<>();
 
-    // Map: Main marker armor stand -> spawn index (for FFA arenas)
+    // Map: Main marker mannequin -> spawn index (for FFA arenas)
     private final Map<UUID, Integer> markerToSpawnIndex = new HashMap<>();
 
     private SpawnMarkerManager() {
@@ -50,18 +54,18 @@ public class SpawnMarkerManager {
         // Clear existing markers first
         clearMarkers(arena);
 
-        List<ArmorStand> markers = new ArrayList<>();
+        List<Mannequin> markers = new ArrayList<>();
 
         if (arena instanceof Arena standardArena) {
             // Show position 1
             if (standardArena.getPosition1() != null) {
-                ArmorStand marker = createMarker(standardArena.getPosition1(), "&c&lSpawn 1");
+                Mannequin marker = createMarker(standardArena.getPosition1(), "&c&lSpawn 1");
                 if (marker != null) markers.add(marker);
             }
 
             // Show position 2
             if (standardArena.getPosition2() != null) {
-                ArmorStand marker = createMarker(standardArena.getPosition2(), "&c&lSpawn 2");
+                Mannequin marker = createMarker(standardArena.getPosition2(), "&c&lSpawn 2");
                 if (marker != null) markers.add(marker);
             }
         } else if (arena instanceof FFAArena ffaArena) {
@@ -69,15 +73,15 @@ public class SpawnMarkerManager {
             int index = 0; // Use 0-based index to match the list
             for (Location spawnLoc : ffaArena.getFfaPositions()) {
                 // Create main marker with player model
-                ArmorStand marker = createMarker(spawnLoc, "&c&lFFA Spawn #" + (index + 1)); // Display as 1-based
+                Mannequin marker = createMarker(spawnLoc, "&c&lFFA Spawn #" + (index + 1)); // Display as 1-based
                 if (marker != null) {
                     markers.add(marker);
                     // Track this main marker to its spawn index
                     markerToSpawnIndex.put(marker.getUniqueId(), index);
 
-                    // Create second armor stand above for instruction text (closer spacing)
+                    // Create second mannequin above for instruction text (closer spacing)
                     Location labelLoc = spawnLoc.clone().add(0, 2.3, 0);
-                    ArmorStand labelStand = createLabelOnly(labelLoc, "&7(Right-click to remove)");
+                    Mannequin labelStand = createLabelOnly(labelLoc, "&7(Right-click to remove)");
                     if (labelStand != null) {
                         markers.add(labelStand);
                     }
@@ -92,71 +96,72 @@ public class SpawnMarkerManager {
     }
 
     /**
-     * Creates an armor stand marker at the specified location
+     * Creates a mannequin marker at the specified location
      */
-    private ArmorStand createMarker(Location location, String name) {
-        if (location == null || location.getWorld() == null) return null;
-
-        // Spawn armor stand at exact player spawn position
+    private Mannequin createMarker(@NotNull Location location, @NotNull String name) {
+        // Spawn mannequin at exact player spawn position
         Location markerLoc = location.clone();
-        ArmorStand armorStand = (ArmorStand) markerLoc.getWorld().spawnEntity(markerLoc, EntityType.ARMOR_STAND);
+        Mannequin mannequin = (Mannequin) markerLoc.getWorld().spawnEntity(markerLoc, EntityType.MANNEQUIN);
 
-        // Configure armor stand to look like a player
-        armorStand.setVisible(true); // Show body to represent player
-        armorStand.setGravity(false);
-        armorStand.setCanPickupItems(false);
-        armorStand.setCustomNameVisible(true);
-        armorStand.setCustomName(dev.nandi0813.practice.util.StringUtil.CC(name));
-        armorStand.setMarker(false); // Don't use marker mode so it has full size
-        armorStand.setBasePlate(false);
-        armorStand.setArms(true);
+        // Configure mannequin to look like a player marker while staying static.
+        mannequin.setInvisible(false); // Show body to represent player
+        mannequin.setGravity(false);
+        mannequin.setCanPickupItems(false);
+        mannequin.setCustomNameVisible(true);
+        mannequin.customName(Component.text(dev.nandi0813.practice.util.StringUtil.CC(name)));
+        mannequin.setAI(false);
+        mannequin.setCollidable(false);
+        mannequin.setSilent(true);
+        mannequin.setImmovable(true);
 
         // Make it invulnerable and prevent interaction
-        ClassImport.getClasses().getArenaUtil().setArmorStandInvulnerable(armorStand);
+        ArenaUtil.setMannequinInvulnerable(mannequin);
 
         // Give diamond sword to right hand
-        ItemStack sword = ClassImport.getClasses().getItemMaterialUtil().getSword();
-        ClassImport.getClasses().getArenaUtil().setArmorStandItemInHand(armorStand, sword, true);
-
-        // Set arm pose to hold sword naturally (slight angle)
-        armorStand.setRightArmPose(new EulerAngle(Math.toRadians(280), Math.toRadians(10), 0));
+        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+        ArenaUtil.setMannequinItemInHand(mannequin, sword, true);
 
         // Set player head (Steve head) for helmet
-        ItemStack playerHead = ClassImport.getClasses().getItemMaterialUtil().getDefaultPlayerHead();
-        armorStand.setHelmet(playerHead);
+        ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
+        if (mannequin.getEquipment() != null) {
+            mannequin.getEquipment().setHelmet(playerHead);
+        }
 
         // Set red boots for visibility
-        ItemStack boots = ClassImport.getClasses().getItemMaterialUtil().getRedBoots();
-        armorStand.setBoots(boots);
+        ItemStack boots = ItemCreateUtil.getRedBoots();
+        if (mannequin.getEquipment() != null) {
+            mannequin.getEquipment().setBoots(boots);
+        }
 
-        // Track this armor stand
-        markerStandIds.add(armorStand.getUniqueId());
+        // Track this mannequin
+        markerStandIds.add(mannequin.getUniqueId());
 
-        return armorStand;
+        return mannequin;
     }
 
     /**
-     * Creates a small invisible armor stand just for displaying text label
+     * Creates a small invisible mannequin just for displaying text label
      */
-    private ArmorStand createLabelOnly(Location location, String text) {
+    private Mannequin createLabelOnly(Location location, String text) {
         if (location == null || location.getWorld() == null) return null;
 
-        ArmorStand labelStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+        Mannequin labelStand = (Mannequin) location.getWorld().spawnEntity(location, EntityType.MANNEQUIN);
 
         // Configure as invisible text-only display
-        labelStand.setVisible(false); // Invisible
+        labelStand.setInvisible(true); // Invisible
         labelStand.setGravity(false);
         labelStand.setCanPickupItems(false);
         labelStand.setCustomNameVisible(true);
-        labelStand.setCustomName(dev.nandi0813.practice.util.StringUtil.CC(text));
-        labelStand.setMarker(true); // Tiny marker mode
-        labelStand.setBasePlate(false);
-        labelStand.setSmall(true); // Make it small
+        labelStand.customName(Component.text(dev.nandi0813.practice.util.StringUtil.CC(text)));
+        labelStand.setAI(false);
+        labelStand.setCollidable(false);
+        labelStand.setSilent(true);
+        labelStand.setImmovable(true);
 
         // Make it invulnerable
-        ClassImport.getClasses().getArenaUtil().setArmorStandInvulnerable(labelStand);
+        ArenaUtil.setMannequinInvulnerable(labelStand);
 
-        // Track this armor stand too
+        // Track this mannequin too
         markerStandIds.add(labelStand.getUniqueId());
 
         return labelStand;
@@ -168,15 +173,15 @@ public class SpawnMarkerManager {
     public void clearMarkers(DisplayArena arena) {
         if (arena == null) return;
 
-        List<ArmorStand> markers = arenaMarkers.remove(arena);
+        List<Mannequin> markers = arenaMarkers.remove(arena);
         if (markers != null) {
-            for (ArmorStand marker : markers) {
+            for (Mannequin marker : markers) {
                 if (marker != null) {
                     // Always clean up tracking data
                     markerStandIds.remove(marker.getUniqueId());
                     markerToSpawnIndex.remove(marker.getUniqueId()); // Clean up spawn index mapping
 
-                    // Attempt to remove the armor stand if it's still valid
+                    // Attempt to remove the mannequin if it's still valid
                     if (marker.isValid()) {
                         marker.remove();
                     }
@@ -189,9 +194,9 @@ public class SpawnMarkerManager {
      * Clears all markers for all arenas
      */
     public void clearAllMarkers() {
-        for (List<ArmorStand> markers : arenaMarkers.values()) {
+        for (List<Mannequin> markers : arenaMarkers.values()) {
             if (markers != null) {
-                for (ArmorStand marker : markers) {
+                for (Mannequin marker : markers) {
                     if (marker != null) {
                         // Always clean up tracking data
                         markerStandIds.remove(marker.getUniqueId());
@@ -254,20 +259,20 @@ public class SpawnMarkerManager {
     }
 
     /**
-     * Checks if an armor stand is a spawn marker
+     * Checks if a mannequin is a spawn marker
      */
-    public boolean isMarker(ArmorStand armorStand) {
-        return armorStand != null && markerStandIds.contains(armorStand.getUniqueId());
+    public boolean isMarker(Mannequin mannequin) {
+        return mannequin != null && markerStandIds.contains(mannequin.getUniqueId());
     }
 
     /**
-     * Finds which arena a marker armor stand belongs to
+     * Finds which arena a marker mannequin belongs to
      */
-    public DisplayArena getArenaForMarker(ArmorStand armorStand) {
-        if (armorStand == null) return null;
+    public DisplayArena getArenaForMarker(Mannequin mannequin) {
+        if (mannequin == null) return null;
 
-        for (Map.Entry<DisplayArena, List<ArmorStand>> entry : arenaMarkers.entrySet()) {
-            if (entry.getValue().contains(armorStand)) {
+        for (Map.Entry<DisplayArena, List<Mannequin>> entry : arenaMarkers.entrySet()) {
+            if (entry.getValue().contains(mannequin)) {
                 return entry.getKey();
             }
         }
@@ -275,15 +280,15 @@ public class SpawnMarkerManager {
     }
 
     /**
-     * Removes a specific marker armor stand and its associated spawn position
+     * Removes a specific marker mannequin and its associated spawn position
      *
      * @return true if the marker was found and removed
      */
-    public boolean removeMarker(ArmorStand armorStand, DisplayArena arena) {
-        if (armorStand == null || arena == null) return false;
+    public boolean removeMarker(Mannequin mannequin, DisplayArena arena) {
+        if (mannequin == null || arena == null) return false;
 
-        // Check if this armor stand is tracked with a spawn index (it's a main marker)
-        Integer spawnIndex = markerToSpawnIndex.get(armorStand.getUniqueId());
+        // Check if this mannequin is tracked with a spawn index (it's a main marker)
+        Integer spawnIndex = markerToSpawnIndex.get(mannequin.getUniqueId());
         if (spawnIndex == null) return false; // Not a main marker or not tracked
 
         // Remove from FFA arena
@@ -294,23 +299,23 @@ public class SpawnMarkerManager {
         }
 
         // Clean up the mapping
-        markerStandIds.remove(armorStand.getUniqueId());
-        markerToSpawnIndex.remove(armorStand.getUniqueId());
+        markerStandIds.remove(mannequin.getUniqueId());
+        markerToSpawnIndex.remove(mannequin.getUniqueId());
 
-        // Remove the armor stand from tracking list
-        List<ArmorStand> markers = arenaMarkers.get(arena);
+        // Remove the mannequin from tracking list
+        List<Mannequin> markers = arenaMarkers.get(arena);
         if (markers != null) {
-            markers.remove(armorStand);
+            markers.remove(mannequin);
         }
 
-        armorStand.remove();
+        mannequin.remove();
 
         return true;
     }
 
     /**
-     * Removes all orphaned marker armor stands from a world.
-     * This is useful for cleaning up armor stands that persisted after server restart
+     * Removes all orphaned marker mannequins from a world.
+     * This is useful for cleaning up mannequins that persisted after server restart
      * or were not properly removed due to timing issues.
      * <p>
      * Orphaned markers are identified by:
@@ -327,17 +332,17 @@ public class SpawnMarkerManager {
         int removed = 0;
         List<org.bukkit.entity.Entity> toRemove = new ArrayList<>();
 
-        // Find all armor stands in the world
+        // Find all mannequins in the world
         for (org.bukkit.entity.Entity entity : world.getEntities()) {
-            if (entity instanceof ArmorStand armorStand) {
+            if (entity instanceof Mannequin mannequin) {
                 // Check if this looks like one of our markers but isn't tracked
-                if (armorStand.getCustomName() != null &&
-                        !markerStandIds.contains(armorStand.getUniqueId())) {
+                String customName = mannequin.customName() == null ? null : Common.serializeComponentToLegacyString(mannequin.customName());
+                if (customName != null &&
+                        !markerStandIds.contains(mannequin.getUniqueId())) {
 
-                    String customName = armorStand.getCustomName();
                     // Check if it matches our marker naming patterns
                     if (customName.contains("Spawn") || customName.contains("Right-click to remove")) {
-                        toRemove.add(armorStand);
+                        toRemove.add(mannequin);
                     }
                 }
             }

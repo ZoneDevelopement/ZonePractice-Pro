@@ -93,6 +93,7 @@ public enum GUIType {
 
     DivisionGui,
 
+    FFA_Arena_Selector,
     FFA_Ladder_Selector,
 
 }

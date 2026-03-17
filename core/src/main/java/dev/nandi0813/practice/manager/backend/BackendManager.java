@@ -43,7 +43,12 @@ public enum BackendManager {
         try {
             config.save(file);
         } catch (IOException e) {
-            Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
+            Common.sendConsoleMMMessage("<red>Error saving backend.yml: " + e.getMessage());
+        } catch (Exception e) {
+            // Catches NullPointerException thrown by SnakeYAML when a ConfigurationSerializable
+            // (e.g. Location with a null world WeakReference) produces a null entry in its
+            // serialize() map. Log clearly instead of letting the async task swallow the trace.
+            Common.sendConsoleMMMessage("<red>Error serializing backend.yml (possible null world in lobby location): " + e.getMessage());
         }
     }
 

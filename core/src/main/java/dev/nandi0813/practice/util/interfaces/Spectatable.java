@@ -2,8 +2,8 @@ package dev.nandi0813.practice.util.interfaces;
 
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import dev.nandi0813.practice.manager.gui.GUIItem;
-import dev.nandi0813.practice.module.interfaces.ChangedBlock;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.entity.Entity;
@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public interface Spectatable {
+
+    List<Player> getActivePlayerList();
 
     List<Player> getSpectators();
 

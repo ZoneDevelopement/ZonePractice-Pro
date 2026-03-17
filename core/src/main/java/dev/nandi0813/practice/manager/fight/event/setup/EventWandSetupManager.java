@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class EventWandSetupManager {
 
@@ -48,9 +49,9 @@ public class EventWandSetupManager {
 
     private final Map<Player, SetupSession> setupSessions = new HashMap<>();
 
-    public boolean startSetup(Player player, EventData eventData) {
+    public void startSetup(Player player, EventData eventData) {
         if (eventData.isEnabled()) {
-            return false;
+            return;
         }
 
         if (isSettingUp(player)) {
@@ -80,7 +81,6 @@ public class EventWandSetupManager {
         EventSpawnMarkerManager.getInstance().showMarkers(eventData);
 
         player.sendMessage(Common.colorize("&aSetup mode started for event: &e" + eventData.getType().getName() + "&a."));
-        return true;
     }
 
     public void stopSetup(Player player) {
@@ -125,7 +125,7 @@ public class EventWandSetupManager {
     }
 
     public boolean isSetupWand(ItemStack item) {
-        return item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains("Event Wand");
+        return item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && Common.getItemDisplayName(item).contains("Event Wand");
     }
 
     public EventSetupMode getNextMode(EventSetupMode current) {
@@ -153,7 +153,7 @@ public class EventWandSetupManager {
         ItemMeta meta = wand.getItemMeta();
         EventSetupMode mode = session.getCurrentMode();
 
-        meta.setDisplayName(Common.colorize("&6Event Wand &7(&e" + mode.getDisplayName() + "&7)"));
+        meta.displayName(Common.legacyToComponent(Common.colorize("&6Event Wand &7(&e" + mode.getDisplayName() + "&7)")));
 
         List<String> lore = new ArrayList<>();
         lore.add(Common.colorize("&7Editing: &a" + eventData.getType().getName()));
@@ -172,9 +172,9 @@ public class EventWandSetupManager {
         lore.add("");
         lore.add(Common.colorize("&cDrop (Q): &7Exit Setup"));
 
-        meta.setLore(lore);
+        meta.lore(lore.stream().map(Common::legacyToComponent).collect(Collectors.toList()));
         wand.setItemMeta(meta);
 
-        player.getInventory().setItemInHand(wand);
+        player.getInventory().setItemInMainHand(wand);
     }
 }

@@ -11,7 +11,11 @@ import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
 import dev.nandi0813.practice.manager.fight.event.runnables.DurationRunnable;
 import dev.nandi0813.practice.manager.fight.event.runnables.StartRunnable;
 import dev.nandi0813.practice.manager.fight.event.util.EventUtil;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.server.ServerManager;
+import dev.nandi0813.practice.manager.server.sound.SoundEffect;
+import dev.nandi0813.practice.manager.server.sound.SoundManager;
+import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
@@ -24,7 +28,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -114,6 +117,9 @@ public class TNTTag extends Event {
                             .replace("%seconds%", String.valueOf(seconds))
                             .replace("%secondName%", (seconds == 1 ? LanguageManager.getString("SECOND-NAME.1SEC") : LanguageManager.getString("SECOND-NAME.1<SEC")))
                     , true);
+
+            SoundEffect sound = SoundManager.getInstance().getSound(SoundType.EVENT_START_COUNTDOWN);
+            if (sound != null) sound.play(this.getPlayers());
         }
 
         startRunnable.decreaseTime();
@@ -311,15 +317,15 @@ public class TNTTag extends Event {
     }
 
     private static void setResistancePotion(Player player) {
-        player.removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10000 * 20, 125));
+        player.removePotionEffect(PotionEffectType.RESISTANCE);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 10000 * 20, 125));
     }
 
     public static final String TNT_TAG_TNT_METADATA = "ZPP_TNT_TAG_TNT";
 
     private void sendExplosion(Location location) {
-        TNTPrimed tnt = (TNTPrimed) location.getWorld().spawnEntity(location.subtract(-0.5, 0, -0.5), EntityType.PRIMED_TNT);
-        tnt.setMetadata(TNT_TAG_TNT_METADATA, new FixedMetadataValue(ZonePractice.getInstance(), this));
+        TNTPrimed tnt = (TNTPrimed) location.getWorld().spawnEntity(location.subtract(-0.5, 0, -0.5), EntityType.TNT);
+        BlockUtil.setMetadata(tnt, TNT_TAG_TNT_METADATA, this);
         tnt.setFuseTicks(1);
     }
 

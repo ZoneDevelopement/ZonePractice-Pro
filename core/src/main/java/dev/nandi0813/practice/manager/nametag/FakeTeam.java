@@ -1,6 +1,5 @@
 package dev.nandi0813.practice.manager.nametag;
 
-import dev.nandi0813.practice.module.util.VersionChecker;
 import lombok.Data;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -8,7 +7,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Data
 public class FakeTeam {
@@ -33,12 +31,7 @@ public class FakeTeam {
             generatedName = NametagManager.generateUUID() + "_" + getNameFromInput(sortPriority) + ID;
         }
         this.name = generatedName;
-
-        if (Objects.equals(VersionChecker.getBukkitVersion(), VersionChecker.BukkitVersion.v1_8_R3)) {
-            this.name = this.name.length() > 16 ? this.name.substring(0, 16) : this.name;
-        } else {
-            this.name = this.name.length() > 256 ? this.name.substring(0, 256) : this.name;
-        }
+        this.name = this.name.length() > 256 ? this.name.substring(0, 256) : this.name;
 
         this.prefix = prefix;
         this.nameColor = nameColor;

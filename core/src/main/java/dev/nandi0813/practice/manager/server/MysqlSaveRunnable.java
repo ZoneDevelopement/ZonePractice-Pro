@@ -9,7 +9,6 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
-import org.bukkit.ChatColor;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.PreparedStatement;
@@ -64,7 +63,7 @@ public class MysqlSaveRunnable extends BukkitRunnable {
                     else
                         division = profile.getStats().getDivision().getFullName();
 
-                    stmt.setString(10, ChatColor.stripColor(division));
+                    stmt.setString(10, Common.stripLegacyColor(division));
                     stmt.execute();
                 } catch (SQLException e) {
                     Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
@@ -85,7 +84,7 @@ public class MysqlSaveRunnable extends BukkitRunnable {
                     else
                         division = profile.getStats().getDivision().getFullName();
 
-                    stmt.setString(10, ChatColor.stripColor(division));
+                    stmt.setString(10, Common.stripLegacyColor(division));
                     stmt.setString(9, profile.getUuid().toString());
                     stmt.execute();
                 } catch (SQLException e) {

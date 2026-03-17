@@ -1,7 +1,8 @@
 package dev.nandi0813.practice.util.fightmapchange;
 
 import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.module.interfaces.ChangedBlock;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
+import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
@@ -112,7 +113,7 @@ public class FightChangeOptimized {
         // Store Spectatable (Match/Event/FFA) for efficient metadata caching in BlockFromToEvent
         if (existing == null && spectatable != null) {
             Block block = change.getLocation().getBlock();
-            block.setMetadata(PLACED_IN_FIGHT, new org.bukkit.metadata.FixedMetadataValue(ZonePractice.getInstance(), spectatable));
+            BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
         }
     }
 
@@ -290,15 +291,15 @@ public class FightChangeOptimized {
     /**
      * Removes all entities efficiently.
      * Strategy: Remove tracked entities first, then cleanup any remaining cuboid entities.
-     * NOTE: Skips hologram armor stands (invisible with custom name visible) to prevent
+     * NOTE: Skips hologram text displays to prevent
      * leaderboard holograms from disappearing when matches end.
      */
     private void removeAllEntities() {
         // Remove tracked entities (fast - cached references)
         for (Entity entity : trackedEntities) {
             if (entity != null && entity.isValid()) {
-                // Skip hologram armor stands
-                if (isHologramArmorStand(entity)) continue;
+                // Skip hologram text displays
+                if (isHologramTextDisplay(entity)) continue;
                 entity.remove();
             }
         }
@@ -308,8 +309,8 @@ public class FightChangeOptimized {
         // This catches any entities that weren't tracked
         for (Entity entity : cuboid.getEntities()) {
             if (entity instanceof Player) continue;
-            // Skip hologram armor stands
-            if (isHologramArmorStand(entity)) continue;
+            // Skip hologram text displays
+            if (isHologramTextDisplay(entity)) continue;
             if (entity.isValid()) {
                 entity.remove();
             }
@@ -317,11 +318,11 @@ public class FightChangeOptimized {
     }
 
     /**
-     * Checks if an entity is a hologram armor stand.
-     * Delegates to ArmorStandFactory for consistent detection.
+     * Checks if an entity is a hologram text display.
+     * Delegates to TextDisplayFactory for consistent detection.
      */
-    private boolean isHologramArmorStand(Entity entity) {
-        return dev.nandi0813.practice.manager.leaderboard.hologram.ArmorStandFactory.isHologramArmorStand(entity);
+    private boolean isHologramTextDisplay(Entity entity) {
+        return dev.nandi0813.practice.manager.leaderboard.hologram.TextDisplayFactory.isHologramTextDisplay(entity);
     }
 
     /**
@@ -336,7 +337,8 @@ public class FightChangeOptimized {
             entry.getValue().changedBlock.reset();
 
             Block block = BlockPosition.getBlock(world, entry.getKey());
-            block.removeMetadata(PLACED_IN_FIGHT, ZonePractice.getInstance());
+            // PLACED_IN_FIGHT uses PersistentTagUtil, so clear through BlockUtil.
+            BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
 
             iterator.remove();
         }
@@ -354,8 +356,8 @@ public class FightChangeOptimized {
         for (Block block : cuboid) {
             String typeName = block.getType().name();
             if (typeName.equals("FIRE") || typeName.equals("SOUL_FIRE")) {
-                block.setType(org.bukkit.Material.AIR, false);
-                block.removeMetadata(PLACED_IN_FIGHT, ZonePractice.getInstance());
+                block.setBlockData(org.bukkit.Material.AIR.createBlockData(), false);
+                BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
             }
         }
     }
@@ -433,7 +435,8 @@ public class FightChangeOptimized {
                     blockEntry.changedBlock.reset();
 
                     Block block = BlockPosition.getBlock(world, pos);
-                    block.removeMetadata(PLACED_IN_FIGHT, ZonePractice.getInstance());
+                    // PLACED_IN_FIGHT uses PersistentTagUtil, so clear through BlockUtil.
+                    BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
 
                     blocks.remove(pos); // Remove from live map
                 }

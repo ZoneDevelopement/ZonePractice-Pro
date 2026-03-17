@@ -10,9 +10,9 @@ import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.statistics.LadderStats;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
+import dev.nandi0813.practice.util.ItemCreateUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -20,10 +20,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProfileLadderStats extends GUI {
 
@@ -36,7 +33,7 @@ public class ProfileLadderStats extends GUI {
         this.profile = profile;
         this.backTo = backTo;
 
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.TITLE").replace("%player%", profile.getPlayer().getName()), 6));
+        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.TITLE").replace("%player%", Objects.requireNonNull(profile.getPlayer().getName())), 6));
 
         build();
     }
@@ -129,12 +126,12 @@ public class ProfileLadderStats extends GUI {
             }
 
             if (ladder.getIcon() != null)
-                return ClassImport.getClasses().getItemCreateUtil().createItem(
+                return ItemCreateUtil.createItem(
                         ladder.getIcon(),
                         GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.LADDER.UNRANKED-LADDER-STATS.NAME").replace("%ladder%", ladder.getDisplayName()),
                         lore);
             else
-                return ClassImport.getClasses().getItemCreateUtil().createItem(
+                return ItemCreateUtil.createItem(
                         GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.LADDER.UNRANKED-LADDER-STATS.NAME").replace("%ladder%", ladder.getDisplayName()),
                         Material.valueOf(GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.LADDER.UNRANKED-LADDER-STATS.DEFAULT-MATERIAL")),
                         lore);
@@ -153,12 +150,12 @@ public class ProfileLadderStats extends GUI {
             }
 
             if (ladder.getIcon() != null)
-                return ClassImport.getClasses().getItemCreateUtil().createItem(
+                return ItemCreateUtil.createItem(
                         ladder.getIcon(),
                         GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.LADDER.RANKED-LADDER-STATS.NAME").replace("%ladder%", ladder.getDisplayName()),
                         lore);
             else
-                return ClassImport.getClasses().getItemCreateUtil().createItem(
+                return ItemCreateUtil.createItem(
                         GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.LADDER.RANKED-LADDER-STATS.NAME").replace("%ladder%", ladder.getDisplayName()),
                         Material.valueOf(GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.LADDER.RANKED-LADDER-STATS.DEFAULT-MATERIAL")),
                         lore);

@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.profile;
 
+import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.util.CustomKit;
 import dev.nandi0813.practice.manager.gui.guis.customladder.PlayerCustomKitSelector;
 import dev.nandi0813.practice.manager.gui.guis.profile.ProfileSettingsGui;
@@ -10,9 +11,8 @@ import dev.nandi0813.practice.manager.profile.enums.ProfileWorldTime;
 import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.manager.profile.group.GroupManager;
 import dev.nandi0813.practice.manager.profile.statistics.ProfileStat;
-import dev.nandi0813.practice.module.interfaces.actionbar.ActionBar;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.actionbar.ActionBar;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -72,7 +72,7 @@ public class Profile {
 
     private RankedBan rankedBan = new RankedBan();
     private ProfileSettingsGui settingsGui;
-    private ActionBar actionBar = ClassImport.createActionBarClass(this);
+    private ActionBar actionBar = new ActionBar(this);
 
     // Custom ladder
     private PlayerCustomKitSelector playerCustomKitSelector;
@@ -216,6 +216,22 @@ public class Profile {
         }
 
         this.selectedCustomLadder = customLadder;
+    }
+
+    public void setStatus(ProfileStatus status) {
+        ProfileStatus previous = this.status;
+        this.status = status;
+
+        // Leaving lobby/spectate for a new activity invalidates pending rematches.
+        if ((previous == ProfileStatus.LOBBY || previous == ProfileStatus.SPECTATE)
+                && status != ProfileStatus.LOBBY
+                && status != ProfileStatus.SPECTATE
+                && status != ProfileStatus.OFFLINE) {
+            Player online = player.getPlayer();
+            if (online != null && online.isOnline()) {
+                MatchManager.getInstance().invalidateRematchByPlayer(online);
+            }
+        }
     }
 
 }

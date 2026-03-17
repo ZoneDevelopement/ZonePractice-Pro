@@ -3,10 +3,10 @@ package dev.nandi0813.practice.command.arena.arguments.Set;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -41,8 +41,8 @@ public enum IconArg {
             return;
         }
 
-        ItemStack icon = ClassImport.getClasses().getPlayerUtil().getPlayerMainHand(player);
-        if (icon == null || icon.getType().equals(Material.AIR)) {
+        ItemStack icon = PlayerUtil.getPlayerMainHand(player);
+        if (icon.getType().equals(Material.AIR)) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.ICON.ICON-IN-HAND"));
             return;
         }

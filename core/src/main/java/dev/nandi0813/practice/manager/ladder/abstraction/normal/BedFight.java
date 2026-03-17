@@ -7,13 +7,13 @@ import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
 import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
+import dev.nandi0813.practice.manager.fight.util.BedUtil;
 import dev.nandi0813.practice.manager.fight.util.DeathCause;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.RespawnableLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Cuboid;
 import lombok.Getter;
 import lombok.Setter;
@@ -77,7 +77,7 @@ public abstract class BedFight extends NormalLadder implements RespawnableLadder
     }
 
     protected static void onBedDestroy(final @NotNull BlockBreakEvent e, final @NotNull Match match) {
-        if (ClassImport.getClasses().getBedUtil().onBedBreak(e, match)) {
+        if (BedUtil.onBedBreak(e, match)) {
             SoundManager.getInstance().getSound(SoundType.BED_BREAK).play(match.getPlayers());
         }
     }

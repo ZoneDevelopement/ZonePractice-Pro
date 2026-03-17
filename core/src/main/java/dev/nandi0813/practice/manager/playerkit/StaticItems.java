@@ -1,8 +1,8 @@
 package dev.nandi0813.practice.manager.playerkit;
 
 import dev.nandi0813.practice.manager.gui.GUIItem;
+import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.manager.playerkit.items.EditorIcon;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Pair;
 import org.bukkit.enchantments.Enchantment;
@@ -73,14 +73,14 @@ public enum StaticItems {
 
     static {
         for (String string : PlayerKitManager.getInstance().getList("GUI.ITEMS.ITEMS-GUI.CATEGORIES.POTION.SPLASH-POTIONS.ITEMS")) {
-            ItemStack itemStack = ClassImport.getClasses().getLadderUtil().getPotionItem(string);
+            ItemStack itemStack = LadderUtil.getPotionItem(string);
             if (itemStack != null) {
                 POTIONS_GUI_SPLASH_POTIONS.add(itemStack);
             }
         }
 
         for (String string : PlayerKitManager.getInstance().getList("GUI.ITEMS.ITEMS-GUI.CATEGORIES.POTION.DRINKABLE-POTIONS.ITEMS")) {
-            ItemStack itemStack = ClassImport.getClasses().getLadderUtil().getPotionItem(string);
+            ItemStack itemStack = LadderUtil.getPotionItem(string);
             if (itemStack != null) {
                 POTIONS_GUI_DRINKABLE_POTIONS.add(itemStack);
             }
@@ -140,7 +140,10 @@ public enum StaticItems {
             List<Enchantment> enchantments = new ArrayList<>();
             for (String enchantment : PlayerKitManager.getInstance().getList("DISABLED-ENCHANTS." + path)) {
                 try {
-                    enchantments.add(Enchantment.getByName(enchantment));
+                    Enchantment parsed = Common.resolveEnchantment(enchantment);
+                    if (parsed != null) {
+                        enchantments.add(parsed);
+                    }
                 } catch (Exception e) {
                     Common.sendConsoleMMMessage("<red>Invalid enchantment name: " + enchantment);
                 }

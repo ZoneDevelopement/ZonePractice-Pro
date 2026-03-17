@@ -91,7 +91,7 @@ public enum MatchUtil {
         if (block == null) return;
         if (!block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4)) return;
         if (block.getType().equals(Material.AIR))
-            block.setType(Material.BEDROCK);
+            block.setBlockData(Material.BEDROCK.createBlockData());
     }
 
     public static Player getBoxingTopPlayer(PartyFFA partyFFA, int rank) {

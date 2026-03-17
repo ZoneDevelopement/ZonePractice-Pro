@@ -4,11 +4,11 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.manager.fight.match.util.MatchUtil;
+import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.ItemSerializationUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -83,10 +83,10 @@ public class SkyWars extends NormalLadder implements CustomConfig, LadderHandle 
                 match.addEntityChange(player.getWorld().dropItemNaturally(chest.getLocation(), item));
         }
 
-        match.addBlockChange(ClassImport.createChangeBlock(chest));
+        match.addBlockChange(new ChangedBlock(chest));
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                chest.setType(Material.AIR), 2L);
+                chest.setBlockData(Material.AIR.createBlockData()), 2L);
     }
 
 }

@@ -1,5 +1,7 @@
 package dev.nandi0813.practice.util.entityhider;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfoUpdate;
 import dev.nandi0813.api.Event.Spectate.Start.MatchSpectateStartEvent;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
@@ -10,7 +12,6 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.server.WorldEnum;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -157,7 +158,7 @@ public class PlayerHider implements Listener {
     public void toggleLobbyVisibility(Player player) {
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
-        if (ServerManager.getInstance().getInWorld().get(player).equals(WorldEnum.LOBBY))
+        if (!ServerManager.getInstance().getInWorld().get(player).equals(WorldEnum.LOBBY))
             return;
 
         for (Player online : ServerManager.getInstance().getInWorld().keySet()) {
@@ -241,11 +242,21 @@ public class PlayerHider implements Listener {
 
 
     public void hidePlayer(Player observer, Player target, boolean fullHide) {
-        ClassImport.getClasses().getPlayerHiderUtil().hidePlayer(observer, target, fullHide);
+        if (observer.canSee(target))
+            observer.hidePlayer(ZonePractice.getInstance(), target);
+
+        if (!fullHide) {
+            WrapperPlayServerPlayerInfoUpdate playerInfoUpdate = new WrapperPlayServerPlayerInfoUpdate(
+                    WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED,
+                    new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId())
+            );
+
+            PacketEvents.getAPI().getPlayerManager().sendPacket(observer, playerInfoUpdate);
+        }
     }
 
     public void showPlayer(Player observer, Player target) {
-        ClassImport.getClasses().getPlayerHiderUtil().showPlayer(observer, target);
+        observer.showPlayer(ZonePractice.getInstance(), target);
     }
 
     /*

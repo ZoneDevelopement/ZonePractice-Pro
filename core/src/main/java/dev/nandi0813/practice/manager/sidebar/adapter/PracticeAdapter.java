@@ -53,6 +53,10 @@ import java.util.Objects;
 
 public class PracticeAdapter implements SidebarAdapter {
 
+    private static String fallbackToZero(String value) {
+        return value != null ? value : "0";
+    }
+
     @Override
     public Component getTitle(Player player) {
         return PAPIUtil.runThroughFormat(player, SidebarManager.getInstance().getConfig().getString("TITLE"));
@@ -112,13 +116,15 @@ public class PracticeAdapter implements SidebarAdapter {
                     );
                 }
             } else if (event != null) {
-                if (event.getQueueRunnable().getFormattedTime() != null) {
+                String eventQueueTimeLeft = event.getQueueRunnable() != null ? event.getQueueRunnable().getFormattedTime() : null;
+
+                if (eventQueueTimeLeft != null) {
                     for (String line : config.getStringList("LOBBY.EVENT-QUEUE.STARTING")) {
                         sidebar.add(PAPIUtil.runThroughFormat(player, line)
                                 .replaceText(TextReplacementConfig.builder().match("%eventName%").replacement(event.getType().getName()).build())
                                 .replaceText(TextReplacementConfig.builder().match("%maxPlayer%").replacement(String.valueOf(event.getType().getMaxPlayer())).build())
                                 .replaceText(TextReplacementConfig.builder().match("%player%").replacement(String.valueOf(event.getPlayers().size())).build())
-                                .replaceText(TextReplacementConfig.builder().match("%timeLeft%").replacement(event.getQueueRunnable().getFormattedTime()).build())
+                                .replaceText(TextReplacementConfig.builder().match("%timeLeft%").replacement(fallbackToZero(eventQueueTimeLeft)).build())
                                 .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
                                 .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build())
                         );

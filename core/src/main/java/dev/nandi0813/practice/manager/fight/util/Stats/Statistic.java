@@ -1,6 +1,6 @@
 package dev.nandi0813.practice.manager.fight.util.Stats;
 
-import dev.nandi0813.practice.module.interfaces.StatisticListener;
+import dev.nandi0813.practice.listener.StatisticListener;
 import dev.nandi0813.practice.util.NumberUtil;
 import lombok.Getter;
 import lombok.Setter;

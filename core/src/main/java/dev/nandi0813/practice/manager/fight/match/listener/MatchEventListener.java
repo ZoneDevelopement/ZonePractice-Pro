@@ -5,7 +5,7 @@ import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
 import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -39,7 +39,7 @@ public class MatchEventListener implements Listener {
         Block clickedBlock = e.getClickedBlock();
         if (action.equals(Action.RIGHT_CLICK_BLOCK) && clickedBlock != null) {
             if (clickedBlock.getType().equals(Material.CHEST) || clickedBlock.getType().equals(Material.TRAPPED_CHEST)) {
-                match.addBlockChange(ClassImport.createChangeBlock(clickedBlock));
+                match.addBlockChange(new ChangedBlock(clickedBlock));
             }
         }
     }

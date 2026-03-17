@@ -174,7 +174,7 @@ public class ServerMatchesGui extends GUI {
         GUIItem guiItem = new GUIItem(
                 GUIFile.getString("GUIS.SETUP.SERVER.MATCHES.ICONS.MATCH-ICON.NAME"),
                 match.getLadder().getIcon().getType(),
-                match.getLadder().getIcon().getDurability(),
+                Common.getItemDamage(match.getLadder().getIcon()),
                 GUIFile.getStringList("GUIS.SETUP.SERVER.MATCHES.ICONS.MATCH-ICON.LORE")
         );
         guiItem

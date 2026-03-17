@@ -11,10 +11,9 @@ import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.module.interfaces.ItemCreateUtil;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
+import dev.nandi0813.practice.util.ItemCreateUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -109,7 +108,7 @@ public class OtherPartiesGui extends GUI {
     }
 
     public ItemStack getPartyItem(Party party) {
-        ItemStack itemStack = ClassImport.getClasses().getItemMaterialUtil().getPlayerHead(party.getLeader());
+        ItemStack itemStack = ItemCreateUtil.getPlayerHead(party.getLeader());
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         List<String> lore = new ArrayList<>();
@@ -133,11 +132,10 @@ public class OtherPartiesGui extends GUI {
                 lore.add(line);
         }
 
-        itemMeta.setDisplayName(GUIFile.getString("GUIS.PARTY.OTHER-PARTIES.ICONS.PARTY-ITEM.NAME")
+        itemMeta.displayName(Common.legacyToComponent(GUIFile.getString("GUIS.PARTY.OTHER-PARTIES.ICONS.PARTY-ITEM.NAME")
                 .replace("%leader%", party.getLeader().getName())
-                .replace("%partySize%", String.valueOf(party.getMembers().size()))
-        );
-        itemMeta.setLore(lore);
+                .replace("%partySize%", String.valueOf(party.getMembers().size()))));
+        itemMeta.lore(lore.stream().map(Common::legacyToComponent).toList());
 
         ItemCreateUtil.hideItemFlags(itemMeta);
         itemStack.setItemMeta(itemMeta);

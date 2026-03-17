@@ -4,10 +4,11 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
@@ -25,7 +26,7 @@ public enum PlayerUtil {
         player.setGameMode(GameMode.SURVIVAL);
         player.setAllowFlight(fly);
         player.setFlying(fly);
-        ClassImport.getClasses().getPlayerUtil().setCollidesWithEntities(player, entityCollide);
+        dev.nandi0813.practice.manager.fight.util.PlayerUtil.setCollidesWithEntities(player, entityCollide);
 
         if (ZonePractice.getInstance().isEnabled()) {
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setFireTicks(0), 2L);
@@ -33,7 +34,7 @@ public enum PlayerUtil {
             player.setFireTicks(0);
         }
 
-        if (deleteInv) ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+        if (deleteInv) dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
 
         for (PotionEffect potionEffect : player.getActivePotionEffects())
             player.removePotionEffect(potionEffect.getType());
@@ -48,7 +49,14 @@ public enum PlayerUtil {
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setHealth(20), 2L);
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setFireTicks(0), 2L);
             player.setFoodLevel(25);
-            player.resetMaxHealth();
+            AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
+            if (maxHealth != null) {
+                maxHealth.setBaseValue(maxHealth.getDefaultValue());
+
+                if (player.getHealth() > maxHealth.getValue()) {
+                    player.setHealth(maxHealth.getValue());
+                }
+            }
             player.setFallDistance(0);
             player.setWalkSpeed(0.2F);
             for (PotionEffect potionEffect : player.getActivePotionEffects())

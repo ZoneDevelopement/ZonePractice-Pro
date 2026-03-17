@@ -6,6 +6,7 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIType;
+import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
@@ -86,14 +87,17 @@ public class LadderSelector extends GUI {
             return;
 
         NormalLadder ladder = ladderSlots.get(slot);
-        if (ladder != null) {
-            if (!ladder.isEnabled() || !ffaArena.getAssignedLadders().contains(ladder)) {
-                update();
-                return;
-            } else if (ladder.isFrozen()) {
-                update();
-                return;
-            }
+        if (ladder == null) {
+            update();
+            return;
+        }
+
+        if (!ladder.isEnabled() || !ffaArena.getAssignedLadders().contains(ladder)) {
+            update();
+            return;
+        } else if (ladder.isFrozen()) {
+            update();
+            return;
         }
 
         if (!ffa.isOpen()) {
@@ -102,7 +106,19 @@ public class LadderSelector extends GUI {
             return;
         }
 
-        ffa.addPlayer(player, ladder);
+        if (ffa.getPlayers().containsKey(player)) {
+            Ladder oldLadder = ffa.getPlayers().get(player);
+            if (oldLadder == ladder) {
+                Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.KIT.ALREADY-IN-KIT").replace("%ladder%", ladder.getDisplayName()));
+                return;
+            }
+
+            ffa.changePlayerLadder(player, ladder);
+        } else {
+            ffa.addPlayer(player, ladder);
+        }
+
+        player.closeInventory();
     }
 
 }

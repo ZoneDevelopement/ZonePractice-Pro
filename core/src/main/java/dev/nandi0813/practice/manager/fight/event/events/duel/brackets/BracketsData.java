@@ -2,8 +2,7 @@ package dev.nandi0813.practice.manager.fight.event.events.duel.brackets;
 
 import dev.nandi0813.practice.manager.fight.event.enums.EventType;
 import dev.nandi0813.practice.manager.fight.event.events.duel.interfaces.DuelEventData;
-import dev.nandi0813.practice.module.interfaces.KitData;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.util.KitData;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -15,7 +14,7 @@ public class BracketsData extends DuelEventData {
 
     public BracketsData() {
         super(EventType.BRACKETS);
-        this.kitData = ClassImport.createKitData();
+        this.kitData = new KitData();
     }
 
     @Override

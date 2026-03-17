@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.gui.guis.customladder.premadecustom;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIManager;
@@ -12,7 +13,6 @@ import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.Bukkit;
@@ -143,7 +143,7 @@ public class CustomLadderSumGui extends GUI {
         Player player = (Player) e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
-        ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+        PlayerUtil.clearInventory(player);
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
@@ -164,7 +164,7 @@ public class CustomLadderSumGui extends GUI {
 
         ItemStack backToItem = GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-SELECTOR.ICONS.BACK-TO-KIT-SELECTOR").get();
 
-        ClassImport.getClasses().getPlayerUtil().clearInventory(player);
+        PlayerUtil.clearInventory(player);
         for (int i = 0; i < 9; i++)
             player.getInventory().setItem(i, backToItem);
     }

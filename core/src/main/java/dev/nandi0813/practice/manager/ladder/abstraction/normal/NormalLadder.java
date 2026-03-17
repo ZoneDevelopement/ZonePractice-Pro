@@ -76,7 +76,7 @@ public abstract class NormalLadder extends Ladder {
     }
 
     public boolean isReadyToEnable() {
-        return icon != null && kitData.isSet() && !matchTypes.isEmpty();
+        return icon != null && kitData.isSet();
     }
 
     public void setFrozen(boolean frozen) {

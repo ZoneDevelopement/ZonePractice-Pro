@@ -1,9 +1,8 @@
 package dev.nandi0813.practice.util;
 
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,7 +13,10 @@ public enum StringUtil {
     ;
 
     public static String CC(String string) {
-        return ChatColor.translateAlternateColorCodes('&', string);
+        if (string == null) {
+            return "";
+        }
+        return LegacyComponentSerializer.legacySection().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(string));
     }
 
     public static List<String> CC(List<String> stringlist) {
@@ -69,27 +71,6 @@ public enum StringUtil {
         return StringUtils.capitalize(name.replace("_", " ").toLowerCase());
     }
 
-    public static Color translateChatColorToColor(ChatColor chatColor) {
-        return switch (chatColor) {
-            case AQUA -> Color.AQUA;
-            case BLACK -> Color.BLACK;
-            case BLUE -> Color.BLUE;
-            case DARK_AQUA -> Color.TEAL;
-            case DARK_BLUE -> Color.NAVY;
-            case DARK_GRAY -> Color.GRAY;
-            case DARK_GREEN -> Color.GREEN;
-            case DARK_PURPLE -> Color.PURPLE;
-            case DARK_RED -> Color.MAROON;
-            case GOLD -> Color.ORANGE;
-            case GRAY -> Color.SILVER;
-            case GREEN -> Color.OLIVE;
-            case LIGHT_PURPLE -> Color.FUCHSIA;
-            case RED -> Color.RED;
-            case WHITE -> Color.WHITE;
-            case YELLOW -> Color.YELLOW;
-            default -> null;
-        };
-    }
 
     public static String legacyColorToMiniMessage(String string) {
         return string

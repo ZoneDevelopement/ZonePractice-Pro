@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.playerkit.guis;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
@@ -14,7 +15,6 @@ import dev.nandi0813.practice.manager.playerkit.StaticItems;
 import dev.nandi0813.practice.manager.playerkit.items.KitItem;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import net.wesjd.anvilgui.AnvilGUI;
@@ -217,7 +217,7 @@ public class MainGUI extends GUI {
     public void open(Player player) {
         super.open(player);
 
-        ClassImport.getClasses().getPlayerUtil().setActiveInventoryTitle(
+        PlayerUtil.setActiveInventoryTitle(
                 player,
                 StaticItems.MAIN_GUI_TITLE.replace("%name%", customLadder.getDisplayName())
         );
@@ -231,7 +231,7 @@ public class MainGUI extends GUI {
             return false;
         }
 
-        for (Enchantment enchantment : Enchantment.values()) {
+        for (Enchantment enchantment : Common.getAllEnchantments()) {
             if (enchantment.canEnchantItem(itemStack)) {
                 return true;
             }

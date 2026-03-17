@@ -4,6 +4,7 @@ import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
@@ -42,7 +43,7 @@ public enum FightUtil {
 
     /**
      * Returns only the active Spectatables that have build mechanics enabled.
-     * Used by {@link dev.nandi0813.practice.manager.fight.listener.BuildBlockListener}
+     * Used by {@link dev.nandi0813.practice.manager.fight.listener.BuildListener}
      * to quickly find the owner of a block change without iterating all contexts.
      */
     public static List<Spectatable> getActiveBuildSpectatables() {
@@ -53,6 +54,35 @@ public enum FightUtil {
             }
         }
         return result;
+    }
+
+    public static DeathCause convert(DamageType damageType) {
+        if (damageType == null) {
+            return DeathCause.DEFAULT;
+        }
+
+        if (damageType.equals(DamageType.IN_FIRE) || damageType.equals(DamageType.ON_FIRE) ||
+                damageType.equals(DamageType.CAMPFIRE) || damageType.equals(DamageType.HOT_FLOOR)) {
+            return DeathCause.FIRE;
+        } else if (damageType.equals(DamageType.LAVA)) {
+            return DeathCause.LAVA;
+        } else if (damageType.equals(DamageType.DROWN)) {
+            return DeathCause.WATER;
+        } else if (damageType.equals(DamageType.FALL) || damageType.equals(DamageType.STALAGMITE)) {
+            return DeathCause.FALL;
+        } else if (damageType.equals(DamageType.EXPLOSION) || damageType.equals(DamageType.PLAYER_EXPLOSION)) {
+            return DeathCause.EXPLOSION;
+        } else if (damageType.equals(DamageType.MOB_ATTACK) || damageType.equals(DamageType.PLAYER_ATTACK)
+                || damageType.equals(DamageType.MACE_SMASH)) {
+            return DeathCause.PLAYER_ATTACK;
+        } else if (damageType.equals(DamageType.ARROW) || damageType.equals(DamageType.TRIDENT) ||
+                damageType.equals(DamageType.MOB_PROJECTILE)) {
+            return DeathCause.PLAYER_PROJECTILE;
+        } else if (damageType.equals(DamageType.OUT_OF_WORLD)) {
+            return DeathCause.VOID;
+        } else {
+            return DeathCause.DEFAULT;
+        }
     }
 
 }

@@ -2,7 +2,7 @@ package dev.nandi0813.practice.manager.queue.runnables;
 
 import dev.nandi0813.practice.manager.queue.Queue;
 import dev.nandi0813.practice.manager.queue.QueueManager;
-import dev.nandi0813.practice.module.interfaces.actionbar.ActionBar;
+import dev.nandi0813.practice.util.actionbar.ActionBar;
 import dev.nandi0813.practice.util.interfaces.Runnable;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;

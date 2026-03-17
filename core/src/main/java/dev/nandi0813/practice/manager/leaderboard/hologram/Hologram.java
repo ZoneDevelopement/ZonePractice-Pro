@@ -23,7 +23,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -36,7 +39,7 @@ import java.util.stream.IntStream;
  *   <li>Each hologram maintains a List of HologramLines</li>
  *   <li>Smart updates only modify changed content (no flicker)</li>
  *   <li>Thread-safe with atomic state tracking</li>
- *   <li>Auto-recovery for externally removed armor stands</li>
+ *   <li>Auto-recovery for externally removed text displays</li>
  * </ul>
  */
 @Getter
@@ -45,7 +48,7 @@ public abstract class Hologram {
     // Configuration
     protected static final YamlConfiguration config = BackendManager.getConfig();
     private static final String NULL_LINE_FORMAT = ConfigManager.getString("LEADERBOARD.HOLOGRAM.FORMAT.NULL-LINE");
-    private static final double DEFAULT_SPACING = 0.3;
+    private static final double DEFAULT_SPACING = 0.25;
 
     // Core properties
     protected final String name;
@@ -175,7 +178,7 @@ public abstract class Hologram {
         }
     }
 
-    private static final double BASE_HEIGHT_OFFSET = 0.3; // 0.3 block offset to raise holograms
+    private static final double BASE_HEIGHT_OFFSET = 2.2;
 
     private List<Location> calculatePositions(int count, List<Double> spacings) {
         List<Location> positions = new ArrayList<>();
@@ -434,6 +437,10 @@ public abstract class Hologram {
         } else {
             this.enabled = false;
             hologramRunnable.cancel(true);
+
+            // Show setup placeholder immediately when hologram is disabled.
+            despawn();
+            setSetupHologram(SetupHologramType.SETUP);
         }
 
         setData();

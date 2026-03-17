@@ -3,6 +3,8 @@ package dev.nandi0813.practice.manager.fight.ffa;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
+import dev.nandi0813.practice.manager.fight.ffa.game.FFAArenaSelectorGui;
+import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import lombok.Getter;
@@ -23,7 +25,11 @@ public class FFAManager {
         return instance;
     }
 
+    private final FFAArenaSelectorGui arenaSelectorGui;
+
     private FFAManager() {
+        this.arenaSelectorGui = new FFAArenaSelectorGui();
+        GUIManager.getInstance().addGUI(this.arenaSelectorGui);
     }
 
     public List<FFA> getOpenFFAs() {

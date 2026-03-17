@@ -10,15 +10,14 @@
     <parent>
         <groupId>dev.nandi0813</groupId>
         <artifactId>practice-parent</artifactId>
-        <version>6.4.6-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <server.path.old>./target</server.path.old>
-        <server.path.modern>./target</server.path.modern>
+        <!-- Use repository root for profile copy targets, even when running from this module -->
+        <repo.root>${maven.multiModuleProjectDirectory}</repo.root>
     </properties>
 
     <dependencies>
@@ -28,25 +27,11 @@
             <version>${project.parent.version}</version>
             <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <groupId>dev.nandi0813</groupId>
-            <artifactId>practice-spigot_modern</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>dev.nandi0813</groupId>
-            <artifactId>practice-spigot_1_8_8</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>
         <defaultGoal>clean install</defaultGoal>
-        <finalName>ZonePractice Pro v6.4.6-SNAPSHOT</finalName>
+        <finalName>ZonePractice Pro v7.0.0-SNAPSHOT</finalName>
 
         <plugins>
             <plugin>
@@ -131,11 +116,11 @@
                                         <echo message="Copying plugins for the test servers..." />
 
                                         <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                              tofile="${server.path.old}/plugins/ZonePracticePro.jar"
+                                              tofile="${repo.root}/test_servers/1.21.11/plugins/ZonePracticePro.jar"
                                               overwrite="true" failonerror="false" />
 
                                         <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                              tofile="${server.path.modern}/plugins/ZonePracticePro.jar"
+                                              tofile="${repo.root}/test_servers/1.21.11_base/plugins/ZonePracticePro.jar"
                                               overwrite="true" failonerror="false" />
                                     </target>
                                 </configuration>

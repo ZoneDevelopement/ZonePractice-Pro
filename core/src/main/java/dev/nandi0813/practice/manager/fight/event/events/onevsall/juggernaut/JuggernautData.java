@@ -2,8 +2,7 @@ package dev.nandi0813.practice.manager.fight.event.events.onevsall.juggernaut;
 
 import dev.nandi0813.practice.manager.fight.event.enums.EventType;
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
-import dev.nandi0813.practice.module.interfaces.KitData;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.util.KitData;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -11,8 +10,8 @@ import java.io.IOException;
 @Getter
 public class JuggernautData extends EventData {
 
-    private final KitData juggernautKitData = ClassImport.createKitData();
-    private final KitData playerKitData = ClassImport.createKitData();
+    private final KitData juggernautKitData = new KitData();
+    private final KitData playerKitData = new KitData();
 
     public JuggernautData() {
         super(EventType.JUGGERNAUT);
@@ -24,9 +23,7 @@ public class JuggernautData extends EventData {
             juggernautKitData.saveData(this.config, "juggernaut-kit");
         }
 
-        if (playerKitData != null) {
-            playerKitData.saveData(this.config, "player-kit");
-        }
+        playerKitData.saveData(this.config, "player-kit");
     }
 
     @Override

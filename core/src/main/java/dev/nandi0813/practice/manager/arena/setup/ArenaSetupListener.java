@@ -9,23 +9,26 @@ import dev.nandi0813.practice.manager.arena.util.BedLocation;
 import dev.nandi0813.practice.manager.arena.util.PortalLocation;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.util.BedUtil;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Mannequin;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -253,7 +256,7 @@ public class ArenaSetupListener implements Listener {
 
         if (isOutsideRegion(player, arena, block.getLocation())) return;
 
-        BedLocation bedLocation = ClassImport.getClasses().getBedUtil().getBedLocation(block);
+        BedLocation bedLocation = BedUtil.getBedLocation(block);
 
         if (action == Action.LEFT_CLICK_BLOCK) {
             arena.setBedLoc1(bedLocation);
@@ -534,25 +537,15 @@ public class ArenaSetupListener implements Listener {
         updateGui(arena);
     }
 
-    // Prevent players from manipulating marker armor stands
+    // Handle right-clicking mannequin markers to remove them (FFA ONLY)
     @EventHandler ( priority = EventPriority.HIGHEST )
-    public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
-        ArmorStand armorStand = event.getRightClicked();
-
-        if (SpawnMarkerManager.getInstance().isMarker(armorStand)) {
-            event.setCancelled(true);
-        }
-    }
-
-    // Handle right-clicking armor stand markers to remove them (FFA ONLY)
-    @EventHandler ( priority = EventPriority.HIGHEST )
-    public void onArmorStandInteract(PlayerInteractAtEntityEvent event) {
-        if (!(event.getRightClicked() instanceof ArmorStand armorStand)) return;
+    public void onMarkerInteract(PlayerInteractAtEntityEvent event) {
+        if (!(event.getRightClicked() instanceof Mannequin mannequin)) return;
 
         Player player = event.getPlayer();
 
         // Check if this is a spawn marker
-        if (!SpawnMarkerManager.getInstance().isMarker(armorStand)) return;
+        if (!SpawnMarkerManager.getInstance().isMarker(mannequin)) return;
 
         event.setCancelled(true);
 
@@ -563,7 +556,7 @@ public class ArenaSetupListener implements Listener {
         }
 
         // Find which arena this marker belongs to
-        DisplayArena arena = SpawnMarkerManager.getInstance().getArenaForMarker(armorStand);
+        DisplayArena arena = SpawnMarkerManager.getInstance().getArenaForMarker(mannequin);
         if (arena == null) {
             player.sendMessage(Common.colorize("&cCould not find arena for this marker."));
             return;
@@ -571,7 +564,7 @@ public class ArenaSetupListener implements Listener {
 
         // ONLY allow for FFA arenas
         if (!(arena instanceof FFAArena ffaArena)) {
-            player.sendMessage(Common.colorize("&cDirect armor stand removal only works for FFA arenas."));
+            player.sendMessage(Common.colorize("&cDirect marker removal only works for FFA arenas."));
             player.sendMessage(Common.colorize("&7Use left/right click on blocks to set standard arena spawn positions."));
             return;
         }
@@ -590,7 +583,7 @@ public class ArenaSetupListener implements Listener {
         }
 
         // Remove the marker and its spawn position
-        boolean removed = SpawnMarkerManager.getInstance().removeMarker(armorStand, arena);
+        boolean removed = SpawnMarkerManager.getInstance().removeMarker(mannequin, arena);
         if (removed) {
             SpawnMarkerManager.getInstance().updateMarkers(arena);
             updateGui(arena);
@@ -601,12 +594,12 @@ public class ArenaSetupListener implements Listener {
         }
     }
 
-    // Prevent damage to marker armor stands AND handle left-click removal
+    // Prevent damage to marker mannequins AND handle left-click removal
     @EventHandler ( priority = EventPriority.HIGHEST )
-    public void onArmorStandDamage(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof ArmorStand armorStand)) return;
+    public void onMarkerDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Mannequin mannequin)) return;
 
-        if (!SpawnMarkerManager.getInstance().isMarker(armorStand)) return;
+        if (!SpawnMarkerManager.getInstance().isMarker(mannequin)) return;
 
         // Cancel damage in all cases
         event.setCancelled(true);
@@ -618,7 +611,7 @@ public class ArenaSetupListener implements Listener {
         if (!setupManager.isSettingUp(player)) return;
 
         // Find which arena this marker belongs to
-        DisplayArena arena = SpawnMarkerManager.getInstance().getArenaForMarker(armorStand);
+        DisplayArena arena = SpawnMarkerManager.getInstance().getArenaForMarker(mannequin);
         if (arena == null) return;
 
         // ONLY allow left-click removal for FFA arenas
@@ -631,7 +624,7 @@ public class ArenaSetupListener implements Listener {
         // Check if in correct mode
         if (session.getCurrentMode() != SetupMode.FFA_POSITIONS) return;
 
-        // Left-click on armor stand = Remove last spawn (same as left-click on block)
+        // Left-click on mannequin marker = Remove last spawn (same as left-click on block)
         if (!ffaArena.getFfaPositions().isEmpty()) {
             int index = ffaArena.getFfaPositions().size() - 1;
             ffaArena.getFfaPositions().remove(index);

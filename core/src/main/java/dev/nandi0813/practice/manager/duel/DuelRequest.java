@@ -3,9 +3,9 @@ package dev.nandi0813.practice.manager.duel;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,13 +22,19 @@ public class DuelRequest {
     private Ladder ladder;
     private Arena arena;
     private int rounds;
+    private final Runnable expireHandler;
 
     public DuelRequest(Player sender, Player target, Ladder ladder, Arena arena, int rounds) {
+        this(sender, target, ladder, arena, rounds, null);
+    }
+
+    public DuelRequest(Player sender, Player target, Ladder ladder, Arena arena, int rounds, Runnable expireHandler) {
         this.sender = sender;
         this.target = target;
         this.ladder = ladder;
         this.arena = arena;
         this.rounds = rounds;
+        this.expireHandler = expireHandler;
     }
 
     public void sendRequest() {
@@ -44,7 +50,7 @@ public class DuelRequest {
                     .replace("%arena%", arenaName)
                     .replace("%rounds%", String.valueOf(rounds))
                     .replace("%target%", target.getName())
-                    .replace("%targetPing%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(target)))
+                    .replace("%targetPing%", String.valueOf(PlayerUtil.getPing(target)))
             );
         }
 
@@ -54,7 +60,7 @@ public class DuelRequest {
                     .replace("%arena%", arenaName)
                     .replace("%rounds%", String.valueOf(rounds))
                     .replace("%sender%", sender.getName())
-                    .replace("%senderPing%", String.valueOf(ClassImport.getClasses().getPlayerUtil().getPing(sender)))
+                    .replace("%senderPing%", String.valueOf(PlayerUtil.getPing(sender)))
             );
         }
     }
@@ -79,6 +85,12 @@ public class DuelRequest {
         } else {
             Common.sendMMMessage(sender, LanguageManager.getString("COMMAND.DUEL.NO-AVAILABLE-ARENA"));
             Common.sendMMMessage(target, LanguageManager.getString("COMMAND.DUEL.NO-AVAILABLE-ARENA"));
+        }
+    }
+
+    public void handleExpiry() {
+        if (expireHandler != null) {
+            expireHandler.run();
         }
     }
 

@@ -4,7 +4,9 @@ import dev.nandi0813.practice.manager.inventory.Inventory;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvItem;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.*;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 public class LobbyInventory extends Inventory {
@@ -35,20 +37,27 @@ public class LobbyInventory extends Inventory {
             if (slot == -1)
                 continue;
 
-            if (invItem instanceof SpectateModeInvItem) {
-                if (!InventoryManager.SPECTATOR_MODE_ENABLED)
+            switch (invItem) {
+                case SpectateModeInvItem spectateModeInvItem -> {
+                    if (!InventoryManager.SPECTATOR_MODE_ENABLED)
+                        continue;
+                }
+                case SetupInvItem setupInvItem -> {
+                    if (!player.hasPermission("zpp.setup"))
+                        continue;
+                    setupItemSet = true;
+                }
+                case StaffMode staffMode -> {
+                    if (!player.hasPermission("zpp.staffmode"))
+                        continue;
+                    if (setupItemSet)
+                        continue;
+                }
+                case RematchInvItem rematchInvItem -> {
                     continue;
-            } else if (invItem instanceof SetupInvItem) {
-                if (!player.hasPermission("zpp.setup"))
-                    continue;
-                setupItemSet = true;
-            } else if (invItem instanceof StaffMode) {
-                if (!player.hasPermission("zpp.staffmode"))
-                    continue;
-                if (setupItemSet)
-                    continue;
-            } else if (invItem instanceof RematchInvItem) {
-                continue;
+                }
+                default -> {
+                }
             }
 
             playerInventory.setItem(slot, invItem.getItem());
@@ -56,10 +65,31 @@ public class LobbyInventory extends Inventory {
     }
 
     public void addRematchItem(Player player) {
-        InvItem invItem = this.getInvItem(RematchInvItem.class);
+        InvItem invItem = getRematchInvItem();
         if (invItem == null) return;
 
         player.getInventory().setItem(invItem.getSlot(), invItem.getItem());
+    }
+
+    public void removeRematchItem(Player player) {
+        InvItem invItem = getRematchInvItem();
+        if (invItem == null) return;
+
+        int slot = invItem.getSlot();
+        if (slot < 0) return;
+
+        ItemStack current = player.getInventory().getItem(slot);
+        if (current == null || current.getType() == Material.AIR) return;
+
+        // Only clear the slot if the current item is still the rematch item.
+        if (current.isSimilar(invItem.getItem())) {
+            player.getInventory().setItem(slot, null);
+            player.updateInventory();
+        }
+    }
+
+    private InvItem getRematchInvItem() {
+        return this.getInvItem();
     }
 
 }

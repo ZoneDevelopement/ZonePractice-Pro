@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ArenaSetupManager {
 
@@ -118,13 +119,13 @@ public class ArenaSetupManager {
     }
 
     public boolean isSetupWand(ItemStack item) {
-        return item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains("Arena Wand");
+        return item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && Common.getItemDisplayName(item).contains("Arena Wand");
     }
 
     public SetupMode getNextMode(DisplayArena arena, SetupMode current) {
         List<SetupMode> validModes = getValidModes(arena);
         int currentIndex = validModes.indexOf(current);
-        if (currentIndex == -1) return validModes.get(0);
+        if (currentIndex == -1) return validModes.getFirst();
 
         int nextIndex = (currentIndex + 1) % validModes.size();
         return validModes.get(nextIndex);
@@ -133,7 +134,7 @@ public class ArenaSetupManager {
     public SetupMode getPreviousMode(DisplayArena arena, SetupMode current) {
         List<SetupMode> validModes = getValidModes(arena);
         int currentIndex = validModes.indexOf(current);
-        if (currentIndex == -1) return validModes.get(0);
+        if (currentIndex == -1) return validModes.getFirst();
 
         int prevIndex = (currentIndex - 1 + validModes.size()) % validModes.size();
         return validModes.get(prevIndex);
@@ -177,7 +178,7 @@ public class ArenaSetupManager {
         ItemMeta meta = wand.getItemMeta();
         SetupMode mode = session.getCurrentMode();
 
-        meta.setDisplayName(Common.colorize("&6Arena Wand &7(&e" + mode.getDisplayName() + "&7)"));
+        meta.displayName(Common.legacyToComponent(Common.colorize("&6Arena Wand &7(&e" + mode.getDisplayName() + "&7)")));
 
         List<String> lore = new ArrayList<>();
         lore.add(Common.colorize("&7Editing: &a" + arena.getName()));
@@ -197,9 +198,9 @@ public class ArenaSetupManager {
         lore.add("");
         lore.add(Common.colorize("&cDrop (Q): &7Exit Setup"));
 
-        meta.setLore(lore);
+        meta.lore(lore.stream().map(Common::legacyToComponent).collect(Collectors.toList()));
         wand.setItemMeta(meta);
 
-        player.getInventory().setItemInHand(wand);
+        player.getInventory().setItemInMainHand(wand);
     }
 }

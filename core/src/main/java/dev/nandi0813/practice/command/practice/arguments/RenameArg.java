@@ -25,7 +25,8 @@ public enum RenameArg {
             return;
         }
 
-        if (player.getItemInHand() == null || player.getItemInHand().getType().equals(Material.AIR)) {
+        ItemStack handItem = player.getInventory().getItemInMainHand();
+        if (handItem.getType().equals(Material.AIR)) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.RENAME.ITEM-IN-HAND"));
             return;
         }
@@ -39,11 +40,11 @@ public enum RenameArg {
                 builder.append(" ");
         }
 
-        ItemStack item = player.getItemInHand();
+        ItemStack item = player.getInventory().getItemInMainHand();
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.setDisplayName(StringUtil.CC(builder.toString()));
+        itemMeta.displayName(Common.legacyToComponent(StringUtil.CC(builder.toString())));
         item.setItemMeta(itemMeta);
-        player.setItemInHand(item);
+        player.getInventory().setItemInMainHand(item);
     }
 
 }

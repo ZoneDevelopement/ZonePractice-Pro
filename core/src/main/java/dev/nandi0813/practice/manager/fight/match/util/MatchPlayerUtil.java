@@ -1,7 +1,6 @@
 package dev.nandi0813.practice.manager.fight.match.util;
 
 import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.module.util.ClassImport;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import org.bukkit.Bukkit;
@@ -20,7 +19,7 @@ public enum MatchPlayerUtil {
 
         PlayerUtil.setFightPlayer(hider);
 
-        ClassImport.getClasses().getPlayerUtil().setCollidesWithEntities(hider, false);
+        dev.nandi0813.practice.manager.fight.util.PlayerUtil.setCollidesWithEntities(hider, false);
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
             hider.setAllowFlight(true);

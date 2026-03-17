@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.listener;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.Profile;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerQuit implements Listener {
@@ -25,6 +27,8 @@ public class PlayerQuit implements Listener {
         if (party != null)
             party.removeMember(player, false);
 
+        MatchManager.getInstance().invalidateRematchByPlayer(player);
+
         if (profile != null) {
             profile.setLastJoin(System.currentTimeMillis());
 
@@ -37,6 +41,11 @@ public class PlayerQuit implements Listener {
                         profile.setStatus(ProfileStatus.OFFLINE), 5L);
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerKick(PlayerKickEvent e) {
+        MatchManager.getInstance().invalidateRematchByPlayer(e.getPlayer());
     }
 
 }

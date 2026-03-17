@@ -7,10 +7,10 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDi
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerScoreboardObjective;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateScore;
 import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.module.util.ClassImport;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -30,7 +30,7 @@ public class BelowNameManager implements PacketListener {
     }
 
     private final String objectiveName = "ZPP_BELOW_NAME";
-    private final Component displayName = Component.text(ChatColor.RED + "♥");
+    private final Component displayName = Component.text("♥", NamedTextColor.RED);
 
     private final Map<Player, User> registeredUsers = Collections.synchronizedMap(new HashMap<>());
 
@@ -45,7 +45,7 @@ public class BelowNameManager implements PacketListener {
                     continue;
                 }
 
-                double health = ClassImport.getClasses().getPlayerUtil().getPlayerHealth(otherPlayer);
+                double health = PlayerUtil.getPlayerHealth(otherPlayer);
                 int hp = (int) Math.round(health);
 
                 Component formattedHealth = Component.text(String.format("%.1f", health));
