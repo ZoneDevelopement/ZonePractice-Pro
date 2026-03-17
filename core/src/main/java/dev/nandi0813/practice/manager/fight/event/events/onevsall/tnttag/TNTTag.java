@@ -13,6 +13,9 @@ import dev.nandi0813.practice.manager.fight.event.runnables.StartRunnable;
 import dev.nandi0813.practice.manager.fight.event.util.EventUtil;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.server.ServerManager;
+import dev.nandi0813.practice.manager.server.sound.SoundEffect;
+import dev.nandi0813.practice.manager.server.sound.SoundManager;
+import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
@@ -114,6 +117,9 @@ public class TNTTag extends Event {
                             .replace("%seconds%", String.valueOf(seconds))
                             .replace("%secondName%", (seconds == 1 ? LanguageManager.getString("SECOND-NAME.1SEC") : LanguageManager.getString("SECOND-NAME.1<SEC")))
                     , true);
+
+            SoundEffect sound = SoundManager.getInstance().getSound(SoundType.EVENT_START_COUNTDOWN);
+            if (sound != null) sound.play(this.getPlayers());
         }
 
         startRunnable.decreaseTime();
