@@ -37,6 +37,7 @@ public class EventSetupListener implements Listener {
      * processed this tick and skip any duplicate invocation within the same tick.
      */
     private final Set<UUID> interactCooldown = new HashSet<>();
+    private final Set<UUID> entityInteractCooldown = new HashSet<>();
 
     public EventSetupListener(EventWandSetupManager setupManager) {
         this.setupManager = setupManager;
@@ -44,7 +45,7 @@ public class EventSetupListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if (event.getHand() != null && event.getHand() != EquipmentSlot.HAND) {
+        if (event.getHand() != EquipmentSlot.HAND) {
             return;
         }
 
@@ -125,13 +126,29 @@ public class EventSetupListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
+        if (event.getHand() != null && event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+
         Player player = event.getPlayer();
 
         if (!setupManager.isSettingUp(player) || !setupManager.isSetupWand(player.getInventory().getItemInMainHand())) {
             return;
         }
 
+        if (!entityInteractCooldown.add(player.getUniqueId())) {
+            return;
+        }
+        org.bukkit.Bukkit.getScheduler().runTask(
+                ZonePractice.getInstance(),
+                () -> entityInteractCooldown.remove(player.getUniqueId())
+        );
+
         EventWandSetupManager.SetupSession session = setupManager.getSession(player);
+        if (session == null) {
+            return;
+        }
+
         if (session.getCurrentMode() != EventSetupMode.SPAWN_POINTS) {
             return;
         }
@@ -143,15 +160,25 @@ public class EventSetupListener implements Listener {
         event.setCancelled(true);
 
         EventData eventData = session.getEventData();
+        if (eventData == null) {
+            return;
+        }
+
         EventSpawnMarkerManager markerManager = EventSpawnMarkerManager.getInstance();
 
         if (!markerManager.isMarker(mannequin)) {
             return;
         }
 
+        if (!markerManager.isSpawnMarker(mannequin)) {
+            return;
+        }
+
         int spawnIndex = markerManager.getSpawnIndex(mannequin);
-        if (spawnIndex == -1) {
-            player.sendMessage(Common.colorize("&cCouldn't find spawn point for this marker."));
+        if (spawnIndex < 0 || spawnIndex >= eventData.getSpawns().size()) {
+            markerManager.updateMarkers(eventData);
+            updateGui(eventData);
+            player.sendMessage(Common.colorize("&cThis spawn marker is outdated. Markers have been refreshed."));
             return;
         }
 

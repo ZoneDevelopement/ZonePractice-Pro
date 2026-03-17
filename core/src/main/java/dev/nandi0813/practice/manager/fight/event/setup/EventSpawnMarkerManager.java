@@ -122,9 +122,7 @@ public class EventSpawnMarkerManager {
 
         // Give it a sword to hold (to make it more visible)
         ItemStack sword = ItemCreateUtil.createItem("&cSpawn Marker", org.bukkit.Material.DIAMOND_SWORD);
-        if (mannequin.getEquipment() != null) {
-            mannequin.getEquipment().setItemInMainHand(sword);
-        }
+        mannequin.getEquipment().setItemInMainHand(sword);
 
         // Make it invulnerable and non-persistent.
         mannequin.setInvulnerable(true);
@@ -203,6 +201,13 @@ public class EventSpawnMarkerManager {
             }
         }
         return false;
+    }
+
+    /**
+     * Checks if a mannequin is a removable spawn marker (not just a floating label).
+     */
+    public boolean isSpawnMarker(Mannequin mannequin) {
+        return markerToSpawnIndex.containsKey(mannequin.getUniqueId());
     }
 
     /**
