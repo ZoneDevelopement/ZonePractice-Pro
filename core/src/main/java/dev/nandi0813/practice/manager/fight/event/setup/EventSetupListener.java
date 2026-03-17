@@ -5,6 +5,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
+import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.event.EventSetupManager;
 import dev.nandi0813.practice.util.Common;
@@ -18,10 +19,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.*;
@@ -125,8 +123,24 @@ public class EventSetupListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        if (!setupManager.isSettingUp(player) || !setupManager.isSetupWand(player.getInventory().getItemInMainHand())) {
+            return;
+        }
+
+        if (event.getRightClicked() instanceof Mannequin mannequin && EventSpawnMarkerManager.getInstance().isMarker(mannequin)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
-        if (event.getHand() != null && event.getHand() != EquipmentSlot.HAND) {
+        if (event.getHand() != EquipmentSlot.HAND) {
             return;
         }
 
@@ -377,6 +391,7 @@ public class EventSetupListener implements Listener {
             if (EventSetupManager.getInstance().getEventSetupGUIs().get(eventData).containsKey(GUIType.Event_Main)) {
                 EventSetupManager.getInstance().getEventSetupGUIs().get(eventData).get(GUIType.Event_Main).update();
             }
+            GUIManager.getInstance().getGuis().get(GUIType.Event_Summary).update();
         }
     }
 

@@ -1,10 +1,12 @@
 package dev.nandi0813.practice.manager.fight.event.setup;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.ItemCreateUtil;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mannequin;
@@ -186,9 +188,9 @@ public class EventSpawnMarkerManager {
      * Updates markers for an event (re-creates them)
      */
     public void updateMarkers(EventData eventData) {
-        // Always update markers - showMarkers will clear old ones first
-        // This ensures markers appear even when adding the first spawn point
-        showMarkers(eventData);
+        clearMarkers(eventData);
+        // Recreate markers next tick so removed entities are fully despawned first.
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> showMarkers(eventData));
     }
 
     /**
