@@ -87,14 +87,17 @@ public class LadderSelector extends GUI {
             return;
 
         NormalLadder ladder = ladderSlots.get(slot);
-        if (ladder != null) {
-            if (!ladder.isEnabled() || !ffaArena.getAssignedLadders().contains(ladder)) {
-                update();
-                return;
-            } else if (ladder.isFrozen()) {
-                update();
-                return;
-            }
+        if (ladder == null) {
+            update();
+            return;
+        }
+
+        if (!ladder.isEnabled() || !ffaArena.getAssignedLadders().contains(ladder)) {
+            update();
+            return;
+        } else if (ladder.isFrozen()) {
+            update();
+            return;
         }
 
         if (!ffa.isOpen()) {
