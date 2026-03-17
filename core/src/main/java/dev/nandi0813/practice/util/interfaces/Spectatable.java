@@ -13,6 +13,8 @@ import java.util.List;
 
 public interface Spectatable {
 
+    List<Player> getActivePlayerList();
+
     List<Player> getSpectators();
 
     void addSpectator(Player spectator, Player target, boolean teleport, boolean message);

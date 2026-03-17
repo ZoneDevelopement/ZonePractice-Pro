@@ -304,6 +304,11 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
             Common.sendMMMessage(player, message);
     }
 
+    @Override
+    public List<Player> getActivePlayerList() {
+        return this.players;
+    }
+
     public abstract StartRunnable getStartRunnable();
 
     public abstract DurationRunnable getDurationRunnable();

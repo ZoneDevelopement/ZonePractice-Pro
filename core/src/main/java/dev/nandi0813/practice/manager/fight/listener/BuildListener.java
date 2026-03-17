@@ -12,12 +12,15 @@ import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -80,6 +83,12 @@ public class BuildListener implements Listener {
 
     protected static Spectatable getByBlock(Block block) {
         return getByLocation(block.getLocation());
+    }
+
+    protected static Spectatable getByPlayer(Player player) {
+        return FightUtil.getActiveBuildSpectatables().stream()
+                .filter(s -> s.getActivePlayerList().contains(player))
+                .findFirst().orElse(null);
     }
 
     /** Track the block under a placed block if it will naturally turn to dirt (grass -> dirt). */
@@ -165,21 +174,30 @@ public class BuildListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockPlace(BlockPlaceEvent e) {
-        Block block = e.getBlockPlaced();
+    public void onBlockPlace(BlockPlaceEvent event) {
+        Block block = event.getBlockPlaced();
+        Spectatable spectatable = null;
+        boolean needsMetadata = false;
 
-        Spectatable spectatable;
         if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
-            Spectatable s = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
-            if (ListenerUtil.checkMetaData(s)) return;
-            spectatable = s;
+            spectatable = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(spectatable)) {
+                return;
+            }
         } else {
-            spectatable = getByBlock(block);
-            if (spectatable == null || !spectatable.isBuild()) return;
+            spectatable = getByPlayer(event.getPlayer());
+            needsMetadata = true;
+        }
+
+        if (spectatable == null || !spectatable.isBuild()) {
+            return;
+        }
+
+        if (needsMetadata) {
             BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
         }
 
-        spectatable.addBlockChange(new ChangedBlock(e));
+        spectatable.addBlockChange(new ChangedBlock(event));
         trackUnderBlockIfDirt(block, spectatable);
     }
 
@@ -221,7 +239,7 @@ public class BuildListener implements Listener {
      *       that silently disappear when their support is destroyed.</li>
      * </ul>
      */
-    protected void handleExplosion(org.bukkit.event.Event event, List<Block> blockList, Spectatable spectatable) {
+    protected void handleExplosion(Event event, List<Block> blockList, Spectatable spectatable) {
         if (spectatable == null) return;
 
         if (spectatable instanceof Match match) {
@@ -545,7 +563,7 @@ public class BuildListener implements Listener {
 
         final Spectatable finalSpectatable = spectatable;
         final Block newBlock = e.getNewState().getBlock();
-        org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
             if (BlockUtil.hasMetadata(newBlock, PLACED_IN_FIGHT)) return;
             tagAndTrack(newBlock, finalSpectatable);
         });
@@ -627,7 +645,7 @@ public class BuildListener implements Listener {
         // After the burn event, the burned block may be replaced with fire.
         // Schedule a 1-tick delayed check to track it if so.
         final Spectatable finalSpectatable = spectatable;
-        org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
             String typeName = block.getType().name();
             if ((typeName.equals("FIRE") || typeName.equals("SOUL_FIRE")) && !BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
                 tagAndTrack(block, finalSpectatable);

@@ -351,6 +351,11 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     }
 
     @Override
+    public List<Player> getActivePlayerList() {
+        return new ArrayList<>(players.keySet());
+    }
+
+    @Override
     public boolean canDisplay() {
         return this.open;
     }

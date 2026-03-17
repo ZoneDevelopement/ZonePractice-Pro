@@ -439,6 +439,11 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     }
 
     @Override
+    public List<Player> getActivePlayerList() {
+        return this.players;
+    }
+
+    @Override
     public boolean isBuild() {
         return ladder.isBuild();
     }
