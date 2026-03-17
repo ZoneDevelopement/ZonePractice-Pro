@@ -1,6 +1,5 @@
 package dev.nandi0813.practice.manager.fight.event.interfaces;
 
-import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
@@ -11,7 +10,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,8 +18,6 @@ import java.util.List;
 @Getter
 @Setter
 public abstract class EventData extends ConfigFile {
-
-    private static final ZonePractice practice = ZonePractice.getInstance();
 
     protected EventType type;
     protected boolean enabled;
@@ -58,45 +54,32 @@ public abstract class EventData extends ConfigFile {
     }
 
     @Override
-    public void setData() {
-        BukkitRunnable task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                config.set("enabled", enabled);
-                config.set("icon", icon.get());
-                config.set("settings.broadcastInterval", broadcastInterval);
-                config.set("settings.waitBeforeStart", waitBeforeStart);
-                config.set("settings.maxQueueTime", maxQueueTime);
-                config.set("settings.duration", duration);
-                config.set("settings.startTime", startTime);
-                config.set("settings.minPlayer", minPlayer);
-                config.set("settings.maxPlayer", maxPlayer);
+    public synchronized void setData() {
+        config.set("enabled", enabled);
+        config.set("icon", icon.get());
+        config.set("settings.broadcastInterval", broadcastInterval);
+        config.set("settings.waitBeforeStart", waitBeforeStart);
+        config.set("settings.maxQueueTime", maxQueueTime);
+        config.set("settings.duration", duration);
+        config.set("settings.startTime", startTime);
+        config.set("settings.minPlayer", minPlayer);
+        config.set("settings.maxPlayer", maxPlayer);
 
-                if (cuboidLoc1 != null)
-                    config.set("cuboid.1", cuboidLoc1);
-                if (cuboidLoc2 != null)
-                    config.set("cuboid.2", cuboidLoc2);
+        config.set("cuboid.1", cuboidLoc1);
+        config.set("cuboid.2", cuboidLoc2);
+        config.set("spawns", spawns.isEmpty() ? null : new ArrayList<>(spawns));
 
-                if (!spawns.isEmpty()) {
-                    config.set("spawns", spawns);
-                }
+        setCustomData();
 
-                setCustomData();
-
-                saveFile();
-            }
-        };
-
-        if (practice.isEnabled())
-            task.runTaskAsynchronously(practice);
-        else
-            task.run();
+        saveFile();
     }
 
     protected abstract void setCustomData();
 
     @Override
     public void getData() {
+        spawns.clear();
+
         if (config.isItemStack("icon"))
             this.icon = new GUIItem(config.getItemStack("icon"));
 
@@ -127,9 +110,16 @@ public abstract class EventData extends ConfigFile {
             this.setCuboidLoc2((Location) config.get("cuboid.2"));
 
         if (config.isList("spawns")) {
-            for (Object obj : config.getList("spawns")) {
-                if (obj instanceof Location) {
-                    addSpawn((Location) obj);
+            List<?> savedSpawns = config.getList("spawns");
+            if (savedSpawns != null) {
+                for (Object obj : savedSpawns) {
+                    if (obj instanceof Location location) {
+                        spawns.add(location.clone());
+                    }
+                }
+
+                if (cuboid != null) {
+                    spawns.removeIf(spawn -> !cuboid.contains(spawn));
                 }
             }
         }

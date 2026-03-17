@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.fight.event.setup;
 
 import dev.nandi0813.api.Event.Event.EventEndEvent;
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
@@ -157,6 +158,7 @@ public class EventSetupListener implements Listener {
         eventData.getSpawns().remove(spawnIndex);
         markerManager.updateMarkers(eventData);
         updateGui(eventData);
+        scheduleSave(eventData);
 
         player.sendMessage(Common.colorize("&aRemoved spawn point #" + (spawnIndex + 1) + ". Remaining: " + eventData.getSpawns().size()));
     }
@@ -192,6 +194,7 @@ public class EventSetupListener implements Listener {
             eventData.getSpawns().remove(index);
             EventSpawnMarkerManager.getInstance().updateMarkers(eventData);
             updateGui(eventData);
+            scheduleSave(eventData);
             player.sendMessage(Common.colorize("&cRemoved last spawn point. Remaining: " + index));
         } else {
             player.sendMessage(Common.colorize("&cNo spawn points to remove."));
@@ -251,6 +254,7 @@ public class EventSetupListener implements Listener {
         }
 
         updateGui(eventData);
+        scheduleSave(eventData);
     }
 
     private void handleSpawnPoints(Player player, EventData eventData, Action action, PlayerInteractEvent event) {
@@ -286,6 +290,7 @@ public class EventSetupListener implements Listener {
 
             EventSpawnMarkerManager.getInstance().updateMarkers(eventData);
             updateGui(eventData);
+            scheduleSave(eventData);
 
             player.sendMessage(Common.colorize("&aAdded spawn point #" + eventData.getSpawns().size() + " at your location."));
         }
@@ -296,6 +301,7 @@ public class EventSetupListener implements Listener {
                 eventData.getSpawns().remove(index);
                 EventSpawnMarkerManager.getInstance().updateMarkers(eventData);
                 updateGui(eventData);
+                scheduleSave(eventData);
                 player.sendMessage(Common.colorize("&cRemoved last spawn point. Remaining: " + index));
             } else {
                 player.sendMessage(Common.colorize("&cNo spawn points to remove."));
@@ -333,6 +339,7 @@ public class EventSetupListener implements Listener {
             }
 
             updateGui(eventData);
+            scheduleSave(eventData);
         } catch (Exception e) {
             player.sendMessage(Common.colorize("&cError toggling status: " + e.getMessage()));
         }
@@ -352,5 +359,9 @@ public class EventSetupListener implements Listener {
         loc.setYaw(snappedYaw);
         loc.setPitch(0.0f);
         return loc;
+    }
+
+    private static void scheduleSave(EventData eventData) {
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), eventData::setData);
     }
 }
