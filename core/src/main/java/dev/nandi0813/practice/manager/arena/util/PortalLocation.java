@@ -29,7 +29,7 @@ public class PortalLocation {
 
     public void setPortal() {
         for (Block block : cuboid.getBlocks()) {
-            block.setBlockData(Material.END_PORTAL_FRAME.createBlockData());
+            block.setBlockData(Material.END_PORTAL.createBlockData());
             block.getState().update();
         }
     }
