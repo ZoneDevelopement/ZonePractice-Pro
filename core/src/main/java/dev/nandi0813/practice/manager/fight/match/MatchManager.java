@@ -160,4 +160,21 @@ public class MatchManager {
         return null;
     }
 
+    public void invalidateRematch(RematchRequest rematchRequest) {
+        if (rematchRequest == null) return;
+
+        if (rematches.remove(rematchRequest)) {
+            rematchRequest.invalidate();
+        }
+    }
+
+    public void invalidateRematchByPlayer(Player player) {
+        if (player == null) return;
+
+        RematchRequest rematchRequest = getRematchRequest(player);
+        if (rematchRequest != null) {
+            invalidateRematch(rematchRequest);
+        }
+    }
+
 }

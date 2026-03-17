@@ -14,11 +14,9 @@ import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -33,6 +31,7 @@ public class RematchRequest {
     private final int rounds;
 
     private boolean isRequested = false;
+    private boolean invalidated = false;
 
     public RematchRequest(Match match) {
         this.players.addAll(match.getPlayers());
@@ -44,9 +43,15 @@ public class RematchRequest {
     }
 
     public void sendRematchRequest(Player sender) {
+        if (invalidated) {
+            return;
+        }
+
         Player target = getOtherPlayer(sender);
-        if (!target.isOnline()) {
-            Common.sendMMMessage(sender, LanguageManager.getString("MATCH.REMATCH-REQUEST.TARGET-OFFLINE").replace("%target%", target.getName()));
+        if (target == null || !target.isOnline()) {
+            String targetName = target != null ? target.getName() : "Unknown";
+            Common.sendMMMessage(sender, LanguageManager.getString("MATCH.REMATCH-REQUEST.TARGET-OFFLINE").replace("%target%", targetName));
+            MatchManager.getInstance().invalidateRematch(this);
             return;
         }
 
@@ -63,7 +68,8 @@ public class RematchRequest {
                 return;
             }
 
-            DuelRequest request = new DuelRequest(sender, target, ladder, null, rounds);
+            DuelRequest request = new DuelRequest(sender, target, ladder, null, rounds,
+                    () -> MatchManager.getInstance().invalidateRematch(this));
             DuelManager.getInstance().sendRequest(request);
 
             isRequested = true;
@@ -81,8 +87,12 @@ public class RematchRequest {
     public void setInventories() {
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
+            if (invalidated) {
+                return;
+            }
+
             for (Player player : this.players) {
-                if (!player.isOnline()) return;
+                if (!player.isOnline()) continue;
 
                 Inventory inventory = InventoryManager.getInstance().getPlayerInventory(player);
                 if (inventory instanceof LobbyInventory lobbyInventory) {
@@ -95,23 +105,34 @@ public class RematchRequest {
     public void startRunnable() {
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                 {
-                    MatchManager.getInstance().getRematches().remove(this);
-
-                    for (Player player : players) {
-                        if (!player.isOnline()) return;
-
-                        Profile profile = ProfileManager.getInstance().getProfile(player);
-                        if (!profile.getStatus().equals(ProfileStatus.LOBBY)) return;
-
-                        Location lobby = ServerManager.getLobby();
-                        if (lobby != null && lobby.getWorld() != null && !player.getLocation().getWorld().equals(lobby.getWorld())) {
-                            return;
-                        }
-
-                        InventoryManager.getInstance().setLobbyInventory(player, false);
-                    }
+                    MatchManager.getInstance().invalidateRematch(this);
                 },
                 ConfigManager.getInt("MATCH-SETTINGS.REMATCH.EXPIRE-TIME") * 20L);
+    }
+
+    public synchronized void invalidate() {
+        if (invalidated) {
+            return;
+        }
+
+        invalidated = true;
+
+        for (Player player : players) {
+            if (!player.isOnline()) {
+                continue;
+            }
+
+            Profile profile = ProfileManager.getInstance().getProfile(player);
+            if (profile == null) {
+                continue;
+            }
+
+            Inventory inventory = InventoryManager.getInstance().getPlayerInventory(player);
+            if (inventory instanceof LobbyInventory lobbyInventory
+                    && (profile.getStatus().equals(ProfileStatus.LOBBY) || profile.getStatus().equals(ProfileStatus.SPECTATE))) {
+                lobbyInventory.removeRematchItem(player);
+            }
+        }
     }
 
 }

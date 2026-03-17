@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.profile;
 
+import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.util.CustomKit;
 import dev.nandi0813.practice.manager.gui.guis.customladder.PlayerCustomKitSelector;
 import dev.nandi0813.practice.manager.gui.guis.profile.ProfileSettingsGui;
@@ -215,6 +216,22 @@ public class Profile {
         }
 
         this.selectedCustomLadder = customLadder;
+    }
+
+    public void setStatus(ProfileStatus status) {
+        ProfileStatus previous = this.status;
+        this.status = status;
+
+        // Leaving lobby/spectate for a new activity invalidates pending rematches.
+        if ((previous == ProfileStatus.LOBBY || previous == ProfileStatus.SPECTATE)
+                && status != ProfileStatus.LOBBY
+                && status != ProfileStatus.SPECTATE
+                && status != ProfileStatus.OFFLINE) {
+            Player online = player.getPlayer();
+            if (online != null && online.isOnline()) {
+                MatchManager.getInstance().invalidateRematchByPlayer(online);
+            }
+        }
     }
 
 }

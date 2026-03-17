@@ -58,9 +58,21 @@ public class DuelManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                getRequests().get(target).remove(request);
+                List<DuelRequest> targetRequests = getRequests().get(target);
+                if (targetRequests == null) {
+                    return;
+                }
+
+                boolean removed = targetRequests.remove(request);
+                if (targetRequests.isEmpty()) {
+                    getRequests().remove(target);
+                }
+
+                if (removed) {
+                    request.handleExpiry();
+                }
             }
-        }.runTaskLaterAsynchronously(ZonePractice.getInstance(), 20L * ConfigManager.getInt("MATCH-SETTINGS.DUEL.INVITATION-EXPIRY"));
+        }.runTaskLater(ZonePractice.getInstance(), 20L * ConfigManager.getInt("MATCH-SETTINGS.DUEL.INVITATION-EXPIRY"));
     }
 
 }

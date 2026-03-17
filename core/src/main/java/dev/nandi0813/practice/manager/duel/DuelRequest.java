@@ -22,13 +22,19 @@ public class DuelRequest {
     private Ladder ladder;
     private Arena arena;
     private int rounds;
+    private final Runnable expireHandler;
 
     public DuelRequest(Player sender, Player target, Ladder ladder, Arena arena, int rounds) {
+        this(sender, target, ladder, arena, rounds, null);
+    }
+
+    public DuelRequest(Player sender, Player target, Ladder ladder, Arena arena, int rounds, Runnable expireHandler) {
         this.sender = sender;
         this.target = target;
         this.ladder = ladder;
         this.arena = arena;
         this.rounds = rounds;
+        this.expireHandler = expireHandler;
     }
 
     public void sendRequest() {
@@ -79,6 +85,12 @@ public class DuelRequest {
         } else {
             Common.sendMMMessage(sender, LanguageManager.getString("COMMAND.DUEL.NO-AVAILABLE-ARENA"));
             Common.sendMMMessage(target, LanguageManager.getString("COMMAND.DUEL.NO-AVAILABLE-ARENA"));
+        }
+    }
+
+    public void handleExpiry() {
+        if (expireHandler != null) {
+            expireHandler.run();
         }
     }
 
