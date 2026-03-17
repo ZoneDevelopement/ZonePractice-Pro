@@ -35,6 +35,9 @@ public class FFACommand implements CommandExecutor, TabCompleter {
                 case "leave":
                     LeaveArg.run(player);
                     break;
+                case "kit":
+                    KitArg.run(player);
+                    break;
                 case "spec":
                 case "spectate":
                     SpectateArg.run(player, label, args);
@@ -73,6 +76,7 @@ public class FFACommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             arguments.add("join");
             arguments.add("leave");
+            arguments.add("kit");
             arguments.add("list");
 
             StringUtil.copyPartialMatches(args[0], arguments, completion);

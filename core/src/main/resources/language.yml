@@ -1,4 +1,4 @@
-VERSION: 19
+VERSION: 20
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1594,12 +1594,16 @@ FFA:
       CANT-JOIN-FFA: "<red>You can't spectate the FFA right now."
     LEAVE:
       NOT-IN-FFA: "<red>You are not in a FFA."
+    KIT:
+      NOT-IN-FFA: "<red>You are not in a FFA."
+      ALREADY-IN-KIT: "<red>You are already in this kit."
     HELP:
       - "<gray><st>----------------------------------------"
       - "<dark_aqua><bold>FFA Commands"
       - ""
       - " <yellow>» <white>/%label% join <gray>- <white>Join a FFA."
       - " <yellow>» <white>/%label% leave <gray>- <white>Leave a FFA."
+      - " <yellow>» <white>/%label% kit <gray>- <white>Open FFA kit selector."
       - " <yellow>» <white>/%label% spectate <arena> <gray>- <white>Spectate FFA."
       - " <yellow>» <white>/%label% list <gray>- <white>List all available arenas."
       - "<gray><st>----------------------------------------"

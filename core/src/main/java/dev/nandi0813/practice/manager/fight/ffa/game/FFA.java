@@ -145,6 +145,15 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         SpectatorManager.getInstance().getSpectatorMenuGui().update();
     }
 
+    public void changePlayerLadder(Player player, NormalLadder ladder) {
+        if (!players.containsKey(player) || ladder == null)
+            return;
+
+        players.put(player, ladder);
+        PlayerUtil.setFightPlayer(player);
+        KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, ladder);
+    }
+
     public void removePlayer(Player player) {
         if (!players.containsKey(player))
             return;
