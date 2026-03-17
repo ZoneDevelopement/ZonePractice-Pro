@@ -21,6 +21,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.*;
 
@@ -42,6 +43,10 @@ public class EventSetupListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
+        if (event.getHand() != null && event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+
         Player player = event.getPlayer();
 
         if (!setupManager.isSettingUp(player) || !setupManager.isSetupWand(event.getItem())) {
@@ -271,7 +276,14 @@ public class EventSetupListener implements Listener {
                 return;
             }
 
-            eventData.addSpawn(spawnLoc);
+            try {
+                eventData.addSpawn(spawnLoc);
+            } catch (IllegalStateException ex) {
+                // Ignore duplicate/invalid add attempts and show the setup error to the player.
+                player.sendMessage(Common.colorize("&c" + ex.getMessage()));
+                return;
+            }
+
             EventSpawnMarkerManager.getInstance().updateMarkers(eventData);
             updateGui(eventData);
 
