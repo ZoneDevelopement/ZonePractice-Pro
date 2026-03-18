@@ -373,10 +373,7 @@ public class FFAListener implements Listener {
             return;
         }
 
-        Player killer = null;
-        if (damageSource.getCausingEntity() instanceof Entity damageEntity) {
-            killer = FightUtil.getKiller(damageEntity);
-        }
+        Player killer = resolveKiller(player, ffa, damageSource);
 
         DeathCause cause = FightUtil.convert(damageSource.getDamageType());
         ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
@@ -385,6 +382,30 @@ public class FFAListener implements Listener {
             Statistic statistic = ffa.getStatistics().get(killer);
             statistic.setKills(statistic.getKills() + 1);
         }
+    }
+
+    private Player resolveKiller(Player victim, FFA ffa, DamageSource damageSource) {
+        Player killer = null;
+
+        if (damageSource.getCausingEntity() instanceof Entity damageEntity) {
+            killer = FightUtil.getKiller(damageEntity);
+        }
+
+        // Bukkit keeps killer attribution for recent direct/projectile PvP.
+        if (killer == null) {
+            killer = victim.getKiller();
+        }
+
+        // Fallback for delayed environmental deaths (e.g. fatal fall after knockback).
+        if (killer == null) {
+            killer = ffa.getLastAttacker(victim);
+        }
+
+        if (killer != null && !ffa.getPlayers().containsKey(killer)) {
+            return null;
+        }
+
+        return killer;
     }
 
     @EventHandler

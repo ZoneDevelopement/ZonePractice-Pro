@@ -15,10 +15,6 @@ public class BuildRollback extends Runnable {
     private final FightChangeOptimized fightChange;
     private final java.lang.Runnable onRollbackComplete;
 
-    public BuildRollback(FightChangeOptimized fightChange) {
-        this(fightChange, null);
-    }
-
     public BuildRollback(FightChangeOptimized fightChange, java.lang.Runnable onRollbackComplete) {
         super(20L, 20L, false);
         this.fightChange = fightChange;

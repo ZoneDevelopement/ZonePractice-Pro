@@ -21,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class FFAArenaSelectorGui extends GUI {
 
@@ -62,6 +61,7 @@ public class FFAArenaSelectorGui extends GUI {
                     .replace("%players%", String.valueOf(ffa.getPlayers().size()))
                     .replace("%build_status%", arena.isBuild() ? BUILD_ON : BUILD_OFF)
                     .replace("%rekit_after_kill%", arena.isReKitAfterKill() ? BUILD_ON : BUILD_OFF)
+                    .replace("%health_reset_on_kill%", arena.isHealthResetOnKill() ? BUILD_ON : BUILD_OFF)
                     .replace("%lobby_after_death%", arena.isLobbyAfterDeath() ? BUILD_ON : BUILD_OFF)
                     .replace("%ladders%", String.valueOf(arena.getAssignedLadders().size()));
 

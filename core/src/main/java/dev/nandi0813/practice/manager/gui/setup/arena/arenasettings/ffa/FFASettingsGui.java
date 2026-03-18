@@ -19,6 +19,8 @@ public class FFASettingsGui extends GUI {
     private static final ItemStack BUILD_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.BUILD.DISABLED").get();
     private static final ItemStack REKIT_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.RE-KIT-AFTER-KILL.ENABLED").get();
     private static final ItemStack REKIT_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.RE-KIT-AFTER-KILL.DISABLED").get();
+    private static final ItemStack HEALTH_RESET_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.HEALTH-RESET-ON-KILL.ENABLED").get();
+    private static final ItemStack HEALTH_RESET_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.HEALTH-RESET-ON-KILL.DISABLED").get();
     private static final ItemStack LOBBYDEATH_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.LOBBY-AFTER-DEATH.ENABLED").get();
     private static final ItemStack LOBBYDEATH_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.LOBBY-AFTER-DEATH.DISABLED").get();
 
@@ -52,21 +54,27 @@ public class FFASettingsGui extends GUI {
         Inventory inventory = this.gui.get(1);
 
         if (ffaArena.isBuild()) {
-            inventory.setItem(11, BUILD_ENABLED_ITEM);
+            inventory.setItem(10, BUILD_ENABLED_ITEM);
         } else {
-            inventory.setItem(11, BUILD_DISABLED_ITEM);
+            inventory.setItem(10, BUILD_DISABLED_ITEM);
         }
 
         if (ffaArena.isReKitAfterKill()) {
-            inventory.setItem(13, REKIT_ENABLED_ITEM);
+            inventory.setItem(12, REKIT_ENABLED_ITEM);
         } else {
-            inventory.setItem(13, REKIT_DISABLED_ITEM);
+            inventory.setItem(12, REKIT_DISABLED_ITEM);
         }
 
         if (ffaArena.isLobbyAfterDeath()) {
-            inventory.setItem(15, LOBBYDEATH_ENABLED_ITEM);
+            inventory.setItem(14, LOBBYDEATH_ENABLED_ITEM);
         } else {
-            inventory.setItem(15, LOBBYDEATH_DISABLED_ITEM);
+            inventory.setItem(14, LOBBYDEATH_DISABLED_ITEM);
+        }
+
+        if (ffaArena.isHealthResetOnKill()) {
+            inventory.setItem(16, HEALTH_RESET_ENABLED_ITEM);
+        } else {
+            inventory.setItem(16, HEALTH_RESET_DISABLED_ITEM);
         }
 
         this.updatePlayers();
@@ -80,16 +88,20 @@ public class FFASettingsGui extends GUI {
 
         try {
             switch (e.getRawSlot()) {
-                case 11:
+                case 10:
                     ffaArena.setBuild(!ffaArena.isBuild());
                     this.update();
                     break;
-                case 13:
+                case 12:
                     ffaArena.setReKitAfterKill(!ffaArena.isReKitAfterKill());
                     this.update();
                     break;
-                case 15:
+                case 14:
                     ffaArena.setLobbyAfterDeath(!ffaArena.isLobbyAfterDeath());
+                    this.update();
+                    break;
+                case 16:
+                    ffaArena.setHealthResetOnKill(!ffaArena.isHealthResetOnKill());
                     this.update();
                     break;
                 case 27:

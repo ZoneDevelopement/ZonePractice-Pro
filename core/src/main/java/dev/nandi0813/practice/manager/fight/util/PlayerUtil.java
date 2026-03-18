@@ -71,7 +71,7 @@ public class PlayerUtil {
         }
         // Drop cursor item if any
         ItemStack cursor = player.getItemOnCursor();
-        if (cursor != null && !cursor.getType().equals(Material.AIR))
+        if (!cursor.getType().equals(Material.AIR))
             entities.add(player.getWorld().dropItemNaturally(player.getLocation(), cursor));
 
         clearInventory(player);

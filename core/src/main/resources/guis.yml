@@ -1,4 +1,4 @@
-VERSION: 13
+VERSION: 14
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -576,6 +576,7 @@ GUIS:
             - ""
             - "&eBuild: &f%build_status%"
             - "&eRe-Kit After Kill: &f%rekit_after_kill%"
+            - "&eHealth Reset On Kill: &f%health_reset_on_kill%"
             - "&eLobby After Death: &f%lobby_after_death%"
             - "&eLadders: &f%ladders%"
             - "&ePlayers: &f%players%"
@@ -1325,8 +1326,8 @@ GUIS:
               - "&e&lClick here &7to open the settings gui."
               - ""
               - "&c&lNote: &7You can change the build setting,"
-              - "&7re-kit after kill setting and the lobby after"
-              - "&7death setting."
+              - "&7re-kit after kill, health reset on kill"
+              - "&7and the lobby after death setting."
           STATUS:
             ENABLED:
               NAME: "&7Status: &aEnabled"
@@ -1443,6 +1444,27 @@ GUIS:
                 - ""
                 - "&e&lClick here &7to &aenable &7the"
                 - "&2re-kit after kill &7in the arena."
+          HEALTH-RESET-ON-KILL:
+            ENABLED:
+              NAME: "&7Health Reset On Kill: &aEnabled"
+              MATERIAL: GOLDEN_APPLE
+              LORE:
+                - ""
+                - "&eAfter a player kills somebody"
+                - "&ethey are fully healed."
+                - ""
+                - "&e&lClick here &7to &cdisable &7the"
+                - "&2health reset on kill &7in the arena."
+            DISABLED:
+              NAME: "&7Health Reset On Kill: &cDisabled"
+              MATERIAL: RED_STAINED_GLASS_PANE
+              LORE:
+                - ""
+                - "&eAfter a player kills somebody"
+                - "&ethey are fully healed."
+                - ""
+                - "&e&lClick here &7to &aenable &7the"
+                - "&2health reset on kill &7in the arena."
           LOBBY-AFTER-DEATH:
             ENABLED:
               NAME: "&7Lobby After Death: &aEnabled"

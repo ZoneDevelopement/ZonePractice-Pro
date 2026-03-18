@@ -4,6 +4,7 @@ import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.ArenaType;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.DisplayArena;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIType;
@@ -14,14 +15,19 @@ import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 public class FFAArena extends DisplayArena {
 
+    private static final boolean DEFAULT_HEALTH_RESET_ON_KILL = ConfigManager.getBoolean("FFA.HEALTH-RESET-ON-KILL");
+
     private final FFA ffa;
     private boolean reKitAfterKill;
     private boolean lobbyAfterDeath;
+    private boolean healthResetOnKill;
 
     public FFAArena(String name) {
         super(name, ArenaType.FFA);
@@ -31,6 +37,7 @@ public class FFAArena extends DisplayArena {
         this.portalLoc1 = null;
         this.portalLoc2 = null;
         this.portalProtection = false;
+        this.healthResetOnKill = DEFAULT_HEALTH_RESET_ON_KILL;
 
         this.getData();
 
@@ -52,6 +59,7 @@ public class FFAArena extends DisplayArena {
         config.set("build", this.build);
         config.set("reKitAfterKill", this.reKitAfterKill);
         config.set("lobbyAfterDeath", this.lobbyAfterDeath);
+        config.set("healthResetOnKill", this.healthResetOnKill);
 
         config.set("ladders", ArenaUtil.getLadderNames(this));
 
@@ -75,6 +83,9 @@ public class FFAArena extends DisplayArena {
 
         if (config.isBoolean("lobbyAfterDeath"))
             this.setLobbyAfterDeath(config.getBoolean("lobbyAfterDeath"));
+
+        if (config.isBoolean("healthResetOnKill"))
+            this.setHealthResetOnKill(config.getBoolean("healthResetOnKill"));
 
         if (config.isList("ladders")) {
             for (String ladderName : config.getStringList("ladders")) {
@@ -133,6 +144,14 @@ public class FFAArena extends DisplayArena {
         }
 
         this.lobbyAfterDeath = lobbyAfterDeath;
+    }
+
+    public void setHealthResetOnKill(boolean healthResetOnKill) throws IllegalStateException {
+        if (this.enabled) {
+            throw new IllegalStateException("Cannot edit while arena is enabled.");
+        }
+
+        this.healthResetOnKill = healthResetOnKill;
     }
 
     public void setBuild(boolean build) {

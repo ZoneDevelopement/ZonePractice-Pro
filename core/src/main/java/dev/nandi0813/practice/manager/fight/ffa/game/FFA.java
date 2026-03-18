@@ -27,6 +27,8 @@ import dev.nandi0813.practice.util.interfaces.Spectatable;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -204,6 +206,10 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             if (arena.isReKitAfterKill()) {
                 KitUtil.loadDefaultLadderKit(killer, TeamEnum.FFA, players.get(killer));
             }
+
+            if (arena.isHealthResetOnKill()) {
+                applyHealthResetOnKill(killer);
+            }
         }
 
         if (arena.isLobbyAfterDeath()) {
@@ -215,6 +221,16 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                     teleportPlayer(player), 1L);
         }
+    }
+
+    private void applyHealthResetOnKill(Player killer) {
+        AttributeInstance maxHealth = killer.getAttribute(Attribute.MAX_HEALTH);
+        double maxHealthValue = maxHealth != null ? maxHealth.getValue() : 20.0D;
+        killer.setHealth(Math.max(1.0D, maxHealthValue));
+        killer.setFoodLevel(20);
+        killer.setSaturation(20.0F);
+        killer.setFireTicks(0);
+        killer.setFallDistance(0.0F);
     }
 
     /**
