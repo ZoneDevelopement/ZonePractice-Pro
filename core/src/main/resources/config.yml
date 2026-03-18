@@ -1,4 +1,4 @@
-VERSION: 20
+VERSION: 21
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -504,6 +504,13 @@ PLAYER:
     ENABLED: true
     DAYS: 30 # After this number of days, the inactive player profiles will be deleted.
   SETTINGS-DELAY: 3 # Sec between settings can be changed. It can be bypassed.
+  LOBBY-PROTECTION:
+    allow-velocity: false # player don't get damaged but they get knocked back
+    allow-damage: false
+    allow-inventory-interact: false
+    allow-item-drop: false
+    allow-item-pickup: false
+    allow-hunger: false
   LOBBY-NAMETAG:
     ENABLED: true
   NAMETAG-MANAGEMENT:
