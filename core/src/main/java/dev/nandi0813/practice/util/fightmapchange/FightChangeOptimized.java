@@ -220,6 +220,36 @@ public class FightChangeOptimized {
         entry.changedBlock.reset();
     }
 
+    private static boolean isVineLike(org.bukkit.Material material) {
+        String name = material.name();
+        return name.equals("VINE") || name.contains("_VINE") || name.contains("_VINES");
+    }
+
+    private static int rollbackPriority(BlockChangeEntry entry) {
+        return isVineLike(entry.getChangedBlock().getMaterial()) ? 1 : 0;
+    }
+
+    private static java.util.Comparator<Map.Entry<Long, BlockChangeEntry>> rollbackComparator() {
+        return (a, b) -> {
+            int pa = rollbackPriority(a.getValue());
+            int pb = rollbackPriority(b.getValue());
+            if (pa != pb) {
+                return Integer.compare(pa, pb);
+            }
+
+            int ay = BlockPosition.getY(a.getKey());
+            int by = BlockPosition.getY(b.getKey());
+
+            // Vine-like hanging blocks must be restored from top to bottom.
+            if (pa == 1) {
+                return Integer.compare(by, ay);
+            }
+
+            // Other blocks keep bottom-to-top restore (support first for gravity blocks).
+            return Integer.compare(ay, by);
+        };
+    }
+
     /**
      * Rolls back all changes with rate limiting to prevent lag.
      * <p>
@@ -330,17 +360,16 @@ public class FightChangeOptimized {
      * Used when server is shutting down.
      */
     public void quickRollback() {
-        Iterator<Map.Entry<Long, BlockChangeEntry>> iterator = blocks.entrySet().iterator();
+        List<Map.Entry<Long, BlockChangeEntry>> sorted = new ArrayList<>(blocks.entrySet());
+        sorted.sort(rollbackComparator());
 
-        while (iterator.hasNext()) {
-            Map.Entry<Long, BlockChangeEntry> entry = iterator.next();
+        for (Map.Entry<Long, BlockChangeEntry> entry : sorted) {
             entry.getValue().changedBlock.reset();
 
             Block block = BlockPosition.getBlock(world, entry.getKey());
             // PLACED_IN_FIGHT uses PersistentTagUtil, so clear through BlockUtil.
             BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
-
-            iterator.remove();
+            blocks.remove(entry.getKey());
         }
     }
 
@@ -387,11 +416,10 @@ public class FightChangeOptimized {
         private final Runnable onComplete;
 
         RollbackTask(int maxCheck, int maxChange, @org.jetbrains.annotations.Nullable Runnable onComplete) {
-            // Sort ascending by Y so bottom blocks are restored first.
-            // This prevents gravity blocks (sand/gravel) from falling during rollback
-            // because their support blocks below are always placed before them.
+            // Default ordering is bottom-up (gravity support). Vine-like blocks are
+            // restored top-down so hanging segments do not immediately break.
             List<Map.Entry<Long, BlockChangeEntry>> sorted = new ArrayList<>(blocks.entrySet());
-            sorted.sort(java.util.Comparator.comparingInt(entry -> BlockPosition.getY(entry.getKey())));
+            sorted.sort(rollbackComparator());
             this.iterator = sorted.iterator();
             this.maxCheck = maxCheck;
             this.maxChange = maxChange;

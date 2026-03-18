@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Bed;
@@ -51,11 +52,33 @@ public class ChangedBlock {
         this.blockData = org.bukkit.Bukkit.createBlockData(originalMaterial);
     }
 
+    public ChangedBlock(final BlockState replacedState) {
+        this.block = replacedState.getBlock();
+        this.location = replacedState.getLocation();
+        this.material = replacedState.getType();
+
+        BlockState snapshot = replacedState.getBlock().getState();
+        if (snapshot.getType() != replacedState.getType()) {
+            snapshot = replacedState;
+        }
+
+        if (snapshot instanceof Chest chest) {
+            chestInventory = chest.getInventory().getContents().clone();
+        }
+
+        if (snapshot.getBlockData() instanceof Bed bed) {
+            bedFace = bed.getFacing();
+
+            if (bed.getPart().equals(Bed.Part.HEAD)) {
+                this.location = this.block.getRelative(bedFace.getOppositeFace(), 1).getLocation();
+            }
+        }
+
+        this.blockData = replacedState.getBlockData().clone();
+    }
+
     public ChangedBlock(final BlockPlaceEvent e) {
-        this.block = e.getBlockPlaced();
-        this.location = block.getLocation();
-        this.material = e.getBlockReplacedState().getType();
-        this.blockData = e.getBlockReplacedState().getBlockData();
+        this(e.getBlockReplacedState());
     }
 
     private void saveChest(Location loc) {

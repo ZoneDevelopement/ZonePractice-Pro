@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
@@ -109,6 +110,19 @@ public class BuildListener implements Listener {
     }
 
     /**
+     * Replaceable flora/support blocks are overwritten by placement and must be
+     * snapshotted from BlockPlaceEvent#getBlockReplacedState for accurate rollback.
+     */
+    private static boolean shouldTrackReplacedState(BlockState replacedState) {
+        Material replacedType = replacedState.getType();
+        if (replacedType.isAir()) {
+            return false;
+        }
+
+        return !replacedType.isSolid();
+    }
+
+    /**
      * Resolves the {@link Ladder} from a {@link Spectatable}.
      * Returns {@code null} when the Spectatable is not a {@link Match} (e.g. FFA).
      */
@@ -176,6 +190,7 @@ public class BuildListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlockPlaced();
+        BlockState replacedState = event.getBlockReplacedState();
         Spectatable spectatable = null;
         boolean needsMetadata = false;
 
@@ -197,7 +212,12 @@ public class BuildListener implements Listener {
             BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
         }
 
-        spectatable.addBlockChange(new ChangedBlock(event));
+        if (shouldTrackReplacedState(replacedState)) {
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(replacedState));
+        } else {
+            spectatable.addBlockChange(new ChangedBlock(event));
+        }
+
         trackUnderBlockIfDirt(block, spectatable);
     }
 
