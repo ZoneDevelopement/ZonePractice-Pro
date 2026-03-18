@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.profile.cosmetics;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.permissions.Permission;
@@ -73,6 +74,52 @@ public enum ArmorTrimPermissionManager {
 
     public static List<TrimMaterial> getRegisteredMaterials() {
         return Collections.unmodifiableList(REGISTERED_MATERIALS);
+    }
+
+    public static boolean hasBasePermission(Player player, ArmorTrimTier tier) {
+        if (player == null || tier == null) {
+            return false;
+        }
+
+        return player.isOp()
+                || player.hasPermission("zpp.cosmetics.base.*")
+                || player.hasPermission(tier.getPermissionNode());
+    }
+
+    public static boolean hasPatternPermission(Player player, TrimPattern pattern) {
+        if (player == null || pattern == null) {
+            return false;
+        }
+
+        return hasPatternPermission(player, "zpp.cosmetics.pattern." + getTrimId(pattern));
+    }
+
+    public static boolean hasPatternPermission(Player player, String node) {
+        if (player == null || node == null || node.isBlank()) {
+            return false;
+        }
+
+        return player.isOp()
+                || player.hasPermission("zpp.cosmetics.pattern.*")
+                || player.hasPermission(node);
+    }
+
+    public static boolean hasMaterialPermission(Player player, TrimMaterial material) {
+        if (player == null || material == null) {
+            return false;
+        }
+
+        return hasMaterialPermission(player, "zpp.cosmetics.material." + getTrimId(material));
+    }
+
+    public static boolean hasMaterialPermission(Player player, String node) {
+        if (player == null || node == null || node.isBlank()) {
+            return false;
+        }
+
+        return player.isOp()
+                || player.hasPermission("zpp.cosmetics.material.*")
+                || player.hasPermission(node);
     }
 
     public static String getTrimId(TrimPattern pattern) {

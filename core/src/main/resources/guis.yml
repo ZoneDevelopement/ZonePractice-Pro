@@ -2949,12 +2949,12 @@ GUIS:
       - "&7Active Pattern: %pattern%"
       - "&7Active Material: %material%"
       - ""
-      - "&eClick to customize"
+      - "&eLeft-Click to customize"
+      - "&cRight-Click to reset"
     TIER-TOGGLE-LORE:
       - ""
       - "&7Left-click: &cPrevious tier"
       - "&7Right-click: &aNext tier"
-      - "&7Required Permission: &e%tier_permission%"
     SUB-TITLE: "&8Customize %armor% Cosmetics"
     # Armor Piece Hub Configuration
     ARMOR-PIECE-HUB:
@@ -2989,7 +2989,6 @@ GUIS:
         LORE:
           - "&7Status: %state%"
           - "&7Access: %access%"
-          - "&7Permission: &8%permission%"
     # Material Selection GUI Configuration
     MATERIAL-SELECTION:
       INVENTORY-ROWS: 5
@@ -3001,7 +3000,6 @@ GUIS:
         LORE:
           - "&7Status: %state%"
           - "&7Access: %access%"
-          - "&7Permission: &8%permission%"
       MATERIAL-ICONS:
         LAPIS: LAPIS_LAZULI
         AMETHYST: AMETHYST_SHARD

@@ -127,8 +127,20 @@ public class CosmeticsGui extends GUI {
                 Common.sendMMMessage(player, deniedMessage);
                 return;
             }
+
+            if (e.isRightClick()) {
+                resetArmorCosmetic(activeTier, armorSlot);
+                return;
+            }
+
             openArmorSubGui(player, armorSlot);
         }
+    }
+
+    private void resetArmorCosmetic(ArmorTrimTier activeTier, ArmorSlot armorSlot) {
+        profile.getCosmeticsData().setPattern(activeTier, armorSlot, null);
+        profile.getCosmeticsData().setMaterial(activeTier, armorSlot, null);
+        update(true);
     }
 
     private ArmorSlot getArmorSlotFromSlot(int slot) {

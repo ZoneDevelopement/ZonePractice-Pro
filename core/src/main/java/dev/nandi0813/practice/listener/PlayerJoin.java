@@ -6,6 +6,7 @@ import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionSanitizer;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.util.PermanentConfig;
@@ -64,6 +65,20 @@ public class PlayerJoin implements Listener {
         // Notify operators about available updates (delayed so the player is fully in the world)
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                 UpdateChecker.notifyPlayer(player), 40L);
+
+        // Revalidate saved cosmetics after permission plugins have finished loading player nodes.
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            if (!player.isOnline()) {
+                return;
+            }
+
+            Profile liveProfile = ProfileManager.getInstance().getProfile(player);
+            if (liveProfile == null) {
+                return;
+            }
+
+            CosmeticsPermissionSanitizer.sanitize(player, liveProfile);
+        }, 40L);
     }
 
 }
