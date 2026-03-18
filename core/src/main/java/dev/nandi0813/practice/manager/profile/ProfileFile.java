@@ -6,16 +6,25 @@ import dev.nandi0813.practice.manager.fight.match.util.CustomKit;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
+import dev.nandi0813.practice.manager.profile.cosmetics.ArmorSlot;
+import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimPermissionManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimTier;
 import dev.nandi0813.practice.manager.profile.enums.ProfileWorldTime;
 import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.manager.profile.group.GroupManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.ItemSerializationUtil;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ProfileFile extends ConfigFile {
 
@@ -60,6 +69,31 @@ public class ProfileFile extends ConfigFile {
         config.set("settings.flying", profile.isFlying());
         config.set("settings.messages", profile.isPrivateMessages());
         config.set("settings.worldtime", profile.getWorldTime().toString());
+
+        // Cosmetics data for armor trims
+        if (profile.getCosmeticsData() != null) {
+            config.set("cosmetics.active-tier", profile.getCosmeticsData().getActiveTier().getId());
+
+            for (ArmorTrimTier tier : ArmorTrimTier.values()) {
+                for (ArmorSlot slot : ArmorSlot.values()) {
+                    String basePath = "cosmetics.tiers." + tier.getId() + "." + slot.getId();
+
+                    TrimPattern pattern = profile.getCosmeticsData().getPattern(tier, slot);
+                    if (pattern != null) {
+                        config.set(basePath + ".pattern", "minecraft:" + ArmorTrimPermissionManager.getTrimId(pattern));
+                    } else {
+                        config.set(basePath + ".pattern", null);
+                    }
+
+                    TrimMaterial material = profile.getCosmeticsData().getMaterial(tier, slot);
+                    if (material != null) {
+                        config.set(basePath + ".material", "minecraft:" + ArmorTrimPermissionManager.getTrimId(material));
+                    } else {
+                        config.set(basePath + ".material", null);
+                    }
+                }
+            }
+        }
 
         // Ladder win/lose stats
         for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
@@ -137,10 +171,10 @@ public class ProfileFile extends ConfigFile {
         }
 
         if (config.isString("prefix"))
-            profile.setPrefix(Component.text(config.getString("prefix")));
+            profile.setPrefix(Component.text(Objects.requireNonNull(config.getString("prefix"))));
 
         if (config.isString("suffix"))
-            profile.setSuffix(Component.text(config.getString("suffix")));
+            profile.setSuffix(Component.text(Objects.requireNonNull(config.getString("suffix"))));
 
         if (config.isInt("allowed-custom-kits"))
             profile.setAllowedCustomKits(config.getInt("allowed-custom-kits"));
@@ -153,6 +187,55 @@ public class ProfileFile extends ConfigFile {
         profile.setFlying(config.getBoolean("settings.flying"));
         profile.setPrivateMessages(config.getBoolean("settings.messages"));
         profile.setWorldTime(ProfileWorldTime.valueOf(config.getString("settings.worldtime")));
+
+        // Load cosmetics data for armor trims
+        try {
+            ArmorTrimTier activeTier = ArmorTrimTier.fromId(config.getString("cosmetics.active-tier", "leather"));
+            profile.getCosmeticsData().setActiveTier(activeTier);
+
+            boolean loadedTierData = false;
+            for (ArmorTrimTier tier : ArmorTrimTier.values()) {
+                for (ArmorSlot slot : ArmorSlot.values()) {
+                    String basePath = "cosmetics.tiers." + tier.getId() + "." + slot.getId();
+
+                    if (config.isString(basePath + ".pattern")) {
+                        TrimPattern pattern = getTrimPatternByName(config.getString(basePath + ".pattern"));
+                        if (pattern != null) {
+                            profile.getCosmeticsData().setPattern(tier, slot, pattern);
+                            loadedTierData = true;
+                        }
+                    }
+
+                    if (config.isString(basePath + ".material")) {
+                        TrimMaterial material = getTrimMaterialByName(config.getString(basePath + ".material"));
+                        if (material != null) {
+                            profile.getCosmeticsData().setMaterial(tier, slot, material);
+                            loadedTierData = true;
+                        }
+                    }
+                }
+            }
+
+            if (!loadedTierData) {
+                for (ArmorSlot slot : ArmorSlot.values()) {
+                    String legacyPath = "cosmetics." + slot.getId();
+                    if (config.isString(legacyPath + ".pattern")) {
+                        TrimPattern pattern = getTrimPatternByName(config.getString(legacyPath + ".pattern"));
+                        if (pattern != null) {
+                            profile.getCosmeticsData().setPattern(ArmorTrimTier.LEATHER, slot, pattern);
+                        }
+                    }
+                    if (config.isString(legacyPath + ".material")) {
+                        TrimMaterial material = getTrimMaterialByName(config.getString(legacyPath + ".material"));
+                        if (material != null) {
+                            profile.getCosmeticsData().setMaterial(ArmorTrimTier.LEATHER, slot, material);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Handle invalid cosmetics data - silently ignore for graceful handling of removed/renamed cosmetics
+        }
 
         for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
             String name = ladder.getName().toLowerCase();
@@ -197,6 +280,26 @@ public class ProfileFile extends ConfigFile {
     public void deleteCustomKit(Ladder ladder) {
         config.set("customkit." + ladder.getName().toLowerCase(), null);
         saveFile();
+    }
+
+    private TrimPattern getTrimPatternByName(String name) {
+        if (name == null || name.isBlank()) return null;
+        String normalized = normalizeKey(name);
+        return RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_PATTERN).get(Key.key(normalized));
+    }
+
+    private TrimMaterial getTrimMaterialByName(String name) {
+        if (name == null || name.isBlank()) return null;
+        String normalized = normalizeKey(name);
+        return RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_MATERIAL).get(Key.key(normalized));
+    }
+
+    private String normalizeKey(String key) {
+        String normalized = key.trim().toLowerCase();
+        if (!normalized.contains(":")) {
+            return "minecraft:" + normalized;
+        }
+        return normalized;
     }
 
 }

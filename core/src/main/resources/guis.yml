@@ -1,4 +1,4 @@
-VERSION: 14
+VERSION: 15
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1591,6 +1591,7 @@ GUIS:
               - ""
               - "&7You can set the arenas icon by using the"
               - "&7&l/arena set icon %arenaName% &7command."
+              - ""
               - "&c&lNote: &7You have to hold the item in your hand"
               - "&7and name it first with the &7&l/prac rename &7command."
           STATUS:
@@ -2418,7 +2419,8 @@ GUIS:
               - "&6Event Information:"
               - " &7» &eState: %state%"
               - ""
-              - "&b&lClick here &bto open event settings."
+              - "&b&lLEFT-CLICK &bto open event settings."
+              - "&a&lRIGHT-CLICK &ato teleport to the event."
       EVENT-MAIN:
         TITLE: "%eventName% &8- Event"
         ICONS:
@@ -2842,3 +2844,166 @@ GUIS:
               - "&7Click here to manually"
               - "&7save the %data% data."
               - "&8&m------------------------"
+  COSMETICS:
+    MAIN-TITLE: "&8Armor Cosmetics"
+    # Error messages for permission denied
+    PERMISSION-DENIED-MESSAGE: "<red>You do not have permission for the selected armor tier."
+    TIER-PERMISSION-DENIED-MESSAGE: "<red>You do not have permission for this armor tier."
+    PATTERN-PERMISSION-DENIED-MESSAGE: "<red>You do not have permission to use this trim pattern."
+    MATERIAL-PERMISSION-DENIED-MESSAGE: "<red>You do not have permission to use this trim material."
+    NO-TIER-PERMISSION-MESSAGE: "<red>You do not have permission for any armor tier."
+    # Armor Tier customization
+    ARMOR-TIERS:
+      LEATHER:
+        DISPLAY-NAME: "Leather"
+        HELMET-MATERIAL: LEATHER_HELMET
+        CHESTPLATE-MATERIAL: LEATHER_CHESTPLATE
+        LEGGINGS-MATERIAL: LEATHER_LEGGINGS
+        BOOTS-MATERIAL: LEATHER_BOOTS
+      GOLD:
+        DISPLAY-NAME: "Gold"
+        HELMET-MATERIAL: GOLDEN_HELMET
+        CHESTPLATE-MATERIAL: GOLDEN_CHESTPLATE
+        LEGGINGS-MATERIAL: GOLDEN_LEGGINGS
+        BOOTS-MATERIAL: GOLDEN_BOOTS
+      IRON:
+        DISPLAY-NAME: "Iron"
+        HELMET-MATERIAL: IRON_HELMET
+        CHESTPLATE-MATERIAL: IRON_CHESTPLATE
+        LEGGINGS-MATERIAL: IRON_LEGGINGS
+        BOOTS-MATERIAL: IRON_BOOTS
+      DIAMOND:
+        DISPLAY-NAME: "Diamond"
+        HELMET-MATERIAL: DIAMOND_HELMET
+        CHESTPLATE-MATERIAL: DIAMOND_CHESTPLATE
+        LEGGINGS-MATERIAL: DIAMOND_LEGGINGS
+        BOOTS-MATERIAL: DIAMOND_BOOTS
+      NETHERITE:
+        DISPLAY-NAME: "Netherite"
+        HELMET-MATERIAL: NETHERITE_HELMET
+        CHESTPLATE-MATERIAL: NETHERITE_CHESTPLATE
+        LEGGINGS-MATERIAL: NETHERITE_LEGGINGS
+        BOOTS-MATERIAL: NETHERITE_BOOTS
+    ICONS:
+      HELMET-ICON:
+        NAME: "&eHelmet"
+        MATERIAL: LEATHER_HELMET
+        LORE:
+          - ""
+          - "&7Click here to customize"
+          - "&7armor trim patterns and materials"
+          - "&7for your helmet."
+          - ""
+      CHESTPLATE-ICON:
+        NAME: "&eChestplate"
+        MATERIAL: LEATHER_CHESTPLATE
+        LORE:
+          - ""
+          - "&7Click here to customize"
+          - "&7armor trim patterns and materials"
+          - "&7for your chestplate."
+          - ""
+      LEGGINGS-ICON:
+        NAME: "&eLeggings"
+        MATERIAL: LEATHER_LEGGINGS
+        LORE:
+          - ""
+          - "&7Click here to customize"
+          - "&7armor trim patterns and materials"
+          - "&7for your leggings."
+          - ""
+      BOOTS-ICON:
+        NAME: "&eBoots"
+        MATERIAL: LEATHER_BOOTS
+        LORE:
+          - ""
+          - "&7Click here to customize"
+          - "&7armor trim patterns and materials"
+          - "&7for your boots."
+          - ""
+      SHIELD-ICON:
+        NAME: "&eShield"
+        MATERIAL: SHIELD
+        LORE:
+          - ""
+          - "&7Click here to customize"
+          - "&7the trim pattern for your shield."
+          - ""
+      INFO-ICON:
+        NAME: "&bCosmetics Information"
+        MATERIAL: BOOK
+        LORE:
+          - "&8&m------------------------"
+          - "&7Unlocked Patterns: &b%pattern_unlocked%&7/&b%pattern_total%"
+          - "&7Unlocked Materials: &6%material_unlocked%&7/&6%material_total%"
+          - ""
+          - "&7Select a category item to edit"
+          - "&7your active trim cosmetics."
+          - "&8&m------------------------"
+      BACK-TO:
+        NAME: "&cBack"
+        MATERIAL: ARROW
+    # Dynamically built lore templates for armor cosmetics
+    ARMOR-PREVIEW-LORE:
+      - "&7Tier: &e%tier%"
+      - "&7Active Pattern: %pattern%"
+      - "&7Active Material: %material%"
+      - ""
+      - "&eClick to customize"
+    TIER-TOGGLE-LORE:
+      - ""
+      - "&7Left-click: &cPrevious tier"
+      - "&7Right-click: &aNext tier"
+      - "&7Required Permission: &e%tier_permission%"
+    SUB-TITLE: "&8Customize %armor% Cosmetics"
+    # Armor Piece Hub Configuration
+    ARMOR-PIECE-HUB:
+      INVENTORY-ROWS: 4
+      SLOTS:
+        BACK: 27
+        PREVIEW: 13
+        PATTERN-MENU: 20
+        MATERIAL-MENU: 24
+      PREVIEW-ITEM:
+        NAME: "&eCurrent Preview"
+      PATTERN-SELECTION-BUTTON:
+        NAME: "&bPattern Selection"
+        LORE:
+          - "&7Open all available trim patterns."
+          - "&eClick to open."
+        DEFAULT-MATERIAL: SMITHING_TABLE
+      MATERIAL-SELECTION-BUTTON:
+        NAME: "&6Material Selection"
+        LORE:
+          - "&7Open all available trim materials."
+          - "&eClick to open."
+        DEFAULT-MATERIAL: ANVIL
+    # Pattern Selection GUI Configuration
+    PATTERN-SELECTION:
+      INVENTORY-ROWS: 5
+      BACK-SLOT: 36
+      START-SLOT: 10
+      INVENTORY-TITLE: "&8Select Pattern - %armor%"
+      PATTERN-ITEM:
+        NAME: "&b%pattern_name% Pattern"
+        LORE:
+          - "&7Status: %state%"
+          - "&7Access: %access%"
+          - "&7Permission: &8%permission%"
+    # Material Selection GUI Configuration
+    MATERIAL-SELECTION:
+      INVENTORY-ROWS: 5
+      BACK-SLOT: 36
+      START-SLOT: 10
+      INVENTORY-TITLE: "&8Select Material - %armor%"
+      MATERIAL-ITEM:
+        NAME: "&6%material_name% Material"
+        LORE:
+          - "&7Status: %state%"
+          - "&7Access: %access%"
+          - "&7Permission: &8%permission%"
+      MATERIAL-ICONS:
+        LAPIS: LAPIS_LAZULI
+        AMETHYST: AMETHYST_SHARD
+        RESIN: RESIN_BRICK
+

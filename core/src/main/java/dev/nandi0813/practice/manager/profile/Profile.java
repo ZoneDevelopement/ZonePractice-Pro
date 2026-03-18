@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.abstraction.playercustom.CustomLadder;
 import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.party.PartyManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsData;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.profile.enums.ProfileWorldTime;
 import dev.nandi0813.practice.manager.profile.group.Group;
@@ -76,6 +77,9 @@ public class Profile {
     private ProfileSettingsGui settingsGui;
     private ActionBar actionBar = new ActionBar(this);
 
+    // Cosmetics data for armor trims
+    private CosmeticsData cosmeticsData = new CosmeticsData();
+
     // Custom ladder
     private PlayerCustomKitSelector playerCustomKitSelector;
     private final List<CustomLadder> customLadders = new ArrayList<>();
@@ -119,7 +123,7 @@ public class Profile {
 
         if (this.file.getConfig().isConfigurationSection("player-custom-kit")) {
             this.customLadders.clear();
-            for (String ladder : this.file.getConfig().getConfigurationSection("player-custom-kit").getKeys(false)) {
+            for (String ladder : Objects.requireNonNull(this.file.getConfig().getConfigurationSection("player-custom-kit")).getKeys(false)) {
                 try {
                     int i = Integer.parseInt(ladder);
                     if (i < 0 || i > 5) {
@@ -210,7 +214,7 @@ public class Profile {
         }
 
         while (this.customLadders.size() > this.group.getCustomKitLimit()) {
-            this.customLadders.remove(this.customLadders.size() - 1);
+            this.customLadders.removeLast();
         }
 
         this.playerCustomKitSelector = new PlayerCustomKitSelector(this);

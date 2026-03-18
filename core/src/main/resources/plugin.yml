@@ -50,6 +50,9 @@ commands:
     description: Copy a custom kit from another player.
   ignorequeue:
     description: Ignore a player in unranked queue.
+  cosmetics:
+    aliases: [cosmetc, csmetic]
+    description: Open the cosmetics GUI for armor trim customization.
 
 permissions:
   zpp.admin:
@@ -319,6 +322,33 @@ permissions:
     description: Share custom kit with others.
   zpp.playerkit.copy:
     description: Copy custom kit from others.
+
+  # Cosmetics
+  zpp.cosmetics.main:
+    description: Open the cosmetics GUI.
+  zpp.cosmetics.base.*:
+    description: Allow access to all armor base tiers.
+    children:
+      zpp.cosmetics.base.leather: true
+      zpp.cosmetics.base.gold: true
+      zpp.cosmetics.base.iron: true
+      zpp.cosmetics.base.diamond: true
+      zpp.cosmetics.base.netherite: true
+  zpp.cosmetics.base.leather:
+    description: Allow access to Leather armor tier.
+  zpp.cosmetics.base.gold:
+    description: Allow access to Gold armor tier.
+  zpp.cosmetics.base.iron:
+    description: Allow access to Iron armor tier.
+  zpp.cosmetics.base.diamond:
+    description: Allow access to Diamond armor tier.
+  zpp.cosmetics.base.netherite:
+    description: Allow access to Netherite armor tier.
+
+  # Note: zpp.cosmetics.pattern.* and zpp.cosmetics.material.* permissions are
+  # dynamically registered at runtime by ArmorTrimPermissionManager based on
+  # available trim patterns and materials (e.g., zpp.cosmetics.pattern.sentry, zpp.cosmetics.material.amethyst).
+  # They do NOT need to be declared here.
 
   # Update notifier
   zpp.update.notify:

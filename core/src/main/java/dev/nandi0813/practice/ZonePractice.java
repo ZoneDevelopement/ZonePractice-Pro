@@ -47,6 +47,7 @@ import dev.nandi0813.practice.manager.leaderboard.hologram.HologramManager;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimPermissionManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.util.*;
@@ -118,6 +119,7 @@ public final class ZonePractice extends JavaPlugin {
         DivisionManager.getInstance().getData();
         ArenaWorldUtil.createArenaWorld();
         BackendManager.createFile(this);
+        ArmorTrimPermissionManager.registerAllPermissions();
 
         ZonePracticeApiImpl.setup();
         StartUpUtil.loadStartUpProgressMap();
@@ -340,6 +342,11 @@ public final class ZonePractice extends JavaPlugin {
         if (server.getPluginCommand("ignorequeue") != null) {
             server.getPluginCommand("ignorequeue").setExecutor(ignoreQueueCommand);
             server.getPluginCommand("ignorequeue").setTabCompleter(ignoreQueueCommand);
+        }
+
+        CosmeticsCommand cosmeticsCommand = new CosmeticsCommand();
+        if (server.getPluginCommand("cosmetics") != null) {
+            server.getPluginCommand("cosmetics").setExecutor(cosmeticsCommand);
         }
 
         if (ConfigManager.getBoolean("CHAT.PRIVATE-CHAT-ENABLED")) {

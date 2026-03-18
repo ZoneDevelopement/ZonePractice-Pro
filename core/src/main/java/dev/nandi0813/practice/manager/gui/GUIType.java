@@ -96,4 +96,14 @@ public enum GUIType {
     FFA_Arena_Selector,
     FFA_Ladder_Selector,
 
+    // Cosmetics GUIs
+    Cosmetics_Main,
+    Cosmetics_Helmet,
+    Cosmetics_Chestplate,
+    Cosmetics_Leggings,
+    Cosmetics_Boots,
+    Cosmetics_Shield,
+    Cosmetics_Pattern_Selection,
+    Cosmetics_Material_Selection,
+
 }
