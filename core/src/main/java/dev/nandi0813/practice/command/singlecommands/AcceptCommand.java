@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.command.accept;
+package dev.nandi0813.practice.command.singlecommands;
 
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.duel.DuelManager;

@@ -1,26 +1,16 @@
 package dev.nandi0813.practice;
 
 import com.github.retrooper.packetevents.PacketEvents;
-import dev.nandi0813.practice.command.accept.AcceptCommand;
 import dev.nandi0813.practice.command.arena.ArenaCommand;
-import dev.nandi0813.practice.command.division.DivisionsCommand;
-import dev.nandi0813.practice.command.duel.DuelCommand;
 import dev.nandi0813.practice.command.event.EventCommand;
 import dev.nandi0813.practice.command.ffa.FFACommand;
-import dev.nandi0813.practice.command.hologram.HologramCommand;
 import dev.nandi0813.practice.command.ladder.LadderCommand;
-import dev.nandi0813.practice.command.matchstats.MatchStatsCommand;
 import dev.nandi0813.practice.command.party.PartyCommand;
 import dev.nandi0813.practice.command.practice.PracticeCommand;
-import dev.nandi0813.practice.command.preview.PreviewCommand;
 import dev.nandi0813.practice.command.privatemessage.MessageCommand;
 import dev.nandi0813.practice.command.privatemessage.ReplyCommand;
-import dev.nandi0813.practice.command.settings.SettingsCommand;
-import dev.nandi0813.practice.command.setup.SetupCommand;
 import dev.nandi0813.practice.command.singlecommands.*;
-import dev.nandi0813.practice.command.spectate.SpectateCommand;
 import dev.nandi0813.practice.command.staff.StaffCommand;
-import dev.nandi0813.practice.command.statistics.StatisticsCommand;
 import dev.nandi0813.practice.listener.*;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.listener.ArenaCopyUtilListener;

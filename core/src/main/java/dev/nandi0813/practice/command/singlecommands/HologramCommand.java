@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.command.hologram;
+package dev.nandi0813.practice.command.singlecommands;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;

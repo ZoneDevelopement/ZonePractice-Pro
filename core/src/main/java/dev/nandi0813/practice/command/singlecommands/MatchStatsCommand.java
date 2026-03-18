@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.command.matchstats;
+package dev.nandi0813.practice.command.singlecommands;
 
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
