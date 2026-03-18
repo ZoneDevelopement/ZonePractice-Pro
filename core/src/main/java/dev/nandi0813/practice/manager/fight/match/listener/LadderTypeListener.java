@@ -569,7 +569,9 @@ public class LadderTypeListener implements Listener {
 
         if (killer != null) {
             Statistic statistic = match.getCurrentStat(killer);
-            statistic.setKills(statistic.getKills() + 1);
+            if (statistic != null) {
+                statistic.setKills(statistic.getKills() + 1);
+            }
         }
     }
 
@@ -594,18 +596,30 @@ public class LadderTypeListener implements Listener {
         Profile attackerProfile = ProfileManager.getInstance().getProfile(attacker);
         Profile targetProfile = ProfileManager.getInstance().getProfile(target);
 
+        if (attackerProfile == null || targetProfile == null) return;
+
         if (!attackerProfile.getStatus().equals(ProfileStatus.MATCH)) return;
         if (!targetProfile.getStatus().equals(ProfileStatus.MATCH)) return;
 
-        Match match = MatchManager.getInstance().getLiveMatchByPlayer(attacker);
-        if (match != MatchManager.getInstance().getLiveMatchByPlayer(target)) {
+        Match attackerMatch = MatchManager.getInstance().getLiveMatchByPlayer(attacker);
+        Match targetMatch = MatchManager.getInstance().getLiveMatchByPlayer(target);
+        if (attackerMatch == null || attackerMatch != targetMatch) {
             e.setCancelled(true);
             return;
         }
 
+        Match match = attackerMatch;
+
         if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) return;
 
-        boolean cancel = match.getCurrentStat(attacker).isSet() || match.getCurrentStat(target).isSet();
+        Statistic attackerStat = match.getCurrentStat(attacker);
+        Statistic targetStat = match.getCurrentStat(target);
+        if (attackerStat == null || targetStat == null) {
+            e.setCancelled(true);
+            return;
+        }
+
+        boolean cancel = attackerStat.isSet() || targetStat.isSet();
 
         if (!cancel) {
             cancel = TeamUtil.isSaveTeamMate(match, attacker, target);

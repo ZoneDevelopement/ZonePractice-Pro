@@ -228,7 +228,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             }
         }
 
-        deathMessage = TeamUtil.replaceTeamNames(deathMessage, player, this instanceof Team team ? team.getTeam(player) : TeamEnum.FFA);
+        deathMessage = TeamUtil.replaceTeamNames((deathMessage != null ? deathMessage : ""), player, this instanceof Team team ? team.getTeam(player) : TeamEnum.FFA);
         matchPlayers.get(player).die(deathMessage, this.getCurrentStat(player));
 
         if (ladder instanceof NormalLadder) {

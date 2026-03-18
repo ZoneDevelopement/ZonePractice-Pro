@@ -7,6 +7,7 @@ import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.interfaces.PlayerWinner;
 import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersVsPlayers;
+import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.ScoringLadder;
@@ -38,7 +39,8 @@ public class Boxing extends NormalLadder implements CustomConfig, LadderHandle, 
     public boolean shouldEndRound(Match match, Round round, Player player) {
         // Check if the player has reached the required hits
         int requiredStrokes = boxingWinHit - 1;
-        return match.getCurrentStat(player).getHit() == requiredStrokes;
+        Statistic statistic = match.getCurrentStat(player);
+        return statistic != null && statistic.getHit() == requiredStrokes;
     }
 
     @Override
@@ -80,7 +82,15 @@ public class Boxing extends NormalLadder implements CustomConfig, LadderHandle, 
     }
 
     private static void onPlayerDamagePlayer(final @NotNull EntityDamageByEntityEvent e, final @NotNull Match match, final @NotNull Boxing ladder) {
-        Player attacker = (Player) e.getDamager();
+        if (!(e.getDamager() instanceof Player attacker)) {
+            return;
+        }
+
+        Statistic attackerStat = match.getCurrentStat(attacker);
+        if (attackerStat == null) {
+            return;
+        }
+
         int requiredStrokes = ladder.getBoxingWinHit();
         requiredStrokes--;
 
@@ -92,10 +102,10 @@ public class Boxing extends NormalLadder implements CustomConfig, LadderHandle, 
         switch (matchType) {
             case DUEL:
             case PARTY_FFA:
-                if (match.getCurrentStat(attacker).getHit() == requiredStrokes && round instanceof PlayerWinner) {
+                if (attackerStat.getHit() == requiredStrokes && round instanceof PlayerWinner) {
                     PlayerWinner playerWinner = (PlayerWinner) match.getCurrentRound();
 
-                    if (!match.getCurrentStat(attacker).isSet()) {
+                    if (!attackerStat.isSet()) {
                         playerWinner.setRoundWinner(attacker);
                         round.endRound();
                     }
@@ -107,7 +117,7 @@ public class Boxing extends NormalLadder implements CustomConfig, LadderHandle, 
                     attackerTeam = playersVsPlayers.getTeam(attacker);
 
                     if (getTeamBoxingStrokes(match, playersVsPlayers.getTeamPlayers(attackerTeam)) == requiredStrokes) {
-                        if (!match.getCurrentStat(attacker).isSet()) {
+                        if (!attackerStat.isSet()) {
                             playersVsPlayers.getCurrentRound().setRoundWinner(attackerTeam);
                             round.endRound();
                         }
@@ -128,8 +138,12 @@ public class Boxing extends NormalLadder implements CustomConfig, LadderHandle, 
 
     public static int getTeamBoxingStrokes(Match match, List<Player> team) {
         int strokes = 0;
-        for (Player player : team)
-            strokes += match.getCurrentStat(player).getHit();
+        for (Player player : team) {
+            Statistic statistic = match.getCurrentStat(player);
+            if (statistic != null) {
+                strokes += statistic.getHit();
+            }
+        }
         return strokes;
     }
 
