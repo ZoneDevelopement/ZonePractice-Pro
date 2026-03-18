@@ -44,6 +44,10 @@ public class EventListener implements Listener {
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
+        if (profile == null) {
+            return;
+        }
+
         if (!profile.getStatus().equals(ProfileStatus.EVENT)) {
             return;
         }
@@ -53,6 +57,10 @@ public class EventListener implements Listener {
         }
 
         Event event = EventManager.getInstance().getEventByPlayer(player);
+        if (event == null) {
+            return;
+        }
+
         if (!event.getStatus().equals(EventStatus.LIVE)) {
             return;
         }
@@ -99,11 +107,19 @@ public class EventListener implements Listener {
         Player player = (Player) e.getEntity();
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
+        if (profile == null) {
+            return;
+        }
+
         if (!profile.getStatus().equals(ProfileStatus.EVENT)) {
             return;
         }
 
         Event event = EventManager.getInstance().getEventByPlayer(player);
+        if (event == null) {
+            return;
+        }
+
         if (!(event instanceof Brackets) && !(event instanceof LMS)) {
             e.setFoodLevel(20);
         }
