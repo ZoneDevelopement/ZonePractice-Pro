@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
@@ -74,15 +75,24 @@ public class PlayerInteract implements Listener {
                 if (health == maxHealth) return;
 
                 if ((health + regen) < maxHealth) {
-                    player.getInventory().setItemInMainHand(new ItemStack(Material.BOWL));
+                    consumeUsedSoup(player, e.getHand());
                     player.setHealth(health + regen);
                 } else if ((health + regen) >= maxHealth) {
-                    player.getInventory().setItemInMainHand(new ItemStack(Material.BOWL));
+                    consumeUsedSoup(player, e.getHand());
                     player.setHealth(maxHealth);
                 }
                 player.updateInventory();
                 break;
         }
+    }
+
+    private void consumeUsedSoup(Player player, EquipmentSlot hand) {
+        if (hand == EquipmentSlot.OFF_HAND) {
+            player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+            return;
+        }
+
+        player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
     }
 
     @EventHandler
