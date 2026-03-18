@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
@@ -233,6 +234,16 @@ public class PlayerUtil {
 
             attackSpeed.setBaseValue(attackSpeedValue);
         }
+    }
+
+    public static boolean isPlayerStuck(Player player) {
+        Block feetBlock = player.getLocation().getBlock();
+        Block headBlock = player.getEyeLocation().getBlock();
+
+        boolean isFeetSolid = feetBlock.getType().isSolid();
+        boolean isHeadSolid = headBlock.getType().isSolid();
+
+        return isFeetSolid || isHeadSolid;
     }
 
 }

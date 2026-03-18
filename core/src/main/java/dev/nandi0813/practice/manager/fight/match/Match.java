@@ -504,6 +504,10 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
         }
 
         Runnable onRollbackComplete = () -> {
+            if (this.isBuild()) {
+                this.teleportStuckSpectatorsAfterRollback();
+            }
+
             rollingBack = false;
             if (afterRollback != null) {
                 afterRollback.run();
@@ -515,6 +519,34 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
                     fightChange.rollback(300, 100, onRollbackComplete), 2L);
         } else {
             fightChange.rollback(300, 100, onRollbackComplete);
+        }
+    }
+
+    private void teleportStuckSpectatorsAfterRollback() {
+        if (this.spectators.isEmpty()) {
+            return;
+        }
+
+        for (Player spectator : new ArrayList<>(this.spectators)) {
+            if (spectator == null || !spectator.isOnline()) {
+                continue;
+            }
+
+            if (!dev.nandi0813.practice.manager.fight.util.PlayerUtil.isPlayerStuck(spectator)) {
+                continue;
+            }
+
+            if (!this.players.isEmpty()) {
+                spectator.teleport(this.players.get(random.nextInt(this.players.size())));
+                continue;
+            }
+
+            List<Location> standingLocations = this.arena.getStandingLocations();
+            if (!standingLocations.isEmpty()) {
+                spectator.teleport(standingLocations.get(random.nextInt(standingLocations.size())));
+            } else {
+                spectator.teleport(this.arena.getCuboid().getCenter().add(0, 1, 0));
+            }
         }
     }
 
