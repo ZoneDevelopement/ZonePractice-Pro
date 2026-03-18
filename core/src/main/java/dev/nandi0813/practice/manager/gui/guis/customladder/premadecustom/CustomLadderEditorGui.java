@@ -243,9 +243,9 @@ public class CustomLadderEditorGui extends GUI {
     private @Nullable ItemStack getRankedItem() {
         switch (ladder.getWeightClass()) {
             case UNRANKED:
-                return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.ONLY-UNRANKED").replace("%weightClass%", WeightClass.UNRANKED.getName()).get();
+                return GUIManager.getFILLER_ITEM();
             case RANKED:
-                return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.ONLY-RANKED").replace("%weightClass%", WeightClass.RANKED.getName()).get();
+                return GUIManager.getFILLER_ITEM();
             case UNRANKED_AND_RANKED:
                 if (this.ranked)
                     return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.SWITCH-TO-UNRANKED").replace("%weightClass%", WeightClass.UNRANKED.getName()).get();
