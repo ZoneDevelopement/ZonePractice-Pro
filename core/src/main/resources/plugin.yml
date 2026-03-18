@@ -347,7 +347,7 @@ permissions:
 
   # Note: zpp.cosmetics.pattern.* and zpp.cosmetics.material.* permissions are
   # dynamically registered at runtime by ArmorTrimPermissionManager based on
-  # available trim patterns and materials (e.g., zpp.cosmetics.pattern.sentry, zpp.cosmetics.material.amethyst).
+  # available trim patterns and materials in the server's Minecraft version.
   # They do NOT need to be declared here.
 
   # Update notifier
