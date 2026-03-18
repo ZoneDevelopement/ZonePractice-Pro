@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.profile.group;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigFile;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
@@ -17,6 +18,8 @@ import java.util.List;
 
 @Getter
 public class GroupManager extends ConfigFile {
+
+    private static final int DEFAULT_PARTY_MEMBER_LIMIT = ConfigManager.getInt("PARTY.SETTINGS.MAX-PARTY-MEMBERS.DEFAULT");
 
     private static GroupManager instance;
 
@@ -54,6 +57,9 @@ public class GroupManager extends ConfigFile {
                     this.getInt("GROUPS." + groupName + ".RANKED-PER-DAY"),
                     this.getInt("GROUPS." + groupName + ".EVENT-START-PER-DAY"),
                     this.getInt("GROUPS." + groupName + ".PARTY-BROADCAST-PER-DAY"),
+                    this.config.isInt("GROUPS." + groupName + ".PARTY-MEMBER-LIMIT")
+                            ? this.getInt("GROUPS." + groupName + ".PARTY-MEMBER-LIMIT")
+                            : DEFAULT_PARTY_MEMBER_LIMIT,
                     this.getInt("GROUPS." + groupName + ".CUSTOM-KIT"),
                     this.getInt("GROUPS." + groupName + ".MODIFIABLE-KIT-PER-LADDER"),
                     ZonePractice.getMiniMessage().deserialize(this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.PREFIX")),

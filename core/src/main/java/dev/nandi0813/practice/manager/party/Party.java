@@ -24,7 +24,6 @@ import java.util.Map;
 @Getter
 public class Party implements dev.nandi0813.api.Interface.Party {
 
-    private static final int DEFAULT_MAX_PARTY_MEMBERS = ConfigManager.getInt("PARTY.SETTINGS.MAX-PARTY-MEMBERS.DEFAULT");
     private static final boolean DEFAULT_PUBLIC_PARTY = ConfigManager.getBoolean("PARTY.SETTINGS.DEFAULT.PUBLIC-PARTY");
     private static final boolean DEFAULT_ALL_INVITE = ConfigManager.getBoolean("PARTY.SETTINGS.DEFAULT.ALL-INVITE");
     private static final boolean DEFAULT_PARTY_CHAT = ConfigManager.getBoolean("PARTY.SETTINGS.DEFAULT.PARTY-CHAT");
@@ -59,7 +58,7 @@ public class Party implements dev.nandi0813.api.Interface.Party {
         this.leader = owner;
         this.members.add(owner);
 
-        this.maxPlayerLimit = DEFAULT_MAX_PARTY_MEMBERS;
+        this.maxPlayerLimit = PartyManager.getInstance().resolvePartyMemberLimit(owner);
         this.publicParty = DEFAULT_PUBLIC_PARTY;
         this.broadcastParty = DEFAULT_PUBLIC_PARTY;
         this.allInvite = DEFAULT_ALL_INVITE;
@@ -74,7 +73,17 @@ public class Party implements dev.nandi0813.api.Interface.Party {
             broadcastTask.cancel();
 
         leader = newOwner;
+        refreshMaxPlayerLimitForLeader();
         sendMessage(LanguageManager.getString("PARTY.NEW-LEADER").replace("%player%", newOwner.getName()));
+    }
+
+    public void refreshMaxPlayerLimitForLeader() {
+        int leaderLimit = PartyManager.getInstance().resolvePartyMemberLimit(leader);
+        this.maxPlayerLimit = Math.max(members.size(), leaderLimit);
+
+        if (members.size() >= this.maxPlayerLimit && isBroadcastParty()) {
+            broadcastTask.cancel();
+        }
     }
 
     public void addMember(Player member) {

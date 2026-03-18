@@ -6,6 +6,8 @@ import dev.nandi0813.practice.manager.gui.guis.customladder.PlayerCustomKitSelec
 import dev.nandi0813.practice.manager.gui.guis.profile.ProfileSettingsGui;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.abstraction.playercustom.CustomLadder;
+import dev.nandi0813.practice.manager.party.Party;
+import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.profile.enums.ProfileWorldTime;
 import dev.nandi0813.practice.manager.profile.group.Group;
@@ -194,6 +196,14 @@ public class Profile {
         this.rankedLeft = group.getRankedLimit();
         this.eventStartLeft = group.getEventStartLimit();
         this.partyBroadcastLeft = group.getPartyBroadcastLimit();
+
+        Player onlinePlayer = this.player.getPlayer();
+        if (onlinePlayer != null) {
+            Party partyObj = PartyManager.getInstance().getParty(onlinePlayer);
+            if (partyObj != null && onlinePlayer.equals(partyObj.getLeader())) {
+                partyObj.refreshMaxPlayerLimitForLeader();
+            }
+        }
 
         while (this.customLadders.size() < this.group.getCustomKitLimit()) {
             this.customLadders.add(new CustomLadder(this, "player-custom-kit." + customLadders.size(), this.customLadders.size() + 1));

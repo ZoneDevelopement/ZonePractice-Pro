@@ -98,13 +98,14 @@ public class PartySettingsGui extends GUI {
                     Common.sendMMMessage(player, LanguageManager.getString("PARTY.NO-PERMISSION"));
             case 11:
                 if (player.hasPermission("zpp.party.changelimit")) {
+                    int groupPartyLimit = PartyManager.getInstance().resolvePartyMemberLimit(party.getLeader());
                     if (clickType.isLeftClick() && party.getMaxPlayerLimit() > 2) {
                         if (party.getMembers().size() < party.getMaxPlayerLimit()) {
                             party.setMaxPlayerLimit(party.getMaxPlayerLimit() - 1);
                             update();
                         } else
                             Common.sendMMMessage(player, LanguageManager.getString("PARTY.CANT-DECREASE-LIMIT"));
-                    } else if (clickType.isRightClick() && party.getMaxPlayerLimit() < PartyManager.MAX_PARTY_MEMBERS) {
+                    } else if (clickType.isRightClick() && party.getMaxPlayerLimit() < groupPartyLimit) {
                         party.setMaxPlayerLimit(party.getMaxPlayerLimit() + 1);
                         update();
                     }

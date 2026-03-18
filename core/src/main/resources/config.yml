@@ -264,7 +264,6 @@ PARTY:
   SETTINGS:
     MAX-PARTY-MEMBERS:
       DEFAULT: 6 # Maximum party members, if the owner doesn't have permission to change it.
-      PERMISSION: 20 # The maximum limit the party leader can set for the party.
     DEFAULT:
       PUBLIC-PARTY: false
       ALL-INVITE: false

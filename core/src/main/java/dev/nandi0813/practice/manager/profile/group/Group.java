@@ -22,6 +22,7 @@ public class Group {
     private final int rankedLimit;
     private final int eventStartLimit;
     private final int partyBroadcastLimit;
+    private final int partyMemberLimit;
 
     private final int customKitLimit;
     private final int modifiableKitLimit;
@@ -37,7 +38,7 @@ public class Group {
     // Set up in the sidebar.yml file
     private final List<Component> sidebarExtension;
 
-    public Group(String name, String displayName, int weight, int unrankedLimit, int rankedLimit, int eventStartLimit, int partyBroadcastLimit, int customKitLimit, int modifiableKitLimit, Component prefix, NamedTextColor nameColor, Component suffix, int sortPriority, String chatFormat, List<Component> sidebarExtension) {
+    public Group(String name, String displayName, int weight, int unrankedLimit, int rankedLimit, int eventStartLimit, int partyBroadcastLimit, int partyMemberLimit, int customKitLimit, int modifiableKitLimit, Component prefix, NamedTextColor nameColor, Component suffix, int sortPriority, String chatFormat, List<Component> sidebarExtension) {
         this.name = name;
         this.displayName = displayName;
 
@@ -49,6 +50,7 @@ public class Group {
         this.rankedLimit = rankedLimit;
         this.eventStartLimit = eventStartLimit;
         this.partyBroadcastLimit = partyBroadcastLimit;
+        this.partyMemberLimit = partyMemberLimit;
 
         if (customKitLimit < 0 || customKitLimit > 5) {
             this.customKitLimit = 0;

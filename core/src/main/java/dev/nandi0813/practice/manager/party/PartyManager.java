@@ -14,6 +14,7 @@ import dev.nandi0813.practice.manager.party.matchrequest.RequestManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
+import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -41,7 +42,7 @@ public class PartyManager implements Listener {
     private final List<Party> parties = new ArrayList<>();
 
     public static final long INVITE_COOLDOWN = ConfigManager.getInt("PARTY.PARTY-INVITE-COOLDOWN") * 1000L;
-    public static final int MAX_PARTY_MEMBERS = ConfigManager.getInt("PARTY.SETTINGS.MAX-PARTY-MEMBERS.PERMISSION");
+    private static final int DEFAULT_MAX_PARTY_MEMBERS = ConfigManager.getInt("PARTY.SETTINGS.MAX-PARTY-MEMBERS.DEFAULT");
 
     private PartyManager() {
         Bukkit.getPluginManager().registerEvents(this, ZonePractice.getInstance());
@@ -62,6 +63,20 @@ public class PartyManager implements Listener {
             if (party.getMatch() != null && party.getMatch().equals(match))
                 return party;
         return null;
+    }
+
+    public int resolvePartyMemberLimit(Player player) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) {
+            return Math.max(2, DEFAULT_MAX_PARTY_MEMBERS);
+        }
+
+        Group group = profile.getGroup();
+        if (group == null) {
+            return Math.max(2, DEFAULT_MAX_PARTY_MEMBERS);
+        }
+
+        return Math.max(2, group.getPartyMemberLimit());
     }
 
     public void createParty(Player player) {
