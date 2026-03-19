@@ -116,9 +116,10 @@ public class LadderTypeListener implements Listener {
 
     // ========== EVENT HANDLERS ==========
 
-    protected static void arrowDisplayHearth(Player shooter, Player target, double finalDamage) {
+    protected static void arrowDisplayHearth(Player shooter, Player target, double finalDamage, EntityDamageByEntityEvent event) {
         if (!PermanentConfig.DISPLAY_ARROW_HIT) return;
         if (shooter == null || target == null) return;
+        if (event.isCancelled()) return;
 
         Match match = MatchManager.getInstance().getLiveMatchByPlayer(shooter);
         if (match == null) return;
@@ -587,7 +588,7 @@ public class LadderTypeListener implements Listener {
                 attacker = (Player) projectile.getShooter();
 
                 if (projectile instanceof Arrow) {
-                    arrowDisplayHearth(attacker, target, e.getFinalDamage());
+                    arrowDisplayHearth(attacker, target, e.getFinalDamage(), e);
                 }
             }
         }
