@@ -38,7 +38,7 @@ public interface TempBuild {
                 Object mv = BlockUtil.getMetadata(relative, PLACED_IN_FIGHT, Object.class);
                 if (ListenerUtil.checkMetaData(mv) || relative.getType().isSolid()) continue;
 
-                match.getFightChange().addBlockChange(new ChangedBlock(block), player, buildDelay);
+                match.getFightChange().addBlockChange(new ChangedBlock(block), player, buildDelay, e.getHand());
 
                 Block b2 = block.getLocation().subtract(0, 1, 0).getBlock();
                 if (ArenaUtil.turnsToDirt(b2))
@@ -55,7 +55,7 @@ public interface TempBuild {
 
         BlockUtil.setMetadata(block, PLACED_IN_FIGHT, match);
 
-        match.getFightChange().addBlockChange(new ChangedBlock(e), player, buildDelay);
+        match.getFightChange().addBlockChange(new ChangedBlock(e), player, buildDelay, e.getHand());
 
         Block block2 = e.getBlockPlaced().getLocation().subtract(0, 1, 0).getBlock();
         if (ArenaUtil.turnsToDirt(block2))

@@ -12,6 +12,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -135,11 +138,19 @@ public class FightChangeOptimized {
      * Adds a temporary block change that will auto-remove after delay.
      */
     public void addBlockChange(ChangedBlock change, Player player, int destroyTime) {
+        addBlockChange(change, player, destroyTime, EquipmentSlot.HAND);
+    }
+
+    /**
+     * Adds a temporary block change that will auto-remove after delay.
+     * Tracks the hand used for smarter item return placement.
+     */
+    public void addBlockChange(ChangedBlock change, Player player, int destroyTime, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
         if (change == null) return;
 
         long pos = BlockPosition.encode(change.getLocation());
         BlockChangeEntry entry = blocks.computeIfAbsent(pos, k -> new BlockChangeEntry(change));
-        entry.setTempData(player, destroyTime * 20); // Convert seconds to ticks
+        entry.setTempData(player, destroyTime * 20, handUsed); // Convert seconds to ticks
 
         // Start ticker if not running
         ensureTempBlockTickerRunning();
@@ -214,10 +225,48 @@ public class FightChangeOptimized {
     private void removeTempBlock(BlockChangeEntry entry) {
         if (entry.tempData.returnItem && entry.tempData.player.isOnline()) {
             Block block = entry.changedBlock.getLocation().getBlock();
-            entry.tempData.player.getInventory().addItem(block.getDrops().toArray(new org.bukkit.inventory.ItemStack[0]));
+            for (ItemStack drop : block.getDrops()) {
+                giveReturnedItem(entry.tempData.player, drop, entry.tempData.handUsed);
+            }
         }
 
         entry.changedBlock.reset();
+    }
+
+    private void giveReturnedItem(Player player, ItemStack drop, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
+        if (player == null || drop == null || drop.getType().isAir()) {
+            return;
+        }
+
+        ItemStack remaining = drop.clone();
+        PlayerInventory inventory = player.getInventory();
+
+        if (handUsed == EquipmentSlot.OFF_HAND) {
+            ItemStack offhand = inventory.getItemInOffHand();
+            if (offhand == null || offhand.getType().isAir()) {
+                inventory.setItemInOffHand(remaining);
+                return;
+            }
+
+            if (offhand.isSimilar(remaining)) {
+                int maxStack = offhand.getMaxStackSize();
+                int space = maxStack - offhand.getAmount();
+                if (space > 0) {
+                    int moved = Math.min(space, remaining.getAmount());
+                    offhand.setAmount(offhand.getAmount() + moved);
+                    inventory.setItemInOffHand(offhand);
+                    remaining.setAmount(remaining.getAmount() - moved);
+                    if (remaining.getAmount() <= 0) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        Map<Integer, ItemStack> overflow = inventory.addItem(remaining);
+        if (!overflow.isEmpty()) {
+            overflow.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+        }
     }
 
     private static boolean isVineLike(org.bukkit.Material material) {
@@ -515,8 +564,8 @@ public class FightChangeOptimized {
             this.changedBlock = changedBlock;
         }
 
-        void setTempData(Player player, int ticksRemaining) {
-            this.tempData = new TempBlockData(player, ticksRemaining);
+        void setTempData(Player player, int ticksRemaining, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
+            this.tempData = new TempBlockData(player, ticksRemaining, handUsed);
         }
 
     }
@@ -527,13 +576,17 @@ public class FightChangeOptimized {
     public static class TempBlockData {
         @Getter
         final Player player;
+        @Getter
+        @org.jetbrains.annotations.Nullable
+        final EquipmentSlot handUsed;
         int ticksRemaining;
         @Setter
         boolean returnItem = true;
 
-        TempBlockData(Player player, int ticksRemaining) {
+        TempBlockData(Player player, int ticksRemaining, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
             this.player = player;
             this.ticksRemaining = ticksRemaining;
+            this.handUsed = handUsed;
         }
 
         /**
@@ -542,7 +595,9 @@ public class FightChangeOptimized {
         public void reset(FightChangeOptimized fightChange, ChangedBlock changedBlock, long position) {
             if (returnItem && player.isOnline()) {
                 Block block = changedBlock.getLocation().getBlock();
-                player.getInventory().addItem(block.getDrops().toArray(new org.bukkit.inventory.ItemStack[0]));
+                for (ItemStack drop : block.getDrops()) {
+                    fightChange.giveReturnedItem(player, drop, handUsed);
+                }
             }
             changedBlock.reset();
             fightChange.getBlocks().remove(position);
