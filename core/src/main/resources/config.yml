@@ -1,4 +1,4 @@
-VERSION: 21
+VERSION: 22
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -511,6 +511,8 @@ PLAYER:
     allow-item-drop: false
     allow-item-pickup: false
     allow-hunger: false
+    allow-block-break: false
+    allow-block-place: false
   LOBBY-NAMETAG:
     ENABLED: true
   NAMETAG-MANAGEMENT:

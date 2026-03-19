@@ -167,9 +167,10 @@ public class FFAListener implements Listener {
 
     private static final boolean DISPLAY_ARROW_HIT = ConfigManager.getBoolean("FFA.DISPLAY-ARROW-HIT-HEALTH");
 
-    protected static void arrowDisplayHearth(Player shooter, Player target, double finalDamage) {
+    protected static void arrowDisplayHearth(Player shooter, Player target, double finalDamage, EntityDamageByEntityEvent event) {
         if (!DISPLAY_ARROW_HIT) return;
         if (shooter == null || target == null) return;
+        if (event.isCancelled()) return;
 
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(shooter);
         if (ffa == null) return;
@@ -429,7 +430,7 @@ public class FFAListener implements Listener {
                 attacker = shooter;
 
                 if (projectile instanceof Arrow) {
-                    arrowDisplayHearth(shooter, target, e.getFinalDamage());
+                    arrowDisplayHearth(shooter, target, e.getFinalDamage(), e);
                 }
             }
         }
