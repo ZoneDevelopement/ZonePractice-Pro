@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.gui.guis.cosmetics.shield;
 
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
 import dev.nandi0813.practice.manager.profile.cosmetics.shield.ShieldLayout;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -30,14 +31,16 @@ public final class ShieldCosmeticsUtil {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile == null || profile.getCosmeticsData() == null) return;
 
-        ShieldLayout active = profile.getCosmeticsData().getActiveShieldLayout();
+        boolean hasPermission = CosmeticsPermissionManager.hasShieldPermission(player);
+        ShieldLayout active = hasPermission ? profile.getCosmeticsData().getActiveShieldLayout() : null;
 
         for (ItemStack item : player.getInventory().getContents()) {
             if (item == null || item.getType() != Material.SHIELD) continue;
             if (active != null) {
                 applyLayoutToItem(item, active);
+            } else {
+                clearShield(item);
             }
-            // No active layout → leave the shield completely untouched (plain default look)
         }
         player.updateInventory();
     }
