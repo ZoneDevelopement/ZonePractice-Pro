@@ -239,12 +239,9 @@ public class CustomLadderEditorGui extends GUI {
             player.getInventory().setContents(ladder.getKitData().getStorage());
     }
 
-
     private @Nullable ItemStack getRankedItem() {
         switch (ladder.getWeightClass()) {
-            case UNRANKED:
-                return GUIManager.getFILLER_ITEM();
-            case RANKED:
+            case UNRANKED, RANKED:
                 return GUIManager.getFILLER_ITEM();
             case UNRANKED_AND_RANKED:
                 if (this.ranked)
