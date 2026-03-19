@@ -11,7 +11,6 @@ import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManag
 import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorSlot;
 import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorTrimTier;
 import dev.nandi0813.practice.util.KitData;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ArmorMeta;
@@ -22,7 +21,6 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public enum KitUtil {
     ;
@@ -35,15 +33,11 @@ public enum KitUtil {
     public static void loadKit(Player player, TeamEnum team, ItemStack[] armor, ItemStack[] inventory, ItemStack[] extra) {
         PlayerUtil.clearInventory(player);
 
-        ItemStack[] armorCopy = cloneItems(armor);
-        ItemStack[] inventoryCopy = cloneItems(inventory);
-        ItemStack[] extraCopy = cloneItems(extra);
-
         if (team == null) {
-            LadderUtil.loadInventory(player, armorCopy, inventoryCopy, extraCopy);
+            LadderUtil.loadInventory(player, armor, inventory, extra);
         } else {
             List<ItemStack> inventoryList = new ArrayList<>();
-            for (ItemStack item : new ArrayList<>(Arrays.asList(inventoryCopy))) {
+            for (ItemStack item : new ArrayList<>(Arrays.asList(inventory.clone()))) {
                 if (item != null) {
                     item = LadderUtil.changeItemColor(item, team.getColor());
                     inventoryList.add(item);
@@ -53,7 +47,7 @@ public enum KitUtil {
             }
 
             List<ItemStack> armorList = new ArrayList<>();
-            for (ItemStack item : new ArrayList<>(Arrays.asList(armorCopy))) {
+            for (ItemStack item : new ArrayList<>(Arrays.asList(armor.clone()))) {
                 if (item != null) {
                     item = LadderUtil.changeItemColor(item, team.getColor());
                     armorList.add(item);
@@ -63,8 +57,8 @@ public enum KitUtil {
             }
 
             List<ItemStack> extraList = new ArrayList<>();
-            if (extraCopy != null) {
-                for (ItemStack item : new ArrayList<>(Arrays.asList(extraCopy))) {
+            if (extra != null) {
+                for (ItemStack item : new ArrayList<>(Arrays.asList(extra.clone()))) {
                     if (item != null) {
                         item = LadderUtil.changeItemColor(item, team.getColor());
                         extraList.add(item);
@@ -77,7 +71,7 @@ public enum KitUtil {
             LadderUtil.loadInventory(player,
                     armorList.toArray(new ItemStack[0]),
                     inventoryList.toArray(new ItemStack[0]),
-                    extraCopy != null ? extraList.toArray(new ItemStack[0]) : null);
+                    extra != null ? extraList.toArray(new ItemStack[0]) : null);
         }
 
         applyArmorTrimCosmetics(player);
@@ -101,19 +95,30 @@ public enum KitUtil {
                 return;
             }
 
+            ArmorTrimTier activeTier = profile.getCosmeticsData().getActiveTier();
+            if (!player.hasPermission(activeTier.getPermissionNode())) {
+                return;
+            }
+
             // Helmet (index 3)
-            applyTrimToArmor(player, profile, armorContents, ArmorSlot.HELMET, 3);
+            applyTrimToArmor(player, armorContents[3],
+                profile.getCosmeticsData().getPattern(activeTier, ArmorSlot.HELMET),
+                profile.getCosmeticsData().getMaterial(activeTier, ArmorSlot.HELMET), 3);
 
             // Chestplate (index 2)
-            applyTrimToArmor(player, profile, armorContents, ArmorSlot.CHESTPLATE, 2);
+            applyTrimToArmor(player, armorContents[2],
+                profile.getCosmeticsData().getPattern(activeTier, ArmorSlot.CHESTPLATE),
+                profile.getCosmeticsData().getMaterial(activeTier, ArmorSlot.CHESTPLATE), 2);
 
             // Leggings (index 1)
-            applyTrimToArmor(player, profile, armorContents, ArmorSlot.LEGGINGS, 1);
+            applyTrimToArmor(player, armorContents[1],
+                profile.getCosmeticsData().getPattern(activeTier, ArmorSlot.LEGGINGS),
+                profile.getCosmeticsData().getMaterial(activeTier, ArmorSlot.LEGGINGS), 1);
 
             // Boots (index 0)
-            applyTrimToArmor(player, profile, armorContents, ArmorSlot.BOOTS, 0);
-
-            player.getInventory().setArmorContents(armorContents);
+            applyTrimToArmor(player, armorContents[0],
+                profile.getCosmeticsData().getPattern(activeTier, ArmorSlot.BOOTS),
+                profile.getCosmeticsData().getMaterial(activeTier, ArmorSlot.BOOTS), 0);
 
         } catch (Exception e) {
             // Silently fail - if cosmetics cannot be applied, continue with kit distribution
@@ -122,6 +127,19 @@ public enum KitUtil {
 
     private static void applyShieldCosmetics(Player player) {
         try {
+            Profile profile = ProfileManager.getInstance().getProfile(player);
+            if (profile == null || profile.getCosmeticsData() == null) {
+                return;
+            }
+
+            if (!CosmeticsPermissionManager.hasShieldPermission(player)) {
+                return;
+            }
+
+            if (profile.getCosmeticsData().getActiveShieldLayout() == null) {
+                return;
+            }
+
             ShieldCosmeticsUtil.applyShieldToPlayer(player);
         } catch (Exception e) {
             // Silently fail - if shield cosmetics cannot be applied, continue with kit distribution
@@ -131,65 +149,44 @@ public enum KitUtil {
     /**
      * Apply a trim pattern and material to an armor piece if both are set.
      */
-    private static void applyTrimToArmor(Player player, Profile profile, ItemStack[] armorContents,
-                                         ArmorSlot slot, int armorIndex) {
-        ItemStack item = armorContents[armorIndex];
+    private static void applyTrimToArmor(Player player, ItemStack item,
+                                         TrimPattern pattern, TrimMaterial material, int armorIndex) {
         if (item == null || !item.hasItemMeta()) {
             return;
         }
 
-        if (!(item.getItemMeta() instanceof ArmorMeta armorMeta)) {
+        // Both pattern and material must be set to apply trim
+        if (pattern == null || material == null) {
             return;
         }
 
-        ArmorTrim targetTrim = null;
-        ArmorTrimTier armorTier = getArmorTier(item.getType());
-        if (armorTier != null && CosmeticsPermissionManager.hasBasePermission(player, armorTier)) {
-            TrimPattern pattern = profile.getCosmeticsData().getPattern(armorTier, slot);
-            TrimMaterial material = profile.getCosmeticsData().getMaterial(armorTier, slot);
-            if (pattern != null
-                    && material != null
-                    && CosmeticsPermissionManager.hasPatternPermission(player, pattern)
-                    && CosmeticsPermissionManager.hasMaterialPermission(player, material)) {
-                targetTrim = new ArmorTrim(material, pattern);
-            }
+        // Verify permission before applying
+        if (!player.hasPermission("zpp.cosmetics.armortrim.pattern." + getTrimId(pattern)) ||
+            !player.hasPermission("zpp.cosmetics.armortrim.material." + getTrimId(material))) {
+            return;
         }
 
         try {
-            ArmorTrim currentTrim = armorMeta.getTrim();
-            if (!Objects.equals(currentTrim, targetTrim)) {
-                armorMeta.setTrim(targetTrim);
-                item.setItemMeta(armorMeta);
+            var meta = (ArmorMeta) item.getItemMeta();
+            if (meta != null) {
+                meta.setTrim(new ArmorTrim(material, pattern));
+                item.setItemMeta(meta);
+
+                ItemStack[] armorContents = player.getInventory().getArmorContents();
                 armorContents[armorIndex] = item;
+                player.getInventory().setArmorContents(armorContents);
             }
         } catch (Exception e) {
             // Silently fail - trim application may not be supported on this version or item type
         }
     }
 
-    private static ArmorTrimTier getArmorTier(Material material) {
-        return switch (material) {
-            case LEATHER_HELMET, LEATHER_CHESTPLATE, LEATHER_LEGGINGS, LEATHER_BOOTS -> ArmorTrimTier.LEATHER;
-            case GOLDEN_HELMET, GOLDEN_CHESTPLATE, GOLDEN_LEGGINGS, GOLDEN_BOOTS -> ArmorTrimTier.GOLD;
-            case IRON_HELMET, IRON_CHESTPLATE, IRON_LEGGINGS, IRON_BOOTS -> ArmorTrimTier.IRON;
-            case DIAMOND_HELMET, DIAMOND_CHESTPLATE, DIAMOND_LEGGINGS, DIAMOND_BOOTS -> ArmorTrimTier.DIAMOND;
-            case NETHERITE_HELMET, NETHERITE_CHESTPLATE, NETHERITE_LEGGINGS, NETHERITE_BOOTS -> ArmorTrimTier.NETHERITE;
-            default -> null;
-        };
+    private static String getTrimId(TrimPattern pattern) {
+        return CosmeticsPermissionManager.getTrimId(pattern);
     }
 
-    private static ItemStack[] cloneItems(ItemStack[] source) {
-        if (source == null) {
-            return null;
-        }
-
-        ItemStack[] copy = source.clone();
-        for (int i = 0; i < copy.length; i++) {
-            if (copy[i] != null) {
-                copy[i] = copy[i].clone();
-            }
-        }
-        return copy;
+    private static String getTrimId(TrimMaterial material) {
+        return CosmeticsPermissionManager.getTrimId(material);
     }
 
 }
