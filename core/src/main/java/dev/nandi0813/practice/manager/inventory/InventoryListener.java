@@ -270,7 +270,7 @@ public class InventoryListener implements Listener {
         if (isLobbyStatus(profileStatus)) {
             if (!isLobbyProtectionAllowed("allow-damage")) {
                 // Keep knockback from entity hits while preventing HP loss.
-                if (!isLobbyProtectionAllowed("allow-velocity") && e instanceof EntityDamageByEntityEvent) {
+                if (isLobbyProtectionAllowed("allow-velocity") && e instanceof EntityDamageByEntityEvent) {
                     e.setDamage(0.0D);
                     return;
                 }
