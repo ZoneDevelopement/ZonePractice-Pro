@@ -326,23 +326,23 @@ permissions:
   # Cosmetics
   zpp.cosmetics.main:
     description: Open the cosmetics GUI.
-  zpp.cosmetics.base.*:
+  zpp.cosmetics.armortrim.base.*:
     description: Allow access to all armor base tiers.
     children:
-      zpp.cosmetics.base.leather: true
-      zpp.cosmetics.base.gold: true
-      zpp.cosmetics.base.iron: true
-      zpp.cosmetics.base.diamond: true
-      zpp.cosmetics.base.netherite: true
-  zpp.cosmetics.base.leather:
+      zpp.cosmetics.armortrim.base.leather: true
+      zpp.cosmetics.armortrim.base.gold: true
+      zpp.cosmetics.armortrim.base.iron: true
+      zpp.cosmetics.armortrim.base.diamond: true
+      zpp.cosmetics.armortrim.base.netherite: true
+  zpp.cosmetics.armortrim.base.leather:
     description: Allow access to Leather armor tier.
-  zpp.cosmetics.base.gold:
+  zpp.cosmetics.armortrim.base.gold:
     description: Allow access to Gold armor tier.
-  zpp.cosmetics.base.iron:
+  zpp.cosmetics.armortrim.base.iron:
     description: Allow access to Iron armor tier.
-  zpp.cosmetics.base.diamond:
+  zpp.cosmetics.armortrim.base.diamond:
     description: Allow access to Diamond armor tier.
-  zpp.cosmetics.base.netherite:
+  zpp.cosmetics.armortrim.base.netherite:
     description: Allow access to Netherite armor tier.
 
   # Note: zpp.cosmetics.pattern.* and zpp.cosmetics.material.* permissions are

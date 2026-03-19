@@ -1,6 +1,6 @@
 package dev.nandi0813.practice.command.singlecommands;
 
-import dev.nandi0813.practice.manager.gui.guis.cosmetics.CosmeticsGui;
+import dev.nandi0813.practice.manager.gui.guis.cosmetics.CosmeticsHubGui;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
@@ -39,8 +39,8 @@ public class CosmeticsCommand implements CommandExecutor {
         }
 
         // Open the main cosmetics GUI with no parent GUI (player can close it normally)
-        CosmeticsGui cosmeticsGui = new CosmeticsGui(profile, null);
-        cosmeticsGui.open(player);
+        CosmeticsHubGui cosmeticsHubGui = new CosmeticsHubGui(profile);
+        cosmeticsHubGui.open(player);
 
         return true;
     }

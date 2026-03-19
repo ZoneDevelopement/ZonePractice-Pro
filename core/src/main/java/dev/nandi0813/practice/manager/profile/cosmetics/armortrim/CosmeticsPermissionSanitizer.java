@@ -1,6 +1,8 @@
-package dev.nandi0813.practice.manager.profile.cosmetics;
+package dev.nandi0813.practice.manager.profile.cosmetics.armortrim;
 
 import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.deatheffect.DeathEffect;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -17,7 +19,6 @@ public enum CosmeticsPermissionSanitizer {
 
         boolean changed = false;
 
-        // Shield customization is intentionally skipped until its dedicated rework.
         EnumSet<ArmorSlot> supportedSlots = EnumSet.of(
                 ArmorSlot.HELMET,
                 ArmorSlot.CHESTPLATE,
@@ -26,7 +27,7 @@ public enum CosmeticsPermissionSanitizer {
         );
 
         for (ArmorTrimTier tier : ArmorTrimTier.values()) {
-            boolean hasTierPermission = ArmorTrimPermissionManager.hasBasePermission(player, tier);
+            boolean hasTierPermission = CosmeticsPermissionManager.hasBasePermission(player, tier);
 
             for (ArmorSlot slot : supportedSlots) {
                 TrimPattern pattern = profile.getCosmeticsData().getPattern(tier, slot);
@@ -46,12 +47,12 @@ public enum CosmeticsPermissionSanitizer {
                     continue;
                 }
 
-                if (pattern != null && !ArmorTrimPermissionManager.hasPatternPermission(player, pattern)) {
+                if (pattern != null && !CosmeticsPermissionManager.hasPatternPermission(player, pattern)) {
                     profile.getCosmeticsData().setPattern(tier, slot, null);
                     changed = true;
                 }
 
-                if (material != null && !ArmorTrimPermissionManager.hasMaterialPermission(player, material)) {
+                if (material != null && !CosmeticsPermissionManager.hasMaterialPermission(player, material)) {
                     profile.getCosmeticsData().setMaterial(tier, slot, null);
                     changed = true;
                 }
@@ -59,10 +60,10 @@ public enum CosmeticsPermissionSanitizer {
         }
 
         ArmorTrimTier activeTier = profile.getCosmeticsData().getActiveTier();
-        if (!ArmorTrimPermissionManager.hasBasePermission(player, activeTier)) {
+        if (!CosmeticsPermissionManager.hasBasePermission(player, activeTier)) {
             ArmorTrimTier replacement = null;
             for (ArmorTrimTier tier : ArmorTrimTier.values()) {
-                if (ArmorTrimPermissionManager.hasBasePermission(player, tier)) {
+                if (CosmeticsPermissionManager.hasBasePermission(player, tier)) {
                     replacement = tier;
                     break;
                 }
@@ -74,6 +75,29 @@ public enum CosmeticsPermissionSanitizer {
 
             if (replacement != activeTier) {
                 profile.getCosmeticsData().setActiveTier(replacement);
+                changed = true;
+            }
+        }
+
+        DeathEffect deathEffect = profile.getCosmeticsData().getDeathEffect();
+        if (deathEffect != null && !CosmeticsPermissionManager.hasDeathEffectPermission(player, deathEffect)) {
+            profile.getCosmeticsData().setDeathEffect(DeathEffect.NONE);
+            changed = true;
+        }
+
+        int maxShieldLayouts = CosmeticsPermissionManager.getMaxShieldLayouts(player);
+        var shieldLayouts = profile.getCosmeticsData().getShieldLayouts();
+        while (shieldLayouts.size() > maxShieldLayouts) {
+            shieldLayouts.remove(shieldLayouts.size() - 1);
+            changed = true;
+        }
+
+        int activeShieldLayoutIndex = profile.getCosmeticsData().getActiveShieldLayoutIndex();
+        if (!CosmeticsPermissionManager.hasShieldPermission(player)
+                || activeShieldLayoutIndex < -1
+                || activeShieldLayoutIndex >= shieldLayouts.size()) {
+            if (activeShieldLayoutIndex != -1) {
+                profile.getCosmeticsData().setActiveShieldLayoutIndex(-1);
                 changed = true;
             }
         }

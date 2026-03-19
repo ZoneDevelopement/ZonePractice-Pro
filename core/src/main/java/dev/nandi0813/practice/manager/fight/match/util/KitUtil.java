@@ -2,13 +2,14 @@ package dev.nandi0813.practice.manager.fight.match.util;
 
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
+import dev.nandi0813.practice.manager.gui.guis.cosmetics.shield.ShieldCosmeticsUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorSlot;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimPermissionManager;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimTier;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorSlot;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorTrimTier;
 import dev.nandi0813.practice.util.KitData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -74,6 +75,7 @@ public enum KitUtil {
         }
 
         applyArmorTrimCosmetics(player);
+        applyShieldCosmetics(player);
         player.updateInventory();
     }
 
@@ -123,6 +125,27 @@ public enum KitUtil {
         }
     }
 
+    private static void applyShieldCosmetics(Player player) {
+        try {
+            Profile profile = ProfileManager.getInstance().getProfile(player);
+            if (profile == null || profile.getCosmeticsData() == null) {
+                return;
+            }
+
+            if (!CosmeticsPermissionManager.hasShieldPermission(player)) {
+                return;
+            }
+
+            if (profile.getCosmeticsData().getActiveShieldLayout() == null) {
+                return;
+            }
+
+            ShieldCosmeticsUtil.applyShieldToPlayer(player);
+        } catch (Exception e) {
+            // Silently fail - if shield cosmetics cannot be applied, continue with kit distribution
+        }
+    }
+
     /**
      * Apply a trim pattern and material to an armor piece if both are set.
      */
@@ -138,8 +161,8 @@ public enum KitUtil {
         }
 
         // Verify permission before applying
-        if (!player.hasPermission("zpp.cosmetics.pattern." + getTrimId(pattern)) ||
-            !player.hasPermission("zpp.cosmetics.material." + getTrimId(material))) {
+        if (!player.hasPermission("zpp.cosmetics.armortrim.pattern." + getTrimId(pattern)) ||
+            !player.hasPermission("zpp.cosmetics.armortrim.material." + getTrimId(material))) {
             return;
         }
 
@@ -159,11 +182,11 @@ public enum KitUtil {
     }
 
     private static String getTrimId(TrimPattern pattern) {
-        return ArmorTrimPermissionManager.getTrimId(pattern);
+        return CosmeticsPermissionManager.getTrimId(pattern);
     }
 
     private static String getTrimId(TrimMaterial material) {
-        return ArmorTrimPermissionManager.getTrimId(material);
+        return CosmeticsPermissionManager.getTrimId(material);
     }
 
 }

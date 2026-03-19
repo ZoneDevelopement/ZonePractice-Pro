@@ -1,4 +1,4 @@
-VERSION: 1
+VERSION: 2
 
 #
 # Spawn inventories
@@ -17,6 +17,22 @@ LOBBY-BASIC:
       ITEM:
         NAME: "&cRanked Queue &7(Right-Click)"
         MATERIAL: IRON_SWORD
+    COSMETICS:
+      SLOT: 2
+      ITEM:
+        NAME: "&dCosmetics Hub &7(Right-Click)"
+        MATERIAL: NETHER_STAR
+        LORE:
+          - ""
+          - "&7Customize your style with"
+          - "&fArmor Trims&7, &fShield Layouts&7,"
+          - "and &fDeath Effects&7."
+          - ""
+          - "&eOpen the cosmetics menu."
+        ENCHANTMENTS:
+          - "DURABILITY:1"
+        FLAGS:
+          - "HIDE_ENCHANTS"
     ENABLE-SPECTATE-MODE:
       SLOT: 3
       ITEM:

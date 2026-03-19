@@ -6,7 +6,7 @@ import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionSanitizer;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.CosmeticsPermissionSanitizer;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.util.PermanentConfig;

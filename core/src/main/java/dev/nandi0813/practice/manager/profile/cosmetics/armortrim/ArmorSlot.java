@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.manager.profile.cosmetics;
+package dev.nandi0813.practice.manager.profile.cosmetics.armortrim;
 
 import lombok.Getter;
 

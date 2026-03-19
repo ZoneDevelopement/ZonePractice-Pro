@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class EntityHiderListener implements PacketListener, Listener {
 
@@ -59,8 +60,32 @@ public class EntityHiderListener implements PacketListener, Listener {
     }
 
     protected final Set<Player> effectTo = new HashSet<>();
+    private final ConcurrentHashMap<java.util.UUID, AtomicInteger> allowedParticlePackets = new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<Integer, Location> entityLocations = new ConcurrentHashMap<>();
+
+    public void allowNextParticlePackets(Player player, int packetCount) {
+        if (player == null || packetCount <= 0) {
+            return;
+        }
+
+        allowedParticlePackets
+                .computeIfAbsent(player.getUniqueId(), ignored -> new AtomicInteger())
+                .addAndGet(packetCount);
+    }
+
+    private boolean consumeAllowedParticlePacket(Player player) {
+        AtomicInteger allowance = allowedParticlePackets.get(player.getUniqueId());
+        if (allowance == null) {
+            return false;
+        }
+
+        int left = allowance.decrementAndGet();
+        if (left <= 0) {
+            allowedParticlePackets.remove(player.getUniqueId());
+        }
+        return true;
+    }
 
     private boolean checkPlayer(Player player) {
         if (!ServerManager.getInstance().getInWorld().containsKey(player)) {
@@ -130,6 +155,7 @@ public class EntityHiderListener implements PacketListener, Listener {
         if (!this.checkPlayer(player)) {
             effectTo.remove(player);
             entityLocations.remove(player.getEntityId());
+            allowedParticlePackets.remove(player.getUniqueId());
             return;
         }
 
@@ -152,7 +178,9 @@ public class EntityHiderListener implements PacketListener, Listener {
 
             effectTo.remove(player);
         } else if (e.getPacketType() == PacketType.Play.Server.PARTICLE) {
-            e.setCancelled(true);
+            if (!consumeAllowedParticlePacket(player)) {
+                e.setCancelled(true);
+            }
         } else if (e.getPacketType() == PacketType.Play.Server.SOUND_EFFECT) {
             WrapperPlayServerSoundEffect soundWrapper = new WrapperPlayServerSoundEffect(e);
             Vector3i pos = soundWrapper.getEffectPosition();

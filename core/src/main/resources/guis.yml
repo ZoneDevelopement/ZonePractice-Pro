@@ -1,4 +1,4 @@
-VERSION: 16
+VERSION: 17
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -3004,4 +3004,163 @@ GUIS:
         LAPIS: LAPIS_LAZULI
         AMETHYST: AMETHYST_SHARD
         RESIN: RESIN_BRICK
-
+    HUB:
+      TITLE: "&8✦ Cosmetics"
+      BUTTONS:
+        ARMOR-TRIMS:
+          NAME: "&6✦ Armor Trims"
+          MATERIAL: DIAMOND_CHESTPLATE
+          GLOW: true
+          LORE:
+            - ""
+            - "&7Customize your armor tier,"
+            - "&7trim patterns and materials."
+            - ""
+            - "&eClick to open."
+        SHIELD:
+          NAME: "&9✦ Shield"
+          MATERIAL: SHIELD
+          GLOW: false
+          LORE:
+            - ""
+            - "&7Design your shield with any"
+            - "&7color and pattern combination."
+            - "&7Save multiple layouts."
+            - ""
+            - "&eClick to open."
+        KILL-EFFECTS:
+          NAME: "&c✦ Death Effects"
+          MATERIAL: BLAZE_POWDER
+          GLOW: false
+          LORE:
+            - ""
+            - "&7Choose a particle effect that"
+            - "&7plays when you kill someone."
+            - ""
+            - "&eClick to open."
+    DEATH-EFFECTS:
+      TITLE: "&8✦ Death Effects"
+      NO-PERMISSION-MESSAGE: "<red>You don't have permission for this death effect!"
+      SELECTED-PREFIX: "&a✔ "
+      UNLOCKED-PREFIX: "&e"
+      LOCKED-PREFIX: "&c🔒 "
+      CLICK-TO-SELECT: "&eClick to select."
+      CLICK-TO-DESELECT: "&7Click to deselect."
+      NO-PERMISSION-LORE: "&cRequires: &7%permission%"
+      DEFAULT-LORE:
+        - ""
+        - "&7Status: %status%"
+        - ""
+      ENTRIES:
+        NONE:
+          DISPLAY-NAME: "None"
+          ICON: BARRIER
+          LORE:
+            - ""
+            - "&7No kill effect."
+            - "&7Status: %status%"
+            - ""
+        FLAME:
+          DISPLAY-NAME: "Flame"
+          ICON: BLAZE_POWDER
+          LORE:
+            - ""
+            - "&7Bursts of fire on kill."
+            - "&7Status: %status%"
+            - ""
+        LIGHTNING:
+          DISPLAY-NAME: "Lightning"
+          ICON: LIGHTNING_ROD
+          LORE:
+            - ""
+            - "&7A lightning strike on kill."
+            - "&7Status: %status%"
+            - ""
+        FIREWORK:
+          DISPLAY-NAME: "Firework"
+          ICON: FIREWORK_ROCKET
+          LORE:
+            - ""
+            - "&7Fireworks burst on kill."
+            - "&7Status: %status%"
+            - ""
+        EXPLOSION:
+          DISPLAY-NAME: "Explosion"
+          ICON: TNT
+          LORE:
+            - ""
+            - "&7Smoke & fire explosion on kill."
+            - "&7Status: %status%"
+            - ""
+        BLOOD:
+          DISPLAY-NAME: "Blood"
+          ICON: REDSTONE
+          LORE:
+            - ""
+            - "&7Red dust particles on kill."
+            - "&7Status: %status%"
+            - ""
+        ENCHANT:
+          DISPLAY-NAME: "Enchant"
+          ICON: ENCHANTING_TABLE
+          LORE:
+            - ""
+            - "&7Magic enchant particles on kill."
+            - "&7Status: %status%"
+            - ""
+        ENDER:
+          DISPLAY-NAME: "Ender"
+          ICON: ENDER_PEARL
+          LORE:
+            - ""
+            - "&7Ender portal particles on kill."
+            - "&7Status: %status%"
+            - ""
+        HEARTS:
+          DISPLAY-NAME: "Hearts"
+          ICON: PINK_DYE
+          LORE:
+            - ""
+            - "&7Floating hearts on kill."
+            - "&7Status: %status%"
+            - ""
+        ICE:
+          DISPLAY-NAME: "Ice"
+          ICON: PACKED_ICE
+          LORE:
+            - ""
+            - "&7Snowflake & ice particles on kill."
+            - "&7Status: %status%"
+            - ""
+    # ── Shield Cosmetics ──────────────────────────────────────────────────────
+    SHIELD:
+      NO-PERMISSION-MESSAGE: "<red>You don't have permission to use shield cosmetics!"
+      # Layout list GUI
+      LAYOUTS:
+        TITLE: "&8\u2756 Shield Layouts"
+        NAME-TITLE: "Layout Name"
+        RENAME-TITLE: "Rename Layout"
+        LIMIT-REACHED: "<red>You've reached your layout limit! Get a higher rank for more."
+        DELETED-MESSAGE: "<green>Layout deleted."
+        NEW-BUTTON:
+          NAME: "&aNew Layout"
+      # Editor GUI
+      EDITOR:
+        TITLE: "&8Editing: &e%name%"
+        APPLIED-MESSAGE: "<green>Shield layout applied!"
+        UNAPPLIED-MESSAGE: "<gray>Shield cosmetic removed."
+        ADD-LAYER:
+          NAME: "&aAdd Layer"
+        MAX-LAYERS:
+          NAME: "&cMax Layers Reached"
+          MESSAGE: "<red>Maximum of 6 layers reached!"
+        REMOVE-LAYER:
+          NAME: "&cRemove Top Layer"
+      # Color picker GUI
+      COLOR-PICKER:
+        BASE-TITLE: "&8Pick Base Color"
+        LAYER-TITLE: "&8Pick Layer Color"
+      # Pattern picker GUI
+      PATTERN-PICKER:
+        TITLE: "&8Pick Pattern"
+        APPLIED-MESSAGE: "<green>Layer applied!"

@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.manager.profile.cosmetics;
+package dev.nandi0813.practice.manager.profile.cosmetics.armortrim;
 
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import lombok.Getter;
@@ -40,7 +40,7 @@ public enum ArmorTrimTier {
     }
 
     public String getPermissionNode() {
-        return "zpp.cosmetics.base." + id;
+        return "zpp.cosmetics.armortrim.base." + id;
     }
 
     public Material getMaterial(ArmorSlot slot) {

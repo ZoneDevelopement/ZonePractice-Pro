@@ -100,6 +100,79 @@ Common commands include `/practice` (aliases: `/prac`, `/zonepractice`, `/zonepr
 Permissions follow the `zpp.*` namespace, such as `zpp.admin` (default: op), `zpp.practice.*`, `zpp.staffmode`, and many
 granular nodes.
 
+### Cosmetics permissions
+
+Some cosmetics permissions are registered dynamically at startup by `CosmeticsPermissionManager`, so they are not fully listed in `plugin.yml`.
+
+#### Entry permission
+
+- `zpp.cosmetics.main`
+  - Required to run `/cosmetics` (`CosmeticsCommand`).
+
+#### Armor trim permissions
+
+- Tier access:
+  - `zpp.cosmetics.armortrim.base.leather`
+  - `zpp.cosmetics.armortrim.base.gold`
+  - `zpp.cosmetics.armortrim.base.iron`
+  - `zpp.cosmetics.armortrim.base.diamond`
+  - `zpp.cosmetics.armortrim.base.netherite`
+  - wildcard: `zpp.cosmetics.armortrim.base.*`
+- Pattern access:
+  - `zpp.cosmetics.armortrim.pattern.<id>`
+  - wildcard: `zpp.cosmetics.armortrim.pattern.*`
+- Material access:
+  - `zpp.cosmetics.armortrim.material.<id>`
+  - wildcard: `zpp.cosmetics.armortrim.material.*`
+
+`<id>` values come from Mojang/Paper trim registries and are sanitized to lowercase alphanumeric/underscore (for example: `sentry`, `vex`, `amethyst`, `netherite`).
+
+#### Death effect permissions
+
+- Per effect:
+  - `zpp.cosmetics.deatheffect.none`
+  - `zpp.cosmetics.deatheffect.flame`
+  - `zpp.cosmetics.deatheffect.lightning`
+  - `zpp.cosmetics.deatheffect.firework`
+  - `zpp.cosmetics.deatheffect.explosion`
+  - `zpp.cosmetics.deatheffect.blood`
+  - `zpp.cosmetics.deatheffect.enchant`
+  - `zpp.cosmetics.deatheffect.ender`
+  - `zpp.cosmetics.deatheffect.hearts`
+  - `zpp.cosmetics.deatheffect.ice`
+- Wildcard:
+  - `zpp.cosmetics.deatheffect.*`
+
+#### Shield layout permissions
+
+- Open/use shield cosmetics:
+  - `zpp.cosmetics.shield.use`
+  - wildcard: `zpp.cosmetics.shield.*`
+- Layout count limits:
+  - `zpp.cosmetics.shield.layouts.1` ... `zpp.cosmetics.shield.layouts.21`
+  - wildcard: `zpp.cosmetics.shield.layouts.*`
+  - unlimited alias: `zpp.cosmetics.shield.layouts.unlimited`
+
+If none of the layout-count permissions are set, the code falls back to `1` max layout.
+
+### Groups and cosmetics permissions
+
+Player groups are configured in `core/src/main/resources/groups.yml` and selected by group permission:
+
+- `zpp.group.default`
+- `zpp.group.premium`
+- `zpp.group.supreme`
+- `zpp.group.staff`
+- `zpp.group.admin`
+
+The active group controls limits like custom kits and party capacity. You can also use your permission plugin (LuckPerms, etc.) to attach cosmetics permissions per group.
+
+Example bundle strategy:
+
+- `DEFAULT`: `zpp.cosmetics.main`, `zpp.cosmetics.armortrim.base.leather`, `zpp.cosmetics.deatheffect.none`, `zpp.cosmetics.shield.use`, `zpp.cosmetics.shield.layouts.1`
+- `PREMIUM`: add `zpp.cosmetics.armortrim.base.gold`, selected trim/material nodes, `zpp.cosmetics.deatheffect.flame`, `zpp.cosmetics.shield.layouts.3`
+- `SUPREME+`: grant broader wildcards (`zpp.cosmetics.armortrim.pattern.*`, `zpp.cosmetics.armortrim.material.*`, `zpp.cosmetics.deatheffect.*`, `zpp.cosmetics.shield.layouts.unlimited`)
+
 ## Developer API
 
 ZonePractice Pro provides a comprehensive API for developers to interact with the core systems, retrieve player statistics, and listen to custom events.

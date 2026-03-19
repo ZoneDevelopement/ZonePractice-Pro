@@ -238,7 +238,34 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             matchPlayers.get(player).getProfile().getStats().getLadderStat((NormalLadder) ladder).increaseDeaths();
         }
 
+        playDeathEffect(killer, player);
+
         killPlayer(player, deathMessage);
+    }
+
+    private void playDeathEffect(Player killer, Player victim) {
+        if (killer == null || victim == null) {
+            return;
+        }
+
+        try {
+            Profile killerProfile = matchPlayers.containsKey(killer)
+                    ? matchPlayers.get(killer).getProfile()
+                    : ProfileManager.getInstance().getProfile(killer);
+
+            if (killerProfile == null || killerProfile.getCosmeticsData() == null) {
+                return;
+            }
+
+            var deathEffect = killerProfile.getCosmeticsData().getDeathEffect();
+            if (deathEffect == null) {
+                return;
+            }
+
+            deathEffect.play(victim.getLocation(), getPeople());
+        } catch (Exception ignored) {
+            // Cosmetic effects should never break combat flow.
+        }
     }
 
     protected abstract void killPlayer(Player player, String deathMessage);

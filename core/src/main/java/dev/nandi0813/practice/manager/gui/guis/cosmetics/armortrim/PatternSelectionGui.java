@@ -1,13 +1,13 @@
-package dev.nandi0813.practice.manager.gui.guis.cosmetics;
+package dev.nandi0813.practice.manager.gui.guis.cosmetics.armortrim;
 
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.profile.Profile;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorSlot;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimPermissionManager;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimTier;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorSlot;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorTrimTier;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
@@ -64,7 +64,7 @@ public class PatternSelectionGui extends GUI {
 
         ArmorTrimTier tier = profile.getCosmeticsData().getActiveTier();
         int slot = START_SLOT;
-        for (TrimPattern pattern : ArmorTrimPermissionManager.getRegisteredPatterns()) {
+        for (TrimPattern pattern : CosmeticsPermissionManager.getRegisteredPatterns()) {
             if (slot >= inventory.getSize()) {
                 break;
             }
@@ -110,7 +110,7 @@ public class PatternSelectionGui extends GUI {
             return;
         }
 
-        String permissionNode = "zpp.cosmetics.pattern." + ArmorTrimPermissionManager.getTrimId(pattern);
+        String permissionNode = "zpp.cosmetics.armortrim.pattern." + CosmeticsPermissionManager.getTrimId(pattern);
         if (!player.hasPermission(permissionNode)) {
             String permDeniedMessage = GUIFile.getConfig().getString("GUIS.COSMETICS.PATTERN-PERMISSION-DENIED-MESSAGE", "<red>You do not have permission to use this trim pattern.");
             Common.sendMMMessage(player, permDeniedMessage);
@@ -123,13 +123,13 @@ public class PatternSelectionGui extends GUI {
     }
 
     private ItemStack buildPatternItem(Player player, ArmorTrimTier tier, TrimPattern pattern) {
-        String patternId = ArmorTrimPermissionManager.getTrimId(pattern);
-        String permissionNode = "zpp.cosmetics.pattern." + patternId;
+        String patternId = CosmeticsPermissionManager.getTrimId(pattern);
+        String permissionNode = "zpp.cosmetics.armortrim.pattern." + patternId;
         boolean hasPermission = player != null && player.hasPermission(permissionNode);
 
         TrimPattern activePattern = profile.getCosmeticsData().getPattern(tier, armorSlot);
         boolean active = activePattern != null
-                && ArmorTrimPermissionManager.getTrimId(activePattern).equalsIgnoreCase(patternId);
+                && CosmeticsPermissionManager.getTrimId(activePattern).equalsIgnoreCase(patternId);
 
         Material templateMaterial = resolveMaterial(patternId.toUpperCase(Locale.ROOT) + "_ARMOR_TRIM_SMITHING_TEMPLATE");
         if (templateMaterial == null) {

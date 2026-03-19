@@ -203,6 +203,8 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         if (killer != null) {
             fightPlayers.get(killer).getProfile().getStats().getLadderStat(players.get(killer)).increaseKills();
 
+            playDeathEffect(killer, player);
+
             if (arena.isReKitAfterKill()) {
                 KitUtil.loadDefaultLadderKit(killer, TeamEnum.FFA, players.get(killer));
             }
@@ -220,6 +222,33 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                     teleportPlayer(player), 1L);
+        }
+    }
+
+    private void playDeathEffect(Player killer, Player victim) {
+        if (killer == null || victim == null) {
+            return;
+        }
+
+        try {
+            Profile killerProfile = fightPlayers.containsKey(killer)
+                    ? fightPlayers.get(killer).getProfile()
+                    : ProfileManager.getInstance().getProfile(killer);
+
+            if (killerProfile == null || killerProfile.getCosmeticsData() == null) {
+                return;
+            }
+
+            var deathEffect = killerProfile.getCosmeticsData().getDeathEffect();
+            if (deathEffect == null) {
+                return;
+            }
+
+            List<Player> viewers = new ArrayList<>(players.keySet());
+            viewers.addAll(spectators);
+            deathEffect.play(victim.getLocation(), viewers);
+        } catch (Exception ignored) {
+            // Cosmetic effects should never break FFA kill handling.
         }
     }
 

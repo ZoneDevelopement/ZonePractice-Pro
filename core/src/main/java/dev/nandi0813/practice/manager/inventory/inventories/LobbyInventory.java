@@ -19,6 +19,7 @@ public class LobbyInventory extends Inventory {
         this.invItems.add(new RankedInvItem());
         this.invItems.add(new RematchInvItem());
         this.invItems.add(new SettingsInvItem());
+        this.invItems.add(new CosmeticsInvItem());
         this.invItems.add(new SpectateModeInvItem());
         this.invItems.add(new StaffMode());
         this.invItems.add(new SetupInvItem());
@@ -55,6 +56,11 @@ public class LobbyInventory extends Inventory {
                 }
                 case RematchInvItem rematchInvItem -> {
                     continue;
+                }
+                case CosmeticsInvItem cosmeticsInvItem -> {
+                    if (!player.hasPermission("zpp.cosmetics.main")) {
+                        continue;
+                    }
                 }
                 default -> {
                 }

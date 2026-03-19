@@ -97,13 +97,21 @@ public enum GUIType {
     FFA_Ladder_Selector,
 
     // Cosmetics GUIs
-    Cosmetics_Main,
+    Cosmetics_Hub,
+
+    ArmorTrimMainGui,
     Cosmetics_Helmet,
     Cosmetics_Chestplate,
     Cosmetics_Leggings,
     Cosmetics_Boots,
     Cosmetics_Shield,
+    Cosmetics_Shield_Layouts,
+    Cosmetics_Shield_Editor,
+    Cosmetics_Shield_ColorPicker,
+    Cosmetics_Shield_PatternPicker,
     Cosmetics_Pattern_Selection,
     Cosmetics_Material_Selection,
+
+    Cosmetics_DeathEffects,
 
 }

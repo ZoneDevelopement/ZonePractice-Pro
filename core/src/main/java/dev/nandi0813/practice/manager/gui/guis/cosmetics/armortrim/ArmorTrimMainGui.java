@@ -1,13 +1,13 @@
-package dev.nandi0813.practice.manager.gui.guis.cosmetics;
+package dev.nandi0813.practice.manager.gui.guis.cosmetics.armortrim;
 
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.profile.Profile;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorSlot;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimPermissionManager;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimTier;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorSlot;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorTrimTier;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.StringUtil;
@@ -28,10 +28,10 @@ import java.util.List;
 /**
  * Main cosmetics GUI that displays armor pieces for the player to customize.
  */
-public class CosmeticsGui extends GUI {
+public class ArmorTrimMainGui extends GUI {
 
     private static final int MAIN_ROWS = 5;
-    private static final int BACK_SLOT = 0;
+    private static final int BACK_SLOT = 36;
     private static final int HELMET_SLOT = 10;
     private static final int CHESTPLATE_SLOT = 12;
     private static final int LEGGINGS_SLOT = 14;
@@ -49,8 +49,8 @@ public class CosmeticsGui extends GUI {
     private final Profile profile;
     private final GUI backToGui;
 
-    public CosmeticsGui(Profile profile, GUI backToGui) {
-        super(GUIType.Cosmetics_Main);
+    public ArmorTrimMainGui(Profile profile, GUI backToGui) {
+        super(GUIType.ArmorTrimMainGui);
         this.profile = profile;
         this.backToGui = backToGui;
 
@@ -186,20 +186,20 @@ public class CosmeticsGui extends GUI {
         guiItem.setMaterial(guiItem.getMaterial() == null ? Material.NETHER_STAR : guiItem.getMaterial());
 
         Player player = profile.getPlayer().getPlayer();
-        int totalPatternPermissions = ArmorTrimPermissionManager.getRegisteredPatterns().size();
-        int totalMaterialPermissions = ArmorTrimPermissionManager.getRegisteredMaterials().size();
+        int totalPatternPermissions = CosmeticsPermissionManager.getRegisteredPatterns().size();
+        int totalMaterialPermissions = CosmeticsPermissionManager.getRegisteredMaterials().size();
         int playerPatternPermissions = 0;
         int playerMaterialPermissions = 0;
 
         if (player != null) {
-            for (TrimPattern pattern : ArmorTrimPermissionManager.getRegisteredPatterns()) {
-                if (player.hasPermission("zpp.cosmetics.pattern." + getPermissionId(pattern))) {
+            for (TrimPattern pattern : CosmeticsPermissionManager.getRegisteredPatterns()) {
+                if (player.hasPermission("zpp.cosmetics.armortrim.pattern." + getPermissionId(pattern))) {
                     playerPatternPermissions++;
                 }
             }
 
-            for (TrimMaterial material : ArmorTrimPermissionManager.getRegisteredMaterials()) {
-                if (player.hasPermission("zpp.cosmetics.material." + getPermissionId(material))) {
+            for (TrimMaterial material : CosmeticsPermissionManager.getRegisteredMaterials()) {
+                if (player.hasPermission("zpp.cosmetics.armortrim.material." + getPermissionId(material))) {
                     playerMaterialPermissions++;
                 }
             }
@@ -269,11 +269,11 @@ public class CosmeticsGui extends GUI {
 
     private static String getPermissionId(Object trimValue) {
         if (trimValue instanceof TrimPattern trimPattern) {
-            return ArmorTrimPermissionManager.getTrimId(trimPattern);
+            return CosmeticsPermissionManager.getTrimId(trimPattern);
         }
 
         if (trimValue instanceof TrimMaterial trimMaterial) {
-            return ArmorTrimPermissionManager.getTrimId(trimMaterial);
+            return CosmeticsPermissionManager.getTrimId(trimMaterial);
         }
 
         return "unknown";

@@ -1,5 +1,7 @@
 package dev.nandi0813.practice.manager.profile.cosmetics;
 
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorTrimTier;
+import dev.nandi0813.practice.manager.profile.cosmetics.deatheffect.DeathEffect;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
@@ -14,17 +16,29 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum ArmorTrimPermissionManager {
+public enum CosmeticsPermissionManager {
     ;
+
+    private static final int MAX_SHIELD_LAYOUTS = 21;
 
     private static final List<TrimPattern> REGISTERED_PATTERNS = new ArrayList<>();
     private static final List<TrimMaterial> REGISTERED_MATERIALS = new ArrayList<>();
+    private static final List<DeathEffect> REGISTERED_DEATH_EFFECTS = new ArrayList<>();
     private static final Map<TrimPattern, String> PATTERN_IDS = new HashMap<>();
     private static final Map<TrimMaterial, String> MATERIAL_IDS = new HashMap<>();
     private static final Pattern NAMESPACE_PATTERN = Pattern.compile("([a-z0-9_.-]+):([a-z0-9_./-]+)");
 
     public static void registerAllPermissions() {
         PluginManager pluginManager = Bukkit.getPluginManager();
+
+        registerPermission(pluginManager, "zpp.cosmetics.shield.use", "Use shield cosmetics.");
+        registerPermission(pluginManager, "zpp.cosmetics.shield.layouts.*", "Use all shield layout slots.");
+        registerPermission(pluginManager, "zpp.cosmetics.shield.layouts.unlimited", "Use unlimited shield layouts.");
+        for (int layouts = 1; layouts <= MAX_SHIELD_LAYOUTS; layouts++) {
+            registerPermission(pluginManager,
+                    "zpp.cosmetics.shield.layouts." + layouts,
+                    "Use up to " + layouts + " shield layouts.");
+        }
 
         for (ArmorTrimTier tier : ArmorTrimTier.values()) {
             registerPermission(pluginManager, tier.getPermissionNode(), "Use " + tier.getDisplayName() + " armor tier cosmetics.");
@@ -43,7 +57,7 @@ public enum ArmorTrimPermissionManager {
             REGISTERED_PATTERNS.add(pattern);
             PATTERN_IDS.put(pattern, id);
             registerPermission(pluginManager,
-                    "zpp.cosmetics.pattern." + id,
+                    "zpp.cosmetics.armortrim.pattern." + id,
                     "Use armor trim pattern " + id + ".");
         });
 
@@ -60,12 +74,19 @@ public enum ArmorTrimPermissionManager {
             REGISTERED_MATERIALS.add(material);
             MATERIAL_IDS.put(material, id);
             registerPermission(pluginManager,
-                    "zpp.cosmetics.material." + id,
+                    "zpp.cosmetics.armortrim.material." + id,
                     "Use armor trim material " + id + ".");
         });
 
-        REGISTERED_PATTERNS.sort(Comparator.comparing(ArmorTrimPermissionManager::getTrimId));
-        REGISTERED_MATERIALS.sort(Comparator.comparing(ArmorTrimPermissionManager::getTrimId));
+        REGISTERED_PATTERNS.sort(Comparator.comparing(CosmeticsPermissionManager::getTrimId));
+        REGISTERED_MATERIALS.sort(Comparator.comparing(CosmeticsPermissionManager::getTrimId));
+
+        REGISTERED_DEATH_EFFECTS.clear();
+        for (DeathEffect deathEffect : DeathEffect.values()) {
+            String node = getDeathEffectPermissionNode(deathEffect);
+            REGISTERED_DEATH_EFFECTS.add(deathEffect);
+            registerPermission(pluginManager, node, "Use death effect " + deathEffect.getId() + ".");
+        }
     }
 
     public static List<TrimPattern> getRegisteredPatterns() {
@@ -76,13 +97,17 @@ public enum ArmorTrimPermissionManager {
         return Collections.unmodifiableList(REGISTERED_MATERIALS);
     }
 
+    public static List<DeathEffect> getRegisteredDeathEffects() {
+        return Collections.unmodifiableList(REGISTERED_DEATH_EFFECTS);
+    }
+
     public static boolean hasBasePermission(Player player, ArmorTrimTier tier) {
         if (player == null || tier == null) {
             return false;
         }
 
         return player.isOp()
-                || player.hasPermission("zpp.cosmetics.base.*")
+                || player.hasPermission("zpp.cosmetics.armortrim.base.*")
                 || player.hasPermission(tier.getPermissionNode());
     }
 
@@ -91,7 +116,7 @@ public enum ArmorTrimPermissionManager {
             return false;
         }
 
-        return hasPatternPermission(player, "zpp.cosmetics.pattern." + getTrimId(pattern));
+        return hasPatternPermission(player, "zpp.cosmetics.armortrim.pattern." + getTrimId(pattern));
     }
 
     public static boolean hasPatternPermission(Player player, String node) {
@@ -100,7 +125,7 @@ public enum ArmorTrimPermissionManager {
         }
 
         return player.isOp()
-                || player.hasPermission("zpp.cosmetics.pattern.*")
+                || player.hasPermission("zpp.cosmetics.armortrim.pattern.*")
                 || player.hasPermission(node);
     }
 
@@ -109,7 +134,7 @@ public enum ArmorTrimPermissionManager {
             return false;
         }
 
-        return hasMaterialPermission(player, "zpp.cosmetics.material." + getTrimId(material));
+        return hasMaterialPermission(player, "zpp.cosmetics.armortrim.material." + getTrimId(material));
     }
 
     public static boolean hasMaterialPermission(Player player, String node) {
@@ -118,8 +143,58 @@ public enum ArmorTrimPermissionManager {
         }
 
         return player.isOp()
-                || player.hasPermission("zpp.cosmetics.material.*")
+                || player.hasPermission("zpp.cosmetics.armortrim.material.*")
                 || player.hasPermission(node);
+    }
+
+    public static String getDeathEffectPermissionNode(DeathEffect deathEffect) {
+        String id = deathEffect == null ? "none" : deathEffect.getId();
+        return DeathEffect.getPermissionNode(sanitizeId(id));
+    }
+
+    public static boolean hasDeathEffectPermission(Player player, DeathEffect deathEffect) {
+        if (player == null || deathEffect == null) {
+            return false;
+        }
+
+        if (deathEffect == DeathEffect.NONE) {
+            return true;
+        }
+
+        return player.isOp()
+                || player.hasPermission(DeathEffect.getPermissionNode("*"))
+                || player.hasPermission(getDeathEffectPermissionNode(deathEffect));
+    }
+
+    public static boolean hasShieldPermission(Player player) {
+        if (player == null) {
+            return false;
+        }
+
+        return player.isOp()
+                || player.hasPermission("zpp.cosmetics.shield.*")
+                || player.hasPermission("zpp.cosmetics.shield.use");
+    }
+
+    public static int getMaxShieldLayouts(Player player) {
+        if (player == null) {
+            return 1;
+        }
+
+        if (player.isOp()
+                || player.hasPermission("zpp.cosmetics.shield.*")
+                || player.hasPermission("zpp.cosmetics.shield.layouts.*")
+                || player.hasPermission("zpp.cosmetics.shield.layouts.unlimited")) {
+            return MAX_SHIELD_LAYOUTS;
+        }
+
+        for (int layouts = MAX_SHIELD_LAYOUTS; layouts >= 1; layouts--) {
+            if (player.hasPermission("zpp.cosmetics.shield.layouts." + layouts)) {
+                return layouts;
+            }
+        }
+
+        return 1;
     }
 
     public static String getTrimId(TrimPattern pattern) {
@@ -171,6 +246,9 @@ public enum ArmorTrimPermissionManager {
     }
 
     private static String sanitizeId(String value) {
+        if (value == null || value.isBlank()) {
+            return "unknown";
+        }
         return value.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_]+", "");
     }
 
@@ -182,5 +260,7 @@ public enum ArmorTrimPermissionManager {
         pluginManager.addPermission(new Permission(node, description, PermissionDefault.OP));
     }
 }
+
+
 
 

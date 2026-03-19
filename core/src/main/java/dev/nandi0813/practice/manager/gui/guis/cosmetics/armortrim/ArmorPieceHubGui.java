@@ -1,13 +1,13 @@
-package dev.nandi0813.practice.manager.gui.guis.cosmetics;
+package dev.nandi0813.practice.manager.gui.guis.cosmetics.armortrim;
 
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.profile.Profile;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorSlot;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimPermissionManager;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimTier;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorSlot;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorTrimTier;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -132,7 +132,7 @@ public class ArmorPieceHubGui extends GUI {
     private ItemStack buildPatternSelectionItem(TrimPattern activePattern) {
         Material buttonMaterial = DEFAULT_PATTERN_BUTTON_MATERIAL;
         if (activePattern != null) {
-            String patternId = ArmorTrimPermissionManager.getTrimId(activePattern);
+            String patternId = CosmeticsPermissionManager.getTrimId(activePattern);
             Material activePatternMaterial = resolveMaterial(patternId.toUpperCase(Locale.ROOT) + "_ARMOR_TRIM_SMITHING_TEMPLATE");
             if (activePatternMaterial != null) {
                 buttonMaterial = activePatternMaterial;
@@ -147,7 +147,7 @@ public class ArmorPieceHubGui extends GUI {
     private ItemStack buildMaterialSelectionItem(TrimMaterial activeMaterial) {
         Material buttonMaterial = DEFAULT_MATERIAL_BUTTON_MATERIAL;
         if (activeMaterial != null) {
-            Material activeMaterialIcon = resolveTrimMaterialIcon(ArmorTrimPermissionManager.getTrimId(activeMaterial));
+            Material activeMaterialIcon = resolveTrimMaterialIcon(CosmeticsPermissionManager.getTrimId(activeMaterial));
             if (activeMaterialIcon != null) {
                 buttonMaterial = activeMaterialIcon;
             }

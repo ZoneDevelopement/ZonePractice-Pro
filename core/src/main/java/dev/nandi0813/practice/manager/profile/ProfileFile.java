@@ -6,9 +6,11 @@ import dev.nandi0813.practice.manager.fight.match.util.CustomKit;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorSlot;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimPermissionManager;
-import dev.nandi0813.practice.manager.profile.cosmetics.ArmorTrimTier;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorSlot;
+import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorTrimTier;
+import dev.nandi0813.practice.manager.profile.cosmetics.deatheffect.DeathEffect;
+import dev.nandi0813.practice.manager.profile.cosmetics.shield.ShieldLayout;
 import dev.nandi0813.practice.manager.profile.enums.ProfileWorldTime;
 import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.manager.profile.group.GroupManager;
@@ -22,9 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ProfileFile extends ConfigFile {
 
@@ -73,6 +73,13 @@ public class ProfileFile extends ConfigFile {
         // Cosmetics data for armor trims
         if (profile.getCosmeticsData() != null) {
             config.set("cosmetics.active-tier", profile.getCosmeticsData().getActiveTier().getId());
+            config.set("cosmetics.death-effect", profile.getCosmeticsData().getDeathEffect().getId());
+            config.set("cosmetics.shield.active-layout-index", profile.getCosmeticsData().getActiveShieldLayoutIndex());
+
+            List<String> serializedShieldLayouts = profile.getCosmeticsData().getShieldLayouts().stream()
+                    .map(ShieldLayout::serialise)
+                    .toList();
+            config.set("cosmetics.shield.layouts", serializedShieldLayouts);
 
             for (ArmorTrimTier tier : ArmorTrimTier.values()) {
                 for (ArmorSlot slot : ArmorSlot.values()) {
@@ -80,14 +87,14 @@ public class ProfileFile extends ConfigFile {
 
                     TrimPattern pattern = profile.getCosmeticsData().getPattern(tier, slot);
                     if (pattern != null) {
-                        config.set(basePath + ".pattern", "minecraft:" + ArmorTrimPermissionManager.getTrimId(pattern));
+                        config.set(basePath + ".pattern", "minecraft:" + CosmeticsPermissionManager.getTrimId(pattern));
                     } else {
                         config.set(basePath + ".pattern", null);
                     }
 
                     TrimMaterial material = profile.getCosmeticsData().getMaterial(tier, slot);
                     if (material != null) {
-                        config.set(basePath + ".material", "minecraft:" + ArmorTrimPermissionManager.getTrimId(material));
+                        config.set(basePath + ".material", "minecraft:" + CosmeticsPermissionManager.getTrimId(material));
                     } else {
                         config.set(basePath + ".material", null);
                     }
@@ -192,6 +199,22 @@ public class ProfileFile extends ConfigFile {
         try {
             ArmorTrimTier activeTier = ArmorTrimTier.fromId(config.getString("cosmetics.active-tier", "leather"));
             profile.getCosmeticsData().setActiveTier(activeTier);
+            profile.getCosmeticsData().setDeathEffect(DeathEffect.fromId(config.getString("cosmetics.death-effect", "none")));
+
+            List<ShieldLayout> shieldLayouts = new ArrayList<>();
+            for (String serializedLayout : config.getStringList("cosmetics.shield.layouts")) {
+                ShieldLayout layout = ShieldLayout.deserialise(serializedLayout);
+                if (layout != null) {
+                    shieldLayouts.add(layout);
+                }
+            }
+            profile.getCosmeticsData().setShieldLayouts(shieldLayouts);
+
+            int activeShieldLayoutIndex = config.getInt("cosmetics.shield.active-layout-index", -1);
+            if (activeShieldLayoutIndex < -1 || activeShieldLayoutIndex >= shieldLayouts.size()) {
+                activeShieldLayoutIndex = -1;
+            }
+            profile.getCosmeticsData().setActiveShieldLayoutIndex(activeShieldLayoutIndex);
 
             boolean loadedTierData = false;
             for (ArmorTrimTier tier : ArmorTrimTier.values()) {
