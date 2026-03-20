@@ -28,5 +28,6 @@ public enum SettingType {
     RESET_BUILD_AFTER_ROUND,
     BREAK_ALL_BLOCKS,
     SPLEEF_SNOWBALL_MODE,
+    BLOCK_RETURN_DELAY,
 
 }

@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -213,70 +212,6 @@ public class PlayerUtil {
 
             player.setVelocity(velocity);
         }, 1L);
-    }
-
-    public static void applyMlgRushTntKnockback(Player player, TNTPrimed tnt) {
-        final Location playerLoc = player.getLocation();
-        final Location tntLoc = tnt.getLocation();
-        final float yield = tnt.getYield();
-
-        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-            double distance = playerLoc.distance(tntLoc);
-
-            double impactRadius = (yield > 0 ? yield : 4.0) * 2.0;
-            double factor = 1.0 - (distance / impactRadius);
-            if (factor <= 0.1) {
-                return;
-            }
-            if (factor > 1) {
-                factor = 1;
-            }
-
-            double dx = playerLoc.getX() - tntLoc.getX();
-            double dz = playerLoc.getZ() - tntLoc.getZ();
-            double horizontalLen = Math.sqrt(dx * dx + dz * dz);
-
-            Vector direction;
-            if (horizontalLen < 0.001) {
-                Vector facing = playerLoc.getDirection();
-                direction = new Vector(facing.getX(), 0, facing.getZ());
-                if (direction.lengthSquared() < 0.0001) {
-                    direction = new Vector(0, 0, 0);
-                } else {
-                    direction.normalize();
-                }
-            } else {
-                direction = new Vector(dx / horizontalLen, 0, dz / horizontalLen);
-            }
-
-            Vector velocity = getVector(player, direction, factor);
-
-            player.setVelocity(velocity);
-        }, 1L);
-    }
-
-    private static @NonNull Vector getVector(Player player, Vector direction, double factor) {
-        Vector currentVelocity = player.getVelocity();
-        double horizontalSpeed = Math.sqrt(
-                currentVelocity.getX() * currentVelocity.getX()
-                        + currentVelocity.getZ() * currentVelocity.getZ()
-        );
-
-        boolean grounded = player.isOnGround();
-        double horizontalMultiplier = grounded ? 0.65 : 1.7;
-        double verticalMultiplier = grounded ? 0.55 : 1.35;
-
-        if (!grounded && horizontalSpeed > 0.2) {
-            double speedBoost = Math.min(0.9, horizontalSpeed * 1.2);
-            horizontalMultiplier += speedBoost;
-            verticalMultiplier += speedBoost * 0.5;
-        }
-
-        return new Vector(
-                direction.getX() * TNT_VELOCITY_HORIZONTAL_MULTIPLICATIVE * factor * horizontalMultiplier,
-                TNT_VELOCITY_VERTICAL_MULTIPLICATIVE * factor * verticalMultiplier,
-                direction.getZ() * TNT_VELOCITY_HORIZONTAL_MULTIPLICATIVE * factor * horizontalMultiplier
-        );
     }
 
     public static void setAttackSpeed(Player player, int hitDelay) {

@@ -162,6 +162,7 @@ public enum LadderType {
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
+            .withSetting(SettingType.BLOCK_RETURN_DELAY)
     ),
 
     BRIDGES(LadderTypeConfig.builder(

@@ -10,35 +10,47 @@ import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.interfaces.PlayerWinner;
 import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
 import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersVsPlayersRound;
-import dev.nandi0813.practice.manager.fight.util.*;
+import dev.nandi0813.practice.manager.fight.util.BedUtil;
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
+import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
+import dev.nandi0813.practice.manager.fight.util.DeathCause;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.BlockReturnDelay;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.BedFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
-public class MLGRush extends BedFight implements LadderHandle {
+public class MLGRush extends BedFight implements LadderHandle, CustomConfig, BlockReturnDelay {
 
-    private static final int TNT_LIMIT = 10;
-    private static final long TNT_RETURN_DELAY_TICKS = 60L;
+    private static final int PLACE_BLOCK_LIMIT = 64;
+    private static final String BLOCK_RETURN_DELAY_SECONDS_PATH = "block-return-delay-seconds";
+    private static final int DEFAULT_BLOCK_RETURN_DELAY_SECONDS = 3;
+    private static final int MIN_BLOCK_RETURN_DELAY_SECONDS = 0;
+    private static final int MAX_BLOCK_RETURN_DELAY_SECONDS = 30;
+
+    private int blockReturnDelaySeconds;
 
     public MLGRush(String name, LadderType type) {
         super(name, type);
@@ -63,6 +75,41 @@ public class MLGRush extends BedFight implements LadderHandle {
     @Override
     public void setRespawnTime(int respawnTime) {
         this.respawnTime = 0;
+    }
+
+    @Override
+    public void setCustomConfig(YamlConfiguration config) {
+        config.set(BLOCK_RETURN_DELAY_SECONDS_PATH, blockReturnDelaySeconds);
+    }
+
+    @Override
+    public void getCustomConfig(YamlConfiguration config) {
+        if (config.isInt(BLOCK_RETURN_DELAY_SECONDS_PATH)) {
+            int delay = config.getInt(BLOCK_RETURN_DELAY_SECONDS_PATH);
+            if (delay < MIN_BLOCK_RETURN_DELAY_SECONDS || delay > MAX_BLOCK_RETURN_DELAY_SECONDS) {
+                delay = DEFAULT_BLOCK_RETURN_DELAY_SECONDS;
+            }
+            this.blockReturnDelaySeconds = delay;
+            return;
+        }
+
+        this.blockReturnDelaySeconds = DEFAULT_BLOCK_RETURN_DELAY_SECONDS;
+    }
+
+    @Override
+    public int getBlockReturnDelaySeconds() {
+        return blockReturnDelaySeconds;
+    }
+
+    @Override
+    public void setBlockReturnDelaySeconds(int delaySeconds) {
+        if (delaySeconds < MIN_BLOCK_RETURN_DELAY_SECONDS) {
+            delaySeconds = MIN_BLOCK_RETURN_DELAY_SECONDS;
+        } else if (delaySeconds > MAX_BLOCK_RETURN_DELAY_SECONDS) {
+            delaySeconds = MAX_BLOCK_RETURN_DELAY_SECONDS;
+        }
+
+        this.blockReturnDelaySeconds = delaySeconds;
     }
 
     @Override
@@ -100,12 +147,6 @@ public class MLGRush extends BedFight implements LadderHandle {
             return;
         }
 
-        if (e instanceof EntityDamageByEntityEvent damageByEntityEvent
-                && damageByEntityEvent.getDamager() instanceof TNTPrimed tnt) {
-            onTntDamage(damageByEntityEvent, player, tnt, match);
-            return;
-        }
-
         if (e.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
             e.setDamage(0);
             match.killPlayer(player, null, DeathCause.VOID.getMessage());
@@ -123,16 +164,6 @@ public class MLGRush extends BedFight implements LadderHandle {
     private static void onBlockPlace(final @NotNull BlockPlaceEvent e, final @NotNull Match match) {
         Block block = e.getBlockPlaced();
 
-        if (block.getType().equals(Material.TNT)) {
-            LadderUtil.placeTnt(e, match);
-            scheduleTntReturn(e, match);
-            return;
-        }
-
-        if (block.getType().toString().endsWith("_TERRACOTTA")) {
-            block.setType(getTeamTerracotta(match, e.getPlayer()), false);
-        }
-
         BlockUtil.setMetadata(block, PLACED_IN_FIGHT, match);
         match.addBlockChange(new ChangedBlock(e));
 
@@ -140,25 +171,19 @@ public class MLGRush extends BedFight implements LadderHandle {
         if (ArenaUtil.turnsToDirt(underBlock)) {
             match.getFightChange().addArenaBlockChange(new ChangedBlock(underBlock));
         }
+
+        MLGRush mlgRush = (MLGRush) match.getLadder();
+        long delayTicks = mlgRush.getBlockReturnDelaySeconds() * 20L;
+        scheduleMaterialReturn(e, match, block.getType(), delayTicks, e.getHand());
     }
 
-    private static void onTntDamage(
-            final @NotNull EntityDamageByEntityEvent e,
-            final @NotNull Player player,
-            final @NotNull TNTPrimed tnt,
-            final @NotNull Match match
+    private static void scheduleMaterialReturn(
+            final @NotNull BlockPlaceEvent e,
+            final @NotNull Match match,
+            final @NotNull Material material,
+            final long delayTicks,
+            final EquipmentSlot hand
     ) {
-        Match metadataMatch = BlockUtil.getMetadata(tnt, dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY, Match.class);
-        if (ListenerUtil.checkMetaData(metadataMatch) || metadataMatch != match) {
-            return;
-        }
-
-        e.setCancelled(true);
-        e.setDamage(0);
-        PlayerUtil.applyMlgRushTntKnockback(player, tnt);
-    }
-
-    private static void scheduleTntReturn(final @NotNull BlockPlaceEvent e, final @NotNull Match match) {
         Player player = e.getPlayer();
         BukkitScheduler scheduler = ZonePractice.getInstance().getServer().getScheduler();
 
@@ -176,23 +201,53 @@ public class MLGRush extends BedFight implements LadderHandle {
                     return;
                 }
 
-                if (countMaterial(player) >= TNT_LIMIT) {
+                if (countMaterial(player, material) >= PLACE_BLOCK_LIMIT) {
                     return;
                 }
 
-                player.getInventory().addItem(new ItemStack(Material.TNT, 1));
+                giveReturnedMaterial(player, material, hand);
                 player.updateInventory();
-            }, TNT_RETURN_DELAY_TICKS);
+            }, delayTicks);
         }, 2L);
     }
 
-    private static int countMaterial(@NotNull Player player) {
+    private static void giveReturnedMaterial(@NotNull Player player, @NotNull Material material, EquipmentSlot hand) {
+        PlayerInventory inventory = player.getInventory();
+        ItemStack toReturn = new ItemStack(material, 1);
+
+        if (hand == EquipmentSlot.OFF_HAND) {
+            ItemStack offHand = inventory.getItemInOffHand();
+            if (offHand.getType().isAir()) {
+                inventory.setItemInOffHand(toReturn);
+                return;
+            }
+
+            if (offHand.isSimilar(toReturn) && offHand.getAmount() < offHand.getMaxStackSize()) {
+                offHand.setAmount(offHand.getAmount() + 1);
+                inventory.setItemInOffHand(offHand);
+                return;
+            }
+        }
+
+        Map<Integer, ItemStack> overflow = inventory.addItem(toReturn);
+        if (!overflow.isEmpty()) {
+            overflow.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+        }
+    }
+
+    private static int countMaterial(@NotNull Player player, @NotNull Material material) {
         int amount = 0;
-        for (ItemStack itemStack : player.getInventory().getContents()) {
-            if (itemStack != null && itemStack.getType().equals(Material.TNT)) {
+        for (ItemStack itemStack : player.getInventory().getStorageContents()) {
+            if (itemStack != null && itemStack.getType().equals(material)) {
                 amount += itemStack.getAmount();
             }
         }
+
+        ItemStack offHand = player.getInventory().getItemInOffHand();
+        if (offHand.getType().equals(material)) {
+            amount += offHand.getAmount();
+        }
+
         return amount;
     }
 
@@ -228,24 +283,12 @@ public class MLGRush extends BedFight implements LadderHandle {
         }
 
         TeamEnum scorerTeam = teamMatch.getTeam(scorer);
-        if (ListenerUtil.checkMetaData(match)) {
-            return;
-        }
 
         match.teleportPlayer(scorer);
         playersVsPlayersRound.setRoundWinner(scorerTeam);
         round.endRound();
     }
 
-    private static Material getTeamTerracotta(@NotNull Match match, @NotNull Player player) {
-        if (!(match instanceof Team teamMatch)) {
-            return Material.WHITE_TERRACOTTA;
-        }
-
-        return teamMatch.getTeam(player).equals(TeamEnum.TEAM1)
-                ? Material.RED_TERRACOTTA
-                : Material.BLUE_TERRACOTTA;
-    }
 }
 
 

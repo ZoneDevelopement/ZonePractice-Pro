@@ -1,4 +1,4 @@
-VERSION: 17
+VERSION: 18
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -2246,6 +2246,16 @@ GUIS:
               - ""
               - "&7All blocks placed during the match."
               - "&7will disappear after this time"
+              - ""
+              - "&a&lLEFT-CLICK &ato reduce the delay."
+              - "&b&lRIGHT-CLICK &bto increase the delay."
+          BLOCK-RETURN-DELAY:
+            NAME: "&7Block Return Delay: &6%blockReturnDelay% sec"
+            MATERIAL: BLUE_TERRACOTTA
+            LORE:
+              - ""
+              - "&7After placing a block, this is how long"
+              - "&7it takes before the player gets 1 back."
               - ""
               - "&a&lLEFT-CLICK &ato reduce the delay."
               - "&b&lRIGHT-CLICK &bto increase the delay."

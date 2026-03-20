@@ -217,6 +217,9 @@ public class SettingsGui extends GUI {
 
         if (settingTypes.contains(SettingType.SPLEEF_SNOWBALL_MODE))
             settingItems.add(new SpleefSnowballModeItem(this, (dev.nandi0813.practice.manager.ladder.type.Spleef) ladder));
+
+        if (settingTypes.contains(SettingType.BLOCK_RETURN_DELAY))
+            settingItems.add(new BlockReturnDelayItem(this, ladder));
     }
 
 }
