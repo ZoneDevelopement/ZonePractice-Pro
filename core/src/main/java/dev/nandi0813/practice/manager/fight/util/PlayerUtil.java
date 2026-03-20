@@ -13,18 +13,27 @@ import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PlayerUtil {
 
+    private static final String TNT_SUMO_CONFIG_PATH = "MATCH-SETTINGS.TNT-SUMO.EXPLOSION.";
+
     private static final double TNT_VELOCITY_HORIZONTAL_MULTIPLICATIVE = ConfigManager.getDouble("MATCH-SETTINGS.FIREBALL-FIGHT.EXPLOSION.TNT.HORIZONTAL");
     private static final double TNT_VELOCITY_VERTICAL_MULTIPLICATIVE = ConfigManager.getDouble("MATCH-SETTINGS.FIREBALL-FIGHT.EXPLOSION.TNT.VERTICAL");
+
     private static final double FB_VELOCITY_HORIZONTAL_MULTIPLICATIVE = ConfigManager.getDouble("MATCH-SETTINGS.FIREBALL-FIGHT.EXPLOSION.FIREBALL.HORIZONTAL");
     private static final double FB_VELOCITY_VERTICAL_MULTIPLICATIVE = ConfigManager.getDouble("MATCH-SETTINGS.FIREBALL-FIGHT.EXPLOSION.FIREBALL.VERTICAL");
-    
+
+    private static final double TNT_SUMO_HORIZONTAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "HORIZONTAL", 0.9);
+    private static final double TNT_SUMO_VERTICAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "VERTICAL", 1.5);
+    private static final double TNT_SUMO_AIR_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "AIR-MULTIPLIER", 2.2);
+
     public static ItemStack getPlayerMainHand(Player player) {
         return player.getInventory().getItemInMainHand();
     }
@@ -212,6 +221,112 @@ public class PlayerUtil {
 
             player.setVelocity(velocity);
         }, 1L);
+    }
+
+    public static void applyTntSumoKnockback(Player player, TNTPrimed tnt) {
+        final Location playerLoc = player.getLocation();
+        final Location tntLoc = tnt.getLocation();
+        final float yield = tnt.getYield() > 0 ? tnt.getYield() : 4.0f;
+        final boolean wasOnGround = player.isOnGround();
+
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            // If player is on the ground, set velocity to zero to negate any knockback
+            if (wasOnGround) {
+                player.setVelocity(new Vector(0, 0, 0));
+                return;
+            }
+
+            double dx = playerLoc.getX() - tntLoc.getX();
+            double dz = playerLoc.getZ() - tntLoc.getZ();
+
+            double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
+            double impactRadius = yield * 2.2;
+            double factor = 1.0 - (horizontalDistance / impactRadius);
+
+            if (factor <= 0.1) {
+                return;
+            }
+            if (factor > 1.0) {
+                factor = 1.0;
+            }
+
+            double dirX;
+            double dirZ;
+            if (horizontalDistance < 0.001) {
+                Vector facing = playerLoc.getDirection();
+                double facingHorizontalLength = Math.sqrt(facing.getX() * facing.getX() + facing.getZ() * facing.getZ());
+
+                if (facingHorizontalLength < 0.001) {
+                    dirX = 0;
+                    dirZ = 0;
+                } else {
+                    dirX = facing.getX() / facingHorizontalLength;
+                    dirZ = facing.getZ() / facingHorizontalLength;
+                }
+            } else {
+                dirX = dx / horizontalDistance;
+                dirZ = dz / horizontalDistance;
+            }
+
+            Vector velocity = new Vector(
+                    dirX * TNT_SUMO_HORIZONTAL_MULTIPLIER * factor * TNT_SUMO_AIR_MULTIPLIER,
+                    TNT_SUMO_VERTICAL_MULTIPLIER * factor * TNT_SUMO_AIR_MULTIPLIER,
+                    dirZ * TNT_SUMO_HORIZONTAL_MULTIPLIER * factor * TNT_SUMO_AIR_MULTIPLIER
+            );
+
+            player.setVelocity(velocity);
+        }, 1L);
+    }
+
+    private static double getDoubleOrDefault(String path, double defaultValue) {
+        if (ConfigManager.getConfig().isDouble(path) || ConfigManager.getConfig().isInt(path)) {
+            return ConfigManager.getDouble(path);
+        }
+        return defaultValue;
+    }
+
+    public static void returnItemToCurrentSlotOrInventory(Player player, ItemStack itemStack) {
+        if (player == null || itemStack == null || itemStack.getType().isAir()) {
+            return;
+        }
+
+        PlayerInventory inventory = player.getInventory();
+        ItemStack remaining = itemStack.clone();
+
+        ItemStack[] storage = inventory.getStorageContents();
+        for (int i = 0; i < storage.length && remaining.getAmount() > 0; i++) {
+            ItemStack current = storage[i];
+            if (current == null || current.getType().isAir() || !current.isSimilar(remaining)) {
+                continue;
+            }
+
+            int space = current.getMaxStackSize() - current.getAmount();
+            if (space <= 0) {
+                continue;
+            }
+
+            int moved = Math.min(space, remaining.getAmount());
+            current.setAmount(current.getAmount() + moved);
+            inventory.setItem(i, current);
+            remaining.setAmount(remaining.getAmount() - moved);
+        }
+
+        if (remaining.getAmount() > 0) {
+            ItemStack offHand = inventory.getItemInOffHand();
+            if (offHand.isSimilar(remaining) && offHand.getAmount() < offHand.getMaxStackSize()) {
+                int moved = Math.min(offHand.getMaxStackSize() - offHand.getAmount(), remaining.getAmount());
+                offHand.setAmount(offHand.getAmount() + moved);
+                inventory.setItemInOffHand(offHand);
+                remaining.setAmount(remaining.getAmount() - moved);
+            }
+        }
+
+        if (remaining.getAmount() > 0) {
+            Map<Integer, ItemStack> overflow = inventory.addItem(remaining);
+            if (!overflow.isEmpty()) {
+                overflow.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+            }
+        }
     }
 
     public static void setAttackSpeed(Player player, int hitDelay) {

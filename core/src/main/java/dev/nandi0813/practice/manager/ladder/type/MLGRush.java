@@ -10,10 +10,7 @@ import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.interfaces.PlayerWinner;
 import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
 import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersVsPlayersRound;
-import dev.nandi0813.practice.manager.fight.util.BedUtil;
-import dev.nandi0813.practice.manager.fight.util.BlockUtil;
-import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
-import dev.nandi0813.practice.manager.fight.util.DeathCause;
+import dev.nandi0813.practice.manager.fight.util.*;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.BlockReturnDelay;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
@@ -32,13 +29,9 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
@@ -49,6 +42,10 @@ public class MLGRush extends BedFight implements LadderHandle, CustomConfig, Blo
     private static final int DEFAULT_BLOCK_RETURN_DELAY_SECONDS = 3;
     private static final int MIN_BLOCK_RETURN_DELAY_SECONDS = 0;
     private static final int MAX_BLOCK_RETURN_DELAY_SECONDS = 30;
+    
+    private static final String MLGRUSH_BLOCK_OWNER = "ZONEPRACTICE_PRO_MLGRUSH_BLOCK_OWNER";
+    private static final String MLGRUSH_BLOCK_MATERIAL = "ZONEPRACTICE_PRO_MLGRUSH_BLOCK_MATERIAL";
+    private static final String MLGRUSH_BLOCK_ITEM = "ZONEPRACTICE_PRO_MLGRUSH_BLOCK_ITEM";
 
     private int blockReturnDelaySeconds;
 
@@ -113,6 +110,11 @@ public class MLGRush extends BedFight implements LadderHandle, CustomConfig, Blo
     }
 
     @Override
+    public String getContextTargetForBlockReturn() {
+        return "Block";
+    }
+
+    @Override
     public boolean handleEvents(Event e, Match match) {
         if (e instanceof EntityDamageEvent) {
             onPlayerDamage((EntityDamageEvent) e, match);
@@ -163,8 +165,13 @@ public class MLGRush extends BedFight implements LadderHandle, CustomConfig, Blo
 
     private static void onBlockPlace(final @NotNull BlockPlaceEvent e, final @NotNull Match match) {
         Block block = e.getBlockPlaced();
+        Player player = e.getPlayer();
+        ItemStack returnItem = createPlacedReturnItem(e, block.getType());
 
         BlockUtil.setMetadata(block, PLACED_IN_FIGHT, match);
+        BlockUtil.setMetadata(block, MLGRUSH_BLOCK_OWNER, player.getUniqueId());
+        BlockUtil.setMetadata(block, MLGRUSH_BLOCK_MATERIAL, block.getType());
+        BlockUtil.setMetadata(block, MLGRUSH_BLOCK_ITEM, returnItem);
         match.addBlockChange(new ChangedBlock(e));
 
         Block underBlock = block.getLocation().subtract(0, 1, 0).getBlock();
@@ -174,17 +181,17 @@ public class MLGRush extends BedFight implements LadderHandle, CustomConfig, Blo
 
         MLGRush mlgRush = (MLGRush) match.getLadder();
         long delayTicks = mlgRush.getBlockReturnDelaySeconds() * 20L;
-        scheduleMaterialReturn(e, match, block.getType(), delayTicks, e.getHand());
+        scheduleMaterialReturn(e, match, returnItem, delayTicks);
     }
 
     private static void scheduleMaterialReturn(
             final @NotNull BlockPlaceEvent e,
             final @NotNull Match match,
-            final @NotNull Material material,
-            final long delayTicks,
-            final EquipmentSlot hand
+            final @NotNull ItemStack returnItem,
+            final long delayTicks
     ) {
         Player player = e.getPlayer();
+        Material material = returnItem.getType();
         BukkitScheduler scheduler = ZonePractice.getInstance().getServer().getScheduler();
 
         scheduler.runTaskLater(ZonePractice.getInstance(), () -> {
@@ -205,35 +212,23 @@ public class MLGRush extends BedFight implements LadderHandle, CustomConfig, Blo
                     return;
                 }
 
-                giveReturnedMaterial(player, material, hand);
+                PlayerUtil.returnItemToCurrentSlotOrInventory(player, returnItem.clone());
                 player.updateInventory();
             }, delayTicks);
         }, 2L);
     }
 
-    private static void giveReturnedMaterial(@NotNull Player player, @NotNull Material material, EquipmentSlot hand) {
-        PlayerInventory inventory = player.getInventory();
-        ItemStack toReturn = new ItemStack(material, 1);
-
-        if (hand == EquipmentSlot.OFF_HAND) {
-            ItemStack offHand = inventory.getItemInOffHand();
-            if (offHand.getType().isAir()) {
-                inventory.setItemInOffHand(toReturn);
-                return;
-            }
-
-            if (offHand.isSimilar(toReturn) && offHand.getAmount() < offHand.getMaxStackSize()) {
-                offHand.setAmount(offHand.getAmount() + 1);
-                inventory.setItemInOffHand(offHand);
-                return;
-            }
+    private static @NotNull ItemStack createPlacedReturnItem(@NotNull BlockPlaceEvent e, @NotNull Material fallbackMaterial) {
+        ItemStack placedItem = e.getItemInHand();
+        if (placedItem.getType().isAir()) {
+            return new ItemStack(fallbackMaterial, 1);
         }
 
-        Map<Integer, ItemStack> overflow = inventory.addItem(toReturn);
-        if (!overflow.isEmpty()) {
-            overflow.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
-        }
+        ItemStack clone = placedItem.clone();
+        clone.setAmount(1);
+        return clone;
     }
+
 
     private static int countMaterial(@NotNull Player player, @NotNull Material material) {
         int amount = 0;

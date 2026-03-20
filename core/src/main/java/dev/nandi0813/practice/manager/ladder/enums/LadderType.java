@@ -23,6 +23,7 @@ public enum LadderType {
             )
             .withMovementSettings()
             .withTeamSettings()
+            .withRegenSettings()
             .withCommonSettings()
             .withPearlSettings()
     ),
@@ -36,6 +37,7 @@ public enum LadderType {
             .withBuild()
             .withMovementSettings()
             .withTeamSettings()
+            .withRegenSettings()
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
@@ -50,6 +52,19 @@ public enum LadderType {
             .withTeamSettings()
             .withCommonSettings()
             .withPearlSettings()
+    ),
+
+    TNT_SUMO(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.TNT-SUMO.NAME",
+            Material.TNT,
+                    "LADDER.LADDER-TYPES.TNT-SUMO.DESCRIPTION",
+                    TntSumo.class
+            )
+            .withBuild()
+            .withTeamSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withSetting(SettingType.BLOCK_RETURN_DELAY)
     ),
 
     BOXING(LadderTypeConfig.builder(
@@ -111,6 +126,7 @@ public enum LadderType {
             )
             .withBuild()
             .withTeamSettings()
+            .withRegenSettings()
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
@@ -127,6 +143,7 @@ public enum LadderType {
             .withBed()
             .noPartyFFA()
             .withRespawnSettings()
+            .withRegenSettings()
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
@@ -142,6 +159,8 @@ public enum LadderType {
             .withBed()
             .noPartyFFA()
             .withRespawnSettings()
+            .withRegenSettings()
+            .withRegenSettings()
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
@@ -161,7 +180,6 @@ public enum LadderType {
             .withRespawnSettings()
             .withCommonSettings()
             .withPearlSettings()
-            .withBuildSettings()
             .withSetting(SettingType.BLOCK_RETURN_DELAY)
     ),
 

@@ -40,6 +40,7 @@ public class SaveResource {
             "gapple.yml",
             "mace.yml",
             "nodebuff.yml",
+            "mlgrush.yml",
             "pearlfight.yml",
             "sg.yml",
             "skywars.yml",
@@ -47,6 +48,7 @@ public class SaveResource {
             "spear.yml",
             "spleef.yml",
             "sumo.yml",
+            "tntsumo.yml",
             "vanilla.yml"
     };
 

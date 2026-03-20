@@ -6,5 +6,7 @@ public interface BlockReturnDelay {
 
     void setBlockReturnDelaySeconds(int delaySeconds);
 
+    String getContextTargetForBlockReturn();
+
 }
 

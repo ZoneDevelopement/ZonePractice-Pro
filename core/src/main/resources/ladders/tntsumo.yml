@@ -1,0 +1,40 @@
+name: tntsumo
+enabled: true
+type: TNT_SUMO
+settings:
+  regen: false
+  hunger: false
+  weightClass: UNRANKED_AND_RANKED
+  editable: true
+  drop-inventory: false
+  multiRoundStartCountdown: true
+  hitdelay: 20
+  rounds: 1
+  maxduration: 600
+  epcooldown: 13
+  gacooldown: 0
+  fireworkcooldown: 1
+  startcountdown: 3
+  startmove: false
+  matchtypes:
+  - DUEL
+  - PARTY_FFA
+  - PARTY_SPLIT
+  - PARTY_VS_PARTY
+  knockback: DEFAULT
+  tntfusetime: 4
+  healthbelowname: false
+  resetbuildafterround: false
+  breakallblocks: false
+block-return-delay-seconds: 5
+icon:
+  ==: org.bukkit.inventory.ItemStack
+  DataVersion: 4671
+  id: minecraft:tnt
+  count: 1
+  components:
+    minecraft:custom_name: '"§cTNT §eSumo"'
+  schema_version: 1
+inventory: rO0ABXcEAAAAJHNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFwdAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFibGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAkwABGtleXN0ABJMamF2YS9sYW5nL09iamVjdDtMAAZ2YWx1ZXNxAH4ABHhwdXIAE1tMamF2YS5sYW5nLk9iamVjdDuQzlifEHMpbAIAAHhwAAAABnQAAj09dAALRGF0YVZlcnNpb250AAJpZHQABWNvdW50dAAKY29tcG9uZW50c3QADnNjaGVtYV92ZXJzaW9udXEAfgAGAAAABnQAHm9yZy5idWtraXQuaW52ZW50b3J5Lkl0ZW1TdGFja3NyABFqYXZhLmxhbmcuSW50ZWdlchLioKT3gYc4AgABSQAFdmFsdWV4cgAQamF2YS5sYW5nLk51bWJlcoaslR0LlOCLAgAAeHAAABI/dAANbWluZWNyYWZ0OnRudHNxAH4AEAAAAApzcgAXamF2YS51dGlsLkxpbmtlZEhhc2hNYXA0wE5cEGzA+wIAAVoAC2FjY2Vzc09yZGVyeHIAEWphdmEudXRpbC5IYXNoTWFwBQfawcMWYNEDAAJGAApsb2FkRmFjdG9ySQAJdGhyZXNob2xkeHA/QAAAAAAADHcIAAAAEAAAAAF0ABVtaW5lY3JhZnQ6Y3VzdG9tX25hbWV0ACciwqc2wqdsSW5zdGEtQm9vbSBUTlQgwqc3KFJpZ2h0IENsaWNrKSJ4AHNxAH4AEAAAAAFzcQB+AABzcQB+AAN1cQB+AAYAAAAFcQB+AAhxAH4ACXEAfgAKcQB+AAtxAH4ADXVxAH4ABgAAAAVxAH4AD3NxAH4AEAAAEj90ABhtaW5lY3JhZnQ6cmVkX3RlcnJhY290dGFzcQB+ABAAAABAcQB+ABpzcQB+AABzcQB+AAN1cQB+AAYAAAAGcQB+AAhxAH4ACXEAfgAKcQB+AAtxAH4ADHEAfgANdXEAfgAGAAAABnEAfgAPc3EAfgAQAAASP3QAGG1pbmVjcmFmdDp3b29kZW5fcGlja2F4ZXEAfgAac3EAfgAVP0AAAAAAAAx3CAAAABAAAAABdAAWbWluZWNyYWZ0OmVuY2hhbnRtZW50c3QAGnsibWluZWNyYWZ0OmVmZmljaWVuY3kiOjJ9eABxAH4AGnBwcHBwc3EAfgAAc3EAfgADdXEAfgAGAAAABXEAfgAIcQB+AAlxAH4ACnEAfgALcQB+AA11cQB+AAYAAAAFcQB+AA9zcQB+ABAAABI/dAAVbWluZWNyYWZ0OmVuZGVyX3BlYXJscQB+ABpxAH4AGnBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcA==
+armor: rO0ABXcEAAAABHBwcHA=
+extra: rO0ABXcEAAAAA3BwcA==

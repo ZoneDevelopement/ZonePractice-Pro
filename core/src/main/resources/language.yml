@@ -1,4 +1,4 @@
-VERSION: 21
+VERSION: 22
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1096,6 +1096,15 @@ LADDER:
         - "<gray>water or void. In addition, build "
         - "<gray>is disabled and players life and "
         - "<gray>food levels do not go down."
+        - "<dark_gray><st>----------------------------------"
+    TNT-SUMO:
+      NAME: "TNT Sumo"
+      DESCRIPTION:
+        - "<dark_gray><st>----------------------------------"
+        - "<gray>TNT explodes instantly on placement"
+        - "<gray>with custom knockback physics."
+        - "<gray>Only player-placed blocks are destroyed"
+        - "<gray>and returned to their owner."
         - "<dark_gray><st>----------------------------------"
     BOXING:
       NAME: "Boxing"

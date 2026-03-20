@@ -23,7 +23,8 @@ public class BlockReturnDelayItem extends SettingItem {
     @Override
     public void updateItemStack() {
         this.guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.BLOCK-RETURN-DELAY")
-                .replace("%blockReturnDelay%", String.valueOf(blockReturnDelay.getBlockReturnDelaySeconds()));
+                .replace("%blockReturnDelay%", String.valueOf(blockReturnDelay.getBlockReturnDelaySeconds()))
+                .replace("%blockReturnDelayTarget%", blockReturnDelay.getContextTargetForBlockReturn());
     }
 
     @Override

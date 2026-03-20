@@ -1,4 +1,4 @@
-VERSION: 22
+VERSION: 23
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -42,6 +42,7 @@ QUEUE:
           - "BATTLERUSH::10"
           - "BEDWARS::11"
           - "BOXING::12"
+          - "TNTSUMO::13"
           - "BRIDGES::14"
           - "FIREBALL::15"
           - "GAPPLE::16"
@@ -51,6 +52,7 @@ QUEUE:
           - "BUILDUHC::23"
           - "PEARLFIGHT::24"
           - "CRYSTAL::30"
+          - "MLGRUSH::31"
           - "SPEAR::32"
       SECOND-CATEGORY:
         ENABLED: true
@@ -82,6 +84,7 @@ QUEUE:
           - "BATTLERUSH::10"
           - "BEDWARS::11"
           - "BOXING::12"
+          - "TNTSUMO::13"
           - "BRIDGES::14"
           - "FIREBALL::15"
           - "GAPPLE::16"
@@ -91,6 +94,7 @@ QUEUE:
           - "BUILDUHC::23"
           - "PEARLFIGHT::24"
           - "CRYSTAL::30"
+          - "MLGRUSH::31"
           - "SPEAR::32"
       SECOND-CATEGORY:
         ENABLED: true
@@ -215,6 +219,11 @@ MATCH-SETTINGS:
       FIREBALL:
         HORIZONTAL: 1.6
         VERTICAL: 1.4
+  TNT-SUMO:
+    EXPLOSION:
+      HORIZONTAL: 0.7
+      VERTICAL: 0.9
+      AIR-MULTIPLIER: 1.6
   BOXING:
     CUSTOM-ATTACK-COOLDOWN:
       ENABLED: true

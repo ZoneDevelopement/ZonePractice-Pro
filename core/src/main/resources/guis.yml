@@ -1,4 +1,4 @@
-VERSION: 18
+VERSION: 19
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -2250,12 +2250,12 @@ GUIS:
               - "&a&lLEFT-CLICK &ato reduce the delay."
               - "&b&lRIGHT-CLICK &bto increase the delay."
           BLOCK-RETURN-DELAY:
-            NAME: "&7Block Return Delay: &6%blockReturnDelay% sec"
+            NAME: "&7%blockReturnDelayTarget% Return Delay: &6%blockReturnDelay% sec"
             MATERIAL: BLUE_TERRACOTTA
             LORE:
               - ""
-              - "&7After placing a block, this is how long"
-              - "&7it takes before the player gets 1 back."
+              - "&7This controls the %blockReturnDelayTarget%"
+              - "&7return delay after placement."
               - ""
               - "&a&lLEFT-CLICK &ato reduce the delay."
               - "&b&lRIGHT-CLICK &bto increase the delay."
