@@ -1,4 +1,4 @@
-VERSION: 2
+VERSION: 3
 
 GUI:
   MAIN:
@@ -306,6 +306,24 @@ GUI:
           NAME: "&bPotions"
           MATERIAL: POTION
           SLOT: 22
+        SHULKER-BOXES:
+          NAME: "&bShulker Boxes"
+          MATERIAL: PURPLE_SHULKER_BOX
+          SLOT: 32
+      # ─── Dynamic categories ───────────────────────────────────────────────────
+      # Add any category here with an icon. The slot field is the position in the
+      # category picker GUI. The id must match a key under ITEMS-GUI.CATEGORIES.
+      # You can add your own categories without touching the code.
+      # ─── Dynamic categories ───────────────────────────────────────────────────
+      # Add any category here. The slot field is its position in the category picker GUI.
+      # The id must match a key under ITEMS-GUI.CATEGORIES that has TITLE and ITEMS.
+      # No code changes needed — just add an entry here + its item list below.
+      # Example:
+      # MY-CATEGORY:
+      #   NAME: "&dMy Category"
+      #   MATERIAL: NETHER_STAR
+      #   SLOT: 27
+      DYNAMIC-CATEGORIES:
         FOOD:
           NAME: "&bFood"
           MATERIAL: COOKED_BEEF
@@ -670,6 +688,8 @@ GUI:
             - "STRING"
             - "MOSS_BLOCK"
             - "STONE"
+        SHULKER-BOXES:
+          TITLE: "&8Shulker Boxes"
     ENCHANT-GUI:
       TITLE: "&8Add enchantments"
       ICONS:
