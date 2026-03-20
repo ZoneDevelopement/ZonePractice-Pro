@@ -17,6 +17,8 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
+import dev.nandi0813.practice.manager.playerkit.guis.ShulkerBoxEditorGUI;
+import dev.nandi0813.practice.manager.playerkit.guis.ShulkerCategoryGUI;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -107,7 +109,10 @@ public class MainGUI extends GUI {
                     break;
                 case RIGHT:
                     if (!kitItem.isNull()) {
-                        if (kitItem.getMaterial().getMaxStackSize() > 1) {
+                        if (ShulkerCategoryGUI.isShulkerBox(kitItem.getMaterial())) {
+                            // Right-click on a shulker box → edit its contents
+                            new ShulkerBoxEditorGUI(this, kitItem).open(player);
+                        } else if (kitItem.getMaterial().getMaxStackSize() > 1) {
                             new AmountChangeGUI(kitItem, this).open(player);
                         } else if (canBeEnchanted(kitItem.get())) {
                             new EnchantGUI(kitItem, this).open(player);

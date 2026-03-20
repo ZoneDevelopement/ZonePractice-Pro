@@ -25,11 +25,11 @@ public class AmountChangeGUI extends GUI {
 
     private final KitItem kitItem;
     private final int maxStackSize;
-    private final MainGUI backTo;
+    private final GUI backTo;
 
     private static final Map<Integer, Integer> AMOUNTS = Map.of(19, 1, 20, 8, 21, 16, 22, 32, 23, 64);
 
-    public AmountChangeGUI(KitItem kitItem, MainGUI backTo) {
+    public AmountChangeGUI(KitItem kitItem, GUI backTo) {
         super(GUIType.PlayerCustom_ChangeAmount);
         this.kitItem = kitItem;
         this.maxStackSize = kitItem.getMaterial().getMaxStackSize();

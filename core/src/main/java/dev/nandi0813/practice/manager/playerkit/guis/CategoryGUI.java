@@ -106,6 +106,19 @@ public class CategoryGUI extends GUI {
             KitItem kitItem = playerKitEditing.getKitItem();
             kitItem.setItemStack(item.clone());
 
+            // If we were editing a slot inside a shulker box, send the item there instead
+            if (playerKitEditing.isEditingShulker()) {
+                // Save references BEFORE clearing context (clearing nulls shulkerEditor)
+                dev.nandi0813.practice.manager.playerkit.guis.ShulkerBoxEditorGUI editor =
+                        playerKitEditing.getShulkerEditor();
+                int shulkerSlot = playerKitEditing.getShulkerSlot();
+                playerKitEditing.clearShulkerContext();
+                editor.onItemSelected(shulkerSlot, item.clone());
+                editor.update(true);
+                editor.open(player);
+                return;
+            }
+
             GUI mainGUI = playerKitEditing.getCustomLadder().getMainGUI();
             mainGUI.update();
             mainGUI.open(player);
