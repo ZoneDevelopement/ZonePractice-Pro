@@ -158,6 +158,12 @@ public class FightChangeOptimized {
 
         long pos = BlockPosition.encode(change.getLocation());
         BlockChangeEntry entry = blocks.computeIfAbsent(pos, k -> new BlockChangeEntry(change));
+
+        // -1 disables temp build auto-removal; block remains until normal rollback.
+        if (destroyTime <= 0) {
+            return;
+        }
+
         entry.setTempData(player, destroyTime * 20, handUsed, returnItem); // Convert seconds to ticks
 
         // Start ticker if not running

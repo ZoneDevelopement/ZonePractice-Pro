@@ -10,7 +10,6 @@ import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import dev.nandi0813.practice.manager.fight.util.DeathCause;
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.BlockReturnDelay;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
@@ -18,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
@@ -38,7 +36,7 @@ import java.util.UUID;
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
-public class TntSumo extends NormalLadder implements LadderHandle, CustomConfig, BlockReturnDelay {
+public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDelay {
 
     private static final int TNT_LIMIT = 10;
 
@@ -47,35 +45,15 @@ public class TntSumo extends NormalLadder implements LadderHandle, CustomConfig,
     private static final String TNT_SUMO_BLOCK_MATERIAL = "ZONEPRACTICE_PRO_TNT_SUMO_BLOCK_MATERIAL";
     private static final String TNT_SUMO_BLOCK_ITEM = "ZONEPRACTICE_PRO_TNT_SUMO_BLOCK_ITEM";
 
-    private static final String BLOCK_RETURN_DELAY_SECONDS_PATH = "block-return-delay-seconds";
-    private static final int DEFAULT_BLOCK_RETURN_DELAY_SECONDS = 3;
-    private static final int MIN_BLOCK_RETURN_DELAY_SECONDS = 0;
+    private static final int MIN_BLOCK_RETURN_DELAY_SECONDS = -1;
     private static final int MAX_BLOCK_RETURN_DELAY_SECONDS = 30;
 
+    // Saved by using interface and LadderFile.java
     private int blockReturnDelaySeconds;
 
     public TntSumo(String name, LadderType type) {
         super(name, type);
         this.startMove = false;
-    }
-
-    @Override
-    public void setCustomConfig(YamlConfiguration config) {
-        config.set(BLOCK_RETURN_DELAY_SECONDS_PATH, blockReturnDelaySeconds);
-    }
-
-    @Override
-    public void getCustomConfig(YamlConfiguration config) {
-        if (config.isInt(BLOCK_RETURN_DELAY_SECONDS_PATH)) {
-            int delay = config.getInt(BLOCK_RETURN_DELAY_SECONDS_PATH);
-            if (delay < MIN_BLOCK_RETURN_DELAY_SECONDS || delay > MAX_BLOCK_RETURN_DELAY_SECONDS) {
-                delay = DEFAULT_BLOCK_RETURN_DELAY_SECONDS;
-            }
-            this.blockReturnDelaySeconds = delay;
-            return;
-        }
-
-        this.blockReturnDelaySeconds = DEFAULT_BLOCK_RETURN_DELAY_SECONDS;
     }
 
     @Override
@@ -160,7 +138,9 @@ public class TntSumo extends NormalLadder implements LadderHandle, CustomConfig,
         }
 
         // Only schedule return for TNT blocks
-        scheduleBlockReturn(e, match, player, returnItem);
+        if (((TntSumo) match.getLadder()).getBlockReturnDelaySeconds() >= 0) {
+            scheduleBlockReturn(e, match, player, returnItem);
+        }
 
         // Spawn TNT entity for TNT blocks
         Location tntLocation = block.getLocation().clone();

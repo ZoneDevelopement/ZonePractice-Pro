@@ -197,9 +197,6 @@ public class SettingsGui extends GUI {
         if (settingTypes.contains(SettingType.SKYWARS_LOOT))
             settingItems.add(new SkywarsLootItem(this, (SkyWars) ladder));
 
-        if (settingTypes.contains(SettingType.TEMP_BUILD_DELAY))
-            settingItems.add(new TempbuildDelayItem(this, ladder));
-
         if (settingTypes.contains(SettingType.MAX_DURATION))
             settingItems.add(new MaxDurationItem(this, ladder));
 

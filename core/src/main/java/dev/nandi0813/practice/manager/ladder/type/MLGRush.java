@@ -12,7 +12,6 @@ import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
 import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersVsPlayersRound;
 import dev.nandi0813.practice.manager.fight.util.*;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.BlockReturnDelay;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.BedFight;
@@ -21,7 +20,6 @@ import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -35,18 +33,17 @@ import org.jetbrains.annotations.NotNull;
 
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
-public class MLGRush extends BedFight implements LadderHandle, CustomConfig, BlockReturnDelay {
+public class MLGRush extends BedFight implements LadderHandle, BlockReturnDelay {
 
     private static final int PLACE_BLOCK_LIMIT = 64;
-    private static final String BLOCK_RETURN_DELAY_SECONDS_PATH = "block-return-delay-seconds";
-    private static final int DEFAULT_BLOCK_RETURN_DELAY_SECONDS = 3;
-    private static final int MIN_BLOCK_RETURN_DELAY_SECONDS = 0;
+    private static final int MIN_BLOCK_RETURN_DELAY_SECONDS = -1;
     private static final int MAX_BLOCK_RETURN_DELAY_SECONDS = 30;
     
     private static final String MLGRUSH_BLOCK_OWNER = "ZONEPRACTICE_PRO_MLGRUSH_BLOCK_OWNER";
     private static final String MLGRUSH_BLOCK_MATERIAL = "ZONEPRACTICE_PRO_MLGRUSH_BLOCK_MATERIAL";
     private static final String MLGRUSH_BLOCK_ITEM = "ZONEPRACTICE_PRO_MLGRUSH_BLOCK_ITEM";
 
+    // Saved by using interface and LadderFile.java
     private int blockReturnDelaySeconds;
 
     public MLGRush(String name, LadderType type) {
@@ -72,25 +69,6 @@ public class MLGRush extends BedFight implements LadderHandle, CustomConfig, Blo
     @Override
     public void setRespawnTime(int respawnTime) {
         this.respawnTime = 0;
-    }
-
-    @Override
-    public void setCustomConfig(YamlConfiguration config) {
-        config.set(BLOCK_RETURN_DELAY_SECONDS_PATH, blockReturnDelaySeconds);
-    }
-
-    @Override
-    public void getCustomConfig(YamlConfiguration config) {
-        if (config.isInt(BLOCK_RETURN_DELAY_SECONDS_PATH)) {
-            int delay = config.getInt(BLOCK_RETURN_DELAY_SECONDS_PATH);
-            if (delay < MIN_BLOCK_RETURN_DELAY_SECONDS || delay > MAX_BLOCK_RETURN_DELAY_SECONDS) {
-                delay = DEFAULT_BLOCK_RETURN_DELAY_SECONDS;
-            }
-            this.blockReturnDelaySeconds = delay;
-            return;
-        }
-
-        this.blockReturnDelaySeconds = DEFAULT_BLOCK_RETURN_DELAY_SECONDS;
     }
 
     @Override
@@ -180,6 +158,10 @@ public class MLGRush extends BedFight implements LadderHandle, CustomConfig, Blo
         }
 
         MLGRush mlgRush = (MLGRush) match.getLadder();
+        if (mlgRush.getBlockReturnDelaySeconds() < 0) {
+            return;
+        }
+
         long delayTicks = mlgRush.getBlockReturnDelaySeconds() * 20L;
         scheduleMaterialReturn(e, match, returnItem, delayTicks);
     }

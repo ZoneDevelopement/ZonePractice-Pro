@@ -1,9 +1,9 @@
 package dev.nandi0813.practice.manager.ladder.abstraction.normal;
 
 import dev.nandi0813.practice.manager.backend.ConfigFile;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.BlockReturnDelay;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.RespawnableLadder;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuild;
 import dev.nandi0813.practice.manager.ladder.enums.WeightClassType;
 import dev.nandi0813.practice.manager.ladder.util.LadderFileUtil;
 import dev.nandi0813.practice.util.BasicItem;
@@ -57,8 +57,8 @@ public class LadderFile extends ConfigFile {
             config.set("settings.respawntime", respawnableLadder.getRespawnTime());
         }
 
-        if (ladder instanceof TempBuild tempBuild) {
-            config.set("settings.tempbuild-delay", tempBuild.getBuildDelay());
+        if (ladder instanceof BlockReturnDelay blockReturnDelay) {
+            config.set("settings.block-return-delay", blockReturnDelay.getBlockReturnDelaySeconds());
         }
 
         if (ladder.getIcon() != null)
@@ -210,13 +210,13 @@ public class LadderFile extends ConfigFile {
                 respawnableLadder.setRespawnTime(3);
         }
 
-        if (ladder instanceof TempBuild tempBuild) {
-            if (config.isInt("settings.tempbuild-delay")) {
-                int buildDelay = config.getInt("settings.tempbuild-delay");
-                if (buildDelay < 3 || buildDelay > 30) buildDelay = 6;
-                tempBuild.setBuildDelay(buildDelay);
+        if (ladder instanceof BlockReturnDelay blockReturnDelay) {
+            if (config.isInt("settings.block-return-delay")) {
+                int buildDelay = config.getInt("ssettings.block-return-delay");
+                if (buildDelay < -1 || buildDelay > 30) buildDelay = 6;
+                blockReturnDelay.setBlockReturnDelaySeconds(buildDelay);
             } else
-                tempBuild.setBuildDelay(6);
+                blockReturnDelay.setBlockReturnDelaySeconds(6);
         }
 
         if (config.isString("settings.knockback"))

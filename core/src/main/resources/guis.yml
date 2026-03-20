@@ -2239,23 +2239,14 @@ GUIS:
               - "&e&lClick here &7to edit the"
               - "&7loot which the players get when"
               - "&7they open chests during the game."
-          TEMP-BUILD:
-            NAME: "&7Temp Build delay: &6%tempBuildDelay% sec"
-            MATERIAL: MELON
-            LORE:
-              - ""
-              - "&7All blocks placed during the match."
-              - "&7will disappear after this time"
-              - ""
-              - "&a&lLEFT-CLICK &ato reduce the delay."
-              - "&b&lRIGHT-CLICK &bto increase the delay."
           BLOCK-RETURN-DELAY:
-            NAME: "&7%blockReturnDelayTarget% Return Delay: &6%blockReturnDelay% sec"
+            NAME: "&7%blockReturnDelayTarget% Return Delay: &6%blockReturnDelay%"
             MATERIAL: BLUE_TERRACOTTA
             LORE:
               - ""
               - "&7This controls the %blockReturnDelayTarget%"
               - "&7return delay after placement."
+              - "&7Set to &e-1 &7to disable auto return."
               - ""
               - "&a&lLEFT-CLICK &ato reduce the delay."
               - "&b&lRIGHT-CLICK &bto increase the delay."

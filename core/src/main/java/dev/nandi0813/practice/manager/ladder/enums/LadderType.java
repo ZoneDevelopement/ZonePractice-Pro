@@ -91,7 +91,7 @@ public enum LadderType {
             .withCommonSettings()
             .withSettings(
                     SettingType.GOLDEN_APPLE_COOLDOWN,
-                    SettingType.TEMP_BUILD_DELAY
+                    SettingType.BLOCK_RETURN_DELAY
             )
             .withBuildSettings()
     ),
@@ -212,7 +212,7 @@ public enum LadderType {
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
-            .withSetting(SettingType.TEMP_BUILD_DELAY)
+            .withSetting(SettingType.BLOCK_RETURN_DELAY)
     );
 
     private final String name;

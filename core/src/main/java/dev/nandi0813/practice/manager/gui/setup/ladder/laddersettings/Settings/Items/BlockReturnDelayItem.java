@@ -10,7 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class BlockReturnDelayItem extends SettingItem {
 
-    private static final int MIN_DELAY_SECONDS = 0;
+    private static final int MIN_DELAY_SECONDS = -1;
     private static final int MAX_DELAY_SECONDS = 30;
 
     private final BlockReturnDelay blockReturnDelay;
@@ -22,8 +22,11 @@ public class BlockReturnDelayItem extends SettingItem {
 
     @Override
     public void updateItemStack() {
+        int delay = blockReturnDelay.getBlockReturnDelaySeconds();
+        String delayText = delay < 0 ? "Disabled" : delay + "";
+
         this.guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.BLOCK-RETURN-DELAY")
-                .replace("%blockReturnDelay%", String.valueOf(blockReturnDelay.getBlockReturnDelaySeconds()))
+                .replace("%blockReturnDelay%", delayText)
                 .replace("%blockReturnDelayTarget%", blockReturnDelay.getContextTargetForBlockReturn());
     }
 

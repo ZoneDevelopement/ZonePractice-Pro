@@ -3,10 +3,7 @@ package dev.nandi0813.practice.manager.ladder.type;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.Round;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.RespawnableLadder;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuild;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.*;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.PortalFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import lombok.Getter;
@@ -21,15 +18,18 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class BattleRush extends PortalFight implements LadderHandle, TempBuild, RespawnableLadder {
+public class BattleRush extends PortalFight implements LadderHandle, TempBuild, RespawnableLadder, BlockReturnDelay {
+
+    private static final int MIN_BUILD_DELAY_SECONDS = -1;
+    private static final int MAX_BUILD_DELAY_SECONDS = 30;
 
     @Getter
     @Setter
     private int respawnTime;
 
+    // Saved by using interface and LadderFile.java
     @Getter
-    @Setter
-    private int buildDelay;
+    private int blockReturnDelaySeconds;
 
     public BattleRush(String name, LadderType type) {
         super(name, type);
@@ -54,11 +54,11 @@ public class BattleRush extends PortalFight implements LadderHandle, TempBuild, 
             return true;
         } else if (e instanceof BlockPlaceEvent) {
             onBlockPlace((BlockPlaceEvent) e, match);
-            TempBuild.onBlockPlace((BlockPlaceEvent) e, match, buildDelay);
+            TempBuild.onBlockPlace((BlockPlaceEvent) e, match, blockReturnDelaySeconds);
             return true;
         } else if (e instanceof PlayerBucketEmptyEvent) {
             onBucketEmpty((PlayerBucketEmptyEvent) e, match);
-            TempBuild.onBucketEmpty((PlayerBucketEmptyEvent) e, match, buildDelay);
+            TempBuild.onBucketEmpty((PlayerBucketEmptyEvent) e, match, blockReturnDelaySeconds);
             return true;
         } else if (e instanceof BlockFromToEvent) {
             onLiquidFlow((BlockFromToEvent) e);
@@ -82,4 +82,14 @@ public class BattleRush extends PortalFight implements LadderHandle, TempBuild, 
         }
     }
 
+    @Override
+    public String getContextTargetForBlockReturn() {
+        return "Placed Blocks";
+    }
+
+    @Override
+    public void setBlockReturnDelaySeconds(int blockReturnDelaySeconds) {
+        this.blockReturnDelaySeconds = Math.max(MIN_BUILD_DELAY_SECONDS,
+                Math.min(MAX_BUILD_DELAY_SECONDS, blockReturnDelaySeconds));
+    }
 }

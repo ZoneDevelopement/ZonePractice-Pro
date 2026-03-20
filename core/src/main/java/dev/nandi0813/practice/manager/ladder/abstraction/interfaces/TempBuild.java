@@ -23,10 +23,6 @@ public interface TempBuild {
 
     String TEMP_BUILD_BLOCK_ITEM = "ZONEPRACTICE_PRO_TEMP_BUILD_BLOCK_ITEM";
 
-    void setBuildDelay(int buildDelay);
-
-    int getBuildDelay();
-
     static void onBucketEmpty(final @NotNull PlayerBucketEmptyEvent e, final @NotNull Match match, final int buildDelay) {
         if (e.isCancelled()) return;
 
