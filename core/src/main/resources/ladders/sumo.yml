@@ -15,6 +15,9 @@ settings:
   drop-inventory: false
   matchtypes:
     - DUEL
+    - PARTY_FFA
+    - PARTY_SPLIT
+    - PARTY_VS_PARTY
 effects: []
 icon:
   ==: org.bukkit.inventory.ItemStack
