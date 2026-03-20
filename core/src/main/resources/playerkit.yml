@@ -310,20 +310,9 @@ GUI:
           NAME: "&bShulker Boxes"
           MATERIAL: PURPLE_SHULKER_BOX
           SLOT: 32
-      # ─── Dynamic categories ───────────────────────────────────────────────────
-      # Add any category here with an icon. The slot field is the position in the
-      # category picker GUI. The id must match a key under ITEMS-GUI.CATEGORIES.
-      # You can add your own categories without touching the code.
-      # ─── Dynamic categories ───────────────────────────────────────────────────
-      # Add any category here. The slot field is its position in the category picker GUI.
-      # The id must match a key under ITEMS-GUI.CATEGORIES that has TITLE and ITEMS.
-      # No code changes needed — just add an entry here + its item list below.
-      # Example:
-      # MY-CATEGORY:
-      #   NAME: "&dMy Category"
-      #   MATERIAL: NETHER_STAR
-      #   SLOT: 27
-      DYNAMIC-CATEGORIES:
+        # ── Custom categories ──────────────────────────────────────────────────
+        # Any key added here (that isn't a built-in) becomes a custom category.
+        # Add a matching entry under ITEMS-GUI.CATEGORIES with TITLE and ITEMS.
         FOOD:
           NAME: "&bFood"
           MATERIAL: COOKED_BEEF
