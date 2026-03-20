@@ -134,7 +134,7 @@ public enum KitUtil {
     private static void applyTrimToArmor(Player player, Profile profile, ItemStack[] armorContents,
                                          ArmorSlot slot, int armorIndex) {
         ItemStack item = armorContents[armorIndex];
-        if (item == null || !item.hasItemMeta()) {
+        if (item == null) {
             return;
         }
 

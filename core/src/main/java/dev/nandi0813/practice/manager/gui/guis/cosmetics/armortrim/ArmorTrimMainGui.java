@@ -254,7 +254,7 @@ public class ArmorTrimMainGui extends GUI {
     }
 
     private static void applyTrimPreview(ItemStack item, TrimPattern pattern, TrimMaterial material) {
-        if (item == null || pattern == null || material == null || !item.hasItemMeta()) {
+        if (item == null || pattern == null || material == null) {
             return;
         }
 
