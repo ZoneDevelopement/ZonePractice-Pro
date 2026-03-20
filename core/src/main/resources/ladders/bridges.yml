@@ -16,16 +16,16 @@ settings:
   respawntime: 3
   knockback: DEFAULT
   matchtypes:
-  - DUEL
-  - PARTY_SPLIT
-  - PARTY_VS_PARTY
+    - DUEL
+    - PARTY_SPLIT
+    - PARTY_VS_PARTY
   weightClass: UNRANKED_AND_RANKED
   maxduration: 600
   fireworkcooldown: 1
   startmove: false
   tntfusetime: 4
   healthbelowname: false
-  resetbuildafterround: false
+  resetbuildafterround: true
   breakallblocks: false
 icon:
   ==: org.bukkit.inventory.ItemStack
