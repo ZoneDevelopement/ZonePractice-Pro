@@ -1,4 +1,4 @@
-VERSION: 19
+VERSION: 20
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -2862,6 +2862,8 @@ GUIS:
     PATTERN-PERMISSION-DENIED-MESSAGE: "<red>You do not have permission to use this trim pattern."
     MATERIAL-PERMISSION-DENIED-MESSAGE: "<red>You do not have permission to use this trim material."
     NO-TIER-PERMISSION-MESSAGE: "<red>You do not have permission for any armor tier."
+    APPLY-ALL-TIERS-ERROR-MESSAGE: "<red>You don't have permission to apply this tier to all armor."
+    APPLY-ALL-TIERS-SUCCESS-MESSAGE: "<green>Applied the current tier trim setup to all armor tiers."
     # Armor Tier customization
     ARMOR-TIERS:
       LEATHER:
@@ -2949,6 +2951,21 @@ GUIS:
           - ""
           - "&7Select a category item to edit"
           - "&7your active trim cosmetics."
+          - "&8&m------------------------"
+      APPLY-ALL-TIERS:
+        NAME: "&aApply To All Armor Tiers"
+        MATERIAL: SMITHING_TABLE
+        LORE:
+          - "&8&m------------------------"
+          - "&7Copies the active tier trim"
+          - "&7pattern and material to all tiers."
+          - ""
+          - "&eHelmet -> Helmet"
+          - "&eChestplate -> Chestplate"
+          - "&eLeggings -> Leggings"
+          - "&eBoots -> Boots"
+          - ""
+          - "&aClick to apply"
           - "&8&m------------------------"
       BACK-TO:
         NAME: "&cBack"
