@@ -149,6 +149,21 @@ public enum LadderType {
             .withSetting(SettingType.FIREBALL_BLOCK_DESTROY)
     ),
 
+    MLG_RUSH(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.MLG-RUSH.NAME",
+            Material.BLUE_TERRACOTTA,
+                    "LADDER.LADDER-TYPES.MLG-RUSH.DESCRIPTION",
+                    MLGRush.class
+            )
+            .withBuild()
+            .withBed()
+            .noPartyFFA()
+            .withRespawnSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withBuildSettings()
+    ),
+
     BRIDGES(LadderTypeConfig.builder(
                     "LADDER.LADDER-TYPES.BRIDGES.NAME",
             Material.RED_TERRACOTTA,

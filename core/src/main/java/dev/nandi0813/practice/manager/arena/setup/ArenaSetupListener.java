@@ -12,7 +12,6 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.util.BedUtil;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
-import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import org.bukkit.Location;
@@ -518,7 +517,7 @@ public class ArenaSetupListener implements Listener {
             }
         }
         // Clean Beds
-        if (arena instanceof Arena a && a.getAssignedLadderTypes().contains(LadderType.BEDWARS)) {
+        if (arena instanceof Arena a && ArenaUtil.isArenaBedRelated(a)) {
             if (a.getBedLoc1() != null && !cuboid.contains(a.getBedLoc1().getLocation())) {
                 a.setBedLoc1(null);
                 a.setEnabled(false);

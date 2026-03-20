@@ -1,4 +1,4 @@
-VERSION: 20
+VERSION: 21
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1155,6 +1155,15 @@ LADDER:
         - "<gray>and tnt do no damage to the players,"
         - "<gray>but push them very far back."
         - "<dark_gray><st>----------------------------------"
+    MLG-RUSH:
+      NAME: "MLG Rush"
+      DESCRIPTION:
+        - "<dark_gray><st>----------------------------------"
+        - "<gray>Fast bed-rush gamemode where breaking"
+        - "<gray>the enemy bed scores one point instantly."
+        - "<gray>Players respawn immediately with no"
+        - "<gray>health damage, only knockback."
+        - "<dark_gray><st>----------------------------------"
     BRIDGES:
       NAME: "Bridges"
       DESCRIPTION:
@@ -1366,6 +1375,10 @@ MATCH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
         BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+      MLG-RUSH:
+        RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
+        PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
+        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
       BATTLE-RUSH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
@@ -1475,6 +1488,10 @@ MATCH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
         BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+      MLG-RUSH:
+        RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
+        PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
+        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
       BATTLE-RUSH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
@@ -1531,6 +1548,11 @@ MATCH:
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
         BED-DESTROYED: "%team% team's &ebed has been destroyed!"
       FIREBALL-FIGHT:
+        PLAYER-DIED: "%teamColor%%player% <yellow>has <red>died<yellow>."
+        RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
+        PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
+        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+      MLG-RUSH:
         PLAYER-DIED: "%teamColor%%player% <yellow>has <red>died<yellow>."
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
