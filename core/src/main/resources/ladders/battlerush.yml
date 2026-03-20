@@ -1,5 +1,5 @@
 name: BattleRush
-enabled: false
+enabled: true
 type: BATTLE_RUSH
 settings:
   regen: true
