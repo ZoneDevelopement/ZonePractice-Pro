@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuild;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -18,16 +19,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class PearlFight extends NormalLadder implements LadderHandle, TempBuild, BlockReturnDelay {
 
-    private static final int MIN_BUILD_DELAY_SECONDS = -1;
-    private static final int MAX_BUILD_DELAY_SECONDS = 30;
-
     // Saved by using interface and LadderFile.java
     @Getter
+    @Setter
     protected int blockReturnDelaySeconds;
 
     public PearlFight(String name, LadderType type) {
         super(name, type);
         this.setMultiRoundStartCountdown(false);
+        this.hunger = false;
     }
 
     @Override
@@ -62,9 +62,4 @@ public class PearlFight extends NormalLadder implements LadderHandle, TempBuild,
         return "Placed Blocks";
     }
 
-    @Override
-    public void setBlockReturnDelaySeconds(int blockReturnDelaySeconds) {
-        this.blockReturnDelaySeconds = Math.max(MIN_BUILD_DELAY_SECONDS,
-                Math.min(MAX_BUILD_DELAY_SECONDS, blockReturnDelaySeconds));
-    }
 }

@@ -33,6 +33,7 @@ public class Boxing extends NormalLadder implements CustomConfig, LadderHandle, 
 
     public Boxing(String name, LadderType type) {
         super(name, type);
+        this.hunger = false;
     }
 
     @Override

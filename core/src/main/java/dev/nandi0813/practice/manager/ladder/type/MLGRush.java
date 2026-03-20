@@ -18,6 +18,8 @@ import dev.nandi0813.practice.manager.ladder.abstraction.normal.BedFight;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -36,19 +38,20 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 public class MLGRush extends BedFight implements LadderHandle, BlockReturnDelay {
 
     private static final int PLACE_BLOCK_LIMIT = 64;
-    private static final int MIN_BLOCK_RETURN_DELAY_SECONDS = -1;
-    private static final int MAX_BLOCK_RETURN_DELAY_SECONDS = 30;
-    
+
     private static final String MLGRUSH_BLOCK_OWNER = "ZONEPRACTICE_PRO_MLGRUSH_BLOCK_OWNER";
     private static final String MLGRUSH_BLOCK_MATERIAL = "ZONEPRACTICE_PRO_MLGRUSH_BLOCK_MATERIAL";
     private static final String MLGRUSH_BLOCK_ITEM = "ZONEPRACTICE_PRO_MLGRUSH_BLOCK_ITEM";
 
+    @Getter
+    @Setter
     // Saved by using interface and LadderFile.java
     private int blockReturnDelaySeconds;
 
     public MLGRush(String name, LadderType type) {
         super(name, type);
         this.respawnTime = 0;
+        this.hunger = false;
     }
 
     @Override
@@ -69,22 +72,6 @@ public class MLGRush extends BedFight implements LadderHandle, BlockReturnDelay 
     @Override
     public void setRespawnTime(int respawnTime) {
         this.respawnTime = 0;
-    }
-
-    @Override
-    public int getBlockReturnDelaySeconds() {
-        return blockReturnDelaySeconds;
-    }
-
-    @Override
-    public void setBlockReturnDelaySeconds(int delaySeconds) {
-        if (delaySeconds < MIN_BLOCK_RETURN_DELAY_SECONDS) {
-            delaySeconds = MIN_BLOCK_RETURN_DELAY_SECONDS;
-        } else if (delaySeconds > MAX_BLOCK_RETURN_DELAY_SECONDS) {
-            delaySeconds = MAX_BLOCK_RETURN_DELAY_SECONDS;
-        }
-
-        this.blockReturnDelaySeconds = delaySeconds;
     }
 
     @Override

@@ -13,6 +13,8 @@ import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.BlockReturnD
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -45,26 +47,15 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
     private static final String TNT_SUMO_BLOCK_MATERIAL = "ZONEPRACTICE_PRO_TNT_SUMO_BLOCK_MATERIAL";
     private static final String TNT_SUMO_BLOCK_ITEM = "ZONEPRACTICE_PRO_TNT_SUMO_BLOCK_ITEM";
 
-    private static final int MIN_BLOCK_RETURN_DELAY_SECONDS = -1;
-    private static final int MAX_BLOCK_RETURN_DELAY_SECONDS = 30;
-
+    @Getter
+    @Setter
     // Saved by using interface and LadderFile.java
     private int blockReturnDelaySeconds;
 
     public TntSumo(String name, LadderType type) {
         super(name, type);
         this.startMove = false;
-    }
-
-    @Override
-    public int getBlockReturnDelaySeconds() {
-        return blockReturnDelaySeconds;
-    }
-
-    @Override
-    public void setBlockReturnDelaySeconds(int delaySeconds) {
-        this.blockReturnDelaySeconds = Math.max(MIN_BLOCK_RETURN_DELAY_SECONDS,
-                Math.min(MAX_BLOCK_RETURN_DELAY_SECONDS, delaySeconds));
+        this.hunger = false;
     }
 
     @Override

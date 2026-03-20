@@ -211,12 +211,23 @@ public class LadderFile extends ConfigFile {
         }
 
         if (ladder instanceof BlockReturnDelay blockReturnDelay) {
+            int buildDelay = 6;
+
             if (config.isInt("settings.block-return-delay")) {
-                int buildDelay = config.getInt("ssettings.block-return-delay");
-                if (buildDelay < -1 || buildDelay > 30) buildDelay = 6;
-                blockReturnDelay.setBlockReturnDelaySeconds(buildDelay);
-            } else
-                blockReturnDelay.setBlockReturnDelaySeconds(6);
+                buildDelay = config.getInt("settings.block-return-delay");
+            } else if (config.isInt("settings.tempbuild-delay")) {
+                // Backward compatibility for older ladder templates.
+                buildDelay = config.getInt("settings.tempbuild-delay");
+            } else if (config.isInt("tempbuild-delay")) {
+                // Backward compatibility for older root-level templates.
+                buildDelay = config.getInt("tempbuild-delay");
+            } else if (config.isInt("block-return-delay-seconds")) {
+                // Backward compatibility for previous naming.
+                buildDelay = config.getInt("block-return-delay-seconds");
+            }
+
+            if (buildDelay < -1 || buildDelay > 30) buildDelay = 6;
+            blockReturnDelay.setBlockReturnDelaySeconds(buildDelay);
         }
 
         if (config.isString("settings.knockback"))

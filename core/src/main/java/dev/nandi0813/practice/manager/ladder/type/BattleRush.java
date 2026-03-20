@@ -20,15 +20,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class BattleRush extends PortalFight implements LadderHandle, TempBuild, RespawnableLadder, BlockReturnDelay {
 
-    private static final int MIN_BUILD_DELAY_SECONDS = -1;
-    private static final int MAX_BUILD_DELAY_SECONDS = 30;
-
     @Getter
     @Setter
     private int respawnTime;
 
     // Saved by using interface and LadderFile.java
     @Getter
+    @Setter
     private int blockReturnDelaySeconds;
 
     public BattleRush(String name, LadderType type) {
@@ -87,9 +85,4 @@ public class BattleRush extends PortalFight implements LadderHandle, TempBuild, 
         return "Placed Blocks";
     }
 
-    @Override
-    public void setBlockReturnDelaySeconds(int blockReturnDelaySeconds) {
-        this.blockReturnDelaySeconds = Math.max(MIN_BUILD_DELAY_SECONDS,
-                Math.min(MAX_BUILD_DELAY_SECONDS, blockReturnDelaySeconds));
-    }
 }
