@@ -17,7 +17,6 @@ settings:
   knockback: DEFAULT
   matchtypes:
     - DUEL
-    - PARTY_FFA
     - PARTY_SPLIT
     - PARTY_VS_PARTY
   weightClass: UNRANKED_AND_RANKED
