@@ -134,6 +134,8 @@ public class TNTTag extends Event {
             for (Player player : players) {
                 this.teleportPlayer(player);
                 this.loadInv(player);
+                // Disable flying to prevent players from using lobby flight settings during events
+                PlayerUtil.setFightPlayer(player);
             }
         }
 
