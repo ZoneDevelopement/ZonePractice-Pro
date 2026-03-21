@@ -1,4 +1,4 @@
-VERSION: 23
+VERSION: 27
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -35,38 +35,60 @@ QUEUE:
         EXTEND-DIVISION-SEARCH: 10 # In sec.
     SELECTOR-GUI:
       SHOW-DISABLED-LADDERS: true
-      FIRST-CATEGORY:
-        SIZE: 5
-        GO-TO-SECOND-CATEGORY-SLOT: 44
-        LADDER-SLOTS:
-          - "BATTLERUSH::10"
-          - "BEDWARS::11"
-          - "BOXING::12"
-          - "TNTSUMO::13"
-          - "BRIDGES::14"
-          - "FIREBALL::15"
-          - "GAPPLE::16"
-          - "NODEBUFF::20"
-          - "MACE::21"
-          - "SUMO::22"
-          - "BUILDUHC::23"
-          - "PEARLFIGHT::24"
-          - "CRYSTAL::30"
-          - "MLGRUSH::31"
-          - "SPEAR::32"
-      SECOND-CATEGORY:
-        ENABLED: true
-        BACK-TO-FIRST-CATEGORY-SLOT: 35
-        SIZE: 4
-        LADDER-SLOTS:
-          - "ARCHER::10"
-          - "AXE::11"
-          - "DEBUFF::12"
-          - "SG::14"
-          - "SKYWARS::15"
-          - "SOUP::16"
-          - "SPLEEF::20"
-          - "VANILLA::24"
+      SIZE: 6
+      QUICK-MATCH-ENABLED: true
+      QUICK-MATCH-SLOT: 45
+      LADDER-SLOTS:
+        - 20
+        - 21
+        - 22
+        - 23
+        - 24
+        - 29
+        - 30
+        - 31
+        - 32
+        - 33
+        - 39
+        - 40
+        - 41
+      CATEGORY-SELECTOR-SLOTS:
+        PVP: 3
+        MINIGAMES: 5
+      CATEGORIES:
+        PVP:
+          DISPLAY-NAME: "PVP"
+          ICON-MATERIAL: "DIAMOND_SWORD"
+          SELECTED-ICON-MATERIAL: "NETHERITE_SWORD"
+          LADDERS:
+            - "VANILLA"
+            - "SOUP"
+            - "GAPPLE"
+            - "NODEBUFF"
+            - "DEBUFF"
+            - "BOXING"
+            - "AXE"
+            - "MACE"
+            - "SPEAR"
+            - "ARCHER"
+            - "SG"
+            - "BUILDUHC"
+            - "CRYSTAL"
+        MINIGAMES:
+          DISPLAY-NAME: "MINIGAMES"
+          ICON-MATERIAL: "SLIME_BALL"
+          SELECTED-ICON-MATERIAL: "TNT"
+          LADDERS:
+            - "SUMO"
+            - "TNTSUMO"
+            - "SPLEEF"
+            - "FIREBALL"
+            - "PEARLFIGHT"
+            - "MLGRUSH"
+            - "BRIDGES"
+            - "BATTLERUSH"
+            - "BEDWARS"
+            - "SKYWARS"
   RANKED:
     MAX-QUEUE-TIME: 300 # In sec.
     GUI-UPDATE-MINUTE: 1
@@ -77,35 +99,57 @@ QUEUE:
     MAX-PING: 300 # Maximum ping a player can join a ranked queue.
     SELECTOR-GUI:
       SHOW-DISABLED-LADDERS: true
-      FIRST-CATEGORY:
-        SIZE: 5
-        GO-TO-SECOND-CATEGORY-SLOT: 44
-        LADDER-SLOTS:
-          - "BATTLERUSH::10"
-          - "BEDWARS::11"
-          - "BOXING::12"
-          - "TNTSUMO::13"
-          - "BRIDGES::14"
-          - "FIREBALL::15"
-          - "GAPPLE::16"
-          - "NODEBUFF::20"
-          - "MACE::21"
-          - "SUMO::22"
-          - "BUILDUHC::23"
-          - "PEARLFIGHT::24"
-          - "CRYSTAL::30"
-          - "MLGRUSH::31"
-          - "SPEAR::32"
-      SECOND-CATEGORY:
-        ENABLED: true
-        BACK-TO-FIRST-CATEGORY-SLOT: 18
-        SIZE: 3
-        LADDER-SLOTS:
-          - "DEBUFF::11"
-          - "SG::12"
-          - "SKYWARS::13"
-          - "SOUP::14"
-          - "SPLEEF::15"
+      SIZE: 6
+      QUICK-MATCH-ENABLED: true
+      QUICK-MATCH-SLOT: 45
+      LADDER-SLOTS:
+        - 20
+        - 21
+        - 22
+        - 23
+        - 24
+        - 29
+        - 30
+        - 31
+        - 32
+        - 33
+        - 39
+        - 40
+        - 41
+      CATEGORY-SELECTOR-SLOTS:
+        PVP: 3
+        MINIGAMES: 5
+      CATEGORIES:
+        PVP:
+          DISPLAY-NAME: "PVP"
+          ICON-MATERIAL: "DIAMOND_SWORD"
+          SELECTED-ICON-MATERIAL: "NETHERITE_SWORD"
+          LADDERS:
+            - "SOUP"
+            - "GAPPLE"
+            - "NODEBUFF"
+            - "DEBUFF"
+            - "BOXING"
+            - "MACE"
+            - "SPEAR"
+            - "SG"
+            - "BUILDUHC"
+            - "CRYSTAL"
+        MINIGAMES:
+          DISPLAY-NAME: "MINIGAMES"
+          ICON-MATERIAL: "SLIME_BALL"
+          SELECTED-ICON-MATERIAL: "TNT"
+          LADDERS:
+            - "SUMO"
+            - "TNTSUMO"
+            - "SPLEEF"
+            - "FIREBALL"
+            - "PEARLFIGHT"
+            - "MLGRUSH"
+            - "BRIDGES"
+            - "BATTLERUSH"
+            - "BEDWARS"
+            - "SKYWARS"
 #
 # Admin settings
 ADMIN-SETTINGS:
