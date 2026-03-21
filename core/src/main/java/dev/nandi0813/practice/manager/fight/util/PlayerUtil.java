@@ -1,38 +1,20 @@
 package dev.nandi0813.practice.manager.fight.util;
 
-import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.util.StringUtil;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class PlayerUtil {
-
-    private static final String TNT_SUMO_CONFIG_PATH = "MATCH-SETTINGS.TNT-SUMO.EXPLOSION.";
-
-    private static final double TNT_VELOCITY_HORIZONTAL_MULTIPLICATIVE = ConfigManager.getDouble("MATCH-SETTINGS.FIREBALL-FIGHT.EXPLOSION.TNT.HORIZONTAL");
-    private static final double TNT_VELOCITY_VERTICAL_MULTIPLICATIVE = ConfigManager.getDouble("MATCH-SETTINGS.FIREBALL-FIGHT.EXPLOSION.TNT.VERTICAL");
-
-    private static final double FB_VELOCITY_HORIZONTAL_MULTIPLICATIVE = ConfigManager.getDouble("MATCH-SETTINGS.FIREBALL-FIGHT.EXPLOSION.FIREBALL.HORIZONTAL");
-    private static final double FB_VELOCITY_VERTICAL_MULTIPLICATIVE = ConfigManager.getDouble("MATCH-SETTINGS.FIREBALL-FIGHT.EXPLOSION.FIREBALL.VERTICAL");
-
-    private static final double TNT_SUMO_HORIZONTAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "HORIZONTAL", 0.9);
-    private static final double TNT_SUMO_VERTICAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "VERTICAL", 1.5);
-    private static final double TNT_SUMO_AIR_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "AIR-MULTIPLIER", 2.2);
 
     public static ItemStack getPlayerMainHand(Player player) {
         return player.getInventory().getItemInMainHand();
@@ -125,164 +107,6 @@ public class PlayerUtil {
         final Fireball fireball = player.launchProjectile(Fireball.class);
         fireball.setAcceleration(fireball.getAcceleration().normalize().multiply(speed));
         return fireball;
-    }
-
-    public static void applyFireballKnockback(final Player player, final Fireball fireball) {
-        final Location playerLoc = player.getLocation();
-        final Location fireballLoc = fireball.getLocation();
-
-        final float yield = fireball.getYield() > 0 ? fireball.getYield() : 1.0f;
-
-        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-            double dx = playerLoc.getX() - fireballLoc.getX();
-            double dz = playerLoc.getZ() - fireballLoc.getZ();
-
-            // Use only horizontal distance for factor calculation so that jumping
-            // (which only increases vertical separation) does not reduce the knockback strength.
-            double effectiveDistance = Math.sqrt(dx * dx + dz * dz);
-
-            double safeDistance = 0.8;
-            double factor = 1.0;
-
-            if (effectiveDistance > safeDistance) {
-                double impactRadius = yield * 2.5;
-                double decayRange = impactRadius - safeDistance;
-
-                if (decayRange <= 0.1) decayRange = 1.0;
-
-                factor = 1.0 - ((effectiveDistance - safeDistance) / decayRange);
-            }
-
-            if (factor <= 0.1) return;
-            if (factor > 1) factor = 1;
-
-            // Compute horizontal direction separately so the vertical component
-            // of the direction vector doesn't steal from horizontal velocity.
-            double horizontalLen = Math.sqrt(dx * dx + dz * dz);
-            double horizDirX;
-            double horizDirZ;
-
-            if (horizontalLen < 0.001) {
-                // Fireball is almost directly below – pick the player's facing direction
-                Vector facing = playerLoc.getDirection();
-                double facingLen = Math.sqrt(facing.getX() * facing.getX() + facing.getZ() * facing.getZ());
-                if (facingLen < 0.001) {
-                    horizDirX = 0;
-                    horizDirZ = 0;
-                } else {
-                    horizDirX = facing.getX() / facingLen;
-                    horizDirZ = facing.getZ() / facingLen;
-                }
-            } else {
-                horizDirX = dx / horizontalLen;
-                horizDirZ = dz / horizontalLen;
-            }
-
-            // Apply a slight reduction when airborne so it's weaker than grounded, but not drastically
-            double airMultiplier = player.isOnGround() ? 1.0 : 0.8;
-
-            Vector velocity = new Vector(
-                    horizDirX * FB_VELOCITY_HORIZONTAL_MULTIPLICATIVE * factor * airMultiplier,
-                    FB_VELOCITY_VERTICAL_MULTIPLICATIVE * factor,
-                    horizDirZ * FB_VELOCITY_HORIZONTAL_MULTIPLICATIVE * factor * airMultiplier
-            );
-
-            player.setVelocity(velocity);
-        }, 1L);
-    }
-
-    public static void applyTntKnockback(Player player, TNTPrimed tnt) {
-        final Location playerLoc = player.getLocation();
-        final Location tntLoc = tnt.getLocation();
-        final float yield = tnt.getYield();
-
-        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-            double distance = playerLoc.distance(tntLoc);
-
-            double impactRadius = (yield > 0 ? yield : 4.0) * 2.0;
-            double factor = 1.0 - (distance / impactRadius);
-
-            if (factor <= 0.1) return;
-            if (factor > 1) factor = 1;
-
-            Vector direction = playerLoc.toVector().subtract(tntLoc.toVector());
-
-            if (direction.lengthSquared() == 0) {
-                direction = new Vector(0, 0.1, 0);
-            } else {
-                direction.normalize();
-            }
-
-            Vector velocity = new Vector(
-                    direction.getX() * TNT_VELOCITY_HORIZONTAL_MULTIPLICATIVE * factor,
-                    TNT_VELOCITY_VERTICAL_MULTIPLICATIVE * factor,
-                    direction.getZ() * TNT_VELOCITY_HORIZONTAL_MULTIPLICATIVE * factor
-            );
-
-            player.setVelocity(velocity);
-        }, 1L);
-    }
-
-    public static void applyTntSumoKnockback(Player player, TNTPrimed tnt) {
-        final Location playerLoc = player.getLocation();
-        final Location tntLoc = tnt.getLocation();
-        final float yield = tnt.getYield() > 0 ? tnt.getYield() : 4.0f;
-        final boolean wasOnGround = player.isOnGround();
-
-        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-            // If player is on the ground, set velocity to zero to negate any knockback
-            if (wasOnGround) {
-                player.setVelocity(new Vector(0, 0, 0));
-                return;
-            }
-
-            double dx = playerLoc.getX() - tntLoc.getX();
-            double dz = playerLoc.getZ() - tntLoc.getZ();
-
-            double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
-            double impactRadius = yield * 2.2;
-            double factor = 1.0 - (horizontalDistance / impactRadius);
-
-            if (factor <= 0.1) {
-                return;
-            }
-            if (factor > 1.0) {
-                factor = 1.0;
-            }
-
-            double dirX;
-            double dirZ;
-            if (horizontalDistance < 0.001) {
-                Vector facing = playerLoc.getDirection();
-                double facingHorizontalLength = Math.sqrt(facing.getX() * facing.getX() + facing.getZ() * facing.getZ());
-
-                if (facingHorizontalLength < 0.001) {
-                    dirX = 0;
-                    dirZ = 0;
-                } else {
-                    dirX = facing.getX() / facingHorizontalLength;
-                    dirZ = facing.getZ() / facingHorizontalLength;
-                }
-            } else {
-                dirX = dx / horizontalDistance;
-                dirZ = dz / horizontalDistance;
-            }
-
-            Vector velocity = new Vector(
-                    dirX * TNT_SUMO_HORIZONTAL_MULTIPLIER * factor * TNT_SUMO_AIR_MULTIPLIER,
-                    TNT_SUMO_VERTICAL_MULTIPLIER * factor * TNT_SUMO_AIR_MULTIPLIER,
-                    dirZ * TNT_SUMO_HORIZONTAL_MULTIPLIER * factor * TNT_SUMO_AIR_MULTIPLIER
-            );
-
-            player.setVelocity(velocity);
-        }, 1L);
-    }
-
-    private static double getDoubleOrDefault(String path, double defaultValue) {
-        if (ConfigManager.getConfig().isDouble(path) || ConfigManager.getConfig().isInt(path)) {
-            return ConfigManager.getDouble(path);
-        }
-        return defaultValue;
     }
 
     public static void returnItemToCurrentSlotOrInventory(Player player, ItemStack itemStack) {

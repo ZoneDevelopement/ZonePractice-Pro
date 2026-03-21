@@ -1,4 +1,4 @@
-VERSION: 27
+VERSION: 33
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -265,9 +265,14 @@ MATCH-SETTINGS:
         VERTICAL: 1.4
   TNT-SUMO:
     EXPLOSION:
-      HORIZONTAL: 0.7
-      VERTICAL: 0.9
-      AIR-MULTIPLIER: 1.6
+      EXPLOSION-HORIZONTAL-RADIUS: 4.0 # Maximum block distance on the X and Z axis for a player to take knockback
+      EXPLOSION-VERTICAL-RADIUS: 2.5 # Maximum block distance on the Y axis for a player to take knockback
+      HORIZONTAL-MULTIPLIER: 0.85 # Lowered significantly so players do not fly too far sideways
+      VERTICAL-MULTIPLIER: 1.35 # Increased massively to provide a high base upward launch
+      SWEET-SPOT-Y-BOOST: 1.50 # Increased to ensure perfectly placed TNT launches the player 8 to 10 blocks high
+      GROUNDED-HORIZONTAL-MULTIPLIER: 0.15 # Lowered so grounded players stay closer to the explosion source
+      GROUNDED-VERTICAL-MULTIPLIER: 0.60 # Increased to pop grounded players higher into the air immediately
+      GROUNDED-CHAIN-LIFT: 0.35 # Increased so rapid TNT placement gives a massive upward momentum boost
   BOXING:
     CUSTOM-ATTACK-COOLDOWN:
       ENABLED: true
