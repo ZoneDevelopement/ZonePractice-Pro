@@ -36,8 +36,9 @@ import java.util.Arrays;
 public class ShulkerBoxEditorGUI extends GUI {
 
     private static final int ROWS      = 5;
-    private static final int BACK_SLOT = 36;
-    private static final int CLEAR_SLOT = 40;
+    private static final int BACK_SLOT   = 36;
+    private static final int CLEAR_SLOT  = 40;
+    private static final int REMOVE_SLOT = 44;
 
     /** The kit slot item that contains the shulker box */
     private final KitItem shulkerKitItem;
@@ -142,10 +143,26 @@ public class ShulkerBoxEditorGUI extends GUI {
         ItemStack clearItem = new ItemStack(Material.BARRIER);
         var clearMeta = clearItem.getItemMeta();
         if (clearMeta != null) {
-            clearMeta.displayName(net.kyori.adventure.text.Component.text(StringUtil.CC("&cClear All")));
+            clearMeta.displayName(net.kyori.adventure.text.Component.text(StringUtil.CC("&cClear All Contents")));
+            java.util.List<net.kyori.adventure.text.Component> clearLore = new java.util.ArrayList<>();
+            clearLore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&7Removes all items inside.")));
+            clearMeta.lore(clearLore);
             clearItem.setItemMeta(clearMeta);
         }
         inv.setItem(CLEAR_SLOT, clearItem);
+
+        // Remove shulker button
+        ItemStack removeItem = new ItemStack(Material.SHULKER_BOX);
+        var removeMeta = removeItem.getItemMeta();
+        if (removeMeta != null) {
+            removeMeta.displayName(net.kyori.adventure.text.Component.text(StringUtil.CC("&cRemove Shulker Box")));
+            java.util.List<net.kyori.adventure.text.Component> removeLore = new java.util.ArrayList<>();
+            removeLore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&7Removes this shulker box")));
+            removeLore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&7from the kit slot entirely.")));
+            removeMeta.lore(removeLore);
+            removeItem.setItemMeta(removeMeta);
+        }
+        inv.setItem(REMOVE_SLOT, removeItem);
 
         updatePlayers();
     }
@@ -167,6 +184,14 @@ public class ShulkerBoxEditorGUI extends GUI {
             Arrays.fill(contents, null);
             saveContents();
             update(true);
+            return;
+        }
+
+        if (slot == REMOVE_SLOT) {
+            // Remove the shulker from the kit slot entirely and go back to main kit GUI
+            shulkerKitItem.reset();
+            returnGui.update();
+            returnGui.open(player);
             return;
         }
 
