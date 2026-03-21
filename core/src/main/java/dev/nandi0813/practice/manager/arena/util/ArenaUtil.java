@@ -196,7 +196,9 @@ public enum ArenaUtil {
 
     public static boolean isArenaBedRelated(Arena arena) {
         Set<LadderType> assignedLadders = arena.getAssignedLadderTypes();
-        return assignedLadders.contains(LadderType.BEDWARS) || assignedLadders.contains(LadderType.FIREBALL_FIGHT);
+        return assignedLadders.contains(LadderType.BEDWARS)
+                || assignedLadders.contains(LadderType.FIREBALL_FIGHT)
+                || assignedLadders.contains(LadderType.MLG_RUSH);
     }
 
     public static boolean isArenaPortalRelated(Arena arena) {

@@ -7,13 +7,11 @@ import com.github.retrooper.packetevents.protocol.particle.type.ParticleTypes;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.util.Vector3f;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerParticle;
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.fight.util.EntityHiderListener;
 import lombok.Getter;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -130,44 +128,112 @@ public enum DeathEffect {
             return;
         }
 
-        List<Player> viewers = recipients.stream()
-                .filter(player -> player != null && player.isOnline())
-                .filter(player -> player.getWorld().equals(location.getWorld()))
-                .collect(Collectors.toList());
+        List<Player> viewers = filterViewers(location, recipients);
 
         if (viewers.isEmpty()) {
             return;
         }
 
-        List<ParticleSpec> particles = buildParticles(location);
-        if (!particles.isEmpty()) {
-            EntityHiderListener listener = EntityHiderListener.getInstance();
-            for (Player viewer : viewers) {
-                listener.allowNextParticlePackets(viewer, particles.size());
-            }
-
-            for (ParticleSpec particleSpec : particles) {
-                WrapperPlayServerParticle packet = new WrapperPlayServerParticle(
-                        particleSpec.particle,
-                        false,
-                        particleSpec.position,
-                        particleSpec.offset,
-                        particleSpec.speed,
-                        particleSpec.count,
-                        true
-                );
-
-                for (Player viewer : viewers) {
-                    PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet);
-                }
-            }
+        if (this == LIGHTNING) {
+            playLightningSequence(location, recipients);
+            return;
         }
+
+        List<ParticleSpec> particles = buildParticles(location);
+        sendParticles(particles, viewers);
 
         playScopedSounds(location, viewers);
     }
 
+    private List<Player> filterViewers(Location location, Collection<Player> recipients) {
+        return recipients.stream()
+                .filter(player -> player != null && player.isOnline())
+                .filter(player -> player.getWorld().equals(location.getWorld()))
+                .collect(Collectors.toList());
+    }
+
+    private void playLightningSequence(Location baseLocation, Collection<Player> recipients) {
+        Location center = baseLocation.clone().add(0.0D, 1.0D, 0.0D);
+        List<Player> viewers = filterViewers(baseLocation, recipients);
+        if (viewers.isEmpty()) {
+            return;
+        }
+
+        sendParticles(List.of(
+                spec(new Particle<>(ParticleTypes.ELECTRIC_SPARK), toVector3d(center), 140, 0.45f, 0.95f, 0.45f, 0.22f),
+                spec(new Particle<>(ParticleTypes.EXPLOSION), toVector3d(center), 2, 0.12f, 0.12f, 0.12f, 0.0f),
+                spec(dust(1.8f, Color.fromRGB(230, 245, 255)), toVector3d(center), 55, 0.35f, 0.85f, 0.35f, 0.0f)
+        ), viewers);
+        viewers.forEach(player -> {
+            player.playSound(center, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.3f, 1.0f);
+            player.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 0.6f, 1.4f);
+        });
+
+        if (!ZonePractice.getInstance().isEnabled()) {
+            return;
+        }
+
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            List<Player> liveViewers = filterViewers(baseLocation, recipients);
+            if (liveViewers.isEmpty()) {
+                return;
+            }
+
+            sendParticles(List.of(
+                    spec(new Particle<>(ParticleTypes.ELECTRIC_SPARK), toVector3d(center), 95, 0.30f, 1.20f, 0.30f, 0.18f),
+                    spec(new Particle<>(ParticleTypes.LARGE_SMOKE), toVector3d(center), 24, 0.40f, 0.45f, 0.40f, 0.04f),
+                    spec(dust(1.4f, Color.fromRGB(160, 210, 255)), toVector3d(center), 40, 0.30f, 0.70f, 0.30f, 0.0f)
+            ), liveViewers);
+            liveViewers.forEach(player -> player.playSound(center, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.75f, 1.15f));
+        }, 2L);
+
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            List<Player> liveViewers = filterViewers(baseLocation, recipients);
+            if (liveViewers.isEmpty()) {
+                return;
+            }
+
+            sendParticles(List.of(
+                    spec(new Particle<>(ParticleTypes.ELECTRIC_SPARK), toVector3d(center), 60, 0.55f, 0.30f, 0.55f, 0.08f),
+                    spec(new Particle<>(ParticleTypes.SMOKE), toVector3d(center), 30, 0.50f, 0.25f, 0.50f, 0.03f)
+            ), liveViewers);
+            liveViewers.forEach(player -> player.playSound(center, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.45f, 1.35f));
+        }, 4L);
+    }
+
+    private void sendParticles(List<ParticleSpec> particles, List<Player> viewers) {
+        if (particles == null || particles.isEmpty() || viewers == null || viewers.isEmpty()) {
+            return;
+        }
+
+        EntityHiderListener listener = EntityHiderListener.getInstance();
+        Vector3d center = particles.get(0).position;
+        for (Player viewer : viewers) {
+            listener.allowNextParticlePackets(viewer, particles.size());
+            // Match filters can emit/cancel many particles in the same tick; permit this burst near its origin.
+            listener.allowNextParticleBurst(viewer, center.getX(), center.getY(), center.getZ(), particles.size(), 500L, 4.5D);
+        }
+
+        for (ParticleSpec particleSpec : particles) {
+            WrapperPlayServerParticle packet = new WrapperPlayServerParticle(
+                    particleSpec.particle,
+                    false,
+                    particleSpec.position,
+                    particleSpec.offset,
+                    particleSpec.speed,
+                    particleSpec.count,
+                    true
+            );
+
+            for (Player viewer : viewers) {
+                PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet);
+            }
+        }
+    }
+
+
     private List<ParticleSpec> buildParticles(Location location) {
-        Vector3d position = toVector3d(location);
+        Vector3d position = toVector3d(location.clone().add(0.0D, 0.6D, 0.0D));
         switch (this) {
             case NONE -> {
                 return List.of();
@@ -175,67 +241,73 @@ public enum DeathEffect {
 
             case FLAME -> {
                 return List.of(
-                        spec(new Particle<>(ParticleTypes.FLAME), position, 60, 0.4f, 0.4f, 0.4f, 0.05f),
-                        spec(new Particle<>(ParticleTypes.LAVA), position, 15, 0.3f, 0.3f, 0.3f, 0.0f)
+                        spec(new Particle<>(ParticleTypes.FLAME), position, 120, 0.85f, 0.95f, 0.85f, 0.09f),
+                        spec(new Particle<>(ParticleTypes.LAVA), position, 35, 0.60f, 0.55f, 0.60f, 0.0f),
+                        spec(new Particle<>(ParticleTypes.SMOKE), position, 55, 0.80f, 0.80f, 0.80f, 0.06f)
                 );
             }
 
             case LIGHTNING -> {
                 return List.of(
-                        spec(new Particle<>(ParticleTypes.ELECTRIC_SPARK), position, 80, 0.5f, 0.5f, 0.5f, 0.1f)
+                        spec(new Particle<>(ParticleTypes.ELECTRIC_SPARK), position, 150, 0.70f, 0.90f, 0.70f, 0.15f),
+                        spec(dust(1.8f, Color.fromRGB(220, 245, 255)), position, 60, 0.50f, 0.70f, 0.50f, 0.0f),
+                        spec(new Particle<>(ParticleTypes.EXPLOSION), position, 2, 0.20f, 0.20f, 0.20f, 0.0f)
                 );
             }
 
             case FIREWORK -> {
                 return List.of(
-                        spec(new Particle<>(ParticleTypes.FIREWORK), position, 90, 0.4f, 0.4f, 0.4f, 0.2f),
-                        spec(new Particle<>(ParticleTypes.EXPLOSION), position, 2, 0.2f, 0.2f, 0.2f, 0.0f)
+                        spec(new Particle<>(ParticleTypes.FIREWORK), position, 180, 0.95f, 1.05f, 0.95f, 0.32f),
+                        spec(new Particle<>(ParticleTypes.EXPLOSION), position, 4, 0.35f, 0.35f, 0.35f, 0.0f),
+                        spec(dust(1.5f, Color.fromRGB(255, 90, 210)), position, 55, 0.75f, 0.85f, 0.75f, 0.0f)
                 );
             }
 
             case EXPLOSION -> {
                 return List.of(
-                        spec(new Particle<>(ParticleTypes.EXPLOSION), position, 5, 0.3f, 0.3f, 0.3f, 0.0f),
-                        spec(new Particle<>(ParticleTypes.SMOKE), position, 40, 0.5f, 0.5f, 0.5f, 0.08f),
-                        spec(new Particle<>(ParticleTypes.LARGE_SMOKE), position, 20, 0.4f, 0.4f, 0.4f, 0.04f)
+                        spec(new Particle<>(ParticleTypes.EXPLOSION), position, 8, 0.45f, 0.45f, 0.45f, 0.0f),
+                        spec(new Particle<>(ParticleTypes.SMOKE), position, 85, 0.95f, 0.95f, 0.95f, 0.11f),
+                        spec(new Particle<>(ParticleTypes.LARGE_SMOKE), position, 40, 0.80f, 0.80f, 0.80f, 0.06f)
                 );
             }
 
             case BLOOD -> {
                 return List.of(
-                        spec(dust(1.5f, Color.RED), position, 80, 0.4f, 0.4f, 0.4f, 0.0f),
-                        spec(dust(2.0f, Color.fromRGB(139, 0, 0)), position, 30, 0.2f, 0.2f, 0.2f, 0.0f)
+                        spec(dust(1.8f, Color.RED), position, 130, 0.85f, 0.75f, 0.85f, 0.0f),
+                        spec(dust(2.3f, Color.fromRGB(139, 0, 0)), position, 55, 0.60f, 0.60f, 0.60f, 0.0f),
+                        spec(new Particle<>(ParticleTypes.SMOKE), position, 25, 0.45f, 0.40f, 0.45f, 0.02f)
                 );
             }
 
             case ENCHANT -> {
                 return List.of(
-                        spec(new Particle<>(ParticleTypes.ENCHANT), position, 200, 0.5f, 0.5f, 0.5f, 0.5f),
-                        spec(new Particle<>(ParticleTypes.ENCHANTED_HIT), position, 60, 0.4f, 0.4f, 0.4f, 0.3f),
-                        spec(new Particle<>(ParticleTypes.WITCH), position, 30, 0.4f, 0.4f, 0.4f, 0.0f)
+                        spec(new Particle<>(ParticleTypes.ENCHANT), position, 300, 0.95f, 1.05f, 0.95f, 0.70f),
+                        spec(new Particle<>(ParticleTypes.ENCHANTED_HIT), position, 95, 0.80f, 0.80f, 0.80f, 0.38f),
+                        spec(new Particle<>(ParticleTypes.WITCH), position, 55, 0.75f, 0.75f, 0.75f, 0.0f)
                 );
             }
 
             case ENDER -> {
                 return List.of(
-                        spec(new Particle<>(ParticleTypes.PORTAL), position, 150, 0.5f, 0.5f, 0.5f, 1.0f),
-                        spec(new Particle<>(ParticleTypes.SMOKE), position, 30, 0.4f, 0.4f, 0.4f, 0.05f),
-                        spec(new Particle<>(ParticleTypes.WITCH), position, 20, 0.4f, 0.4f, 0.4f, 0.0f)
+                        spec(new Particle<>(ParticleTypes.PORTAL), position, 240, 0.95f, 1.05f, 0.95f, 1.25f),
+                        spec(new Particle<>(ParticleTypes.SMOKE), position, 55, 0.75f, 0.75f, 0.75f, 0.08f),
+                        spec(new Particle<>(ParticleTypes.WITCH), position, 45, 0.70f, 0.70f, 0.70f, 0.0f)
                 );
             }
 
             case HEARTS -> {
                 return List.of(
-                        spec(new Particle<>(ParticleTypes.HEART), position, 25, 0.5f, 0.5f, 0.5f, 0.1f),
-                        spec(dust(1.5f, Color.fromRGB(255, 105, 180)), position, 40, 0.4f, 0.4f, 0.4f, 0.0f)
+                        spec(new Particle<>(ParticleTypes.HEART), position, 55, 0.95f, 0.95f, 0.95f, 0.2f),
+                        spec(dust(1.8f, Color.fromRGB(255, 105, 180)), position, 90, 0.80f, 0.80f, 0.80f, 0.0f),
+                        spec(dust(1.4f, Color.fromRGB(255, 190, 220)), position, 45, 0.65f, 0.70f, 0.65f, 0.0f)
                 );
             }
 
             case ICE -> {
                 return List.of(
-                        spec(new Particle<>(ParticleTypes.SNOWFLAKE), position, 60, 0.5f, 0.5f, 0.5f, 0.1f),
-                        spec(dust(1.5f, Color.fromRGB(173, 216, 230)), position, 30, 0.4f, 0.4f, 0.4f, 0.0f),
-                        spec(new Particle<>(ParticleTypes.ITEM_SNOWBALL), position, 20, 0.4f, 0.3f, 0.4f, 0.05f)
+                        spec(new Particle<>(ParticleTypes.SNOWFLAKE), position, 130, 0.95f, 0.95f, 0.95f, 0.16f),
+                        spec(dust(1.8f, Color.fromRGB(173, 216, 230)), position, 65, 0.80f, 0.80f, 0.80f, 0.0f),
+                        spec(new Particle<>(ParticleTypes.ITEM_SNOWBALL), position, 45, 0.70f, 0.60f, 0.70f, 0.08f)
                 );
             }
         }
@@ -250,8 +322,17 @@ public enum DeathEffect {
 
         switch (this) {
             case LIGHTNING -> viewers.forEach(player -> player.playSound(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.0f));
-            case FIREWORK -> viewers.forEach(player -> player.playSound(location, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.0f, 1.0f));
-            case EXPLOSION -> viewers.forEach(player -> player.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 1.0f));
+            case FIREWORK -> viewers.forEach(player -> {
+                player.playSound(location, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.05f, 1.0f);
+                player.playSound(location, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 0.8f, 1.2f);
+            });
+            case EXPLOSION -> viewers.forEach(player -> {
+                player.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+                player.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 0.55f, 0.7f);
+            });
+            case FLAME -> viewers.forEach(player -> player.playSound(location, Sound.BLOCK_FIRE_AMBIENT, 0.9f, 1.1f));
+            case ENDER -> viewers.forEach(player -> player.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 0.85f, 1.15f));
+            case ICE -> viewers.forEach(player -> player.playSound(location, Sound.BLOCK_GLASS_BREAK, 0.75f, 1.35f));
             default -> {
             }
         }

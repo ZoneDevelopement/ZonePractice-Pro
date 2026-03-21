@@ -3,6 +3,8 @@ package dev.nandi0813.practice.util.fightmapchange;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
+import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuild;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
@@ -14,7 +16,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -136,21 +137,34 @@ public class FightChangeOptimized {
 
     /**
      * Adds a temporary block change that will auto-remove after delay.
+     * Tracks the hand used for smarter item return placement.
      */
-    public void addBlockChange(ChangedBlock change, Player player, int destroyTime) {
-        addBlockChange(change, player, destroyTime, EquipmentSlot.HAND);
+    public void addBlockChange(ChangedBlock change, Player player, int destroyTime, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
+        addBlockChange(change, player, destroyTime, handUsed, null);
     }
 
     /**
      * Adds a temporary block change that will auto-remove after delay.
-     * Tracks the hand used for smarter item return placement.
+     * Stores the exact placed item snapshot so returned items keep full ItemMeta.
      */
-    public void addBlockChange(ChangedBlock change, Player player, int destroyTime, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
+    public void addBlockChange(
+            ChangedBlock change,
+            Player player,
+            int destroyTime,
+            @org.jetbrains.annotations.Nullable EquipmentSlot handUsed,
+            @org.jetbrains.annotations.Nullable ItemStack returnItem
+    ) {
         if (change == null) return;
 
         long pos = BlockPosition.encode(change.getLocation());
         BlockChangeEntry entry = blocks.computeIfAbsent(pos, k -> new BlockChangeEntry(change));
-        entry.setTempData(player, destroyTime * 20, handUsed); // Convert seconds to ticks
+
+        // -1 disables temp build auto-removal; block remains until normal rollback.
+        if (destroyTime <= 0) {
+            return;
+        }
+
+        entry.setTempData(player, destroyTime * 20, handUsed, returnItem); // Convert seconds to ticks
 
         // Start ticker if not running
         ensureTempBlockTickerRunning();
@@ -225,48 +239,38 @@ public class FightChangeOptimized {
     private void removeTempBlock(BlockChangeEntry entry) {
         if (entry.tempData.returnItem && entry.tempData.player.isOnline()) {
             Block block = entry.changedBlock.getLocation().getBlock();
-            for (ItemStack drop : block.getDrops()) {
-                giveReturnedItem(entry.tempData.player, drop, entry.tempData.handUsed);
+            ItemStack storedItem = getStoredTempBuildItem(block);
+            if (storedItem != null) {
+                giveReturnedItem(entry.tempData.player, storedItem);
+            } else if (entry.tempData.returnItemStack != null) {
+                giveReturnedItem(entry.tempData.player, entry.tempData.returnItemStack.clone());
+            } else {
+                for (ItemStack drop : block.getDrops()) {
+                    giveReturnedItem(entry.tempData.player, drop);
+                }
             }
         }
 
         entry.changedBlock.reset();
     }
 
-    private void giveReturnedItem(Player player, ItemStack drop, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
+    private void giveReturnedItem(Player player, ItemStack drop) {
         if (player == null || drop == null || drop.getType().isAir()) {
             return;
         }
 
-        ItemStack remaining = drop.clone();
-        PlayerInventory inventory = player.getInventory();
+        PlayerUtil.returnItemToCurrentSlotOrInventory(player, drop);
+    }
 
-        if (handUsed == EquipmentSlot.OFF_HAND) {
-            ItemStack offhand = inventory.getItemInOffHand();
-            if (offhand == null || offhand.getType().isAir()) {
-                inventory.setItemInOffHand(remaining);
-                return;
-            }
-
-            if (offhand.isSimilar(remaining)) {
-                int maxStack = offhand.getMaxStackSize();
-                int space = maxStack - offhand.getAmount();
-                if (space > 0) {
-                    int moved = Math.min(space, remaining.getAmount());
-                    offhand.setAmount(offhand.getAmount() + moved);
-                    inventory.setItemInOffHand(offhand);
-                    remaining.setAmount(remaining.getAmount() - moved);
-                    if (remaining.getAmount() <= 0) {
-                        return;
-                    }
-                }
-            }
+    private @org.jetbrains.annotations.Nullable ItemStack getStoredTempBuildItem(@org.jetbrains.annotations.NotNull Block block) {
+        ItemStack storedItem = BlockUtil.getMetadata(block, TempBuild.TEMP_BUILD_BLOCK_ITEM, ItemStack.class);
+        if (storedItem == null || storedItem.getType().isAir()) {
+            return null;
         }
 
-        Map<Integer, ItemStack> overflow = inventory.addItem(remaining);
-        if (!overflow.isEmpty()) {
-            overflow.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
-        }
+        ItemStack clone = storedItem.clone();
+        clone.setAmount(1);
+        return clone;
     }
 
     private static boolean isVineLike(org.bukkit.Material material) {
@@ -459,7 +463,6 @@ public class FightChangeOptimized {
         private final int maxChange;
         private final int totalBlocks;
         private int processedBlocks = 0;
-        private final long startTime;
         private boolean isRunning = false;
         @org.jetbrains.annotations.Nullable
         private final Runnable onComplete;
@@ -473,7 +476,6 @@ public class FightChangeOptimized {
             this.maxCheck = maxCheck;
             this.maxChange = maxChange;
             this.totalBlocks = blocks.size();
-            this.startTime = System.currentTimeMillis();
             this.onComplete = onComplete;
         }
 
@@ -486,7 +488,6 @@ public class FightChangeOptimized {
         public void run() {
             int changeCounter = 0;
             int checkCounter = 0;
-            int skippedUnloaded = 0;
 
             try {
                 while (iterator.hasNext() && changeCounter < maxChange && checkCounter < maxCheck) {
@@ -501,7 +502,6 @@ public class FightChangeOptimized {
                     int chunkZ = BlockPosition.getZ(pos) >> 4;
 
                     if (!world.isChunkLoaded(chunkX, chunkZ)) {
-                        skippedUnloaded++;
                         blocks.remove(pos); // Remove from live map - arena should be loaded
                         continue;
                     }
@@ -546,7 +546,6 @@ public class FightChangeOptimized {
                 isRunning = false;
                 rollingBack = false;
                 Common.sendConsoleMMMessage("<red>Rollback error at block " + processedBlocks + "/" + totalBlocks + ": " + e.getMessage());
-                e.printStackTrace();
             }
         }
     }
@@ -564,8 +563,13 @@ public class FightChangeOptimized {
             this.changedBlock = changedBlock;
         }
 
-        void setTempData(Player player, int ticksRemaining, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
-            this.tempData = new TempBlockData(player, ticksRemaining, handUsed);
+        void setTempData(
+                Player player,
+                int ticksRemaining,
+                @org.jetbrains.annotations.Nullable EquipmentSlot handUsed,
+                @org.jetbrains.annotations.Nullable ItemStack returnItem
+        ) {
+            this.tempData = new TempBlockData(player, ticksRemaining, handUsed, returnItem);
         }
 
     }
@@ -579,14 +583,22 @@ public class FightChangeOptimized {
         @Getter
         @org.jetbrains.annotations.Nullable
         final EquipmentSlot handUsed;
+        @org.jetbrains.annotations.Nullable
+        final ItemStack returnItemStack;
         int ticksRemaining;
         @Setter
         boolean returnItem = true;
 
-        TempBlockData(Player player, int ticksRemaining, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
+        TempBlockData(
+                Player player,
+                int ticksRemaining,
+                @org.jetbrains.annotations.Nullable EquipmentSlot handUsed,
+                @org.jetbrains.annotations.Nullable ItemStack returnItem
+        ) {
             this.player = player;
             this.ticksRemaining = ticksRemaining;
             this.handUsed = handUsed;
+            this.returnItemStack = returnItem == null ? null : returnItem.clone();
         }
 
         /**
@@ -595,8 +607,15 @@ public class FightChangeOptimized {
         public void reset(FightChangeOptimized fightChange, ChangedBlock changedBlock, long position) {
             if (returnItem && player.isOnline()) {
                 Block block = changedBlock.getLocation().getBlock();
-                for (ItemStack drop : block.getDrops()) {
-                    fightChange.giveReturnedItem(player, drop, handUsed);
+                ItemStack storedItem = fightChange.getStoredTempBuildItem(block);
+                if (storedItem != null) {
+                    fightChange.giveReturnedItem(player, storedItem);
+                } else if (returnItemStack != null) {
+                    fightChange.giveReturnedItem(player, returnItemStack.clone());
+                } else {
+                    for (ItemStack drop : block.getDrops()) {
+                        fightChange.giveReturnedItem(player, drop);
+                    }
                 }
             }
             changedBlock.reset();

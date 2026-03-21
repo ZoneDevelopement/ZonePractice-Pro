@@ -95,6 +95,14 @@ public class LadderTypeConfig {
         return this;
     }
 
+    public LadderTypeConfig withRegenSettings() {
+        return withSettings(
+            SettingType.HUNGER,
+            SettingType.REGENERATION,
+            SettingType.HEALTH_BELOW_NAME,
+            SettingType.GOLDEN_APPLE_COOLDOWN
+        );
+    }
     /**
      * Adds common settings that most ladders use.
      * Includes: EDITABLE, HIT_DELAY, HUNGER, KNOCKBACK, WEIGHT_CLASS,
@@ -104,14 +112,11 @@ public class LadderTypeConfig {
         return withSettings(
                 SettingType.EDITABLE,
                 SettingType.HIT_DELAY,
-                SettingType.HUNGER,
                 SettingType.KNOCKBACK,
                 SettingType.WEIGHT_CLASS,
-                SettingType.REGENERATION,
                 SettingType.ROUNDS,
                 SettingType.MAX_DURATION,
-                SettingType.START_COUNTDOWN,
-                SettingType.HEALTH_BELOW_NAME
+                SettingType.START_COUNTDOWN
         );
     }
 
@@ -120,8 +125,7 @@ public class LadderTypeConfig {
      */
     public LadderTypeConfig withPearlSettings() {
         return withSettings(
-                SettingType.ENDER_PEARL_COOLDOWN,
-                SettingType.GOLDEN_APPLE_COOLDOWN
+                SettingType.ENDER_PEARL_COOLDOWN
         );
     }
 

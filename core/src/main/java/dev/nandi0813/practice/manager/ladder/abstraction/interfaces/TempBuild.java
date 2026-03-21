@@ -14,15 +14,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
 public interface TempBuild {
 
-    void setBuildDelay(int buildDelay);
-
-    int getBuildDelay();
+    String TEMP_BUILD_BLOCK_ITEM = "ZONEPRACTICE_PRO_TEMP_BUILD_BLOCK_ITEM";
 
     static void onBucketEmpty(final @NotNull PlayerBucketEmptyEvent e, final @NotNull Match match, final int buildDelay) {
         if (e.isCancelled()) return;
@@ -54,6 +53,7 @@ public interface TempBuild {
         Block block = e.getBlockPlaced();
 
         BlockUtil.setMetadata(block, PLACED_IN_FIGHT, match);
+        BlockUtil.setMetadata(block, TEMP_BUILD_BLOCK_ITEM, createPlacedReturnItem(e));
 
         match.getFightChange().addBlockChange(new ChangedBlock(e), player, buildDelay, e.getHand());
 
@@ -88,6 +88,17 @@ public interface TempBuild {
                 tempData.reset(fightChange, entry.getChangedBlock(), pos);
             }
         }
+    }
+
+    private static @NotNull ItemStack createPlacedReturnItem(final @NotNull BlockPlaceEvent e) {
+        ItemStack placedItem = e.getItemInHand();
+        if (placedItem.getType().isAir()) {
+            return new ItemStack(e.getBlockPlaced().getType(), 1);
+        }
+
+        ItemStack clone = placedItem.clone();
+        clone.setAmount(1);
+        return clone;
     }
 
 }

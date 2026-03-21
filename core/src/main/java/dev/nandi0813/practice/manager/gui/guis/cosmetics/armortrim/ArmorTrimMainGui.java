@@ -36,7 +36,8 @@ public class ArmorTrimMainGui extends GUI {
     private static final int CHESTPLATE_SLOT = 12;
     private static final int LEGGINGS_SLOT = 14;
     private static final int BOOTS_SLOT = 16;
-    private static final int INFO_SLOT = 31;
+    private static final int INFO_SLOT = 30;
+    private static final int APPLY_ALL_SLOT = 32;
 
     private static final ItemStack FILLER_ITEM = GUIFile.getGuiItem("GENERAL-FILLER-ITEM").get();
     private static final GUIItem HELMET_ITEM = GUIFile.getGuiItem("GUIS.COSMETICS.ICONS.HELMET-ICON");
@@ -44,7 +45,15 @@ public class ArmorTrimMainGui extends GUI {
     private static final GUIItem LEGGINGS_ITEM = GUIFile.getGuiItem("GUIS.COSMETICS.ICONS.LEGGINGS-ICON");
     private static final GUIItem BOOTS_ITEM = GUIFile.getGuiItem("GUIS.COSMETICS.ICONS.BOOTS-ICON");
     private static final GUIItem INFO_ITEM = GUIFile.getGuiItem("GUIS.COSMETICS.ICONS.INFO-ICON");
+    private static final GUIItem APPLY_ALL_ITEM = GUIFile.getGuiItem("GUIS.COSMETICS.ICONS.APPLY-ALL-TIERS");
     private static final ItemStack BACK_TO_ITEM = GUIFile.getGuiItem("GUIS.COSMETICS.ICONS.BACK-TO").get();
+
+    private static final ArmorSlot[] ARMOR_TYPE_SLOTS = {
+            ArmorSlot.HELMET,
+            ArmorSlot.CHESTPLATE,
+            ArmorSlot.LEGGINGS,
+            ArmorSlot.BOOTS
+    };
 
     private final Profile profile;
     private final GUI backToGui;
@@ -89,6 +98,7 @@ public class ArmorTrimMainGui extends GUI {
         inventory.setItem(LEGGINGS_SLOT, buildArmorPreviewItem(LEGGINGS_ITEM, activeTier, ArmorSlot.LEGGINGS));
         inventory.setItem(BOOTS_SLOT, buildArmorPreviewItem(BOOTS_ITEM, activeTier, ArmorSlot.BOOTS));
         inventory.setItem(INFO_SLOT, buildTierToggleItem(activeTier));
+        inventory.setItem(APPLY_ALL_SLOT, buildApplyToAllTiersItem());
 
         if (backToGui != null) {
             ItemStack backItem = BACK_TO_ITEM == null ? new ItemStack(Material.ARROW) : BACK_TO_ITEM;
@@ -116,6 +126,16 @@ public class ArmorTrimMainGui extends GUI {
             } else if (e.isRightClick()) {
                 handleTierToggleClick(player, true);
             }
+            return;
+        }
+
+        if (slot == APPLY_ALL_SLOT) {
+            if (!player.hasPermission("zpp.cosmetics.armortrim.apply-global")) {
+                Common.sendMMMessage(player, GUIFile.getString("GUIS.COSMETICS.APPLY-ALL-TIERS-ERROR-MESSAGE"));
+                return;
+            }
+
+            applyActiveTierToAllTiers(player);
             return;
         }
 
@@ -225,6 +245,31 @@ public class ArmorTrimMainGui extends GUI {
         return guiItem.get();
     }
 
+    private ItemStack buildApplyToAllTiersItem() {
+        GUIItem guiItem = APPLY_ALL_ITEM.cloneItem();
+        guiItem.setMaterial(guiItem.getMaterial() == null ? Material.SMITHING_TABLE : guiItem.getMaterial());
+
+        if (guiItem.getName() == null || guiItem.getName().isEmpty()) {
+            guiItem.setName("&aApply Current Tier To All Tiers");
+        }
+
+        if (guiItem.getLore() == null || guiItem.getLore().isEmpty()) {
+            List<String> lore = new ArrayList<>();
+            lore.add("&7Copies the active tier trim setup");
+            lore.add("&7to every armor tier.");
+            lore.add("");
+            lore.add("&eHelmet -> Helmet");
+            lore.add("&eChestplate -> Chestplate");
+            lore.add("&eLeggings -> Leggings");
+            lore.add("&eBoots -> Boots");
+            lore.add("");
+            lore.add("&aClick to apply");
+            guiItem.setLore(lore);
+        }
+
+        return guiItem.get();
+    }
+
     private void handleTierToggleClick(Player player, boolean forward) {
         ArmorTrimTier currentTier = profile.getCosmeticsData().getActiveTier();
         ArmorTrimTier nextTier = forward ? currentTier.next() : previousTier(currentTier);
@@ -244,6 +289,35 @@ public class ArmorTrimMainGui extends GUI {
         Common.sendMMMessage(player, noPermMessage);
     }
 
+    private void applyActiveTierToAllTiers(Player player) {
+        ArmorTrimTier sourceTier = profile.getCosmeticsData().getActiveTier();
+
+        if (!player.hasPermission(sourceTier.getPermissionNode())) {
+            String deniedMessage = GUIFile.getConfig().getString("GUIS.COSMETICS.PERMISSION-DENIED-MESSAGE", "<red>You do not have permission for the selected armor tier.");
+            Common.sendMMMessage(player, deniedMessage);
+            return;
+        }
+
+        for (ArmorTrimTier targetTier : ArmorTrimTier.values()) {
+            for (ArmorSlot slot : ARMOR_TYPE_SLOTS) {
+                TrimPattern sourcePattern = profile.getCosmeticsData().getPattern(sourceTier, slot);
+                TrimMaterial sourceMaterial = profile.getCosmeticsData().getMaterial(sourceTier, slot);
+
+                profile.getCosmeticsData().setPattern(targetTier, slot, sourcePattern);
+                profile.getCosmeticsData().setMaterial(targetTier, slot, sourceMaterial);
+            }
+        }
+
+        profile.saveData();
+        update(true);
+
+        String successMessage = GUIFile.getConfig().getString(
+                "GUIS.COSMETICS.APPLY-ALL-TIERS-SUCCESS-MESSAGE",
+                "<green>Applied the current tier trim setup to all armor tiers."
+        );
+        Common.sendMMMessage(player, successMessage);
+    }
+
     private ArmorTrimTier previousTier(ArmorTrimTier tier) {
         ArmorTrimTier[] tiers = ArmorTrimTier.values();
         int index = tier.ordinal() - 1;
@@ -254,7 +328,7 @@ public class ArmorTrimMainGui extends GUI {
     }
 
     private static void applyTrimPreview(ItemStack item, TrimPattern pattern, TrimMaterial material) {
-        if (item == null || pattern == null || material == null || !item.hasItemMeta()) {
+        if (item == null || pattern == null || material == null) {
             return;
         }
 

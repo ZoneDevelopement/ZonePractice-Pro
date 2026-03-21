@@ -344,6 +344,8 @@ permissions:
     description: Allow access to Diamond armor tier.
   zpp.cosmetics.armortrim.base.netherite:
     description: Allow access to Netherite armor tier.
+  zpp.cosmetics.armortrim.apply-global:
+    description: Copy armor trim setting to all armor types.
 
   # Note: zpp.cosmetics.pattern.* and zpp.cosmetics.material.* permissions are
   # dynamically registered at runtime by ArmorTrimPermissionManager based on

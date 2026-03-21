@@ -109,6 +109,7 @@ public class BedUtil {
         String languagePath = switch (match.getLadder().getType()) {
             case BEDWARS -> "MATCH." + match.getType().getPathName() + ".LADDER-SPECIFIC.BED-WARS";
             case FIREBALL_FIGHT -> "MATCH." + match.getType().getPathName() + ".LADDER-SPECIFIC.FIREBALL-FIGHT";
+            case MLG_RUSH -> "MATCH." + match.getType().getPathName() + ".LADDER-SPECIFIC.MLG-RUSH";
             default -> null;
         };
 
