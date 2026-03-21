@@ -94,6 +94,17 @@ public class MainGUI extends GUI {
         if (kitItems.getSlots().containsKey(slot)) {
             KitItem kitItem = kitItems.getSlots().get(slot);
 
+            // Any click on a shulker box opens the contents editor
+            if (!kitItem.isNull() && ShulkerCategoryGUI.isShulkerBox(kitItem.getMaterial())) {
+                if (e.getClick() == org.bukkit.event.inventory.ClickType.SHIFT_LEFT) {
+                    kitItem.reset();
+                    this.update();
+                } else {
+                    new ShulkerBoxEditorGUI(this, kitItem).open(player);
+                }
+                return;
+            }
+
             switch (e.getClick()) {
                 case LEFT:
                     PlayerKitManager.getInstance().getEditing().get(player).setKitItem(kitItem);
@@ -109,10 +120,7 @@ public class MainGUI extends GUI {
                     break;
                 case RIGHT:
                     if (!kitItem.isNull()) {
-                        if (ShulkerCategoryGUI.isShulkerBox(kitItem.getMaterial())) {
-                            // Right-click on a shulker box → edit its contents
-                            new ShulkerBoxEditorGUI(this, kitItem).open(player);
-                        } else if (kitItem.getMaterial().getMaxStackSize() > 1) {
+                        if (kitItem.getMaterial().getMaxStackSize() > 1) {
                             new AmountChangeGUI(kitItem, this).open(player);
                         } else if (canBeEnchanted(kitItem.get())) {
                             new EnchantGUI(kitItem, this).open(player);
