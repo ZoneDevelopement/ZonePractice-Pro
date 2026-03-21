@@ -84,6 +84,18 @@ public class PotionsGUI extends GUI {
             editing.reset();
             editing.setItemStack(item.clone());
 
+            // Route back to shulker editor if we came from one
+            if (playerKitEditing.isEditingShulker()) {
+                dev.nandi0813.practice.manager.playerkit.guis.ShulkerBoxEditorGUI editor =
+                        playerKitEditing.getShulkerEditor();
+                int shulkerSlot = playerKitEditing.getShulkerSlot();
+                playerKitEditing.clearShulkerContext();
+                editor.onItemSelected(shulkerSlot, item.clone());
+                editor.update(true);
+                editor.open(player);
+                return;
+            }
+
             GUI mainGUI = playerKitEditing.getCustomLadder().getMainGUI();
             mainGUI.update();
             mainGUI.open(player);
