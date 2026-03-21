@@ -23,6 +23,7 @@ public enum LadderType {
             )
             .withMovementSettings()
             .withTeamSettings()
+            .withRegenSettings()
             .withCommonSettings()
             .withPearlSettings()
     ),
@@ -36,6 +37,7 @@ public enum LadderType {
             .withBuild()
             .withMovementSettings()
             .withTeamSettings()
+            .withRegenSettings()
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
@@ -50,6 +52,19 @@ public enum LadderType {
             .withTeamSettings()
             .withCommonSettings()
             .withPearlSettings()
+    ),
+
+    TNT_SUMO(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.TNT-SUMO.NAME",
+            Material.TNT,
+                    "LADDER.LADDER-TYPES.TNT-SUMO.DESCRIPTION",
+                    TntSumo.class
+            )
+            .withBuild()
+            .withTeamSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withSetting(SettingType.BLOCK_RETURN_DELAY)
     ),
 
     BOXING(LadderTypeConfig.builder(
@@ -76,7 +91,7 @@ public enum LadderType {
             .withCommonSettings()
             .withSettings(
                     SettingType.GOLDEN_APPLE_COOLDOWN,
-                    SettingType.TEMP_BUILD_DELAY
+                    SettingType.BLOCK_RETURN_DELAY
             )
             .withBuildSettings()
     ),
@@ -111,6 +126,7 @@ public enum LadderType {
             )
             .withBuild()
             .withTeamSettings()
+            .withRegenSettings()
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
@@ -127,6 +143,7 @@ public enum LadderType {
             .withBed()
             .noPartyFFA()
             .withRespawnSettings()
+            .withRegenSettings()
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
@@ -142,11 +159,28 @@ public enum LadderType {
             .withBed()
             .noPartyFFA()
             .withRespawnSettings()
+            .withRegenSettings()
+            .withRegenSettings()
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
             .withSetting(SettingType.FIREBALL_COOLDOWN)
             .withSetting(SettingType.FIREBALL_BLOCK_DESTROY)
+    ),
+
+    MLG_RUSH(LadderTypeConfig.builder(
+                    "LADDER.LADDER-TYPES.MLG-RUSH.NAME",
+            Material.BLUE_TERRACOTTA,
+                    "LADDER.LADDER-TYPES.MLG-RUSH.DESCRIPTION",
+                    MLGRush.class
+            )
+            .withBuild()
+            .withBed()
+            .noPartyFFA()
+            .withRespawnSettings()
+            .withCommonSettings()
+            .withPearlSettings()
+            .withSetting(SettingType.BLOCK_RETURN_DELAY)
     ),
 
     BRIDGES(LadderTypeConfig.builder(
@@ -178,7 +212,7 @@ public enum LadderType {
             .withCommonSettings()
             .withPearlSettings()
             .withBuildSettings()
-            .withSetting(SettingType.TEMP_BUILD_DELAY)
+            .withSetting(SettingType.BLOCK_RETURN_DELAY)
     );
 
     private final String name;

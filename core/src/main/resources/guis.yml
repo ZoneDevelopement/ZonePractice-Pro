@@ -1,4 +1,4 @@
-VERSION: 17
+VERSION: 23
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1001,7 +1001,7 @@ GUIS:
             - "&7ladder %ladder%&7."
             - "&8&m------------------------"
         FILLER-ITEM:
-          MATERIAL: BLACK_STAINED_GLASS_PANE
+          MATERIAL: GRAY_STAINED_GLASS_PANE
         BASE-CUSTOM-PLAYER-KIT-ICON:
           NAME: "&6Custom Kit"
           MATERIAL: DIAMOND_SWORD
@@ -1114,49 +1114,59 @@ GUIS:
             - "&8&m------------------------"
   UNRANKED-GUI:
     LB-FORMAT: "&e%placement%# &f%player% &7» &f%score%"
-    FIRST-CATEGORY:
-      TITLE: "&9&lJoin %weight_class% Queue"
-      ICONS:
-        LADDER:
-          NAME: "%ladder%"
-          LORE: # Options: %elo%, %win%, %kills%, %deaths%, %win_streak%, %best_win_streak%, %lose_streak%, %best_lose_streak%
-            - " &c&l» &eUnranked"
-            - "     &fFighting: &e%in_fight%"
-            - "     &fQueueing: &e%in_queue%"
-            - ""
-            - "&eWinstreak Top 3"
-            - "%lb_win_streak_1%"
-            - "%lb_win_streak_2%"
-            - "%lb_win_streak_3%"
-            - ""
-            - "&eClick here to join the %weight_class% %ladder% &equeue."
-        FILLER-ITEM:
-          MATERIAL: BLACK_STAINED_GLASS_PANE
-        GO-TO-SECOND-CATEGORY:
-          NAME: "&9&lNext Page"
-          MATERIAL: ARROW
-    SECOND-CATEGORY:
-      TITLE: "&9&lJoin %weight_class% Queue"
-      ICONS:
-        LADDER:
-          NAME: "%ladder%"
-          LORE: # Options: %elo%, %win%, %kills%, %deaths%, %win_streak%, %best_win_streak%, %lose_streak%, %best_lose_streak%
-            - " &c&l» &eUnranked"
-            - "     &fFighting: &e%in_fight%"
-            - "     &fQueueing: &e%in_queue%"
-            - ""
-            - "&eWinstreak Top 3"
-            - "%lb_win_streak_1%"
-            - "%lb_win_streak_2%"
-            - "%lb_win_streak_3%"
-            - ""
-            - "&eClick here to join the %weight_class% %ladder% &equeue."
-        FILLER-ITEM:
-          MATERIAL: BLACK_STAINED_GLASS_PANE
-        GO-BACK-TO-FIRST-CATEGORY:
-          NAME: "&9&lPrevious Page"
-          MATERIAL: ARROW
+    TITLE: "%weight_class% Queue &8- &b%category%"
     ICONS:
+      FILLER-ITEM:
+        MATERIAL: BLACK_STAINED_GLASS_PANE
+      CATEGORY-SELECTOR:
+        NAME: "&7%category%"
+        MATERIAL: BOOK
+        LORE:
+          - "&8&m------------------------"
+          - "&7Browse ladders in this category"
+          - "&7Find your favorite queue faster"
+          - ""
+          - "&7Ladders"
+          - "&f%category_ladders%"
+          - ""
+          - "&eClick to select this category"
+          - "&8&m------------------------"
+      SELECTED-CATEGORY-SELECTOR:
+        NAME: "&b%category%"
+        MATERIAL: ENCHANTED_BOOK
+        LORE:
+          - "&8&m------------------------"
+          - "&7Browse ladders in this category"
+          - "&7Find your favorite queue faster"
+          - ""
+          - "&7Ladders"
+          - "&f%category_ladders%"
+          - ""
+          - "&cAlready selected"
+          - "&8&m------------------------"
+      QUICK-MATCH:
+        NAME: "&a&lQuick Match"
+        MATERIAL: NETHER_STAR
+        LORE:
+          - "&8&m------------------------"
+          - "&7Instantly pick a random kit"
+          - "&7from the selected category"
+          - ""
+          - "&eClick to queue immediately"
+          - "&8&m------------------------"
+      LADDER:
+        NAME: "%ladder%"
+        LORE: # Options: %elo%, %win%, %kills%, %deaths%, %win_streak%, %best_win_streak%, %lose_streak%, %best_lose_streak%
+          - " &c&l» &eUnranked"
+          - "     &fFighting: &e%in_fight%"
+          - "     &fQueueing: &e%in_queue%"
+          - ""
+          - "&eWinstreak Top 3"
+          - "%lb_win_streak_1%"
+          - "%lb_win_streak_2%"
+          - "%lb_win_streak_3%"
+          - ""
+          - "&eClick here to join the %weight_class% %ladder% &equeue."
       FROZEN-LADDER-ITEM: # You can set different material and damage for this item.
         NAME: "%ladder%"
         LORE:
@@ -1169,49 +1179,59 @@ GUIS:
           - "&eThis ladder is &cdisabled&e."
   RANKED-GUI:
     LB-FORMAT: "&e%placement%# &f%player% &7» &f%score%"
-    FIRST-CATEGORY:
-      TITLE: "&4&lJoin %weight_class% Queue"
-      ICONS:
-        LADDER:
-          NAME: "%ladder%"
-          LORE: # Options: %elo%, %win%, %kills%, %deaths%, %win_streak%, %best_win_streak%, %lose_streak%, %best_lose_streak%
-            - " &c&l» &cRanked"
-            - "     &fFighting: &e%in_fight%"
-            - "     &fQueueing: &e%in_queue%"
-            - ""
-            - "&eElo Top 3"
-            - "%lb_elo_1%"
-            - "%lb_elo_2%"
-            - "%lb_elo_3%"
-            - ""
-            - "&eClick here to join the %weight_class% %ladder% &equeue."
-        FILLER-ITEM:
-          MATERIAL: BLACK_STAINED_GLASS_PANE
-        GO-TO-SECOND-CATEGORY:
-          NAME: "&9&lNext Page"
-          MATERIAL: ARROW
-    SECOND-CATEGORY:
-      TITLE: "&4&lJoin %weight_class% Queue"
-      ICONS:
-        LADDER:
-          NAME: "%ladder%"
-          LORE: # Options: %elo%, %win%, %kills%, %deaths%, %win_streak%, %best_win_streak%, %lose_streak%, %best_lose_streak%
-            - " &c&l» &cRanked"
-            - "     &fFighting: &e%in_fight%"
-            - "     &fQueueing: &e%in_queue%"
-            - ""
-            - "&eWinstreak Top 3"
-            - "%lb_win_streak_1%"
-            - "%lb_win_streak_2%"
-            - "%lb_win_streak_3%"
-            - ""
-            - "&eClick here to join the %weight_class% %ladder% &equeue."
-        FILLER-ITEM:
-          MATERIAL: BLACK_STAINED_GLASS_PANE
-        GO-BACK-TO-FIRST-CATEGORY:
-          NAME: "&9&lPrevious Page"
-          MATERIAL: ARROW
+    TITLE: "%weight_class% Queue &8- &c%category%"
     ICONS:
+      FILLER-ITEM:
+        MATERIAL: BLACK_STAINED_GLASS_PANE
+      CATEGORY-SELECTOR:
+        NAME: "&7%category%"
+        MATERIAL: BOOK
+        LORE:
+          - "&8&m------------------------"
+          - "&7Browse ladders in this category"
+          - "&7Find your favorite queue faster"
+          - ""
+          - "&7Ladders"
+          - "&f%category_ladders%"
+          - ""
+          - "&eClick to select this category"
+          - "&8&m------------------------"
+      SELECTED-CATEGORY-SELECTOR:
+        NAME: "&c%category%"
+        MATERIAL: ENCHANTED_BOOK
+        LORE:
+          - "&8&m------------------------"
+          - "&7Browse ladders in this category"
+          - "&7Find your favorite queue faster"
+          - ""
+          - "&7Ladders"
+          - "&f%category_ladders%"
+          - ""
+          - "&cAlready selected"
+          - "&8&m------------------------"
+      QUICK-MATCH:
+        NAME: "&a&lQuick Match"
+        MATERIAL: NETHER_STAR
+        LORE:
+          - "&8&m------------------------"
+          - "&7Instantly pick a random kit"
+          - "&7from the selected category"
+          - ""
+          - "&eClick to queue immediately"
+          - "&8&m------------------------"
+      LADDER:
+        NAME: "%ladder%"
+        LORE: # Options: %elo%, %win%, %kills%, %deaths%, %win_streak%, %best_win_streak%, %lose_streak%, %best_lose_streak%
+          - " &c&l» &cRanked"
+          - "     &fFighting: &e%in_fight%"
+          - "     &fQueueing: &e%in_queue%"
+          - ""
+          - "&eElo Top 3"
+          - "%lb_elo_1%"
+          - "%lb_elo_2%"
+          - "%lb_elo_3%"
+          - ""
+          - "&eClick here to join the %weight_class% %ladder% &equeue."
       FROZEN-LADDER-ITEM: # You can set different material and damage for this item.
         NAME: "%ladder%"
         LORE:
@@ -2239,13 +2259,14 @@ GUIS:
               - "&e&lClick here &7to edit the"
               - "&7loot which the players get when"
               - "&7they open chests during the game."
-          TEMP-BUILD:
-            NAME: "&7Temp Build delay: &6%tempBuildDelay% sec"
-            MATERIAL: MELON
+          BLOCK-RETURN-DELAY:
+            NAME: "&7%blockReturnDelayTarget% Return Delay: &6%blockReturnDelay%"
+            MATERIAL: BLUE_TERRACOTTA
             LORE:
               - ""
-              - "&7All blocks placed during the match."
-              - "&7will disappear after this time"
+              - "&7This controls the %blockReturnDelayTarget%"
+              - "&7return delay after placement."
+              - "&7Set to &e-1 &7to disable auto return."
               - ""
               - "&a&lLEFT-CLICK &ato reduce the delay."
               - "&b&lRIGHT-CLICK &bto increase the delay."
@@ -2852,6 +2873,8 @@ GUIS:
     PATTERN-PERMISSION-DENIED-MESSAGE: "<red>You do not have permission to use this trim pattern."
     MATERIAL-PERMISSION-DENIED-MESSAGE: "<red>You do not have permission to use this trim material."
     NO-TIER-PERMISSION-MESSAGE: "<red>You do not have permission for any armor tier."
+    APPLY-ALL-TIERS-ERROR-MESSAGE: "<red>You don't have permission to apply this tier to all armor."
+    APPLY-ALL-TIERS-SUCCESS-MESSAGE: "<green>Applied the current tier trim setup to all armor tiers."
     # Armor Tier customization
     ARMOR-TIERS:
       LEATHER:
@@ -2939,6 +2962,21 @@ GUIS:
           - ""
           - "&7Select a category item to edit"
           - "&7your active trim cosmetics."
+          - "&8&m------------------------"
+      APPLY-ALL-TIERS:
+        NAME: "&aApply To All Armor Tiers"
+        MATERIAL: SMITHING_TABLE
+        LORE:
+          - "&8&m------------------------"
+          - "&7Copies the active tier trim"
+          - "&7pattern and material to all tiers."
+          - ""
+          - "&eHelmet -> Helmet"
+          - "&eChestplate -> Chestplate"
+          - "&eLeggings -> Leggings"
+          - "&eBoots -> Boots"
+          - ""
+          - "&aClick to apply"
           - "&8&m------------------------"
       BACK-TO:
         NAME: "&cBack"

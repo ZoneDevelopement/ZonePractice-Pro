@@ -20,7 +20,6 @@ public enum SettingType {
     FIREBALL_COOLDOWN,
     FIREBALL_BLOCK_DESTROY,
     SKYWARS_LOOT,
-    TEMP_BUILD_DELAY,
     BUILD,
     MAX_DURATION,
     TNT_FUSE_TIME,
@@ -28,5 +27,6 @@ public enum SettingType {
     RESET_BUILD_AFTER_ROUND,
     BREAK_ALL_BLOCKS,
     SPLEEF_SNOWBALL_MODE,
+    BLOCK_RETURN_DELAY,
 
 }

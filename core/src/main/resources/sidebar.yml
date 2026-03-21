@@ -1,4 +1,4 @@
-VERSION: 2
+VERSION: 3
 
 TITLE: "<gold><b>PRACTICE"
 LOBBY:
@@ -294,6 +294,41 @@ MATCH:
         - "<gold>play.zonepractice.com"
         - "<gray><st>---------------------"
     BRIDGES:
+      DUEL:
+        - "<gray><st>---------------------"
+        - "<gold><b>Info"
+        - "  <white>Fighting: <yellow>%enemyName%"
+        - "  <white>Duration: <yellow>%roundDuration%"
+        - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
+        - ""
+        - " <green>Won: %playerTeamColor%%rounds%"
+        - " <red>Lost: %enemyTeamColor%%enemyRounds%"
+        - ""
+        - "<gold>play.zonepractice.com"
+        - "<gray><st>---------------------"
+      PARTY_SPLIT:
+        - "<gray><st>---------------------"
+        - "<gold><b>Info"
+        - "  <white>Duration: <yellow>%roundDuration%"
+        - "  <white>Ping: <green>%ping% ms"
+        - ""
+        - " %team1name%<gray>: %team1color%%team1players%<gray>/<green>%team1alivePlayers% %team1color%%team1rounds%"
+        - " %team2name%<gray>: %team2color%%team2players%<gray>/<green>%team2alivePlayers% %team2color%%team2rounds%"
+        - ""
+        - "<gold>play.zonepractice.com"
+        - "<gray><st>---------------------"
+      PARTY_VS_PARTY:
+        - "<gray><st>---------------------"
+        - "<gold><b>Info"
+        - "  <white>Duration: <yellow>%roundDuration%"
+        - "  <white>Ping: <green>%ping% ms"
+        - ""
+        - " %partyTeamName%<gray>: %partyTeamColor%%partyTeamPlayers%<gray>/<green>%partyTeamAlivePlayers% %partyTeamColor%%partyTeamRounds%"
+        - " %enemyTeamName%<gray>: %enemyTeamColor%%enemyTeamPlayers%<gray>/<green>%enemyTeamAlivePlayers% %enemyTeamColor%%enemyTeamRounds%"
+        - ""
+        - "<gold>play.zonepractice.com"
+        - "<gray><st>---------------------"
+    MLGRUSH:
       DUEL:
         - "<gray><st>---------------------"
         - "<gold><b>Info"
@@ -715,6 +750,42 @@ SPECTATE:
           - "<gold>play.zonepractice.com"
           - "<gray><st>---------------------"
       BRIDGES:
+        DUEL:
+          - "<gray><st>---------------------"
+          - "<gold><b>Info"
+          - "  <white>Kit: <yellow>%ladder%"
+          - "  <white>Arena: <yellow>%arena%"
+          - "  <white>Duration: <yellow>%roundDuration%"
+          - ""
+          - " %team1color%%player1rounds% <gray>| %team2color%%player2rounds%"
+          - ""
+          - "<gold>play.zonepractice.com"
+          - "<gray><st>---------------------"
+        PARTY_SPLIT:
+          - "<gray><st>---------------------"
+          - "<gold><b>Info"
+          - "  <white>Kit: <yellow>%ladder%"
+          - "  <white>Arena: <yellow>%arena%"
+          - "  <white>Duration: <yellow>%roundDuration%"
+          - ""
+          - " %team1name%<gray>: %team1color%%team1players%<gray>/<green>%team1alivePlayers% %team1color%%team1rounds%"
+          - " %team2name%<gray>: %team2color%%team2players%<gray>/<green>%team2alivePlayers% %team2color%%team2rounds%"
+          - ""
+          - "<gold>play.zonepractice.com"
+          - "<gray><st>---------------------"
+        PARTY_VS_PARTY:
+          - "<gray><st>---------------------"
+          - "<gold><b>Info"
+          - "  <white>Kit: <yellow>%ladder%"
+          - "  <white>Arena: <yellow>%arena%"
+          - "  <white>Duration: <yellow>%roundDuration%"
+          - ""
+          - " %team1name%<gray>: %team1color%%team1players%<gray>/<green>%team1alivePlayers% %team1color%%team1rounds%"
+          - " %team2name%<gray>: %team2color%%team2players%<gray>/<green>%team2alivePlayers% %team2color%%team2rounds%"
+          - ""
+          - "<gold>play.zonepractice.com"
+          - "<gray><st>---------------------"
+      MLGRUSH:
         DUEL:
           - "<gray><st>---------------------"
           - "<gold><b>Info"

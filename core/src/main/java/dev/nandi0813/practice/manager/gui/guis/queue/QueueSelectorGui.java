@@ -16,6 +16,7 @@ import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -25,20 +26,21 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class QueueSelectorGui extends GUI {
 
     /** Interval between real-time count updates, in ticks (2 seconds). */
     private static final long TICK_INTERVAL = 40L;
+    private static final int DEFAULT_QUICK_MATCH_SLOT = 45;
 
     private final long UPDATE_COOLDOWN_MS =
             this.getUpdateCooldownMinutes() < 0 ? 0 : this.getUpdateCooldownMinutes() * 60 * 1000L;
 
-    // slot → ladder mapping, used for click-handling and live updates
-    private final Map<Integer, NormalLadder> firstCategoryLadderSlots = new HashMap<>();
-    private final Map<Integer, NormalLadder> secondCategoryLadderSlots = new HashMap<>();
-
+    // page -> slot -> ladder mapping, used for click-handling and live updates
+    private final Map<Integer, Map<Integer, NormalLadder>> pageLadderSlots = new HashMap<>();
     private final Map<Integer, Map<Integer, ItemStack>> templateItems = new HashMap<>();
+    private final Map<Integer, Integer> selectorSlotToPage = new HashMap<>();
 
     private long lastUpdateTime = -1L;
     private BukkitTask tickerTask = null;
@@ -83,32 +85,32 @@ public abstract class QueueSelectorGui extends GUI {
         String queuePath = getQueueConfigPath() + ".SELECTOR-GUI";
         String guiPath = getGuiConfigPath();
 
-        boolean secondCategoryEnabled = ConfigManager.getBoolean(queuePath + ".SECOND-CATEGORY.ENABLED");
+        this.gui.clear();
+        this.pageLadderSlots.clear();
+        this.templateItems.clear();
+        this.selectorSlotToPage.clear();
 
-        setupCategoryPage(
-                1,
-                GUIFile.getString(guiPath + ".FIRST-CATEGORY.TITLE"),
-                ConfigManager.getInt(queuePath + ".FIRST-CATEGORY.SIZE"),
-                GUIFile.getGuiItem(guiPath + ".FIRST-CATEGORY.ICONS.FILLER-ITEM").get(),
-                GUIFile.getGuiItem(guiPath + ".FIRST-CATEGORY.ICONS.LADDER"),
-                queuePath + ".FIRST-CATEGORY.LADDER-SLOTS",
-                firstCategoryLadderSlots,
-                secondCategoryEnabled ? ConfigManager.getInt(queuePath + ".FIRST-CATEGORY.GO-TO-SECOND-CATEGORY-SLOT") : -1,
-                secondCategoryEnabled ? GUIFile.getGuiItem(guiPath + ".FIRST-CATEGORY.ICONS.GO-TO-SECOND-CATEGORY").get() : null
-        );
+        List<CategoryConfig> categories = loadCategories(queuePath);
+        if (categories.isEmpty()) {
+            return;
+        }
 
-        if (secondCategoryEnabled) {
-            setupCategoryPage(
-                    2,
-                    GUIFile.getString(guiPath + ".SECOND-CATEGORY.TITLE"),
-                    ConfigManager.getInt(queuePath + ".SECOND-CATEGORY.SIZE"),
-                    GUIFile.getGuiItem(guiPath + ".SECOND-CATEGORY.ICONS.FILLER-ITEM").get(),
-                    GUIFile.getGuiItem(guiPath + ".SECOND-CATEGORY.ICONS.LADDER"),
-                    queuePath + ".SECOND-CATEGORY.LADDER-SLOTS",
-                    secondCategoryLadderSlots,
-                    ConfigManager.getInt(queuePath + ".SECOND-CATEGORY.BACK-TO-FIRST-CATEGORY-SLOT"),
-                    GUIFile.getGuiItem(guiPath + ".SECOND-CATEGORY.ICONS.GO-BACK-TO-FIRST-CATEGORY").get()
-            );
+        int rows = Math.max(1, Math.min(6, ConfigManager.getInt(queuePath + ".SIZE")));
+        ItemStack filler = GUIFile.getGuiItem(guiPath + ".ICONS.FILLER-ITEM").get();
+        if (filler == null) {
+            filler = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        }
+        GUIItem ladderTemplate = GUIFile.getGuiItem(guiPath + ".ICONS.LADDER");
+
+        for (int i = 0; i < categories.size(); i++) {
+            int pageId = i + 1;
+            CategoryConfig category = categories.get(i);
+            selectorSlotToPage.put(category.selectorSlot(), pageId);
+        }
+
+        for (int i = 0; i < categories.size(); i++) {
+            int pageId = i + 1;
+            setupCategoryPage(pageId, rows, filler, ladderTemplate, categories.get(i), categories, guiPath);
         }
 
         updatePlayers();
@@ -153,8 +155,8 @@ public abstract class QueueSelectorGui extends GUI {
             int pageId = pageEntry.getKey();
             Inventory inventory = gui.get(pageId);
             if (inventory == null) continue;
-
-            Map<Integer, NormalLadder> slotMap = (pageId == 1) ? firstCategoryLadderSlots : secondCategoryLadderSlots;
+            Map<Integer, NormalLadder> slotMap = pageLadderSlots.get(pageId);
+            if (slotMap == null) continue;
 
             for (Map.Entry<Integer, ItemStack> slotEntry : pageEntry.getValue().entrySet()) {
                 int slot = slotEntry.getKey();
@@ -224,37 +226,51 @@ public abstract class QueueSelectorGui extends GUI {
     // Inventory setup
     // -------------------------------------------------------------------------
 
-    private void setupCategoryPage(int pageId, String title, int configSize, ItemStack filler, GUIItem ladderTemplate,
-                                   String ladderConfigPath, Map<Integer, NormalLadder> slotMap, int navSlot, ItemStack navItem) {
+    private void setupCategoryPage(int pageId, int rows, ItemStack filler, GUIItem ladderTemplate,
+                                   CategoryConfig currentCategory, List<CategoryConfig> allCategories,
+                                   String guiPath) {
+
+        String title = GUIFile.getString(guiPath + ".TITLE")
+                .replace("%weight_class%", getWeightClass().getName())
+                .replace("%category%", currentCategory.displayName());
 
         this.gui.put(pageId, InventoryUtil.createInventory(
-                title.replace("%weight_class%", getWeightClass().getName()),
-                configSize
+                title,
+                rows
         ));
 
         Inventory inventory = gui.get(pageId);
         inventory.clear();
-        slotMap.clear();
+        Map<Integer, NormalLadder> slotMap = new HashMap<>();
+        pageLadderSlots.put(pageId, slotMap);
 
         Map<Integer, ItemStack> pageTemplates = new HashMap<>();
         templateItems.put(pageId, pageTemplates);
 
         int actualSize = inventory.getSize();
 
-        for (int i = 0; i < actualSize; i++) {
-            inventory.setItem(i, filler);
-        }
+        applyLayoutFillers(inventory, filler, actualSize);
 
-        if (navSlot >= 0 && navItem != null && navSlot < actualSize) {
-            inventory.setItem(navSlot, navItem);
-        }
+        placeCategorySelectors(inventory, currentCategory, allCategories, actualSize, guiPath);
+        placeQuickMatchItem(inventory, filler, actualSize, guiPath);
 
-        Map<NormalLadder, Integer> ladders = getTempLadderSlots(ladderConfigPath, actualSize);
-        String guiPath = getGuiConfigPath();
+        int ladderAmount = Math.min(currentCategory.ladderNames().size(), currentCategory.ladderSlots().size());
+        for (int index = 0; index < ladderAmount; index++) {
+            String ladderName = currentCategory.ladderNames().get(index).trim();
+            int slot = currentCategory.ladderSlots().get(index);
 
-        for (Map.Entry<NormalLadder, Integer> entry : ladders.entrySet()) {
-            final NormalLadder ladder = entry.getKey();
-            final int slot = entry.getValue();
+            if (slot < 0 || slot >= actualSize) {
+                continue;
+            }
+
+            if (slot == getQuickMatchSlot()) {
+                continue;
+            }
+
+            NormalLadder ladder = LadderManager.getInstance().getLadder(ladderName);
+            if (ladder == null || !isValidLadder(ladder) || !ladder.getMatchTypes().contains(MatchType.DUEL)) {
+                continue;
+            }
 
             GUIItem icon = getLadderIcon(ladder, ladderTemplate, guiPath);
             if (icon == null) continue;
@@ -285,6 +301,136 @@ public abstract class QueueSelectorGui extends GUI {
             rawTemplate.setAmount(1);
             pageTemplates.put(slot, rawTemplate.get());
         }
+    }
+
+    private void applyLayoutFillers(Inventory inventory, ItemStack filler, int actualSize) {
+        if (filler == null || actualSize <= 0) {
+            return;
+        }
+
+        int rows = actualSize / 9;
+        for (int slot = 0; slot < 9 && slot < actualSize; slot++) {
+            inventory.setItem(slot, filler);
+        }
+
+        for (int row = 0; row < rows; row++) {
+            int leftSlot = row * 9;
+            int rightSlot = leftSlot + 8;
+            inventory.setItem(leftSlot, filler);
+            inventory.setItem(rightSlot, filler);
+            if (row == 5) {
+                inventory.setItem(leftSlot + 1, filler);
+                inventory.setItem(rightSlot - 1, filler);
+            }
+        }
+    }
+
+    private void placeQuickMatchItem(Inventory inventory, ItemStack filler, int actualSize, String guiPath) {
+        int quickMatchSlot = getQuickMatchSlot();
+        if (quickMatchSlot < 0 || quickMatchSlot >= actualSize) {
+            return;
+        }
+
+        if (!isQuickMatchEnabled()) {
+            inventory.setItem(quickMatchSlot, filler);
+            return;
+        }
+
+        GUIItem quickMatch = GUIFile.getGuiItem(guiPath + ".ICONS.QUICK-MATCH");
+        if (!isTemplateConfigured(quickMatch)) {
+            return;
+        }
+
+        GUIItem icon = quickMatch.cloneItem().replace("%weight_class%", getWeightClass().getName());
+        ItemStack renderedItem = icon.get();
+        if (renderedItem != null) {
+            inventory.setItem(quickMatchSlot, renderedItem);
+        }
+    }
+
+    private void placeCategorySelectors(Inventory inventory, CategoryConfig currentCategory,
+                                        List<CategoryConfig> allCategories, int actualSize, String guiPath) {
+        for (CategoryConfig category : allCategories) {
+            int selectorSlot = category.selectorSlot();
+            if (selectorSlot < 0 || selectorSlot >= actualSize) {
+                continue;
+            }
+
+            boolean selected = currentCategory.key().equalsIgnoreCase(category.key());
+            GUIItem selectorTemplate = getCategorySelectorTemplate(guiPath, selected);
+            if (selectorTemplate == null) {
+                continue;
+            }
+
+            GUIItem selectorIcon = selectorTemplate.cloneItem()
+                    .replace("%category%", category.displayName())
+                    .replace("%category_ladders%", getCategoryLadderPreview(category))
+                    .replace("%weight_class%", getWeightClass().getName());
+
+            Material categoryMaterial = getCategorySelectorMaterial(category, selected);
+            if (categoryMaterial != null) {
+                selectorIcon.setMaterial(categoryMaterial);
+            }
+
+            ItemStack selectorItem = selectorIcon.get();
+            if (selectorItem != null) {
+                inventory.setItem(selectorSlot, selectorItem);
+            }
+        }
+    }
+
+    private GUIItem getCategorySelectorTemplate(String guiPath, boolean selected) {
+        GUIItem normalTemplate = GUIFile.getGuiItem(guiPath + ".ICONS.CATEGORY-SELECTOR");
+        if (!isTemplateConfigured(normalTemplate)) {
+            return null;
+        }
+
+        if (!selected) {
+            return normalTemplate;
+        }
+
+        GUIItem selectedTemplate = GUIFile.getGuiItem(guiPath + ".ICONS.SELECTED-CATEGORY-SELECTOR");
+        if (isTemplateConfigured(selectedTemplate)) {
+            return selectedTemplate;
+        }
+
+        return normalTemplate.cloneItem().setGlowing(true);
+    }
+
+    private boolean isTemplateConfigured(GUIItem item) {
+        return item != null && (item.getMaterial() != null || item.getBaseItemStack() != null);
+    }
+
+    private Material getCategorySelectorMaterial(CategoryConfig category, boolean selected) {
+        String materialName = selected && !category.selectedIconMaterial().isBlank()
+                ? category.selectedIconMaterial()
+                : category.iconMaterial();
+
+        if (materialName == null || materialName.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Material.valueOf(materialName.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
+    private String getCategoryLadderPreview(CategoryConfig category) {
+        if (category.ladderNames().isEmpty()) {
+            return "&7No ladders";
+        }
+
+        List<String> preview = new ArrayList<>();
+        int limit = Math.min(4, category.ladderNames().size());
+        for (int i = 0; i < limit; i++) {
+            String ladderName = category.ladderNames().get(i);
+            NormalLadder ladder = LadderManager.getInstance().getLadder(ladderName);
+            preview.add(ladder != null ? ladder.getDisplayName() : ladderName);
+        }
+
+        return String.join("&7, &f", preview);
     }
 
     private GUIItem getLadderIcon(NormalLadder ladder, GUIItem template, String guiPath) {
@@ -345,21 +491,31 @@ public abstract class QueueSelectorGui extends GUI {
         if (item == null || item.getType() == Material.AIR) return;
         if (rawSlot >= inventoryView.getTopInventory().getSize()) return;
 
-        String queuePath = getQueueConfigPath() + ".SELECTOR-GUI";
-        boolean secondCategoryEnabled = ConfigManager.getBoolean(queuePath + ".SECOND-CATEGORY.ENABLED");
-        int nextSlot = ConfigManager.getInt(queuePath + ".FIRST-CATEGORY.GO-TO-SECOND-CATEGORY-SLOT");
-        int prevSlot = ConfigManager.getInt(queuePath + ".SECOND-CATEGORY.BACK-TO-FIRST-CATEGORY-SLOT");
-
-        if (page == 1 && rawSlot == nextSlot && secondCategoryEnabled) {
-            this.open(player, 2);
-            return;
-        }
-        if (page == 2 && rawSlot == prevSlot) {
-            this.open(player, 1);
+        if (selectorSlotToPage.containsKey(rawSlot)) {
+            int targetPage = selectorSlotToPage.get(rawSlot);
+            if (this.gui.containsKey(targetPage)) {
+                this.open(player, targetPage);
+            }
             return;
         }
 
-        Map<Integer, NormalLadder> currentMap = (page == 1) ? firstCategoryLadderSlots : secondCategoryLadderSlots;
+        if (rawSlot == getQuickMatchSlot() && isQuickMatchEnabled()) {
+            Map<Integer, NormalLadder> ladders = pageLadderSlots.get(page);
+            if (ladders == null || ladders.isEmpty()) {
+                return;
+            }
+
+            NormalLadder randomLadder = getRandomQuickMatchLadder(ladders);
+            if (randomLadder != null) {
+                onLadderClick(player, randomLadder);
+            }
+            return;
+        }
+
+        Map<Integer, NormalLadder> currentMap = pageLadderSlots.get(page);
+        if (currentMap == null) {
+            return;
+        }
 
         if (currentMap.containsKey(rawSlot)) {
             onLadderClick(player, currentMap.get(rawSlot));
@@ -370,31 +526,118 @@ public abstract class QueueSelectorGui extends GUI {
     // Helpers
     // -------------------------------------------------------------------------
 
-    private Map<NormalLadder, Integer> getTempLadderSlots(final String path, int size) {
-        final Map<NormalLadder, Integer> tempLadderSlots = new LinkedHashMap<>();
+    private List<CategoryConfig> loadCategories(String queuePath) {
+        List<Integer> sharedLadderSlots = getConfiguredIntList(queuePath + ".LADDER-SLOTS");
+        ConfigurationSection categoriesSection = ConfigManager.getConfig().getConfigurationSection(queuePath + ".CATEGORIES");
+        ConfigurationSection selectorSection = ConfigManager.getConfig().getConfigurationSection(queuePath + ".CATEGORY-SELECTOR-SLOTS");
 
-        for (String entry : ConfigManager.getList(path)) {
-            String[] parts = entry.split("::");
-            if (parts.length != 2) continue;
+        if (categoriesSection == null || selectorSection == null) {
+            return Collections.emptyList();
+        }
 
-            String ladderName = parts[0].trim();
-            int slot;
-            try {
-                slot = Integer.parseInt(parts[1].trim());
-            } catch (NumberFormatException e) {
+        List<CategoryConfig> categories = new ArrayList<>();
+
+        for (String categoryKey : categoriesSection.getKeys(false)) {
+            String categoryPath = queuePath + ".CATEGORIES." + categoryKey;
+
+            String displayName = ConfigManager.getString(categoryPath + ".DISPLAY-NAME");
+            if (displayName.isEmpty()) {
+                displayName = categoryKey;
+            }
+
+            List<String> ladders = ConfigManager.getList(categoryPath + ".LADDERS");
+            List<Integer> ladderSlots = getConfiguredIntList(categoryPath + ".LADDER-SLOTS");
+            if (ladderSlots.isEmpty()) {
+                ladderSlots = sharedLadderSlots;
+            }
+
+            int selectorSlot = selectorSection.getInt(categoryKey, -1);
+            if (selectorSlot < 0 || ladderSlots.isEmpty()) {
                 continue;
             }
 
-            NormalLadder ladder = LadderManager.getInstance().getLadder(ladderName);
+            String iconMaterial = ConfigManager.getString(categoryPath + ".ICON-MATERIAL");
+            String selectedIconMaterial = ConfigManager.getString(categoryPath + ".SELECTED-ICON-MATERIAL");
 
-            if (ladder != null && isValidLadder(ladder) && ladder.getMatchTypes().contains(MatchType.DUEL)) {
+            categories.add(new CategoryConfig(
+                    categoryKey,
+                    displayName,
+                    selectorSlot,
+                    iconMaterial,
+                    selectedIconMaterial,
+                    ladders,
+                    new ArrayList<>(ladderSlots)
+            ));
+        }
 
-                if (slot >= 0 && slot < size) {
-                    tempLadderSlots.put(ladder, slot);
+        return categories;
+    }
+
+    private List<Integer> getConfiguredIntList(String path) {
+        List<Integer> slots = new ArrayList<>();
+        List<?> rawEntries = ConfigManager.getConfig().getList(path);
+        if (rawEntries == null) {
+            return slots;
+        }
+
+        for (Object entry : rawEntries) {
+            if (entry instanceof Number number) {
+                slots.add(number.intValue());
+                continue;
+            }
+
+            if (entry instanceof String string) {
+                try {
+                    slots.add(Integer.parseInt(string.trim()));
+                } catch (NumberFormatException ignored) {
                 }
             }
         }
-        return tempLadderSlots;
+
+        return slots;
+    }
+
+    private int getQuickMatchSlot() {
+        String path = getQueueConfigPath() + ".SELECTOR-GUI.QUICK-MATCH-SLOT";
+        if (!ConfigManager.getConfig().isInt(path)) {
+            return DEFAULT_QUICK_MATCH_SLOT;
+        }
+
+        int configured = ConfigManager.getInt(path);
+        return configured >= 0 ? configured : DEFAULT_QUICK_MATCH_SLOT;
+    }
+
+    private boolean isQuickMatchEnabled() {
+        String path = getQueueConfigPath() + ".SELECTOR-GUI.QUICK-MATCH-ENABLED";
+        if (!ConfigManager.getConfig().isBoolean(path)) {
+            return true;
+        }
+
+        return ConfigManager.getBoolean(path);
+    }
+
+    private NormalLadder getRandomQuickMatchLadder(Map<Integer, NormalLadder> laddersInCategory) {
+        List<NormalLadder> candidates = new ArrayList<>();
+        for (NormalLadder ladder : new LinkedHashSet<>(laddersInCategory.values())) {
+            if (ladder != null && ladder.isEnabled() && !ladder.isFrozen()) {
+                candidates.add(ladder);
+            }
+        }
+
+        if (candidates.isEmpty()) {
+            candidates.addAll(new LinkedHashSet<>(laddersInCategory.values()));
+        }
+
+        if (candidates.isEmpty()) {
+            return null;
+        }
+
+        return candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+    }
+
+    private record CategoryConfig(String key, String displayName, int selectorSlot,
+                                  String iconMaterial, String selectedIconMaterial,
+                                  List<String> ladderNames, List<Integer> ladderSlots) {
     }
 }
 

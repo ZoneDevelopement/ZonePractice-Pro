@@ -197,9 +197,6 @@ public class SettingsGui extends GUI {
         if (settingTypes.contains(SettingType.SKYWARS_LOOT))
             settingItems.add(new SkywarsLootItem(this, (SkyWars) ladder));
 
-        if (settingTypes.contains(SettingType.TEMP_BUILD_DELAY))
-            settingItems.add(new TempbuildDelayItem(this, ladder));
-
         if (settingTypes.contains(SettingType.MAX_DURATION))
             settingItems.add(new MaxDurationItem(this, ladder));
 
@@ -217,6 +214,9 @@ public class SettingsGui extends GUI {
 
         if (settingTypes.contains(SettingType.SPLEEF_SNOWBALL_MODE))
             settingItems.add(new SpleefSnowballModeItem(this, (dev.nandi0813.practice.manager.ladder.type.Spleef) ladder));
+
+        if (settingTypes.contains(SettingType.BLOCK_RETURN_DELAY))
+            settingItems.add(new BlockReturnDelayItem(this, ladder));
     }
 
 }

@@ -177,6 +177,7 @@ public class PracticeAdapter implements SidebarAdapter {
                                         break;
                                     case BEDWARS:
                                     case FIREBALL_FIGHT:
+                                    case MLG_RUSH:
                                         component = component
                                                 .replaceText(TextReplacementConfig.builder().matchLiteral("%playerBedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(duel.getTeam(player)) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build())
                                                 .replaceText(TextReplacementConfig.builder().matchLiteral("%enemyBedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(duel.getTeam(enemy)) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build());
@@ -218,7 +219,7 @@ public class PracticeAdapter implements SidebarAdapter {
                                     case BOXING -> component
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%team1boxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM1)))).build())
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%team2boxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM2)))).build());
-                                    case BEDWARS, FIREBALL_FIGHT -> component
+                                    case BEDWARS, FIREBALL_FIGHT, MLG_RUSH -> component
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%team1BedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build())
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%team2BedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build());
                                     default -> component;
@@ -241,7 +242,7 @@ public class PracticeAdapter implements SidebarAdapter {
                                     case BOXING -> component
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%partyTeamBoxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partyVsParty.getTeamPlayers(team)))).build())
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%enemyTeamBoxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partyVsParty.getTeamPlayers(enemyTeam)))).build());
-                                    case BEDWARS, FIREBALL_FIGHT -> component
+                                    case BEDWARS, FIREBALL_FIGHT, MLG_RUSH -> component
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%partyTeamBedStatus%").replacement(round != null && round.getBedStatus().get(team) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")).build())
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%enemyTeamBedStatus%").replacement(round != null && round.getBedStatus().get(enemyTeam) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")).build());
                                     default -> component;
@@ -403,6 +404,7 @@ public class PracticeAdapter implements SidebarAdapter {
                                         break;
                                     case BEDWARS:
                                     case FIREBALL_FIGHT:
+                                    case MLG_RUSH:
                                         line = line
                                                 .replace("%player1BedStatus%", (round != null && round.getBedStatus().get(duel.getTeam(duel.getPlayer1())) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
                                                 .replace("%player2BedStatus%", (round != null && round.getBedStatus().get(duel.getTeam(duel.getPlayer2())) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
@@ -467,6 +469,7 @@ public class PracticeAdapter implements SidebarAdapter {
                                         break;
                                     case BEDWARS:
                                     case FIREBALL_FIGHT:
+                                    case MLG_RUSH:
                                         line = line
                                                 .replace("%team1BedStatus%", (round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
                                                 .replace("%team2BedStatus%", (round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
@@ -489,6 +492,7 @@ public class PracticeAdapter implements SidebarAdapter {
                                         break;
                                     case BEDWARS:
                                     case FIREBALL_FIGHT:
+                                    case MLG_RUSH:
                                         line = line
                                                 .replace("%team1BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
                                                 .replace("%team2BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));

@@ -25,7 +25,9 @@ public enum MatchUtil {
 
     public static boolean isLadderBedRelated(Ladder ladder) {
         LadderType ladderType = ladder.getType();
-        return ladderType.equals(LadderType.BEDWARS) || ladderType.equals(LadderType.FIREBALL_FIGHT);
+        return ladderType.equals(LadderType.BEDWARS)
+                || ladderType.equals(LadderType.FIREBALL_FIGHT)
+                || ladderType.equals(LadderType.MLG_RUSH);
     }
 
     public static Cuboid getSideBuildLimitCube(Cuboid baseCube, int limit) {

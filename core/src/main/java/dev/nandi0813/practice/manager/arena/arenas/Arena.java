@@ -15,10 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 public class Arena extends DisplayArena {
@@ -123,7 +120,7 @@ public class Arena extends DisplayArena {
             return;
         }
 
-        for (String copyName : arenaFile.getConfig().getConfigurationSection("copies").getKeys(false)) {
+        for (String copyName : Objects.requireNonNull(arenaFile.getConfig().getConfigurationSection("copies")).getKeys(false)) {
             ArenaCopy arenaCopy = new ArenaCopy(copyName, this);
             arenaCopy.getBasicData(arenaFile.getConfig(), "copies." + copyName + ".");
             copies.add(arenaCopy);
@@ -134,7 +131,7 @@ public class Arena extends DisplayArena {
         if (!build) return;
         if (copies.isEmpty()) return;
 
-        ArenaCopy arenaCopy = copies.get(copies.size() - 1);
+        ArenaCopy arenaCopy = copies.getLast();
         arenaCopy.delete();
         copies.remove(arenaCopy);
         ArenaManager.getInstance().getArenaCuboids().remove(cuboid);
@@ -185,7 +182,9 @@ public class Arena extends DisplayArena {
     @Override
     public boolean isReadyToEnable() {
         if (this.getIcon() != null && cuboid != null && position1 != null && position2 != null && !assignedLadderTypes.isEmpty()) {
-            if (assignedLadderTypes.contains(LadderType.BEDWARS) || assignedLadderTypes.contains(LadderType.FIREBALL_FIGHT))
+            if (assignedLadderTypes.contains(LadderType.BEDWARS)
+                    || assignedLadderTypes.contains(LadderType.FIREBALL_FIGHT)
+                    || assignedLadderTypes.contains(LadderType.MLG_RUSH))
                 return bedLoc1 != null && bedLoc2 != null;
             if (assignedLadderTypes.contains(LadderType.BRIDGES) || assignedLadderTypes.contains(LadderType.BATTLE_RUSH))
                 return portalLoc1 != null && portalLoc2 != null;

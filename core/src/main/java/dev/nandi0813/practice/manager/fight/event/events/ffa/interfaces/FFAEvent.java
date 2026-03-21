@@ -74,6 +74,8 @@ public abstract class FFAEvent extends FullRunnableInterface {
             }
 
             this.teleport(player);
+            // Disable flying to prevent players from using lobby flight settings during events
+            dev.nandi0813.practice.util.playerutil.PlayerUtil.setFightPlayer(player);
         }
 
         // Start the countdown runnable AFTER players are teleported
