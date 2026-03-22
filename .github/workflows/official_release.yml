@@ -1,0 +1,33 @@
+name: Official Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'The exact version to release'
+        required: true
+        type: string
+      release_version_type:
+        description: 'Version type for Modrinth'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - beta
+          - alpha
+      release_notes:
+        description: 'Paste the release changelog here'
+        required: true
+        type: string
+
+jobs:
+  call_build:
+    uses: ./.github/workflows/reusable_build.yml
+    with:
+      is-release-build: true
+      release-version: ${{ inputs.release_version }}
+      release-version-type: ${{ inputs.release_version_type }}
+      release-changelog: ${{ inputs.release_notes }}
+      publish-artifacts: true
+    secrets: inherit

@@ -1,0 +1,39 @@
+# cliff.toml - AUTOMATED DEV & RELEASE CHANGELOGS
+
+[changelog]
+body = """
+{%- if version %}
+    ## ZonePractice Pro {{ version }}
+{%- else %}
+    ## Development Build Changes
+{%- endif %}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | upper_first }}
+{%- for commit in commits %}
+    - {{ commit.message | upper_first }} - *by {{ commit.author.name }}* {% if commit.breaking %}**[BREAKING]**{% endif %} \
+    {%- if commit.remote and commit.remote.url -%}
+        ([`{{ commit.id | truncate(length=7, end="") }}`]({{ commit.remote.url }}/commit/{{- commit.id -}}))
+    {%- else -%}
+        (`{{ commit.id | truncate(length=7, end="") }}`)
+    {%- endif -%}
+{% endfor %}
+{% endfor %}
+"""
+trim = true
+
+[git]
+filter_unconventional = false
+skip_unconventional = false
+# Automatically links your commit hashes to the correct repository
+remote = "https://github.com/ZoneDevelopement/ZonePractice-Pro"
+
+# Automatically sorts your commit messages into the correct categories based on keywords
+commit_parsers = [
+    { message = "^(?i)(feat|add|new|implement|create)", group = "✨ New Features" },
+    { message = "^(?i)(fix|bug|issue|crash|resolve|patch)", group = "🐛 Bug Fixes" },
+    { message = "^(?i)(update|improve|enhance|refactor|optimiz|adjust)", group = "🚀 Improvements" },
+    { message = "^(?i)(docs|wiki)", group = "📖 Documentation" },
+    { body = ".*BREAKING CHANGE.*", group = "🚨 Breaking Changes" },
+    { message = ".*", group = "🔧 Other Changes" }
+]
+sort_commits = "oldest"

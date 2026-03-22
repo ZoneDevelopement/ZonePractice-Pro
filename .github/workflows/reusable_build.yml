@@ -1,0 +1,158 @@
+name: Reusable Build and Publish
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: 'The runner to use for the build job'
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+      is-release-build:
+        description: 'True if this is a release build'
+        required: true
+        type: boolean
+      release-version:
+        description: 'The explicit version for release builds'
+        required: false
+        type: string
+        default: ''
+      release-version-type:
+        description: 'The version type for Modrinth'
+        required: true
+        type: string
+      release-changelog:
+        description: 'The changelog content for the release'
+        required: false
+        type: string
+        default: ''
+      publish-artifacts:
+        description: 'If true uploads artifacts to GitHub Modrinth and custom API'
+        required: true
+        type: boolean
+    secrets:
+      MODRINTH_ID:
+        required: false
+      MODRINTH_TOKEN:
+        required: false
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runner }}
+    permissions:
+      contents: write
+      packages: write
+
+    env:
+      MODRINTH_ID: ${{ secrets.MODRINTH_ID }}
+      MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 200
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Set Dynamic Maven Version
+        id: set_version
+        run: |
+          BASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          
+          if [[ "${{ inputs.is-release-build }}" == "true" ]]; then
+            NEW_VERSION="${{ inputs.release-version }}"
+          else
+            SHORT_SHA=$(git rev-parse --short HEAD)
+            CLEAN_VERSION=${BASE_VERSION%-SNAPSHOT}
+            NEW_VERSION="${CLEAN_VERSION}-dev-${{ github.run_number }}-${SHORT_SHA}"
+          fi
+          
+          mvn versions:set -DnewVersion=$NEW_VERSION -DgenerateBackupPoms=false
+          
+          echo "BUILD_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "Build version set to $NEW_VERSION"
+
+      - name: Build with Maven
+        run: mvn -B clean install --file pom.xml
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZonePractice-Pro-${{ env.BUILD_VERSION }}
+          path: |
+            distribution/target/*.jar
+            !distribution/target/original-*.jar
+          if-no-files-found: error
+
+      - name: Generate Changelog
+        if: ${{ !inputs.is-release-build }}
+        id: git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --verbose ${{ github.event.before }}..${{ github.event.after }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare Final Changelog
+        id: changelog
+        env:
+          RELEASE_NOTES: ${{ inputs.release-changelog }}
+          DEV_NOTES: ${{ steps.git-cliff.outputs.content }}
+        run: |
+          NOTES=""
+          if [[ "${{ inputs.is-release-build }}" == "true" ]]; then
+            NOTES="$RELEASE_NOTES"
+          else
+            NOTES="$DEV_NOTES"
+          fi
+
+          if [ -z "$NOTES" ]; then
+            NOTES="No new code changes in this build"
+          fi
+
+          {
+            echo "notes<<EOF"
+            echo "$NOTES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        if: ${{ inputs.publish-artifacts == true }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.is-release-build == true && env.BUILD_VERSION || format('dev-{0}', github.sha) }}
+          name: ${{ inputs.is-release-build == true && format('ZonePractice Pro {0}', env.BUILD_VERSION) || format('Dev Build {0}', env.BUILD_VERSION) }}
+          body: ${{ steps.changelog.outputs.notes }}
+          prerelease: ${{ !inputs.is-release-build }}
+          files: |
+            distribution/target/*.jar
+            !distribution/target/original-*.jar
+
+      - name: Publish to Modrinth
+        if: ${{ inputs.publish-artifacts == true && env.MODRINTH_ID != '' && env.MODRINTH_TOKEN != '' }}
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ secrets.MODRINTH_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: ${{ inputs.is-release-build }}
+          files: |
+            distribution/target/*.jar
+            !distribution/target/original-*.jar
+          name: ZonePractice Pro ${{ env.BUILD_VERSION }}
+          version: ${{ inputs.is-release-build == true && env.BUILD_VERSION || format('{0}-build.{1}', env.BUILD_VERSION, github.run_number) }}
+          version-type: ${{ inputs.release-version-type }}
+          changelog: ${{ steps.changelog.outputs.notes }}
+          loaders: |
+            paper
+            purpur
+            folia
+          game-versions: '>=1.21.11'

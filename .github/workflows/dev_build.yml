@@ -1,0 +1,14 @@
+name: Dev Build
+
+on:
+  push:
+    branches: [ "master", "main", "dev" ]
+
+jobs:
+  call_build:
+    uses: ./.github/workflows/reusable_build.yml
+    with:
+      is-release-build: false
+      release-version-type: 'beta'
+      publish-artifacts: true
+    secrets: inherit
