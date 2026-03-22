@@ -124,6 +124,8 @@ Some cosmetics permissions are registered dynamically at startup by `CosmeticsPe
 - Material access:
   - `zpp.cosmetics.armortrim.material.<id>`
   - wildcard: `zpp.cosmetics.armortrim.material.*`
+- Apply trim to all armor (copy from base):
+  - `zpp.cosmetics.armortrim.apply-global`
 
 `<id>` values come from Mojang/Paper trim registries and are sanitized to lowercase alphanumeric/underscore (for example: `sentry`, `vex`, `amethyst`, `netherite`).
 
@@ -304,13 +306,6 @@ public final class ZPPApiExample extends JavaPlugin implements Listener {
 - **Custom Events**: Listen to match events, player profile updates, and more
 - **Match Control**: Interact with active matches and send formatted messages
 - **Player Data**: Retrieve nametags, groups, and other player information
-## Soft Dependencies & Load Order
-
-Defined in `plugin.yml`:
-
-- `softdepend: [PlaceholderAPI, Multiverse-Core, FastAsyncWorldEdit, LiteBans]`
-- `loadbefore: [CMI, CMILib]`  
-  These integrations enhance features but are optional.
 
 ## Troubleshooting
 
