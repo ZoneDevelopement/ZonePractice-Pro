@@ -289,7 +289,8 @@ public class BuildListener implements Listener {
                     return;
                 }
             }
-            filterAndTrackExplosionBlocks(e.blockList(), spectatable);
+            // Use handleExplosion to properly track blocks and delegate to ladder handlers
+            handleExplosion(e, e.blockList(), spectatable);
             return;
         }
 
