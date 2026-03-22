@@ -15,6 +15,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +23,6 @@ import java.util.List;
 
 /**
  * The item category picker.
- *
  * Fixed categories (hardcoded GUIType): Armor, Weapons/Tools, Bows, Potions, Shulker Boxes.
  * Dynamic categories: loaded from GUI.ITEMS.CATEGORY-GUI.DYNAMIC-CATEGORIES in playerkit.yml.
  * Adding a new category requires ONLY a config change — no code change.
@@ -54,6 +54,41 @@ public class ItemCategory extends ItemEditor {
         return icons;
     }
 
+    private boolean isShulkerCategoryHidden(Player player) {
+        PlayerKitEditing editing = PlayerKitManager.getInstance().getEditing().get(player);
+        return editing != null && editing.isEditingShulker();
+    }
+
+    private Inventory buildInventoryFor(Player player) {
+        Inventory source = gui.get(1);
+        Inventory contextual = InventoryUtil.createInventory(StaticItems.CATEGORY_GUI_TITLE, StaticItems.CATEGORY_GUI_SIZE);
+
+        if (source != null) {
+            contextual.setContents(source.getContents().clone());
+        }
+
+        if (isShulkerCategoryHidden(player)) {
+            contextual.setItem(StaticItems.CATEGORY_GUI_SHULKER_ICON.getSlot(), null);
+        }
+
+        return contextual;
+    }
+
+    @Override
+    public void open(Player player, int page) {
+        if (page != 1) {
+            super.open(player, page);
+            return;
+        }
+
+        player.openInventory(buildInventoryFor(player));
+
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            inGuiPlayers.put(player, 1);
+            GUIManager.getInstance().getOpenGUI().put(player, this);
+        }, 2L);
+    }
+
     @Override
     public void handleClickEvent(InventoryClickEvent e) {
         e.setCancelled(true);
@@ -63,6 +98,10 @@ public class ItemCategory extends ItemEditor {
         if (editing == null) return;
 
         int slot = e.getRawSlot();
+        if (slot == StaticItems.CATEGORY_GUI_SHULKER_ICON.getSlot() && isShulkerCategoryHidden(player)) {
+            return;
+        }
+
         EditorIcon icon = getIcon(slot);
         if (icon == null) return;
 
