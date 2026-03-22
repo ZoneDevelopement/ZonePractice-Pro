@@ -70,7 +70,7 @@ system before cloning or pulling updates:
 
 ## Building
 
-1. **Prerequisites:** Install JDK (Java 21 recommended for modern builds, _it is not gonna work on Java 25_) and Maven.
+1. **Prerequisites:** Install JDK 25 and Maven.
 3. **Build the Project:**
    ```bash
    mvn clean package
@@ -247,9 +247,7 @@ public void onMatchStart(MatchStartEvent e) {
     match.sendMessage("<red>Welcome to the match! Good luck!", true);
     
     // Iterate through players
-    match.getPlayers().forEach(player -> {
-        player.sendMessage("The battle has begun!");
-    });
+    match.getPlayers().forEach(player -> player.sendMessage("The battle has begun!"));
 }
 ```
 
@@ -292,9 +290,7 @@ public final class ZPPApiExample extends JavaPlugin implements Listener {
         match.sendMessage("<red>Welcome to the match! Good luck!", true);
         
         // Iterate through players
-        match.getPlayers().forEach(player -> {
-            player.sendMessage("The battle has begun!");
-        });
+        match.getPlayers().forEach(player -> player.sendMessage("The battle has begun!"));
     }
 }
 ```
