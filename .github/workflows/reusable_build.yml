@@ -92,9 +92,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ZonePractice-Pro-${{ env.BUILD_VERSION }}
-          path: |
-            distribution/target/*.jar
-            !distribution/target/original-*.jar
+          path: distribution/target/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
           if-no-files-found: error
 
       - name: Generate Changelog
@@ -138,9 +136,7 @@ jobs:
           name: ${{ inputs.is-release-build == true && format('ZonePractice Pro {0}', env.BUILD_VERSION) || format('Dev Build {0}', env.BUILD_VERSION) }}
           body: ${{ steps.changelog.outputs.notes }}
           prerelease: ${{ !inputs.is-release-build }}
-          files: |
-            distribution/target/*.jar
-            !distribution/target/original-*.jar
+          files: distribution/target/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
 
       - name: Publish to Modrinth
         if: ${{ inputs.publish-artifacts == true && env.MODRINTH_ID != '' && env.MODRINTH_TOKEN != '' }}
@@ -149,9 +145,7 @@ jobs:
           modrinth-id: ${{ secrets.MODRINTH_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-featured: ${{ inputs.is-release-build }}
-          files: |
-            distribution/target/*.jar
-            !distribution/target/original-*.jar
+          files: distribution/target/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
           name: ZonePractice Pro ${{ env.BUILD_VERSION }}
           version: ${{ inputs.is-release-build == true && env.BUILD_VERSION || format('{0}-build.{1}', env.BUILD_VERSION, github.run_number) }}
           version-type: ${{ inputs.release-version-type }}
