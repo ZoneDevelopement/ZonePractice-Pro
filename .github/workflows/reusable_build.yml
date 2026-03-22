@@ -82,6 +82,12 @@ jobs:
       - name: Build with Maven
         run: mvn -B clean install --file pom.xml
 
+      - name: Rename Jar File
+        run: |
+          cd distribution/target
+          JAR_FILE=$(find . -maxdepth 1 -name "*.jar" ! -name "original-*.jar" -print -quit)
+          mv "$JAR_FILE" "ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar"
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -153,5 +159,6 @@ jobs:
           loaders: |
             paper
             purpur
-            folia
+            bukkit
+            spigot
           game-versions: '>=1.21.11'
