@@ -86,6 +86,36 @@ public class BuildListener implements Listener {
         return getByLocation(block.getLocation());
     }
 
+    /**
+     * Resolves explosion ownership using center-first lookup, then block-list fallbacks.
+     * This covers edge cases where an explosion center is outside the arena cuboid but
+     * still destroys blocks inside it (common with wandering creepers in FFA).
+     */
+    protected static Spectatable getByExplosion(Location center, List<Block> blockList) {
+        Spectatable byCenter = getByLocation(center);
+        if (byCenter != null) {
+            return byCenter;
+        }
+
+        for (Block block : blockList) {
+            if (!BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) continue;
+
+            Spectatable tagged = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (!ListenerUtil.checkMetaData(tagged) && tagged != null && tagged.isBuild()) {
+                return tagged;
+            }
+        }
+
+        for (Block block : blockList) {
+            Spectatable byBlock = getByBlock(block);
+            if (byBlock != null) {
+                return byBlock;
+            }
+        }
+
+        return null;
+    }
+
     protected static Spectatable getByPlayer(Player player) {
         return FightUtil.getActiveBuildSpectatables().stream()
                 .filter(s -> s.getActivePlayerList().contains(player))
@@ -274,7 +304,7 @@ public class BuildListener implements Listener {
 
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
-        Spectatable spectatable = getByLocation(e.getLocation());
+        Spectatable spectatable = getByExplosion(e.getLocation(), e.blockList());
 
         if (e.getEntity() instanceof Creeper) {
             if (spectatable == null) return;
@@ -791,7 +821,7 @@ public class BuildListener implements Listener {
 
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
-        Spectatable spectatable = getByBlock(e.getBlock());
+        Spectatable spectatable = getByExplosion(e.getBlock().getLocation(), e.blockList());
         handleExplosion(e, e.blockList(), spectatable);
     }
 
