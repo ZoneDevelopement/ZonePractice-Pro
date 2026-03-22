@@ -95,9 +95,9 @@ jobs:
           path: distribution/target/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
           if-no-files-found: error
 
-      - name: Generate Changelog
+      - name: Generate Dev Changelog
         if: ${{ !inputs.is-release-build }}
-        id: git-cliff
+        id: git_cliff_dev
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
@@ -105,11 +105,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Generate Release Changelog
+        if: ${{ inputs.is-release-build }}
+        id: git_cliff_release
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --unreleased
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Prepare Final Changelog
         id: changelog
         env:
-          RELEASE_NOTES: ${{ inputs.release-changelog }}
-          DEV_NOTES: ${{ steps.git-cliff.outputs.content }}
+          DEV_NOTES: ${{ steps.git_cliff_dev.outputs.content }}
+          RELEASE_NOTES: ${{ steps.git_cliff_release.outputs.content }}
         run: |
           NOTES=""
           if [[ "${{ inputs.is-release-build }}" == "true" ]]; then
