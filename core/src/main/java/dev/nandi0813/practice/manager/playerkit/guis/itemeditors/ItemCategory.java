@@ -4,6 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
+import dev.nandi0813.practice.manager.playerkit.DynamicCategory;
 import dev.nandi0813.practice.manager.playerkit.PlayerKitEditing;
 import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.playerkit.StaticItems;
@@ -17,23 +18,40 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+/**
+ * The item category picker.
+ *
+ * Fixed categories (hardcoded GUIType): Armor, Weapons/Tools, Bows, Potions, Shulker Boxes.
+ * Dynamic categories: loaded from GUI.ITEMS.CATEGORY-GUI.DYNAMIC-CATEGORIES in playerkit.yml.
+ * Adding a new category requires ONLY a config change — no code change.
+ */
 public class ItemCategory extends ItemEditor {
 
     public ItemCategory() {
-        super(GUIType.PlayerCustom_Category, new ArrayList<>(Arrays.asList(
+        super(GUIType.PlayerCustom_Category, buildIconList());
+        this.gui.put(1, InventoryUtil.createInventory(StaticItems.CATEGORY_GUI_TITLE, StaticItems.CATEGORY_GUI_SIZE));
+        this.build();
+    }
+
+    /** Builds the icon list: fixed icons + all dynamic category icons (in config order). */
+    private static List<EditorIcon> buildIconList() {
+        List<EditorIcon> icons = new ArrayList<>(Arrays.asList(
                 StaticItems.CATEGORY_GUI_BACK_ICON,
                 StaticItems.CATEGORY_GUI_NONE_ICON,
+                // Fixed-type categories
                 StaticItems.CATEGORY_GUI_ARMOR_ICON,
                 StaticItems.CATEGORY_GUI_WEAPON_TOOLS_ICON,
                 StaticItems.CATEGORY_GUI_BOWS_ICON,
                 StaticItems.CATEGORY_GUI_POTIONS_ICON,
-                StaticItems.CATEGORY_GUI_FOOD_ICON,
-                StaticItems.CATEGORY_GUI_BLOCKS_ICON)));
+                StaticItems.CATEGORY_GUI_SHULKER_ICON));
 
-        this.gui.put(1, InventoryUtil.createInventory(StaticItems.CATEGORY_GUI_TITLE, StaticItems.CATEGORY_GUI_SIZE));
-
-        this.build();
+        // Dynamic categories (loaded from config)
+        for (DynamicCategory cat : PlayerKitManager.getInstance().getDynamicCategories()) {
+            icons.add(cat.getIcon());
+        }
+        return icons;
     }
 
     @Override
@@ -41,50 +59,85 @@ public class ItemCategory extends ItemEditor {
         e.setCancelled(true);
 
         Player player = (Player) e.getWhoClicked();
-        PlayerKitEditing playerKitEditing = PlayerKitManager.getInstance().getEditing().get(player);
+        PlayerKitEditing editing = PlayerKitManager.getInstance().getEditing().get(player);
+        if (editing == null) return;
+
         int slot = e.getRawSlot();
         EditorIcon icon = getIcon(slot);
+        if (icon == null) return;
 
-        if (icon == null) {
+        KitItem kitItem = editing.getKitItem();
+        GUI mainGUI = editing.getCustomLadder().getMainGUI();
+
+        // ── Back ──────────────────────────────────────────────────────
+        if (icon.equals(StaticItems.CATEGORY_GUI_BACK_ICON)) {
+            if (editing.isEditingShulker()) {
+                dev.nandi0813.practice.manager.playerkit.guis.ShulkerBoxEditorGUI editor = editing.getShulkerEditor();
+                editor.update(true);
+                editor.open(player);
+            } else {
+                mainGUI.open(player);
+            }
             return;
         }
 
-        KitItem kitItem = playerKitEditing.getKitItem();
-        GUI mainGUI = playerKitEditing.getCustomLadder().getMainGUI();
-
-        if (icon.equals(StaticItems.CATEGORY_GUI_BACK_ICON)) {
-            mainGUI.open(player);
-        } else if (icon.equals(StaticItems.CATEGORY_GUI_NONE_ICON)) {
+        // ── None ─────────────────────────────────────────────────────
+        if (icon.equals(StaticItems.CATEGORY_GUI_NONE_ICON)) {
             kitItem.reset();
-            mainGUI.update();
-            mainGUI.open(player);
-        } else if (icon.equals(StaticItems.CATEGORY_GUI_ARMOR_ICON)) {
+            if (editing.isEditingShulker()) {
+                dev.nandi0813.practice.manager.playerkit.guis.ShulkerBoxEditorGUI editor = editing.getShulkerEditor();
+                int shulkerSlot = editing.getShulkerSlot();
+                editing.clearShulkerContext();
+                editor.onItemSelected(shulkerSlot, null);
+                editor.update(true);
+                editor.open(player);
+            } else {
+                mainGUI.update();
+                mainGUI.open(player);
+            }
+            return;
+        }
+
+        // ── Fixed categories ─────────────────────────────────────────
+        if (icon.equals(StaticItems.CATEGORY_GUI_ARMOR_ICON)) {
             GUIManager.getInstance().searchGUI(GUIType.PlayerCustom_Armor).open(player);
-        } else if (icon.equals(StaticItems.CATEGORY_GUI_WEAPON_TOOLS_ICON)) {
+            return;
+        }
+        if (icon.equals(StaticItems.CATEGORY_GUI_WEAPON_TOOLS_ICON)) {
             GUIManager.getInstance().searchGUI(GUIType.PlayerCustom_Weapons_Tools).open(player);
-        } else if (icon.equals(StaticItems.CATEGORY_GUI_BOWS_ICON)) {
+            return;
+        }
+        if (icon.equals(StaticItems.CATEGORY_GUI_BOWS_ICON)) {
             GUIManager.getInstance().searchGUI(GUIType.PlayerCustom_Bows).open(player);
-        } else if (icon.equals(StaticItems.CATEGORY_GUI_POTIONS_ICON)) {
+            return;
+        }
+        if (icon.equals(StaticItems.CATEGORY_GUI_POTIONS_ICON)) {
             GUIManager.getInstance().searchGUI(GUIType.PlayerCustom_Potions).open(player);
-        } else if (icon.equals(StaticItems.CATEGORY_GUI_FOOD_ICON)) {
-            GUIManager.getInstance().searchGUI(GUIType.PlayerCustom_Food).open(player);
-        } else if (icon.equals(StaticItems.CATEGORY_GUI_BLOCKS_ICON)) {
-            GUIManager.getInstance().searchGUI(GUIType.PlayerCustom_Blocks).open(player);
+            return;
+        }
+        if (icon.equals(StaticItems.CATEGORY_GUI_SHULKER_ICON)) {
+            GUIManager.getInstance().searchGUI(GUIType.PlayerCustom_Shulker).open(player);
+            return;
+        }
+
+        // ── Dynamic categories ───────────────────────────────────────
+        for (DynamicCategory cat : PlayerKitManager.getInstance().getDynamicCategories()) {
+            if (icon.equals(cat.getIcon())) {
+                cat.getGui().open(player);
+                return;
+            }
         }
     }
 
     @Override
     public void handleCloseEvent(InventoryCloseEvent e) {
         Player player = (Player) e.getPlayer();
-        PlayerKitEditing playerKitEditing = PlayerKitManager.getInstance().getEditing().get(player);
-        GUI mainGUI = playerKitEditing.getCustomLadder().getMainGUI();
-
+        PlayerKitEditing editing = PlayerKitManager.getInstance().getEditing().get(player);
+        if (editing == null) return;
+        GUI mainGUI = editing.getCustomLadder().getMainGUI();
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-            if (GUIManager.getInstance().getOpenGUI().containsKey(player))
-                return;
-
-            mainGUI.open(player);
+            if (!GUIManager.getInstance().getOpenGUI().containsKey(player))
+                mainGUI.open(player);
         }, 5L);
     }
-
 }

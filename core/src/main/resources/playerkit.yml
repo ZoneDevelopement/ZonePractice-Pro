@@ -1,4 +1,4 @@
-VERSION: 2
+VERSION: 3
 
 GUI:
   MAIN:
@@ -306,6 +306,13 @@ GUI:
           NAME: "&bPotions"
           MATERIAL: POTION
           SLOT: 22
+        SHULKER-BOXES:
+          NAME: "&bShulker Boxes"
+          MATERIAL: PURPLE_SHULKER_BOX
+          SLOT: 32
+        # ── Custom categories ──────────────────────────────────────────────────
+        # Any key added here (that isn't a built-in) becomes a custom category.
+        # Add a matching entry under ITEMS-GUI.CATEGORIES with TITLE and ITEMS.
         FOOD:
           NAME: "&bFood"
           MATERIAL: COOKED_BEEF
@@ -670,6 +677,8 @@ GUI:
             - "STRING"
             - "MOSS_BLOCK"
             - "STONE"
+        SHULKER-BOXES:
+          TITLE: "&8Shulker Boxes"
     ENCHANT-GUI:
       TITLE: "&8Add enchantments"
       ICONS:

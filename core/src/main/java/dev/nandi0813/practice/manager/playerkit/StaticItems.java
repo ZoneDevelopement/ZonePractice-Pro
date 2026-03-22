@@ -45,6 +45,7 @@ public enum StaticItems {
     public static final EditorIcon CATEGORY_GUI_POTIONS_ICON = PlayerKitManager.getInstance().getEditorItem("GUI.ITEMS.CATEGORY-GUI.ICONS.POTIONS");
     public static final EditorIcon CATEGORY_GUI_FOOD_ICON = PlayerKitManager.getInstance().getEditorItem("GUI.ITEMS.CATEGORY-GUI.ICONS.FOOD");
     public static final EditorIcon CATEGORY_GUI_BLOCKS_ICON = PlayerKitManager.getInstance().getEditorItem("GUI.ITEMS.CATEGORY-GUI.ICONS.BLOCKS");
+    public static final EditorIcon CATEGORY_GUI_SHULKER_ICON = PlayerKitManager.getInstance().getEditorItem("GUI.ITEMS.CATEGORY-GUI.ICONS.SHULKER-BOXES");
 
     // Categories with page
     public static final EditorIcon CATEGORY_GUI_PAGE_BACK_ICON = PlayerKitManager.getInstance().getEditorItem("GUI.ITEMS.ITEMS-GUI.OFFICIAL-ICONS.BACK-TO");
@@ -62,6 +63,7 @@ public enum StaticItems {
     public static final List<String> CATEGORY_FOOD_ITEMS = PlayerKitManager.getInstance().getList("GUI.ITEMS.ITEMS-GUI.CATEGORIES.FOOD.ITEMS");
     public static final String CATEGORY_BLOCKS_TITLE = PlayerKitManager.getInstance().getString("GUI.ITEMS.ITEMS-GUI.CATEGORIES.BLOCKS.TITLE");
     public static final List<String> CATEGORY_BLOCKS_ITEMS = PlayerKitManager.getInstance().getList("GUI.ITEMS.ITEMS-GUI.CATEGORIES.BLOCKS.ITEMS");
+    public static final String CATEGORY_SHULKER_TITLE = PlayerKitManager.getInstance().getString("GUI.ITEMS.ITEMS-GUI.CATEGORIES.SHULKER-BOXES.TITLE");
 
     // Potions GUI
     public static final String POTIONS_GUI_TITLE = PlayerKitManager.getInstance().getString("GUI.ITEMS.ITEMS-GUI.CATEGORIES.POTION.TITLE");

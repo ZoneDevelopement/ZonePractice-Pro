@@ -17,6 +17,8 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
+import dev.nandi0813.practice.manager.playerkit.guis.ShulkerBoxEditorGUI;
+import dev.nandi0813.practice.manager.playerkit.guis.ShulkerCategoryGUI;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -91,6 +93,17 @@ public class MainGUI extends GUI {
 
         if (kitItems.getSlots().containsKey(slot)) {
             KitItem kitItem = kitItems.getSlots().get(slot);
+
+            // Any click on a shulker box opens the contents editor
+            if (!kitItem.isNull() && ShulkerCategoryGUI.isShulkerBox(kitItem.getMaterial())) {
+                if (e.getClick() == org.bukkit.event.inventory.ClickType.SHIFT_LEFT) {
+                    kitItem.reset();
+                    this.update();
+                } else {
+                    new ShulkerBoxEditorGUI(this, kitItem).open(player);
+                }
+                return;
+            }
 
             switch (e.getClick()) {
                 case LEFT:
