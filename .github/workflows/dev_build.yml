@@ -6,6 +6,8 @@ on:
 
 jobs:
   call_build:
+    permissions:
+      contents: write
     uses: ./.github/workflows/reusable_build.yml
     with:
       is-release-build: false
