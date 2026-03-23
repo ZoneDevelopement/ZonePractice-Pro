@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.listener;
 
+import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.util.PermanentConfig;
 import org.bukkit.entity.Arrow;
 import org.bukkit.event.EventHandler;
@@ -16,7 +17,7 @@ public class ProjectileLaunch implements Listener {
         // they persist on the ground for up to 5 minutes (vanilla behaviour) and are
         // cleaned up automatically when the arena rolls back.
         // Only remove arrows that are NOT part of any fight (e.g. shot by a lobby player).
-        if (!arrow.hasMetadata(PermanentConfig.FIGHT_ENTITY)) {
+        if (!BlockUtil.hasMetadata(arrow, PermanentConfig.FIGHT_ENTITY)) {
             arrow.remove();
         }
     }

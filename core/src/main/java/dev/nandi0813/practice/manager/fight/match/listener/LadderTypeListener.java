@@ -114,6 +114,18 @@ public class LadderTypeListener implements Listener {
         return false;
     }
 
+    private static void registerMatchArrow(Arrow arrow, Match match) {
+        // Tag the arrow with the match it belongs to for visibility/tracking
+        if (!BlockUtil.hasMetadata(arrow, FIGHT_ENTITY)) {
+            BlockUtil.setMetadata(arrow, FIGHT_ENTITY, match);
+        }
+
+        // Register for entity rollback cleanup and visibility hiding from other matches
+        if (!match.getFightChange().containsEntity(arrow)) {
+            match.addEntityChange(arrow);
+        }
+    }
+
     // ========== EVENT HANDLERS ==========
 
     protected static void arrowDisplayHearth(Player shooter, Player target, double finalDamage, EntityDamageByEntityEvent event) {
@@ -161,6 +173,13 @@ public class LadderTypeListener implements Listener {
                         && spleef.isSnowballMode()) {
                     BlockUtil.setMetadata(snowball, FIGHT_ENTITY, match);
                 }
+            }
+        }
+
+        if (e.getEntity() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
+            Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+            if (match != null) {
+                registerMatchArrow(arrow, match);
             }
         }
     }
@@ -515,8 +534,7 @@ public class LadderTypeListener implements Listener {
         // register it for rollback cleanup (and hiding from players in other matches),
         // and schedule a 5-minute vanilla-style self-removal.
         if (e.getProjectile() instanceof org.bukkit.entity.Arrow arrow) {
-            BlockUtil.setMetadata(arrow, FIGHT_ENTITY, match);
-            match.addEntityChange(arrow); // hides from other-arena players + rollback tracking
+            registerMatchArrow(arrow, match);
         }
     }
 
