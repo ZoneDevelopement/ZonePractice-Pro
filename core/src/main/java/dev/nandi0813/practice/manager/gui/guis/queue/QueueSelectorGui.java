@@ -207,7 +207,7 @@ public abstract class QueueSelectorGui extends GUI {
                 }
 
                 updated.setItemMeta(meta);
-                updated.setAmount(inFight > 0 && inFight <= 64 ? inFight : 1);
+                setStackAmount(updated, inFight > 0 ? inFight : 1);
 
                 inventory.setItem(slot, updated);
             }
@@ -494,11 +494,8 @@ public abstract class QueueSelectorGui extends GUI {
 
         icon.replace("%weight_class%", getWeightClass().getName());
 
-        if (duelMatchSize > 0 && duelMatchSize <= 64) {
-            icon.setAmount(duelMatchSize);
-        } else {
-            icon.setAmount(1);
-        }
+        ItemStack item = icon.get();
+        setStackAmount(item, duelMatchSize > 0 ? duelMatchSize : 1);
     }
 
     // -------------------------------------------------------------------------
@@ -554,6 +551,25 @@ public abstract class QueueSelectorGui extends GUI {
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Allows non-stackable items to display with a specific amount by overriding
+     * their max stack size. This enables items like swords to show multiple amounts
+     * in inventory displays.
+     */
+    private void setStackAmount(ItemStack item, int amount) {
+        if (item == null || amount <= 0) return;
+        
+        item.setAmount(Math.min(amount, 64));
+        
+        if (amount > 1) {
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.setMaxStackSize(64);
+                item.setItemMeta(meta);
+            }
+        }
+    }
 
     private List<CategoryConfig> loadCategories(String queuePath) {
         List<Integer> sharedLadderSlots = getConfiguredIntList(queuePath + ".LADDER-SLOTS");
