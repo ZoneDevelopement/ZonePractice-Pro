@@ -1,0 +1,421 @@
+package dev.nandi0813.practice.premium.telemetry.listener;
+
+import dev.nandi0813.api.Event.Match.MatchEndEvent;
+import dev.nandi0813.api.Event.Match.MatchStartEvent;
+import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.match.Round;
+import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
+import dev.nandi0813.practice.manager.fight.match.type.duel.DuelRound;
+import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
+import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
+import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.statistics.LadderStats;
+import dev.nandi0813.practice.premium.telemetry.MatchTelemetry;
+import dev.nandi0813.practice.premium.telemetry.PlayerTelemetry;
+import dev.nandi0813.practice.premium.telemetry.RoundTelemetry;
+import dev.nandi0813.practice.premium.telemetry.TelemetryLogger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+
+import java.net.NetworkInterface;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class TelemetryMatchListener implements Listener {
+
+    private static final int SCHEMA_VERSION = 1;
+    private static final String FALLBACK_SERVER_ID = "unknown-host";
+    private static volatile String cachedServerId;
+    private final Map<String, MatchStartSnapshot> snapshots = new ConcurrentHashMap<>();
+
+    @EventHandler
+    public void onMatchStart(MatchStartEvent event) {
+        Match match = (Match) event.getMatch();
+        Map<UUID, Integer> eloBefore = new HashMap<>();
+
+        if (match.getLadder() instanceof NormalLadder normalLadder) {
+            for (Player player : match.getPlayers()) {
+                Profile profile = ProfileManager.getInstance().getProfile(player);
+                if (profile == null) {
+                    continue;
+                }
+
+                LadderStats ladderStats = profile.getStats().getLadderStat(normalLadder);
+                eloBefore.put(player.getUniqueId(), ladderStats.getElo());
+            }
+        }
+
+        snapshots.put(match.getId(), new MatchStartSnapshot(System.currentTimeMillis(), eloBefore));
+    }
+
+    @EventHandler
+    public void onMatchEnd(MatchEndEvent event) {
+        Match match = (Match) event.getMatch();
+        MatchStartSnapshot snapshot = snapshots.remove(match.getId());
+        String telemetryMatchId = toTelemetryMatchUuid(match.getId());
+
+        long matchEndTs = System.currentTimeMillis();
+        long matchStartTs = snapshot != null ? snapshot.startTs() : (matchEndTs - (match.getDuration() * 1000L));
+
+        Object winnerObject = match.getMatchWinner();
+        UUID winnerUuid = winnerObject instanceof Player winnerPlayer ? winnerPlayer.getUniqueId() : null;
+
+        MatchTelemetry telemetry = new MatchTelemetry(
+                SCHEMA_VERSION,
+                telemetryMatchId,
+                match.getType().name(),
+                match.getLadder().getName(),
+                match.getArena().getName(),
+                isRanked(match),
+                match.getWinsNeeded(),
+                getServerId(),
+                ZonePractice.getInstance().getPluginMeta().getVersion(),
+                Bukkit.getBukkitVersion(),
+                matchStartTs,
+                matchEndTs,
+                Math.max(0L, matchEndTs - matchStartTs),
+                determineTerminationReason(match, winnerUuid),
+                buildPlayerTelemetry(match, winnerUuid, snapshot),
+                buildRoundTelemetry(match, matchStartTs),
+                new ArrayList<>(),
+                TelemetryLogger.getDroppedRecords(),
+                System.currentTimeMillis()
+        );
+
+        TelemetryLogger.logAsync(telemetry);
+    }
+
+    private List<PlayerTelemetry> buildPlayerTelemetry(Match match, UUID winnerUuid, MatchStartSnapshot snapshot) {
+        List<PlayerTelemetry> players = new ArrayList<>();
+        Map<UUID, AggregatedStat> aggregateByPlayer = aggregateStats(match);
+
+        for (Player player : match.getPlayers()) {
+            UUID playerUuid = player.getUniqueId();
+            Player opponentPlayer = findOpponentPlayer(match.getPlayers(), player);
+            UUID opponentUuid = opponentPlayer != null ? opponentPlayer.getUniqueId() : null;
+            AggregatedStat stat = aggregateByPlayer.getOrDefault(playerUuid, new AggregatedStat());
+
+            Integer eloBefore = snapshot != null ? snapshot.eloByPlayer().get(playerUuid) : null;
+            Integer eloAfter = getCurrentElo(match, player);
+            Integer eloDelta = (eloBefore != null && eloAfter != null) ? (eloAfter - eloBefore) : null;
+            Integer ping = getPingSafe(player);
+
+            long queueWaitMs = 0L;
+            int queueSearchRangeStart = eloBefore != null ? eloBefore : 0;
+            int queueSearchRangeEnd = eloAfter != null ? eloAfter : queueSearchRangeStart;
+
+            players.add(new PlayerTelemetry(
+                    playerUuid,
+                    player.getName(),
+                    opponentUuid,
+                    opponentPlayer != null ? opponentPlayer.getName() : null,
+                    eloBefore,
+                    eloAfter,
+                    eloDelta,
+                    queueWaitMs,
+                    queueSearchRangeStart,
+                    queueSearchRangeEnd,
+                    winnerUuid != null && winnerUuid.equals(playerUuid),
+                    match.getWonRounds(player),
+                    stat.kills,
+                    stat.deaths,
+                    stat.hitsLanded,
+                    stat.hitsTaken,
+                    stat.longestCombo,
+                    stat.getAvgCps(),
+                    stat.potionThrown,
+                    stat.potionMissed,
+                    stat.getPotionAccuracy(),
+                    0.0D,
+                    0.0D,
+                    0,
+                    0.0D,
+                    0.0D,
+                    0.0D,
+                    0.0D,
+                    ping,
+                    ping,
+                    0.5D,
+                    0.5D,
+                    0,
+                    0,
+                    0
+            ));
+        }
+
+        return players;
+    }
+
+    private List<RoundTelemetry> buildRoundTelemetry(Match match, long matchStartTs) {
+        List<RoundTelemetry> rounds = new ArrayList<>();
+        List<Round> orderedRounds = new ArrayList<>(match.getRounds().values());
+        orderedRounds.sort(Comparator.comparingInt(Round::getRoundNumber));
+
+        long rollingRoundStart = matchStartTs;
+        for (Round round : orderedRounds) {
+            long roundDurationMs = round.getDurationTime() * 1000L;
+            long roundStartTs = rollingRoundStart;
+            long roundEndTs = roundStartTs + roundDurationMs;
+            rollingRoundStart = roundEndTs;
+
+            UUID roundWinnerUuid = null;
+            if (round instanceof DuelRound duelRound && duelRound.getRoundWinner() != null) {
+                roundWinnerUuid = duelRound.getRoundWinner().getUniqueId();
+            }
+
+            List<RoundTelemetry.PlayerRoundTelemetry> roundPlayers = new ArrayList<>();
+            for (Map.Entry<UUID, Statistic> entry : round.getStatistics().entrySet()) {
+                Statistic stat = entry.getValue();
+                roundPlayers.add(new RoundTelemetry.PlayerRoundTelemetry(
+                        entry.getKey(),
+                        stat.getHit(),
+                        stat.getGetHit(),
+                        stat.getKills(),
+                        stat.getDeaths(),
+                        stat.getPotionThrown(),
+                        stat.getPotionMissed(),
+                        stat.getPotionAccuracy(),
+                        stat.getLongestCombo(),
+                        stat.getAverageCPS()
+                ));
+            }
+
+            rounds.add(new RoundTelemetry(
+                    round.getRoundNumber(),
+                    roundStartTs,
+                    roundEndTs,
+                    roundDurationMs,
+                    roundWinnerUuid,
+                    roundPlayers
+            ));
+        }
+
+        return rounds;
+    }
+
+    private Map<UUID, AggregatedStat> aggregateStats(Match match) {
+        Map<UUID, AggregatedStat> byPlayer = new HashMap<>();
+
+        for (Round round : match.getRounds().values()) {
+            for (Map.Entry<UUID, Statistic> entry : round.getStatistics().entrySet()) {
+                AggregatedStat aggregate = byPlayer.computeIfAbsent(entry.getKey(), ignored -> new AggregatedStat());
+                aggregate.add(entry.getValue());
+            }
+        }
+
+        return byPlayer;
+    }
+
+    private Integer getCurrentElo(Match match, Player player) {
+        if (!(match.getLadder() instanceof NormalLadder normalLadder)) {
+            return null;
+        }
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) {
+            return null;
+        }
+
+        return profile.getStats().getLadderStat(normalLadder).getElo();
+    }
+
+    private UUID findOpponentUuid(List<Player> players, UUID playerUuid) {
+        if (players.size() != 2) {
+            return null;
+        }
+
+        for (Player player : players) {
+            if (!player.getUniqueId().equals(playerUuid)) {
+                return player.getUniqueId();
+            }
+        }
+
+        return null;
+    }
+
+    private Player findOpponentPlayer(List<Player> players, Player player) {
+        if (players.size() != 2) {
+            return null;
+        }
+
+        for (Player p : players) {
+            if (!p.equals(player)) {
+                return p;
+            }
+        }
+
+        return null;
+    }
+
+    private static String getServerId() {
+        String current = cachedServerId;
+        if (current != null && !current.isBlank()) {
+            return current;
+        }
+
+        String resolved = resolveServerIdFingerprint();
+        cachedServerId = resolved;
+        return resolved;
+    }
+
+    private static String resolveServerIdFingerprint() {
+        List<String> macs = collectMacAddresses();
+        if (!macs.isEmpty()) {
+            macs.sort(String::compareTo);
+            String joined = String.join("|", macs);
+            return "macsha256:" + sha256Hex(joined);
+        }
+
+        String host = System.getenv("HOSTNAME");
+        if (host == null || host.isBlank()) {
+            host = System.getProperty("user.name", "unknown") + "@" + System.getProperty("os.name", "unknown");
+        }
+        return "hostuuid:" + UUID.nameUUIDFromBytes(host.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static List<String> collectMacAddresses() {
+        List<String> result = new ArrayList<>();
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = interfaces.nextElement();
+                if (!networkInterface.isUp() || networkInterface.isLoopback() || networkInterface.isVirtual()) {
+                    continue;
+                }
+
+                byte[] hardwareAddress = networkInterface.getHardwareAddress();
+                String mac = normalizeMac(hardwareAddress);
+                if (mac != null) {
+                    result.add(mac);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return result;
+    }
+
+    private static String normalizeMac(byte[] mac) {
+        if (mac == null || mac.length < 6) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (byte b : mac) {
+            builder.append(String.format(Locale.ROOT, "%02x", b));
+        }
+
+        String value = builder.toString();
+        if (value.equals("000000000000") || value.equals("ffffffffffff")) {
+            return null;
+        }
+        return value;
+    }
+
+    private static String sha256Hex(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            StringBuilder builder = new StringBuilder(hash.length * 2);
+            for (byte b : hash) {
+                builder.append(String.format(Locale.ROOT, "%02x", b));
+            }
+            return builder.toString();
+        } catch (Exception ignored) {
+            return FALLBACK_SERVER_ID;
+        }
+    }
+
+    private String toTelemetryMatchUuid(String rawMatchId) {
+        if (rawMatchId == null || rawMatchId.isBlank()) {
+            return UUID.randomUUID().toString();
+        }
+
+        try {
+            return UUID.fromString(rawMatchId).toString();
+        } catch (IllegalArgumentException ignored) {
+            return UUID.nameUUIDFromBytes(rawMatchId.getBytes(StandardCharsets.UTF_8)).toString();
+        }
+    }
+
+    private boolean isRanked(Match match) {
+        return match instanceof Duel duel && duel.isRanked();
+    }
+
+    private String determineTerminationReason(Match match, UUID winnerUuid) {
+        if (winnerUuid == null) {
+            return "draw";
+        }
+
+        if (match instanceof Duel duel && duel.getLoser() == null) {
+            return "forfeit";
+        }
+
+        if (match.getLadder() instanceof NormalLadder normalLadder && match.getDuration() >= normalLadder.getMaxDuration()) {
+            return "timeout";
+        }
+
+        return "completed";
+    }
+
+    private Integer getPingSafe(Player player) {
+        try {
+            Object value = player.getClass().getMethod("getPing").invoke(player);
+            if (value instanceof Integer ping) {
+                return ping;
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    private record MatchStartSnapshot(long startTs, Map<UUID, Integer> eloByPlayer) {
+    }
+
+    private static class AggregatedStat {
+        private int hitsLanded;
+        private int hitsTaken;
+        private int kills;
+        private int deaths;
+        private int potionThrown;
+        private int potionMissed;
+        private int longestCombo;
+        private double avgCpsSum;
+        private int avgCpsSamples;
+
+        private void add(Statistic stat) {
+            hitsLanded += stat.getHit();
+            hitsTaken += stat.getGetHit();
+            kills += stat.getKills();
+            deaths += stat.getDeaths();
+            potionThrown += stat.getPotionThrown();
+            potionMissed += stat.getPotionMissed();
+            if (stat.getLongestCombo() > longestCombo) {
+                longestCombo = stat.getLongestCombo();
+            }
+            if (stat.getAverageCPS() > 0) {
+                avgCpsSum += stat.getAverageCPS();
+                avgCpsSamples++;
+            }
+        }
+
+        private int getPotionAccuracy() {
+            if (potionThrown == 0) {
+                return 0;
+            }
+            return 100 - (int) Math.ceil((potionMissed / (double) potionThrown) * 100.0D);
+        }
+
+        private double getAvgCps() {
+            if (avgCpsSamples == 0) {
+                return 0;
+            }
+            return avgCpsSum / avgCpsSamples;
+        }
+    }
+}

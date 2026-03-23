@@ -40,6 +40,7 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
+import dev.nandi0813.practice.premium.telemetry.TelemetryLogger;
 import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -204,6 +205,9 @@ public final class ZonePractice extends JavaPlugin {
         if (metrics != null) metrics.shutdown();
         MysqlManager.closeConnection();
         BackendManager.save();
+
+        // Flush async telemetry writes at shutdown so completed matches are persisted.
+        TelemetryLogger.shutdown();
     }
 
     /**
