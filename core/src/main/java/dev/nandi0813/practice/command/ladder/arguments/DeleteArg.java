@@ -55,9 +55,9 @@ public enum DeleteArg {
         for (Map<GUIType, GUI> map : ArenaGUISetupManager.getInstance().getArenaSetupGUIs().values())
             map.get(GUIType.Arena_Ladders_Single).update();
 
-        GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).update();
+        GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).update(true);
         if (ladder.isRanked())
-            GUIManager.getInstance().searchGUI(GUIType.Queue_Ranked).update();
+            GUIManager.getInstance().searchGUI(GUIType.Queue_Ranked).update(true);
 
         // Update GUIs.
         LadderSetupManager.getInstance().removeLadderGUIs(ladder);

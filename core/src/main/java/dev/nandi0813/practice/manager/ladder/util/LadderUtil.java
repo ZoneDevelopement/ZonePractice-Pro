@@ -92,8 +92,8 @@ public enum LadderUtil {
         GUIManager.getInstance().searchGUI(GUIType.Ladder_Summary).update();
         GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
 
-        GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).update();
-        GUIManager.getInstance().searchGUI(GUIType.Queue_Ranked).update();
+        GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).update(true);
+        GUIManager.getInstance().searchGUI(GUIType.Queue_Ranked).update(true);
         GUIManager.getInstance().searchGUI(GUIType.CustomLadder_Selector).update();
 
         Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
@@ -140,8 +140,8 @@ public enum LadderUtil {
 
         // Update GUIs
         ladder.getPreviewGui().update();
-        GUIManager.getInstance().searchGUI(GUIType.Queue_Ranked).update();
-        GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).update();
+        GUIManager.getInstance().searchGUI(GUIType.Queue_Ranked).update(true);
+        GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).update(true);
         GUIManager.getInstance().searchGUI(GUIType.CustomLadder_Selector).update();
 
         Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
@@ -199,14 +199,7 @@ public enum LadderUtil {
             return null;
     }
 
-    public static List<String> getLadderNames(List<NormalLadder> ladders) {
-        List<String> names = new ArrayList<>();
-        for (Ladder ladder : ladders)
-            names.add(ladder.getName());
-        return names;
-    }
-
-        public static void loadInventory(Player player, ItemStack[] armor, ItemStack[] inventory, ItemStack[] extra) {
+    public static void loadInventory(Player player, ItemStack[] armor, ItemStack[] inventory, ItemStack[] extra) {
         player.getInventory().setArmorContents(armor);
         player.getInventory().setStorageContents(inventory);
         player.getInventory().setExtraContents(extra);

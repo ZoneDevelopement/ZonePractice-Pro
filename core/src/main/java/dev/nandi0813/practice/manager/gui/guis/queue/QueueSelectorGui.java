@@ -73,17 +73,31 @@ public abstract class QueueSelectorGui extends GUI {
 
     @Override
     public void update() {
-        long now = System.currentTimeMillis();
-        if (lastUpdateTime >= 0 && (now - lastUpdateTime) < UPDATE_COOLDOWN_MS) {
-            return;
+        update(false);
+    }
+
+    @Override
+    public boolean update(boolean forceRefresh) {
+        if (!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> update(forceRefresh));
+            return false;
         }
+
+        long now = System.currentTimeMillis();
+        if (!forceRefresh && lastUpdateTime >= 0 && (now - lastUpdateTime) < UPDATE_COOLDOWN_MS) {
+            return false;
+        }
+
         doUpdate();
+        return true;
     }
 
     private void doUpdate() {
         lastUpdateTime = System.currentTimeMillis();
         String queuePath = getQueueConfigPath() + ".SELECTOR-GUI";
         String guiPath = getGuiConfigPath();
+
+        Map<Integer, Inventory> existingInventories = new HashMap<>(this.gui);
 
         this.gui.clear();
         this.pageLadderSlots.clear();
@@ -110,7 +124,7 @@ public abstract class QueueSelectorGui extends GUI {
 
         for (int i = 0; i < categories.size(); i++) {
             int pageId = i + 1;
-            setupCategoryPage(pageId, rows, filler, ladderTemplate, categories.get(i), categories, guiPath);
+            setupCategoryPage(pageId, rows, filler, ladderTemplate, categories.get(i), categories, guiPath, existingInventories);
         }
 
         updatePlayers();
@@ -127,7 +141,7 @@ public abstract class QueueSelectorGui extends GUI {
     private void startTicker() {
         if (tickerTask != null) return;
 
-        tickerTask = Bukkit.getScheduler().runTaskTimerAsynchronously(ZonePractice.getInstance(), () -> {
+        tickerTask = Bukkit.getScheduler().runTaskTimer(ZonePractice.getInstance(), () -> {
             if (inGuiPlayers.isEmpty()) {
                 stopTicker();
                 return;
@@ -199,8 +213,7 @@ public abstract class QueueSelectorGui extends GUI {
             }
         }
 
-        // Push the changes to viewers on the main thread
-        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), this::updatePlayers);
+        updatePlayers();
     }
 
     // -------------------------------------------------------------------------
@@ -228,18 +241,21 @@ public abstract class QueueSelectorGui extends GUI {
 
     private void setupCategoryPage(int pageId, int rows, ItemStack filler, GUIItem ladderTemplate,
                                    CategoryConfig currentCategory, List<CategoryConfig> allCategories,
-                                   String guiPath) {
+                                   String guiPath, Map<Integer, Inventory> existingInventories) {
 
         String title = GUIFile.getString(guiPath + ".TITLE")
                 .replace("%weight_class%", getWeightClass().getName())
                 .replace("%category%", currentCategory.displayName());
 
-        this.gui.put(pageId, InventoryUtil.createInventory(
-                title,
-                rows
-        ));
+        int size = rows * 9;
+        Inventory inventory = existingInventories.get(pageId);
+        if (inventory == null || inventory.getSize() != size) {
+            inventory = InventoryUtil.createInventory(title, rows);
+        } else {
+            inventory.clear();
+        }
 
-        Inventory inventory = gui.get(pageId);
+        this.gui.put(pageId, inventory);
         inventory.clear();
         Map<Integer, NormalLadder> slotMap = new HashMap<>();
         pageLadderSlots.put(pageId, slotMap);
@@ -277,29 +293,42 @@ public abstract class QueueSelectorGui extends GUI {
 
             icon.replace("%ladder%", ladder.getDisplayName());
 
-            if (ladder.getIcon() != null) {
+            boolean activeLadder = ladder.isEnabled() && !ladder.isFrozen();
+
+            // Disabled/frozen templates may only define lore/name; fallback to ladder icon in that case.
+            if (icon.getMaterial() == null && icon.getBaseItemStack() == null && ladder.getIcon() != null) {
                 icon.setBaseItem(ladder.getIcon());
-            } else if (icon.getMaterial() == null) {
+            }
+
+            if (activeLadder && ladder.getIcon() != null) {
+                icon.setBaseItem(ladder.getIcon());
+            }
+
+            if (icon.getMaterial() == null && icon.getBaseItemStack() == null) {
                 continue;
             }
 
-            // Apply live counts for the initial render
-            updateIconWithQueueData(ladder, icon, guiPath);
+            // Apply live queue counters only to active ladders.
+            if (activeLadder) {
+                updateIconWithQueueData(ladder, icon, guiPath);
+            }
 
             ItemStack renderedItem = icon.get();
             slotMap.put(slot, ladder);
             inventory.setItem(slot, renderedItem);
 
-            // Store a raw template (placeholders intact, no live counts) for the ticker.
-            GUIItem rawTemplate = ladderTemplate.cloneItem();
-            rawTemplate.replace("%ladder%", ladder.getDisplayName());
-            if (ladder.getIcon() != null) rawTemplate.setBaseItem(ladder.getIcon());
-            // Apply only the LB lore (which is static) but NOT %in_queue%/%in_fight%
-            String lbFormat = GUIFile.getString(guiPath + ".LB-FORMAT");
-            rawTemplate.setLore(QueueGuiUtil.replaceLore(lbFormat, rawTemplate.getLore(), ladder));
-            rawTemplate.replace("%weight_class%", getWeightClass().getName());
-            rawTemplate.setAmount(1);
-            pageTemplates.put(slot, rawTemplate.get());
+            if (activeLadder) {
+                // Store a raw template (placeholders intact, no live counts) for the ticker.
+                GUIItem rawTemplate = ladderTemplate.cloneItem();
+                rawTemplate.replace("%ladder%", ladder.getDisplayName());
+                if (ladder.getIcon() != null) rawTemplate.setBaseItem(ladder.getIcon());
+                // Apply only the LB lore (which is static) but NOT %in_queue%/%in_fight%
+                String lbFormat = GUIFile.getString(guiPath + ".LB-FORMAT");
+                rawTemplate.setLore(QueueGuiUtil.replaceLore(lbFormat, rawTemplate.getLore(), ladder));
+                rawTemplate.replace("%weight_class%", getWeightClass().getName());
+                rawTemplate.setAmount(1);
+                pageTemplates.put(slot, rawTemplate.get());
+            }
         }
     }
 
