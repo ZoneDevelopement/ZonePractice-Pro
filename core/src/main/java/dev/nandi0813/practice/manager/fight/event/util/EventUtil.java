@@ -49,6 +49,9 @@ public enum EventUtil {
             double distance = NumberUtil.roundDouble(player.getLocation().distance(target.getLocation()));
 
             Profile profile = ProfileManager.getInstance().getProfile(player);
+            if (profile.getActionBar().isLock()) {
+                return;
+            }
             profile.getActionBar().setActionBar(LanguageManager.getString("EVENT.COMPASS-TRACKER-ACTIONBAR")
                             .replace("%target%", target.getName())
                             .replace("%distance%", String.valueOf(distance)),

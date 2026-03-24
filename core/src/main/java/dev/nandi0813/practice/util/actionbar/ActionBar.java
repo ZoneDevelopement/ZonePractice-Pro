@@ -44,6 +44,10 @@ public class ActionBar {
      * @param duration The duration of the message in seconds
      */
     public void setActionBar(final String message, final int duration) {
+        if (this.lock && actionBarRunnable != null && (actionBarRunnable.isRunning() || actionBarRunnable.isHasRun())) {
+            return;
+        }
+
         if (actionBarRunnable != null && (actionBarRunnable.isRunning() || actionBarRunnable.isHasRun())) {
             actionBarRunnable.cancel();
             actionBarRunnable = new ActionBarRunnable(this);
@@ -58,6 +62,10 @@ public class ActionBar {
     }
 
     public void createActionBar() {
+        if (this.lock && actionBarRunnable != null && (actionBarRunnable.isRunning() || actionBarRunnable.isHasRun())) {
+            return;
+        }
+
         if (actionBarRunnable != null && (actionBarRunnable.isRunning() || actionBarRunnable.isHasRun())) {
             actionBarRunnable.cancel();
             actionBarRunnable = new ActionBarRunnable(this);

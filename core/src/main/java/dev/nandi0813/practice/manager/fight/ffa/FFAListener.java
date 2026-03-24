@@ -111,6 +111,7 @@ public class FFAListener implements Listener {
         if (item == null) return;
 
         if (!item.getType().equals(Material.GOLDEN_APPLE)) return;
+        if (dev.nandi0813.practice.manager.server.ServerManager.getInstance().getGoldenHead().isGoldenHead(item)) return;
 
         Ladder ladder = ffa.getPlayers().get(player);
         if (ladder.getGoldenAppleCooldown() < 1) return;
