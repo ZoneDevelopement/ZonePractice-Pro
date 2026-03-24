@@ -10,7 +10,7 @@ settings:
   multiRoundStartCountdown: false
   hitdelay: 20
   rounds: 3
-  maxduration: 600
+  maxduration: 900
   epcooldown: 13
   gacooldown: 0
   fireworkcooldown: 1
@@ -26,6 +26,7 @@ settings:
   resetbuildafterround: false
   breakallblocks: false
   respawntime: 0
+  block-return-delay: 0
 icon:
   ==: org.bukkit.inventory.ItemStack
   DataVersion: 4671

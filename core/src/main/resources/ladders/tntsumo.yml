@@ -26,6 +26,7 @@ settings:
   healthbelowname: false
   resetbuildafterround: false
   breakallblocks: false
+  block-return-delay: 10
 block-return-delay-seconds: 5
 icon:
   ==: org.bukkit.inventory.ItemStack
