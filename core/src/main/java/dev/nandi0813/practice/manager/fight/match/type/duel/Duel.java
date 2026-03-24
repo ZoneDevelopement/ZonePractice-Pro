@@ -227,11 +227,12 @@ public class Duel extends Match implements Team {
             return true;
 
         if (this.players.size() == 1) {
-            if (status.equals(MatchStatus.START))
+            if (status.equals(MatchStatus.START)) {
                 this.matchWinner = null;
-            else
+            } else {
                 this.matchWinner = this.players.stream().findAny().get();
-
+                this.loser = this.getOppositePlayer(this.matchWinner);
+            }
             return true;
         }
 
