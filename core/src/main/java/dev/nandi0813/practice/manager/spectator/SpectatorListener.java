@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.spectator;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.event.events.duel.brackets.Brackets;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
@@ -57,6 +58,20 @@ public class SpectatorListener implements Listener {
         return match.getCurrentStat(player).isSet() || match.getCurrentRound().getTempKill(player) != null;
     }
 
+    private void ensureSpectatorFlight(Player player) {
+        if (!hasSpectatorRestrictions(player)) {
+            return;
+        }
+
+        if (!player.getAllowFlight()) {
+            player.setAllowFlight(true);
+        }
+
+        if (!player.isFlying()) {
+            player.setFlying(true);
+        }
+    }
+
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
         Player attacker = null;
@@ -106,8 +121,22 @@ public class SpectatorListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent e) {
+        Player player = e.getPlayer();
+        ensureSpectatorFlight(player);
+
+        // Some teleports or server versions can drop flight state right after teleport.
+        ZonePractice plugin = ZonePractice.getInstance();
+        if (plugin != null && plugin.isEnabled()) {
+            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> ensureSpectatorFlight(player));
+        }
+    }
+
+    @EventHandler
     public void onLeaveCuboid(PlayerMoveEvent e) {
         Player player = e.getPlayer();
+        ensureSpectatorFlight(player);
+
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
         if (profile != null && profile.getStatus().equals(ProfileStatus.SPECTATE)) {
