@@ -14,17 +14,17 @@ settings:
   gacooldown: 0
   drop-inventory: false
   matchtypes:
-    - DUEL
-    - PARTY_FFA
-    - PARTY_SPLIT
-    - PARTY_VS_PARTY
+  - DUEL
+  - PARTY_FFA
+  - PARTY_SPLIT
+  - PARTY_VS_PARTY
   weightClass: UNRANKED_AND_RANKED
   multiRoundStartCountdown: true
-  maxduration: 600
+  maxduration: 1800
   fireworkcooldown: 1
   startmove: true
   tntfusetime: 4
-  healthbelowname: true
+  healthbelowname: false
   resetbuildafterround: false
   breakallblocks: false
 effects: []

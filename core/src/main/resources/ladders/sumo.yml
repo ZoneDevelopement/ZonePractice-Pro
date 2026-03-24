@@ -14,10 +14,19 @@ settings:
   gacooldown: 0
   drop-inventory: false
   matchtypes:
-    - DUEL
-    - PARTY_FFA
-    - PARTY_SPLIT
-    - PARTY_VS_PARTY
+  - DUEL
+  - PARTY_FFA
+  - PARTY_SPLIT
+  - PARTY_VS_PARTY
+  weightClass: UNRANKED_AND_RANKED
+  multiRoundStartCountdown: true
+  maxduration: 600
+  fireworkcooldown: 1
+  startmove: false
+  tntfusetime: 4
+  healthbelowname: false
+  resetbuildafterround: false
+  breakallblocks: false
 effects: []
 icon:
   ==: org.bukkit.inventory.ItemStack
