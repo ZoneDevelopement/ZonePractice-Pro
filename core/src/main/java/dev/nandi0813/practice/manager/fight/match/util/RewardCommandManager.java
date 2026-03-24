@@ -33,7 +33,10 @@ public class RewardCommandManager {
         if (duel.getMatchWinner() != null && this.winnerCommand.containsKey(ranked)) {
             for (String command : this.winnerCommand.get(ranked)) {
                 if (!command.isEmpty()) {
-                    ServerManager.runConsoleCommand(command.replace("%player%", duel.getMatchWinner().getName()));
+                    ServerManager.runConsoleCommand(command
+                            .replace("%player%", duel.getMatchWinner().getName())
+                            .replace("%opponent%", duel.getLoser().getName())
+                    );
                 }
             }
         }
@@ -41,7 +44,10 @@ public class RewardCommandManager {
         if (duel.getLoser() != null && this.loserCommand.containsKey(ranked)) {
             for (String command : this.loserCommand.get(ranked)) {
                 if (!command.isEmpty()) {
-                    ServerManager.runConsoleCommand(command.replace("%player%", duel.getLoser().getName()));
+                    ServerManager.runConsoleCommand(command
+                            .replace("%player%", duel.getLoser().getName())
+                            .replace("%opponent%", duel.getMatchWinner().getName())
+                    );
                 }
             }
         }

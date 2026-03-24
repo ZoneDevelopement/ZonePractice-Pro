@@ -203,12 +203,12 @@ MATCH-SETTINGS:
       RANKED: false
   END-COMMAND:
     DUEL:
-      UNRANKED:
+      UNRANKED: # Both commands have %player% and %opponent% placeholders.
         WINNER-COMMANDS:
           - ""
         LOSER-COMMANDS:
           - ""
-      RANKED:
+      RANKED: # Both commands have %player% and %opponent% placeholders.
         WINNER-COMMANDS:
           - ""
         LOSER-COMMANDS:
