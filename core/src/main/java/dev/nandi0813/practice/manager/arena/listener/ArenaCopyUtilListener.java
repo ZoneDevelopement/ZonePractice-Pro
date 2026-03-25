@@ -15,6 +15,7 @@ import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.actionbar.ActionBar;
+import dev.nandi0813.practice.util.actionbar.ActionBarPriority;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -187,26 +188,14 @@ public class ArenaCopyUtilListener implements Listener {
     protected void copyNormal(Profile profile, ArenaCopy arenaCopy, Cuboid copyFrom, Location reference, Location newLocation) {
         final World copyWorld = ArenaWorldUtil.getArenasCopyWorld();
 
-        // OPTIMIZATION: Use iterator directly instead of pre-loading all blocks
-        // Saves massive memory (100+ MB for large arenas)
         final Iterator<Block> blockIterator = copyFrom.iterator();
-
-        // Calculate total blocks for progress tracking
         final int maxSize = copyFrom.getSizeX() * copyFrom.getSizeY() * copyFrom.getSizeZ();
         final int[] currentSize = {0};
 
         arenaCopy.getMainArena().setCopying(true);
 
-        ActionBar actionBar = null;
-        if (!profile.getActionBar().isLock()) {
-            actionBar = profile.getActionBar();
-            actionBar.setLock(true);
-        }
-
-        ActionBar finalActionBar = actionBar;
-        if (finalActionBar != null) {
-            finalActionBar.createActionBar();
-        }
+        ActionBar actionBar = profile.getActionBar();
+        final String ACTION_BAR_ID = "arena_copy";
 
         new BukkitRunnable() {
             @Override
@@ -218,7 +207,6 @@ public class ArenaCopyUtilListener implements Listener {
                     while (blockIterator.hasNext() && changeCounter < PermanentConfig.ARENA_COPY_MAX_CHANGES && checkCounter < PermanentConfig.ARENA_COPY_MAX_CHECKS) {
                         Block block = blockIterator.next();
 
-                        // OPTIMIZATION: Skip AIR blocks immediately (doesn't count against limits)
                         if (block.getType() == Material.AIR) {
                             currentSize[0]++;
                             continue;
@@ -229,15 +217,6 @@ public class ArenaCopyUtilListener implements Listener {
                         currentSize[0]++;
                         checkCounter++;
 
-                        double progress = NumberUtil.roundDouble(((double) currentSize[0] / maxSize) * 100.0);
-
-                        if (finalActionBar != null) {
-                            finalActionBar.setMessage(LanguageManager.getString("ARENA.ACTION-BAR-MSG")
-                                    .replace("%arena%", Common.serializeNormalToMMString(arenaCopy.getMainArena().getDisplayName()))
-                                    .replace("%progress_bar%", Common.serializeNormalToMMString(StatisticUtil.getProgressBar(progress)))
-                                    .replace("%progress_percent%", Common.serializeNormalToMMString(String.valueOf(progress))));
-                        }
-
                         Location newLoc = new Location(copyWorld, originLoc.getX(), originLoc.getY(), originLoc.getZ()).clone().subtract(reference).add(newLocation);
 
                         Block newBlock = newLoc.getBlock();
@@ -245,8 +224,18 @@ public class ArenaCopyUtilListener implements Listener {
 
                         changeCounter++;
                     }
+
+                    double progress = NumberUtil.roundDouble(((double) currentSize[0] / maxSize) * 100.0);
+
+                    String message = LanguageManager.getString("ARENA.ACTION-BAR-MSG")
+                            .replace("%arena%", Common.serializeNormalToMMString(arenaCopy.getMainArena().getDisplayName()))
+                            .replace("%progress_bar%", Common.serializeNormalToMMString(StatisticUtil.getProgressBar(progress)))
+                            .replace("%progress_percent%", Common.serializeNormalToMMString(String.valueOf(progress)));
+
+                    actionBar.setMessage(ACTION_BAR_ID, message, -1, ActionBarPriority.HIGH);
+
                 } catch (Exception e) {
-                    cancelTask(this, arenaCopy, finalActionBar);
+                    cancelTask(this, arenaCopy, actionBar, ACTION_BAR_ID);
 
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (player.hasPermission("zpp.setup"))
@@ -258,9 +247,8 @@ public class ArenaCopyUtilListener implements Listener {
                     return;
                 }
 
-                // Check if we're done
                 if (!blockIterator.hasNext()) {
-                    cancelTask(this, arenaCopy, finalActionBar);
+                    cancelTask(this, arenaCopy, actionBar, ACTION_BAR_ID);
 
                     arenaCopy.getMainArena().getCopies().add(arenaCopy);
                     ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Copy).update();
@@ -344,7 +332,7 @@ public class ArenaCopyUtilListener implements Listener {
         }
     }
 
-    protected static void cancelTask(BukkitRunnable runnable, ArenaCopy arenaCopy, ActionBar actionBar) {
+    protected static void cancelTask(BukkitRunnable runnable, ArenaCopy arenaCopy, ActionBar actionBar, String actionBarId) {
         runnable.cancel();
         arenaCopy.getMainArena().setCopying(false);
 
@@ -353,7 +341,7 @@ public class ArenaCopyUtilListener implements Listener {
         removeNonPlayerEntities(arenaCopy.getCuboid());
 
         if (actionBar != null) {
-            actionBar.setDuration(3);
+            actionBar.removeMessage(actionBarId);
         }
     }
 

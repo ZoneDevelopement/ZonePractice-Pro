@@ -6,6 +6,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.util.actionbar.ActionBarPriority;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -164,16 +165,9 @@ public class GoldenHead implements Listener {
             return;
         }
 
-        if (profile.getActionBar().isLock() && !this.cooldownActionBarTasks.containsKey(profile.getUuid())) {
-            return;
-        }
-
         UUID playerId = profile.getUuid();
 
-        if (!this.cooldownActionBarTasks.containsKey(playerId)) {
-            profile.getActionBar().createActionBar();
-        }
-
+        // Cancel existing task if present
         BukkitTask existingTask = this.cooldownActionBarTasks.remove(playerId);
         if (existingTask != null) {
             existingTask.cancel();
@@ -181,8 +175,10 @@ public class GoldenHead implements Listener {
 
         BukkitTask task = Bukkit.getScheduler().runTaskTimer(ZonePractice.getInstance(), () -> {
             Player onlinePlayer = profile.getPlayer().getPlayer();
+
+            // Safety check: if player logs off, clean up the action bar and cancel the task
             if (onlinePlayer == null || !onlinePlayer.isOnline()) {
-                profile.getActionBar().cancelActionBar();
+                profile.getActionBar().removeMessage("golden_head");
                 BukkitTask removed = this.cooldownActionBarTasks.remove(playerId);
                 if (removed != null) {
                     removed.cancel();
@@ -191,8 +187,10 @@ public class GoldenHead implements Listener {
             }
 
             long remaining = getRemainingCooldownSeconds(playerId);
+
+            // When cooldown is finished, remove the message and cancel the task
             if (remaining <= 0) {
-                profile.getActionBar().cancelActionBar();
+                profile.getActionBar().removeMessage("golden_head");
                 BukkitTask removed = this.cooldownActionBarTasks.remove(playerId);
                 if (removed != null) {
                     removed.cancel();
@@ -200,8 +198,10 @@ public class GoldenHead implements Listener {
                 return;
             }
 
-            profile.getActionBar().setMessage("<gold>🕒 <yellow>" + remaining + "s");
-            profile.getActionBar().send();
+            // Push the formatted message to the priority manager
+            String text = "<gold>🕒 <yellow>" + remaining + "s";
+            profile.getActionBar().setMessage("golden_head", text, 2, ActionBarPriority.HIGH);
+
         }, 0L, 20L);
 
         this.cooldownActionBarTasks.put(playerId, task);
