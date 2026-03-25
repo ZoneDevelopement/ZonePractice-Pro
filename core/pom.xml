@@ -133,6 +133,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- ASM is used directly by AntiMalware in this module -->
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.9.1</version>
+        </dependency>
     </dependencies>
 
 </project>

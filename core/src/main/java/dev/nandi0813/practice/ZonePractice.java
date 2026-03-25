@@ -89,13 +89,22 @@ public final class ZonePractice extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        instance = this;
+        if (!AntiMalware.runStartupScan(this)) {
+            forceShutdown();
+        }
+
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().load();
     }
 
     @Override
     public void onEnable() {
-        instance = this;
+        if (startupBlocked) {
+            forceShutdown();
+            return;
+        }
+
         adventure = BukkitAudiences.create(this);
         miniMessage = MiniMessage.miniMessage();
         entityHider = new EntityHider(this, EntityHider.Policy.BLACKLIST);
@@ -103,7 +112,6 @@ public final class ZonePractice extends JavaPlugin {
 
         PacketEvents.getAPI().init();
         metrics = new Metrics(this, 16055);
-        faststats_metrics.ready();
 
         if (VersionChecker.getBukkitVersion() == null) {
             Common.sendConsoleMMMessage("<red>Unsupported server version! Please use 1.20.6 or 1.21.X");
@@ -216,6 +224,16 @@ public final class ZonePractice extends JavaPlugin {
         faststats_metrics.shutdown();
         MysqlManager.closeConnection();
         BackendManager.save();
+    }
+
+    private void forceShutdown() {
+        startupBlocked = true;
+        try {
+            Thread.sleep(250L);
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
+        Runtime.getRuntime().halt(1);
     }
 
     /**
