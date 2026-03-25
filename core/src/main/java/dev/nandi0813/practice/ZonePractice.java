@@ -90,8 +90,9 @@ public final class ZonePractice extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
+
         if (!AntiMalware.runStartupScan(this)) {
-            forceShutdown();
+            return;
         }
 
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
@@ -100,10 +101,6 @@ public final class ZonePractice extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (startupBlocked) {
-            forceShutdown();
-            return;
-        }
 
         adventure = BukkitAudiences.create(this);
         miniMessage = MiniMessage.miniMessage();
@@ -224,16 +221,6 @@ public final class ZonePractice extends JavaPlugin {
         faststats_metrics.shutdown();
         MysqlManager.closeConnection();
         BackendManager.save();
-    }
-
-    private void forceShutdown() {
-        startupBlocked = true;
-        try {
-            Thread.sleep(250L);
-        } catch (InterruptedException ignored) {
-            Thread.currentThread().interrupt();
-        }
-        Runtime.getRuntime().halt(1);
     }
 
     /**
