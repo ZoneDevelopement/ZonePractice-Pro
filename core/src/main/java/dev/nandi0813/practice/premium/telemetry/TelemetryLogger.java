@@ -14,10 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public enum TelemetryLogger {
     ;
 
-    private static final String ENDPOINT_ENV = "ZPP_TELEMETRY_ENDPOINT";
-    private static final String ENDPOINT_PROP = "zpp.telemetry.endpoint";
-    private static final String TOKEN_ENV = "ZPP_TELEMETRY_TOKEN";
-    private static final String TOKEN_PROP = "zpp.telemetry.token";
+    private static final String ENDPOINT = "http://localhost:8000/api/v1/telemetry/";
+    private static final String TOKEN = "sk_live_your_secret_token_here";
+    private static final String MATCHES_SEGMENT = "matches/";
 
     private static final int MAX_QUEUE_SIZE = 2000;
     private static final int MAX_ATTEMPTS = 3;
@@ -102,12 +101,12 @@ public enum TelemetryLogger {
                 return;
             }
 
-            endpointUri = resolveEndpoint();
+            endpointUri = resolveMatchesEndpoint();
             authToken = resolveToken();
 
             if (endpointUri == null) {
                 transportEnabled = false;
-                Common.sendConsoleMMMessage("<yellow>Telemetry transport disabled: set " + ENDPOINT_ENV + " or -D" + ENDPOINT_PROP + " to enable REST delivery.");
+                Common.sendConsoleMMMessage("<yellow>Telemetry transport disabled: invalid telemetry endpoint in TelemetryLogger.");
                 return;
             }
 
@@ -142,6 +141,32 @@ public enum TelemetryLogger {
 
     static String resolveConfiguredToken() {
         return resolveToken();
+    }
+
+    private static URI resolveMatchesEndpoint() {
+        URI baseEndpoint = resolveEndpoint();
+        if (baseEndpoint == null) {
+            return null;
+        }
+
+        try {
+            String basePath = baseEndpoint.getPath() == null ? "/" : baseEndpoint.getPath();
+            String normalizedBasePath = basePath.endsWith("/") ? basePath : basePath + "/";
+            String matchesPath = normalizedBasePath + MATCHES_SEGMENT;
+
+            return new URI(
+                    baseEndpoint.getScheme(),
+                    baseEndpoint.getUserInfo(),
+                    baseEndpoint.getHost(),
+                    baseEndpoint.getPort(),
+                    matchesPath,
+                    null,
+                    null
+            );
+        } catch (Exception exception) {
+            Common.sendConsoleMMMessage("<red>Invalid telemetry matches endpoint: " + ENDPOINT + " (" + exception.getMessage() + ")");
+            return null;
+        }
     }
 
     private static void sendRecord(MatchTelemetry telemetry) {
@@ -203,14 +228,7 @@ public enum TelemetryLogger {
     }
 
     private static URI resolveEndpoint() {
-        String endpoint = System.getProperty(ENDPOINT_PROP);
-        if (endpoint == null || endpoint.isBlank()) {
-            endpoint = System.getenv(ENDPOINT_ENV);
-        }
-
-        if (endpoint == null || endpoint.isBlank()) {
-            return null;
-        }
+        String endpoint = ENDPOINT;
 
         try {
             URI uri = URI.create(endpoint.trim());
@@ -227,11 +245,7 @@ public enum TelemetryLogger {
     }
 
     private static String resolveToken() {
-        String token = System.getProperty(TOKEN_PROP);
-        if (token == null || token.isBlank()) {
-            token = System.getenv(TOKEN_ENV);
-        }
-        return token;
+        return TOKEN;
     }
 }
 

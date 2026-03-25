@@ -104,17 +104,10 @@ public enum TelemetryBootstrap {
     private static URI resolveStatsEnabledEndpoint(URI telemetryEndpoint) {
         try {
             String path = telemetryEndpoint.getPath();
-            if (path == null || path.isBlank()) {
-                return null;
-            }
-
-            String normalizedPath = path.endsWith("/") ? path : path + "/";
-            String statsPath;
-            if (normalizedPath.endsWith("/matches/") || normalizedPath.endsWith("/matches")) {
-                statsPath = normalizedPath.replaceAll("/matches/?$", "/" + STATS_ENABLED_SEGMENT);
-            } else {
-                statsPath = normalizedPath + STATS_ENABLED_SEGMENT;
-            }
+            String normalizedPath = (path == null || path.isBlank())
+                    ? "/"
+                    : (path.endsWith("/") ? path : path + "/");
+            String statsPath = normalizedPath + STATS_ENABLED_SEGMENT;
 
             return new URI(
                     telemetryEndpoint.getScheme(),
