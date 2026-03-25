@@ -7,10 +7,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -95,6 +92,11 @@ public enum TelemetryLogger {
 
     private static void ensureInitialized() {
         if (initialized.compareAndSet(false, true)) {
+            if (!TelemetryBootstrap.isResolved()) {
+                initialized.set(false);
+                return;
+            }
+
             if (!TelemetryBootstrap.isActive()) {
                 transportEnabled = false;
                 return;
@@ -148,59 +150,56 @@ public enum TelemetryLogger {
             return;
         }
 
-        String payload = telemetry.toJson().toString();
-        String idempotencyKey = telemetry.matchId();
-
-        for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-            try {
-                HttpRequest.Builder builder = HttpRequest.newBuilder(endpointUri)
-                        .timeout(REQUEST_TIMEOUT)
-                        .header("Content-Type", "application/json")
-                        .header("Accept", "application/json")
-                        .header("X-Telemetry-Schema-Version", String.valueOf(telemetry.schemaVersion()))
-                        .header("X-Telemetry-Source", "ZonePracticePro")
-                        .header("X-Idempotency-Key", idempotencyKey)
-                        .POST(HttpRequest.BodyPublishers.ofString(payload));
-
-                if (authToken != null && !authToken.isBlank()) {
-                    builder.header("Authorization", "Bearer " + authToken);
-                }
-
-                HttpResponse<String> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
-                int statusCode = response.statusCode();
-
-                if (statusCode >= 200 && statusCode < 300) {
-                    sentRequests.incrementAndGet();
-                    return;
-                }
-
-                if (!isRetryable(statusCode) || attempt == MAX_ATTEMPTS) {
-                    failedRequests.incrementAndGet();
-                    Common.sendConsoleMMMessage("<red>Telemetry REST failed (status=" + statusCode + ", match=" + telemetry.matchId() + ")");
-                    return;
-                }
-            } catch (Exception exception) {
-                if (attempt == MAX_ATTEMPTS) {
-                    failedRequests.incrementAndGet();
-                    Common.sendConsoleMMMessage("<red>Telemetry REST exception (match=" + telemetry.matchId() + "): " + exception.getMessage());
-                    return;
-                }
-            }
-
-            sleepBeforeRetry();
-        }
+        sendRecordAttemptAsync(telemetry, telemetry.toJson().toString(), telemetry.matchId(), 1);
     }
 
     private static boolean isRetryable(int statusCode) {
         return statusCode == 408 || statusCode == 429 || (statusCode >= 500 && statusCode <= 599);
     }
 
-    private static void sleepBeforeRetry() {
-        try {
-            Thread.sleep(RETRY_BACKOFF_MS);
-        } catch (InterruptedException interruptedException) {
-            Thread.currentThread().interrupt();
+    private static void sendRecordAttemptAsync(MatchTelemetry telemetry, String payload, String idempotencyKey, int attempt) {
+        HttpRequest.Builder builder = HttpRequest.newBuilder(endpointUri)
+                .timeout(REQUEST_TIMEOUT)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("X-Telemetry-Schema-Version", String.valueOf(telemetry.schemaVersion()))
+                .header("X-Telemetry-Source", "ZonePracticePro")
+                .header("X-Idempotency-Key", idempotencyKey)
+                .POST(HttpRequest.BodyPublishers.ofString(payload));
+
+        if (authToken != null && !authToken.isBlank()) {
+            builder.header("Authorization", "Bearer " + authToken);
         }
+
+        httpClient.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString())
+                .whenComplete((response, throwable) -> {
+                    if (throwable == null && response != null) {
+                        int statusCode = response.statusCode();
+                        if (statusCode >= 200 && statusCode < 300) {
+                            sentRequests.incrementAndGet();
+                            return;
+                        }
+
+                        if (!isRetryable(statusCode) || attempt >= MAX_ATTEMPTS) {
+                            failedRequests.incrementAndGet();
+                            Common.sendConsoleMMMessage("<red>Telemetry REST failed (status=" + statusCode + ", match=" + telemetry.matchId() + ")");
+                            return;
+                        }
+                    } else if (attempt >= MAX_ATTEMPTS) {
+                        failedRequests.incrementAndGet();
+                        String message = throwable != null ? throwable.getMessage() : "unknown error";
+                        Common.sendConsoleMMMessage("<red>Telemetry REST exception (match=" + telemetry.matchId() + "): " + message);
+                        return;
+                    }
+
+                    if (writerExecutor == null || writerExecutor.isShutdown()) {
+                        droppedRecords.incrementAndGet();
+                        return;
+                    }
+
+                    CompletableFuture.delayedExecutor(RETRY_BACKOFF_MS, TimeUnit.MILLISECONDS, writerExecutor)
+                            .execute(() -> sendRecordAttemptAsync(telemetry, payload, idempotencyKey, attempt + 1));
+                });
     }
 
     private static URI resolveEndpoint() {

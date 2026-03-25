@@ -44,6 +44,7 @@ import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.premium.telemetry.TelemetryBootstrap;
 import dev.nandi0813.practice.premium.telemetry.TelemetryLogger;
+import dev.nandi0813.practice.premium.telemetry.listener.TelemetryMatchListener;
 import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -59,6 +60,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ZonePractice extends JavaPlugin {
 
@@ -81,6 +83,7 @@ public final class ZonePractice extends JavaPlugin {
 
     // BStats
     private Metrics metrics;
+    private final AtomicBoolean telemetryListenerRegistered = new AtomicBoolean(false);
 
     public static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
     private final BukkitMetrics faststats_metrics = BukkitMetrics.factory()
@@ -116,7 +119,21 @@ public final class ZonePractice extends JavaPlugin {
         new SaveResource().saveResources(this);
 
         ConfigManager.createFile();
-        TelemetryBootstrap.initialize();
+        TelemetryBootstrap.initializeAsync().thenAccept(enabled -> {
+            if (!enabled) {
+                return;
+            }
+
+            Bukkit.getScheduler().runTask(this, () -> {
+                if (!isEnabled()) {
+                    return;
+                }
+
+                if (telemetryListenerRegistered.compareAndSet(false, true)) {
+                    Bukkit.getPluginManager().registerEvents(new TelemetryMatchListener(), this);
+                }
+            });
+        });
         LanguageManager.createFile(this);
         GUIFile.createFile(this);
         MysqlManager.openConnection();

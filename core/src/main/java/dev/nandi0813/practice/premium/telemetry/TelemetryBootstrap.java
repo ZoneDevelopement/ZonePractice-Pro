@@ -9,6 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public enum TelemetryBootstrap {
@@ -19,47 +20,85 @@ public enum TelemetryBootstrap {
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(3);
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(5);
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
+    private static final AtomicBoolean resolved = new AtomicBoolean(false);
+
+    private static final Object BOOTSTRAP_LOCK = new Object();
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .connectTimeout(CONNECT_TIMEOUT)
+            .build();
 
     private static volatile boolean active;
+    private static volatile CompletableFuture<Boolean> initializationFuture;
 
-    public static void initialize() {
-        if (!initialized.compareAndSet(false, true)) {
-            return;
-        }
+    public static CompletableFuture<Boolean> initializeAsync() {
+        synchronized (BOOTSTRAP_LOCK) {
+            if (resolved.get()) {
+                return CompletableFuture.completedFuture(active);
+            }
 
-        if (!ConfigManager.getBoolean(ENABLED_PATH)) {
-            active = false;
-            ZonePractice.getInstance().getLogger().info("Telemetry disabled in config (" + ENABLED_PATH + ").");
-            return;
-        }
+            if (initializationFuture != null) {
+                return initializationFuture;
+            }
 
-        URI telemetryEndpoint = TelemetryLogger.resolveConfiguredEndpoint();
-        if (telemetryEndpoint == null) {
-            active = false;
-            ZonePractice.getInstance().getLogger().info("Telemetry disabled: endpoint is not configured.");
-            return;
-        }
+            if (!initialized.compareAndSet(false, true)) {
+                return initializationFuture != null ? initializationFuture : CompletableFuture.completedFuture(active);
+            }
 
-        URI statsEndpoint = resolveStatsEnabledEndpoint(telemetryEndpoint);
-        if (statsEndpoint == null) {
-            active = false;
-            ZonePractice.getInstance().getLogger().info("Telemetry disabled: failed to resolve stats-enabled endpoint.");
-            return;
-        }
+            if (!ConfigManager.getBoolean(ENABLED_PATH)) {
+                active = false;
+                resolved.set(true);
+                ZonePractice.getInstance().getLogger().info("Telemetry disabled in config (" + ENABLED_PATH + ").");
+                initializationFuture = CompletableFuture.completedFuture(false);
+                return initializationFuture;
+            }
 
-        String token = TelemetryLogger.resolveConfiguredToken();
-        Boolean enabledByApi = fetchStatsEnabled(statsEndpoint, token);
-        active = Boolean.TRUE.equals(enabledByApi);
+            URI telemetryEndpoint = TelemetryLogger.resolveConfiguredEndpoint();
+            if (telemetryEndpoint == null) {
+                active = false;
+                resolved.set(true);
+                ZonePractice.getInstance().getLogger().info("Telemetry disabled: endpoint is not configured.");
+                initializationFuture = CompletableFuture.completedFuture(false);
+                return initializationFuture;
+            }
 
-        if (active) {
-            ZonePractice.getInstance().getLogger().info("Telemetry enabled by remote stats flag.");
-        } else {
-            ZonePractice.getInstance().getLogger().info("Telemetry disabled: remote stats flag is false or unreachable.");
+            URI statsEndpoint = resolveStatsEnabledEndpoint(telemetryEndpoint);
+            if (statsEndpoint == null) {
+                active = false;
+                resolved.set(true);
+                ZonePractice.getInstance().getLogger().info("Telemetry disabled: failed to resolve stats-enabled endpoint.");
+                initializationFuture = CompletableFuture.completedFuture(false);
+                return initializationFuture;
+            }
+
+            String token = TelemetryLogger.resolveConfiguredToken();
+            initializationFuture = fetchStatsEnabledAsync(statsEndpoint, token)
+                    .exceptionally(ignored -> false)
+                    .thenApply(Boolean::booleanValue)
+                    .whenComplete((enabledByApi, throwable) -> {
+                        active = throwable == null && enabledByApi;
+                        resolved.set(true);
+
+                        if (active) {
+                            ZonePractice.getInstance().getLogger().info("Telemetry enabled by remote stats flag.");
+                        } else {
+                            ZonePractice.getInstance().getLogger().info("Telemetry disabled: remote stats flag is false or unreachable.");
+                        }
+                    });
+
+            return initializationFuture;
         }
     }
 
+    public static void initialize() {
+        initializeAsync();
+    }
+
     public static boolean isActive() {
-        return active;
+        return resolved.get() && active;
+    }
+
+    public static boolean isResolved() {
+        return resolved.get();
     }
 
     private static URI resolveStatsEnabledEndpoint(URI telemetryEndpoint) {
@@ -91,30 +130,29 @@ public enum TelemetryBootstrap {
         }
     }
 
-    private static Boolean fetchStatsEnabled(URI statsEndpoint, String token) {
-        try {
-            HttpClient client = HttpClient.newBuilder()
-                    .connectTimeout(CONNECT_TIMEOUT)
-                    .build();
+    private static CompletableFuture<Boolean> fetchStatsEnabledAsync(URI statsEndpoint, String token) {
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(statsEndpoint)
+                .timeout(REQUEST_TIMEOUT)
+                .GET()
+                .header("Accept", "application/json");
 
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(statsEndpoint)
-                    .timeout(REQUEST_TIMEOUT)
-                    .GET()
-                    .header("Accept", "application/json");
-
-            if (token != null && !token.isBlank()) {
-                requestBuilder.header("Authorization", "Bearer " + token);
-            }
-
-            HttpResponse<String> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                return false;
-            }
-
-            return parseBooleanResponse(response.body());
-        } catch (Exception ignored) {
-            return false;
+        if (token != null && !token.isBlank()) {
+            requestBuilder.header("Authorization", "Bearer " + token);
         }
+
+        return HTTP_CLIENT
+                .sendAsync(requestBuilder.build(), HttpResponse.BodyHandlers.ofString())
+                .handle((response, throwable) -> {
+                    if (throwable != null || response == null) {
+                        return false;
+                    }
+
+                    if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                        return false;
+                    }
+
+                    return parseBooleanResponse(response.body());
+                });
     }
 
     private static Boolean parseBooleanResponse(String body) {
