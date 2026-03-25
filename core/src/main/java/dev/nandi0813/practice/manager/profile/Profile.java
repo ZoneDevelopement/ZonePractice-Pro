@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.profile;
 
+import dev.nandi0813.practice.event.ProfileStatusChangeEvent;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.util.CustomKit;
 import dev.nandi0813.practice.manager.gui.guis.customladder.PlayerCustomKitSelector;
@@ -235,6 +236,8 @@ public class Profile {
     public void setStatus(ProfileStatus status) {
         ProfileStatus previous = this.status;
         this.status = status;
+
+        Bukkit.getPluginManager().callEvent(new ProfileStatusChangeEvent(this, previous, status));
 
         // Leaving lobby/spectate for a new activity invalidates pending rematches.
         if ((previous == ProfileStatus.LOBBY || previous == ProfileStatus.SPECTATE)

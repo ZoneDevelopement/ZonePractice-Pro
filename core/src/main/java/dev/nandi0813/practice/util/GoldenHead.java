@@ -6,6 +6,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.util.actionbar.ActionBarPriority;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -115,21 +116,13 @@ public class GoldenHead implements Listener {
             return;
         }
 
-        ItemMeta oldMeta = item.getItemMeta();
-        item.setType(org.bukkit.Material.PLAYER_HEAD);
-
-        SkullMeta skullMeta = (SkullMeta) Bukkit.getItemFactory().getItemMeta(org.bukkit.Material.PLAYER_HEAD);
-        if (skullMeta == null) {
-            return;
+        if (item.getType() != org.bukkit.Material.PLAYER_HEAD) {
+            item.setType(org.bukkit.Material.PLAYER_HEAD);
         }
 
-        if (oldMeta != null) {
-            if (oldMeta.hasDisplayName()) {
-                skullMeta.setDisplayName(oldMeta.getDisplayName());
-            }
-            if (oldMeta.hasLore()) {
-                skullMeta.setLore(oldMeta.getLore());
-            }
+        SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
+        if (skullMeta == null) {
+            return;
         }
 
         PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID(), "GoldenHead");
@@ -140,8 +133,8 @@ public class GoldenHead implements Listener {
         }
 
         profile.setProperty(new ProfileProperty("textures", textureConfigValue));
-
         skullMeta.setPlayerProfile(profile);
+
         item.setItemMeta(skullMeta);
     }
 
@@ -167,7 +160,6 @@ public class GoldenHead implements Listener {
 
         UUID playerId = profile.getUuid();
 
-        // Cancel existing task if present
         BukkitTask existingTask = this.cooldownActionBarTasks.remove(playerId);
         if (existingTask != null) {
             existingTask.cancel();
@@ -176,8 +168,12 @@ public class GoldenHead implements Listener {
         BukkitTask task = Bukkit.getScheduler().runTaskTimer(ZonePractice.getInstance(), () -> {
             Player onlinePlayer = profile.getPlayer().getPlayer();
 
-            // Safety check: if player logs off, clean up the action bar and cancel the task
-            if (onlinePlayer == null || !onlinePlayer.isOnline()) {
+            if (onlinePlayer == null ||
+                !onlinePlayer.isOnline() ||
+                (!profile.getStatus().equals(ProfileStatus.MATCH) &&
+                 !profile.getStatus().equals(ProfileStatus.EVENT) &&
+                 !profile.getStatus().equals(ProfileStatus.FFA))
+            ) {
                 profile.getActionBar().removeMessage("golden_head");
                 BukkitTask removed = this.cooldownActionBarTasks.remove(playerId);
                 if (removed != null) {
@@ -188,7 +184,6 @@ public class GoldenHead implements Listener {
 
             long remaining = getRemainingCooldownSeconds(playerId);
 
-            // When cooldown is finished, remove the message and cancel the task
             if (remaining <= 0) {
                 profile.getActionBar().removeMessage("golden_head");
                 BukkitTask removed = this.cooldownActionBarTasks.remove(playerId);
@@ -198,9 +193,12 @@ public class GoldenHead implements Listener {
                 return;
             }
 
-            // Push the formatted message to the priority manager
-            String text = "<gold>🕒 <yellow>" + remaining + "s";
-            profile.getActionBar().setMessage("golden_head", text, 2, ActionBarPriority.HIGH);
+            profile.getActionBar().setMessage(
+                    "golden_head",
+                    ConfigManager.getString("MATCH-SETTINGS.GOLDEN-HEAD.ACTION-BAR-COOLDOWN-MSG").replace("%remaining%", String.valueOf(remaining)),
+                    2,
+                    ActionBarPriority.HIGH
+            );
 
         }, 0L, 20L);
 
@@ -208,13 +206,14 @@ public class GoldenHead implements Listener {
     }
 
     @EventHandler
-    public void onGoldenHeadConsume(PlayerInteractEvent e) {
+    public void onGoldenHeadInteract(PlayerInteractEvent e) {
         Action action = e.getAction();
-        if (!action.equals(Action.RIGHT_CLICK_AIR) && !action.equals(Action.RIGHT_CLICK_BLOCK)) return;
+        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
 
         ItemStack item = e.getItem();
-        if (item == null) return;
-        if (!isGoldenHead(item)) return;
+        if (item == null || !isGoldenHead(item)) return;
+
+        e.setCancelled(true);
 
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
@@ -222,21 +221,21 @@ public class GoldenHead implements Listener {
 
         long remainingSeconds = getRemainingCooldownSeconds(player.getUniqueId());
         if (remainingSeconds > 0) {
-            e.setCancelled(true);
             startCooldownActionBar(profile);
             return;
         }
 
-        e.setCancelled(true);
+        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_BURP, 1.0f, 1.0f);
+
         this.lastConsumeAt.put(player.getUniqueId(), System.currentTimeMillis());
         startCooldownActionBar(profile);
 
         int amount = item.getAmount();
-
-        if (amount == 1)
+        if (amount == 1) {
             player.getInventory().setItemInMainHand(null);
-        else
+        } else {
             item.setAmount(amount - 1);
+        }
 
         for (PotionEffect effect : effects) {
             boolean activate = true;
@@ -260,5 +259,4 @@ public class GoldenHead implements Listener {
 
         player.updateInventory();
     }
-
 }

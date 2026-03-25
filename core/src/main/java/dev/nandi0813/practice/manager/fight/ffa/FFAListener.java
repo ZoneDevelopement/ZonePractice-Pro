@@ -8,7 +8,6 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.util.*;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
-import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -33,7 +32,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.ItemStack;
 
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
@@ -98,25 +96,6 @@ public class FFAListener implements Listener {
                 ffa.getFightChange().addBlockChange(new ChangedBlock(clickedBlock));
             }
         }
-    }
-
-    @EventHandler
-    public void onGoldenHeadConsume(PlayerItemConsumeEvent e) {
-        Player player = e.getPlayer();
-
-        FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
-        if (ffa == null) return;
-
-        ItemStack item = e.getItem();
-        if (item == null) return;
-
-        if (!item.getType().equals(Material.GOLDEN_APPLE)) return;
-        if (dev.nandi0813.practice.manager.server.ServerManager.getInstance().getGoldenHead().isGoldenHead(item)) return;
-
-        Ladder ladder = ffa.getPlayers().get(player);
-        if (ladder.getGoldenAppleCooldown() < 1) return;
-
-        ModernItemCooldownHandler.handleGoldenApple(player, ladder.getGoldenAppleCooldown(), e);
     }
 
     @EventHandler
