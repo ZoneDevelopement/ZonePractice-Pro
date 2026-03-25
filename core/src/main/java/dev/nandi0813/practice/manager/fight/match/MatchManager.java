@@ -14,6 +14,7 @@ import dev.nandi0813.practice.manager.fight.match.util.RematchRequest;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.settings.CentralizedSettingListener;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
+import dev.nandi0813.practice.premium.telemetry.TelemetryBootstrap;
 import dev.nandi0813.practice.premium.telemetry.listener.TelemetryMatchListener;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import lombok.Getter;
@@ -57,8 +58,10 @@ public class MatchManager {
 
         Bukkit.getPluginManager().registerEvents(new LadderTypeListener(), practice);
 
-        // Telemetry capture is isolated in the premium package and only listens to lifecycle events.
-        Bukkit.getPluginManager().registerEvents(new TelemetryMatchListener(), practice);
+        if (TelemetryBootstrap.isActive()) {
+            // Telemetry capture is isolated in the premium package and only listens to lifecycle events.
+            Bukkit.getPluginManager().registerEvents(new TelemetryMatchListener(), practice);
+        }
 
         this.belowNameManager = BelowNameManager.getInstance();
         PacketEvents.getAPI().getEventManager().registerListener(this.belowNameManager, PacketListenerPriority.NORMAL);

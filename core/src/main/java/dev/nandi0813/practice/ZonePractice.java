@@ -40,6 +40,7 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
+import dev.nandi0813.practice.premium.telemetry.TelemetryBootstrap;
 import dev.nandi0813.practice.premium.telemetry.TelemetryLogger;
 import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
@@ -104,6 +105,7 @@ public final class ZonePractice extends JavaPlugin {
         new SaveResource().saveResources(this);
 
         ConfigManager.createFile();
+        TelemetryBootstrap.initialize();
         LanguageManager.createFile(this);
         GUIFile.createFile(this);
         MysqlManager.openConnection();

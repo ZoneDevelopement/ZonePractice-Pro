@@ -95,6 +95,11 @@ public enum TelemetryLogger {
 
     private static void ensureInitialized() {
         if (initialized.compareAndSet(false, true)) {
+            if (!TelemetryBootstrap.isActive()) {
+                transportEnabled = false;
+                return;
+            }
+
             endpointUri = resolveEndpoint();
             authToken = resolveToken();
 
@@ -127,6 +132,14 @@ public enum TelemetryLogger {
 
             Common.sendConsoleMMMessage("<green>Telemetry REST transport enabled -> " + endpointUri);
         }
+    }
+
+    static URI resolveConfiguredEndpoint() {
+        return resolveEndpoint();
+    }
+
+    static String resolveConfiguredToken() {
+        return resolveToken();
     }
 
     private static void sendRecord(MatchTelemetry telemetry) {

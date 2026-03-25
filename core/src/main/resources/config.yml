@@ -1,4 +1,4 @@
-VERSION: 33
+VERSION: 34
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -10,6 +10,10 @@ MYSQL-DATABASE:
     DATABASE: zonepractice
     USER: root
     PASSWORD: ""
+
+TELEMETRY:
+  ENABLED: true
+
 # Knockback modifier - it very much depends on the hit delay. You should test what is the optimal for you.
 KNOCKBACK:
   NORMAL:
