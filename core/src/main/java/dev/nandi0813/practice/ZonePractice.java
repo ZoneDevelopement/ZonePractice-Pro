@@ -101,6 +101,7 @@ public final class ZonePractice extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        instance = this;
 
         adventure = BukkitAudiences.create(this);
         miniMessage = MiniMessage.miniMessage();
@@ -109,6 +110,7 @@ public final class ZonePractice extends JavaPlugin {
 
         PacketEvents.getAPI().init();
         metrics = new Metrics(this, 16055);
+        faststats_metrics.ready();
 
         if (VersionChecker.getBukkitVersion() == null) {
             Common.sendConsoleMMMessage("<red>Unsupported server version! Please use 1.20.6 or 1.21.X");
