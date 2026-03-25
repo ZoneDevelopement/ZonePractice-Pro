@@ -245,6 +245,7 @@ public class ServerManager implements Listener {
         InventoryManager.getInstance().reloadFile();
         DivisionManager.getInstance().reloadRanks();
         BackendManager.reload();
+        goldenHead.reload();
     }
 
     public void alertPlayers(String permission, String message) {

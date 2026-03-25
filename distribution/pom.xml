@@ -75,6 +75,10 @@
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>dev.nandi0813.practice.dependencies.bstats</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>dev.faststats</pattern>
+                                    <shadedPattern>dev.nandi0813.practice.dependencies.faststats</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>

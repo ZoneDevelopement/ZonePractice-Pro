@@ -92,23 +92,23 @@ public class UnrankedSearchRunnable extends SearchRunnable {
 
     private void sendMSG() {
         if (acceptableDivisions.size() == 1) {
-            this.actionBar.setMessage(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-OWN-DIVISION")
+            this.updateQueueActionBar(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-OWN-DIVISION")
                     .replace("%division_fullName%", currentDivision.getFullName())
                     .replace("%division_shortName%", currentDivision.getShortName()));
         } else if (previousDivision != null && nextDivision == null) {
-            this.actionBar.setMessage(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-IN-RANGE")
+            this.updateQueueActionBar(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-IN-RANGE")
                     .replace("%from_fullName%", previousDivision.getFullName())
                     .replace("%from_shortName%", previousDivision.getShortName())
                     .replace("%to_fullName%", currentDivision.getFullName())
                     .replace("%to_shortName%", currentDivision.getShortName()));
         } else if (previousDivision == null && nextDivision != null) {
-            this.actionBar.setMessage(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-IN-RANGE")
+            this.updateQueueActionBar(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-IN-RANGE")
                     .replace("%from_fullName%", currentDivision.getFullName())
                     .replace("%from_shortName%", currentDivision.getShortName())
                     .replace("%to_fullName%", nextDivision.getFullName())
                     .replace("%to_shortName%", nextDivision.getShortName()));
         } else if (previousDivision != null) {
-            this.actionBar.setMessage(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-IN-RANGE")
+            this.updateQueueActionBar(LanguageManager.getString("QUEUES.UNRANKED.SEARCHING-IN-RANGE")
                     .replace("%from_fullName%", previousDivision.getFullName())
                     .replace("%from_shortName%", previousDivision.getShortName())
                     .replace("%to_fullName%", nextDivision.getFullName())

@@ -16,11 +16,11 @@ settings:
   respawntime: 3
   knockback: DEFAULT
   matchtypes:
-    - DUEL
-    - PARTY_SPLIT
-    - PARTY_VS_PARTY
+  - DUEL
+  - PARTY_SPLIT
+  - PARTY_VS_PARTY
   weightClass: UNRANKED_AND_RANKED
-  maxduration: 600
+  maxduration: 1800
   fireworkcooldown: 1
   startmove: false
   tntfusetime: 4

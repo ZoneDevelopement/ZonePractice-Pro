@@ -1,7 +1,5 @@
 package dev.nandi0813.practice.manager.fight.match;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
 import dev.nandi0813.practice.manager.fight.belowname.BelowNameManager;
@@ -64,7 +62,7 @@ public class MatchManager {
         }
 
         this.belowNameManager = BelowNameManager.getInstance();
-        PacketEvents.getAPI().getEventManager().registerListener(this.belowNameManager, PacketListenerPriority.NORMAL);
+        // PacketEvents.getAPI().getEventManager().registerListener(this.belowNameManager, PacketListenerPriority.NORMAL);
     }
 
     public Match getLiveMatchByPlayer(Player player) {

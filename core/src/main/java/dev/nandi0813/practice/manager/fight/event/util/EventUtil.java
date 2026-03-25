@@ -12,6 +12,7 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.NumberUtil;
+import dev.nandi0813.practice.util.actionbar.ActionBarPriority;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -44,15 +45,23 @@ public enum EventUtil {
 
     public static void sendCompassTracker(Player player) {
         Player target = getClosestTarget(player);
+
         if (target != null) {
+            if (!player.getWorld().equals(target.getWorld())) {
+                return;
+            }
+
             player.setCompassTarget(target.getLocation());
             double distance = NumberUtil.roundDouble(player.getLocation().distance(target.getLocation()));
 
             Profile profile = ProfileManager.getInstance().getProfile(player);
-            profile.getActionBar().setActionBar(LanguageManager.getString("EVENT.COMPASS-TRACKER-ACTIONBAR")
-                            .replace("%target%", target.getName())
-                            .replace("%distance%", String.valueOf(distance)),
-                    5);
+            if (profile != null) {
+                String message = LanguageManager.getString("EVENT.COMPASS-TRACKER-ACTIONBAR")
+                        .replace("%target%", target.getName())
+                        .replace("%distance%", String.valueOf(distance));
+
+                profile.getActionBar().setMessage("compass_tracker", message, 5, ActionBarPriority.HIGH);
+            }
         }
     }
 

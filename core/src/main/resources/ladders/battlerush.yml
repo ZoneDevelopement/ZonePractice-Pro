@@ -19,7 +19,7 @@ settings:
   - PARTY_SPLIT
   - PARTY_VS_PARTY
   weightClass: UNRANKED_AND_RANKED
-  maxduration: 600
+  maxduration: 900
   fireworkcooldown: 1
   startmove: false
   tntfusetime: 4
@@ -28,6 +28,7 @@ settings:
   breakallblocks: false
   respawntime: 3
   tempbuild-delay: 6
+  block-return-delay: 0
 respawn-time: 3
 tempbuild-delay: 10
 icon:

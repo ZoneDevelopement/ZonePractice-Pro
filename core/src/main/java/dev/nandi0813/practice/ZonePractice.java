@@ -1,6 +1,8 @@
 package dev.nandi0813.practice;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import dev.faststats.bukkit.BukkitMetrics;
+import dev.faststats.core.ErrorTracker;
 import dev.nandi0813.practice.command.arena.ArenaCommand;
 import dev.nandi0813.practice.command.event.EventCommand;
 import dev.nandi0813.practice.command.ffa.FFACommand;
@@ -77,7 +79,15 @@ public final class ZonePractice extends JavaPlugin {
     @Getter
     private static volatile boolean fullyLoaded = false;
 
+    // BStats
     private Metrics metrics;
+
+    public static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
+    private final BukkitMetrics faststats_metrics = BukkitMetrics.factory()
+        .token("98d57804a89964439b95ebbe50247bd4")
+        .errorTracker(ERROR_TRACKER)
+        .debug(false)
+        .create(this);
 
     @Override
     public void onLoad() {
@@ -95,6 +105,7 @@ public final class ZonePractice extends JavaPlugin {
 
         PacketEvents.getAPI().init();
         metrics = new Metrics(this, 16055);
+        faststats_metrics.ready();
 
         if (VersionChecker.getBukkitVersion() == null) {
             Common.sendConsoleMMMessage("<red>Unsupported server version! Please use 1.20.6 or 1.21.X");
@@ -205,6 +216,7 @@ public final class ZonePractice extends JavaPlugin {
         InventoryManager.getInstance().setData();
         if (adventure != null) adventure.close();
         if (metrics != null) metrics.shutdown();
+        faststats_metrics.shutdown();
         MysqlManager.closeConnection();
         BackendManager.save();
 

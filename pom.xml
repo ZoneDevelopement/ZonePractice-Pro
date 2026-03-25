@@ -86,6 +86,12 @@
             <id>sonatype-oss-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
+
+        <repository>
+          <id>faststats-releases</id>
+          <name>FastStats</name>
+          <url>https://repo.faststats.dev/releases</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -105,7 +111,7 @@
         <dependency>
             <groupId>com.github.retrooper</groupId>
             <artifactId>packetevents-spigot</artifactId>
-            <version>2.11.1</version>
+            <version>2.11.2</version>
             <scope>provided</scope>
         </dependency>
 
@@ -155,6 +161,12 @@
             <artifactId>adventure-platform-bukkit</artifactId>
             <version>4.4.1</version>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>dev.faststats.metrics</groupId>
+          <artifactId>bukkit</artifactId>
+          <version>0.19.0</version>
         </dependency>
     </dependencies>
 

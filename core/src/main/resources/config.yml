@@ -1,4 +1,4 @@
-VERSION: 34
+VERSION: 36
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -207,12 +207,12 @@ MATCH-SETTINGS:
       RANKED: false
   END-COMMAND:
     DUEL:
-      UNRANKED:
+      UNRANKED: # Both commands have %player% and %opponent% placeholders.
         WINNER-COMMANDS:
           - ""
         LOSER-COMMANDS:
           - ""
-      RANKED:
+      RANKED: # Both commands have %player% and %opponent% placeholders.
         WINNER-COMMANDS:
           - ""
         LOSER-COMMANDS:
@@ -225,9 +225,16 @@ MATCH-SETTINGS:
         - ""
   MATCH-STATISTIC:
     REMOVE-AFTER: 60 # After the seconds, the players won't be able to open their match statistics.
+  HEALTH-BELOW-NAME:
+    SATURATED-HEART-INDICATOR: true # If true, the below-name heart icon turns yellow when the player is saturated.
+    LOW-HEALTH-DECIMAL-RATIO: true # If true, health below 2 hearts is shown as a decimal ratio (current/max).
+    LOW-HEALTH-THRESHOLD: 4.0
   BUILD-LIMIT-DEFAULT: 4 # Counts from the first players positions Y level. You can set a unique number for this for every arena, then it will consider where you are standing.
   AFTER-COUNTDOWN: 3 # After the match is over this countdown start, and when it's over, the players teleport back to the lobby.
   GOLDEN-HEAD: # Golden head settings.
+    TEXTURE: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGUzNGM1MGZkY2E4ZTM2YzFlMDUwYjk2M2YyZTZlMWY3MGU0NjVlNTVjNDQzZjY4OTQ3NDQzNDA5Y2M2YTMzOCJ9fX0=" # Optional: direct skin URL or Base64 texture value. If set, item renders as a custom player head.
+    COOLDOWN: 10 # Cooldown in seconds between Golden Head uses.
+    ACTION-BAR-COOLDOWN-MSG: "<gold>🕒 <yellow>%remaining%s"
     ITEM:
       NAME: "&e&lGolden Head"
       MATERIAL: GOLDEN_APPLE
