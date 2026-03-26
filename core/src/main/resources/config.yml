@@ -310,6 +310,14 @@ MATCH-SETTINGS:
         ENABLED: true
         EXP-BAR: true
         TIME: 5 # In sec.
+    AXE:
+      # Re-applies no-damage-tick reset after a blocked shield hit to avoid vanilla
+      # immunity interfering with custom stun/chain-hit behavior.
+      SKIP-VANILLA-DAMAGE-TICK-WHEN-SHIELD-BLOCKED: true
+      SHIELD-STUN:
+        ENABLED: true
+        DURATION-TICKS: 100
+        REQUIRE-AXE: true
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
 #
 # FFA settings

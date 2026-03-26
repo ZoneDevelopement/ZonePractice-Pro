@@ -54,6 +54,12 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
 public class LadderTypeListener implements Listener {
 
+    private static final String AXE_LADDER_SETTINGS_PATH = "MATCH-SETTINGS.LADDER-SETTINGS.AXE";
+    private static final String SHIELD_STUN_ENABLED_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.ENABLED";
+    private static final String SHIELD_STUN_DURATION_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.DURATION-TICKS";
+    private static final String SHIELD_STUN_REQUIRE_AXE_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.REQUIRE-AXE";
+    private static final String SHIELD_SKIP_VANILLA_TICK_PATH = AXE_LADDER_SETTINGS_PATH + ".SKIP-VANILLA-DAMAGE-TICK-WHEN-SHIELD-BLOCKED";
+
     // ========== HELPER METHODS ==========
 
     /**
@@ -161,6 +167,59 @@ public class LadderTypeListener implements Listener {
         Common.sendMMMessage(shooter, LanguageManager.getString("MATCH.ARROW-HIT-PLAYER")
                 .replace("%player%", target.getName())
                 .replace("%health%", String.valueOf(health)));
+    }
+
+    private static boolean isAxe(Material material) {
+        return switch (material) {
+            case WOODEN_AXE, STONE_AXE, GOLDEN_AXE, IRON_AXE, DIAMOND_AXE, NETHERITE_AXE -> true;
+            default -> false;
+        };
+    }
+
+    private static boolean isShieldBlockedHit(EntityDamageByEntityEvent e, Player target) {
+        ItemStack activeItem = target.getActiveItem();
+        if (!target.isBlocking() || activeItem.getType() != Material.SHIELD) {
+            return false;
+        }
+
+        // A blocked shield hit should not deal HP damage.
+        return e.getFinalDamage() <= 0.0D;
+    }
+
+    private static void enforceShieldDamageTickBypass(Player target) {
+        if (!ConfigManager.getConfig().getBoolean(SHIELD_SKIP_VANILLA_TICK_PATH, true)) {
+            return;
+        }
+
+        // Run one tick later so vanilla cannot restore the damage immunity window.
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+            if (!target.isOnline() || target.isDead()) {
+                return;
+            }
+            target.setNoDamageTicks(0);
+        });
+    }
+
+    private static void applyCustomShieldStunIfNeeded(EntityDamageByEntityEvent e, Player attacker, Player target) {
+        if (!(e.getDamager() instanceof Player)) {
+            return;
+        }
+
+        if (!ConfigManager.getConfig().getBoolean(SHIELD_STUN_ENABLED_PATH, true)) {
+            return;
+        }
+
+        boolean requireAxe = ConfigManager.getConfig().getBoolean(SHIELD_STUN_REQUIRE_AXE_PATH, true);
+        if (requireAxe && !isAxe(attacker.getInventory().getItemInMainHand().getType())) {
+            return;
+        }
+
+        int durationTicks = Math.max(0, ConfigManager.getConfig().getInt(SHIELD_STUN_DURATION_PATH));
+        if (durationTicks == 0) {
+            return;
+        }
+
+        target.setCooldown(Material.SHIELD, durationTicks);
     }
 
 
@@ -573,6 +632,7 @@ public class LadderTypeListener implements Listener {
 
         if (e instanceof EntityDamageByEntityEvent) {
             onEntityDamageByEntity((EntityDamageByEntityEvent) e);
+            return;
         }
 
         if (match.getLadder() instanceof LadderHandle ladderHandle) {
@@ -675,8 +735,14 @@ public class LadderTypeListener implements Listener {
         // regardless of whether the event was cancelled by a ladder handler.
         match.recordAttack(target, attacker);
 
+        boolean shieldBlocked = !e.isCancelled() && isShieldBlockedHit(e, target);
+        if (shieldBlocked) {
+            enforceShieldDamageTickBypass(target);
+            applyCustomShieldStunIfNeeded(e, attacker, target);
+        }
+
         if (!e.isCancelled() && !match.getLadder().getLadderKnockback().getKnockbackType().equals(KnockbackType.DEFAULT)) {
-            KnockbackUtil.setPlayerKnockback(target, match.getLadder().getLadderKnockback().getKnockbackType());
+            KnockbackUtil.setPlayerKnockback(target, attacker, match.getLadder().getLadderKnockback().getKnockbackType());
         }
     }
 
