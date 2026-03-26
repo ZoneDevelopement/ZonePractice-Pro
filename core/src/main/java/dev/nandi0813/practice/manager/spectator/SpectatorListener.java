@@ -4,6 +4,8 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.event.events.duel.brackets.Brackets;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
+import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
@@ -52,6 +54,14 @@ public class SpectatorListener implements Listener {
 
         Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
         if (match == null) {
+            return false;
+        }
+
+        if (match.getType().equals(MatchType.DUEL)) {
+            return false;
+        }
+
+        if (match.getStatus().equals(MatchStatus.END)) {
             return false;
         }
 
