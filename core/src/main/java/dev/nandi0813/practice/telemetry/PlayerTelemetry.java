@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.premium.telemetry;
+package dev.nandi0813.practice.telemetry;
 
 import org.json.JSONObject;
 

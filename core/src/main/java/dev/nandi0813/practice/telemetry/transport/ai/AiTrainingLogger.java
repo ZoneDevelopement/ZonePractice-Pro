@@ -1,7 +1,7 @@
-package dev.nandi0813.practice.premium.telemetry.transport.ai;
+package dev.nandi0813.practice.telemetry.transport.ai;
 
-import dev.nandi0813.practice.premium.telemetry.bootstrap.TelemetryBootstrap;
-import dev.nandi0813.practice.premium.telemetry.config.TelemetryConfig;
+import dev.nandi0813.practice.telemetry.bootstrap.TelemetryBootstrap;
+import dev.nandi0813.practice.telemetry.config.TelemetryConfig;
 import dev.nandi0813.practice.util.Common;
 
 import java.net.URI;

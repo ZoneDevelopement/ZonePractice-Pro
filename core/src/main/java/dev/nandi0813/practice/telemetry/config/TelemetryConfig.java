@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.premium.telemetry.config;
+package dev.nandi0813.practice.telemetry.config;
 
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.util.Common;

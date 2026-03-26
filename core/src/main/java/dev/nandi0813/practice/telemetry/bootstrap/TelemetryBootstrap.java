@@ -1,7 +1,7 @@
-package dev.nandi0813.practice.premium.telemetry.bootstrap;
+package dev.nandi0813.practice.telemetry.bootstrap;
 
 import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.premium.telemetry.config.TelemetryConfig;
+import dev.nandi0813.practice.telemetry.config.TelemetryConfig;
 import org.json.JSONObject;
 
 import java.net.URI;

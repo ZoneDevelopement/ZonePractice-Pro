@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.premium.telemetry.collector;
+package dev.nandi0813.practice.telemetry.collector;
 
 import dev.nandi0813.api.Event.Match.MatchEndEvent;
 import dev.nandi0813.api.Event.Match.MatchStartEvent;
@@ -12,14 +12,14 @@ import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.statistics.LadderStats;
-import dev.nandi0813.practice.premium.telemetry.MatchTelemetry;
-import dev.nandi0813.practice.premium.telemetry.PlayerTelemetry;
-import dev.nandi0813.practice.premium.telemetry.RoundTelemetry;
-import dev.nandi0813.practice.premium.telemetry.ServerFingerprintUtil;
-import dev.nandi0813.practice.premium.telemetry.bootstrap.TelemetryBootstrap;
-import dev.nandi0813.practice.premium.telemetry.transport.ai.AiTrainingLogger;
-import dev.nandi0813.practice.premium.telemetry.transport.ai.AiTrainingMatchPayload;
-import dev.nandi0813.practice.premium.telemetry.transport.regular.TelemetryLogger;
+import dev.nandi0813.practice.telemetry.MatchTelemetry;
+import dev.nandi0813.practice.telemetry.PlayerTelemetry;
+import dev.nandi0813.practice.telemetry.RoundTelemetry;
+import dev.nandi0813.practice.telemetry.ServerFingerprintUtil;
+import dev.nandi0813.practice.telemetry.bootstrap.TelemetryBootstrap;
+import dev.nandi0813.practice.telemetry.transport.ai.AiTrainingLogger;
+import dev.nandi0813.practice.telemetry.transport.ai.AiTrainingMatchPayload;
+import dev.nandi0813.practice.telemetry.transport.regular.TelemetryLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;

@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.premium.telemetry.transport.ai;
+package dev.nandi0813.practice.telemetry.transport.ai;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

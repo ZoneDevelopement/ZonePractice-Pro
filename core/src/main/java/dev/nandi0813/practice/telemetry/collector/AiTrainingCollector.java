@@ -1,10 +1,10 @@
-package dev.nandi0813.practice.premium.telemetry.collector;
+package dev.nandi0813.practice.telemetry.collector;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
-import dev.nandi0813.practice.premium.telemetry.ServerFingerprintUtil;
-import dev.nandi0813.practice.premium.telemetry.transport.ai.AiTrainingMatchPayload;
+import dev.nandi0813.practice.telemetry.ServerFingerprintUtil;
+import dev.nandi0813.practice.telemetry.transport.ai.AiTrainingMatchPayload;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;

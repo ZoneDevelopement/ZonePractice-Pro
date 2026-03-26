@@ -1,8 +1,8 @@
-package dev.nandi0813.practice.premium.telemetry.transport.regular;
+package dev.nandi0813.practice.telemetry.transport.regular;
 
-import dev.nandi0813.practice.premium.telemetry.MatchTelemetry;
-import dev.nandi0813.practice.premium.telemetry.bootstrap.TelemetryBootstrap;
-import dev.nandi0813.practice.premium.telemetry.config.TelemetryConfig;
+import dev.nandi0813.practice.telemetry.MatchTelemetry;
+import dev.nandi0813.practice.telemetry.bootstrap.TelemetryBootstrap;
+import dev.nandi0813.practice.telemetry.config.TelemetryConfig;
 import dev.nandi0813.practice.util.Common;
 
 import java.net.URI;
