@@ -42,10 +42,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.ItemStack;
 
 import static dev.nandi0813.practice.manager.arena.util.ArenaUtil.containsDestroyableBlock;
@@ -59,6 +58,8 @@ public class LadderTypeListener implements Listener {
     private static final String SHIELD_STUN_DURATION_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.DURATION-TICKS";
     private static final String SHIELD_STUN_REQUIRE_AXE_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.REQUIRE-AXE";
     private static final String SHIELD_SKIP_VANILLA_TICK_PATH = AXE_LADDER_SETTINGS_PATH + ".SKIP-VANILLA-DAMAGE-TICK-WHEN-SHIELD-BLOCKED";
+    private static final int SKYWARS_KILLER_EXP_LEVEL_REWARD = 5;
+    private static final int SKYWARS_ENCHANT_LAPIS_AMOUNT = 3;
 
     // ========== HELPER METHODS ==========
 
@@ -220,6 +221,11 @@ public class LadderTypeListener implements Listener {
         }
 
         target.setCooldown(Material.SHIELD, durationTicks);
+    }
+
+    private static boolean isSkyWarsLiveMatch(Match match) {
+        return match.getLadder().getType() == LadderType.SKYWARS
+                && match.getCurrentRound().getRoundStatus() == RoundStatus.LIVE;
     }
 
 
@@ -501,7 +507,8 @@ public class LadderTypeListener implements Listener {
         Match match = getPlayerMatch(player);
         if (match == null) return;
 
-        if (!match.getLadder().getType().equals(LadderType.BUILD) || !match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+        boolean canCraftInLadder = match.getLadder().getType() == LadderType.BUILD || match.getLadder().getType() == LadderType.SKYWARS;
+        if (!canCraftInLadder || !match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
             e.setCancelled(true);
             Common.sendMMMessage(player, LanguageManager.getString("MATCH.CANT-CRAFT"));
             return;
@@ -578,6 +585,22 @@ public class LadderTypeListener implements Listener {
         if (item == null) return;
 
         delegateToLadderHandle(e, match);
+    }
+
+    @EventHandler
+    public void onInventoryOpen(InventoryOpenEvent e) {
+        if (!(e.getPlayer() instanceof Player player)) {
+            return;
+        }
+
+        Match match = getPlayerMatch(player);
+        if (match == null || !isSkyWarsLiveMatch(match)) {
+            return;
+        }
+
+        if (e.getInventory() instanceof EnchantingInventory enchantingInventory) {
+            enchantingInventory.setSecondary(new ItemStack(Material.LAPIS_LAZULI, SKYWARS_ENCHANT_LAPIS_AMOUNT));
+        }
     }
 
     @EventHandler
@@ -668,6 +691,10 @@ public class LadderTypeListener implements Listener {
             Statistic statistic = match.getCurrentStat(killer);
             if (statistic != null) {
                 statistic.setKills(statistic.getKills() + 1);
+            }
+
+            if (match.getLadder().getType() == LadderType.SKYWARS) {
+                killer.giveExpLevels(SKYWARS_KILLER_EXP_LEVEL_REWARD);
             }
         }
     }
@@ -795,6 +822,16 @@ public class LadderTypeListener implements Listener {
             return;
         }
         Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        if (profile.getStatus() == ProfileStatus.MATCH) {
+            Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+            if (match != null && isSkyWarsLiveMatch(match)) {
+                InventoryType topType = e.getView().getTopInventory().getType();
+                if (topType == InventoryType.CRAFTING || topType == InventoryType.WORKBENCH || topType == InventoryType.ENCHANTING) {
+                    return;
+                }
+            }
+        }
 
         if (e.getAction().equals(InventoryAction.HOTBAR_SWAP)) {
             switch (profile.getStatus()) {
