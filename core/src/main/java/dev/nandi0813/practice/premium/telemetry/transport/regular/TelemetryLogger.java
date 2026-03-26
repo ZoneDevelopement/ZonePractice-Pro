@@ -1,5 +1,8 @@
-package dev.nandi0813.practice.premium.telemetry;
+package dev.nandi0813.practice.premium.telemetry.transport.regular;
 
+import dev.nandi0813.practice.premium.telemetry.MatchTelemetry;
+import dev.nandi0813.practice.premium.telemetry.bootstrap.TelemetryBootstrap;
+import dev.nandi0813.practice.premium.telemetry.config.TelemetryConfig;
 import dev.nandi0813.practice.util.Common;
 
 import java.net.URI;
@@ -13,10 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public enum TelemetryLogger {
     ;
-
-    private static final String ENDPOINT = "http://localhost:8000/api/v1/telemetry/";
-    private static final String TOKEN = "sk_live_your_secret_token_here";
-    private static final String MATCHES_SEGMENT = "matches/";
 
     private static final int MAX_QUEUE_SIZE = 2000;
     private static final int MAX_ATTEMPTS = 3;
@@ -101,8 +100,8 @@ public enum TelemetryLogger {
                 return;
             }
 
-            endpointUri = resolveMatchesEndpoint();
-            authToken = resolveToken();
+            endpointUri = TelemetryConfig.resolveMatchesEndpoint();
+            authToken = TelemetryConfig.resolveConfiguredToken();
 
             if (endpointUri == null) {
                 transportEnabled = false;
@@ -128,45 +127,18 @@ public enum TelemetryLogger {
 
             httpClient = HttpClient.newBuilder()
                     .connectTimeout(CONNECT_TIMEOUT)
+                    .followRedirects(HttpClient.Redirect.NORMAL)
                     .build();
             transportEnabled = true;
-
-            Common.sendConsoleMMMessage("<green>Telemetry REST transport enabled -> " + endpointUri);
         }
     }
 
-    static URI resolveConfiguredEndpoint() {
-        return resolveEndpoint();
+    public static URI resolveConfiguredBaseEndpoint() {
+        return TelemetryConfig.resolveConfiguredBaseEndpoint();
     }
 
-    static String resolveConfiguredToken() {
-        return resolveToken();
-    }
-
-    private static URI resolveMatchesEndpoint() {
-        URI baseEndpoint = resolveEndpoint();
-        if (baseEndpoint == null) {
-            return null;
-        }
-
-        try {
-            String basePath = baseEndpoint.getPath() == null ? "/" : baseEndpoint.getPath();
-            String normalizedBasePath = basePath.endsWith("/") ? basePath : basePath + "/";
-            String matchesPath = normalizedBasePath + MATCHES_SEGMENT;
-
-            return new URI(
-                    baseEndpoint.getScheme(),
-                    baseEndpoint.getUserInfo(),
-                    baseEndpoint.getHost(),
-                    baseEndpoint.getPort(),
-                    matchesPath,
-                    null,
-                    null
-            );
-        } catch (Exception exception) {
-            Common.sendConsoleMMMessage("<red>Invalid telemetry matches endpoint: " + ENDPOINT + " (" + exception.getMessage() + ")");
-            return null;
-        }
+    public static String resolveConfiguredToken() {
+        return TelemetryConfig.resolveConfiguredToken();
     }
 
     private static void sendRecord(MatchTelemetry telemetry) {
@@ -227,26 +199,6 @@ public enum TelemetryLogger {
                 });
     }
 
-    private static URI resolveEndpoint() {
-        String endpoint = ENDPOINT;
-
-        try {
-            URI uri = URI.create(endpoint.trim());
-            String scheme = uri.getScheme();
-            if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
-                Common.sendConsoleMMMessage("<red>Telemetry endpoint must use http/https: " + endpoint);
-                return null;
-            }
-            return uri;
-        } catch (Exception exception) {
-            Common.sendConsoleMMMessage("<red>Invalid telemetry endpoint: " + endpoint + " (" + exception.getMessage() + ")");
-            return null;
-        }
-    }
-
-    private static String resolveToken() {
-        return TOKEN;
-    }
 }
 
 

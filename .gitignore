@@ -116,3 +116,4 @@ test_servers/
 reset-dev.sh
 AGENTS.md
 /BACKEND_COMPLETE.md
+/AI_TRAINING_LOGGER_SPEC.md

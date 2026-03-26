@@ -42,9 +42,10 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
-import dev.nandi0813.practice.premium.telemetry.TelemetryBootstrap;
-import dev.nandi0813.practice.premium.telemetry.TelemetryLogger;
-import dev.nandi0813.practice.premium.telemetry.listener.TelemetryMatchListener;
+import dev.nandi0813.practice.premium.telemetry.bootstrap.TelemetryBootstrap;
+import dev.nandi0813.practice.premium.telemetry.collector.TelemetryMatchListener;
+import dev.nandi0813.practice.premium.telemetry.transport.ai.AiTrainingLogger;
+import dev.nandi0813.practice.premium.telemetry.transport.regular.TelemetryLogger;
 import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -119,21 +120,23 @@ public final class ZonePractice extends JavaPlugin {
         new SaveResource().saveResources(this);
 
         ConfigManager.createFile();
-        TelemetryBootstrap.initializeAsync().thenAccept(enabled -> {
-            if (!enabled) {
-                return;
-            }
+        TelemetryBootstrap.initializeAsync()
+                .thenApply(regularEnabled -> regularEnabled || TelemetryBootstrap.isAiCollectionActive())
+                .thenAccept(enabled -> {
+                    if (!enabled) {
+                        return;
+                    }
 
-            Bukkit.getScheduler().runTask(this, () -> {
-                if (!isEnabled()) {
-                    return;
-                }
+                    Bukkit.getScheduler().runTask(this, () -> {
+                        if (!isEnabled()) {
+                            return;
+                        }
 
-                if (telemetryListenerRegistered.compareAndSet(false, true)) {
-                    Bukkit.getPluginManager().registerEvents(new TelemetryMatchListener(), this);
-                }
-            });
-        });
+                        if (telemetryListenerRegistered.compareAndSet(false, true)) {
+                            Bukkit.getPluginManager().registerEvents(new TelemetryMatchListener(), this);
+                        }
+                    });
+                });
         LanguageManager.createFile(this);
         GUIFile.createFile(this);
         MysqlManager.openConnection();
@@ -239,6 +242,7 @@ public final class ZonePractice extends JavaPlugin {
 
         // Flush async telemetry writes at shutdown so completed matches are persisted.
         TelemetryLogger.shutdown();
+        AiTrainingLogger.shutdown();
     }
 
     /**

@@ -1,4 +1,4 @@
-VERSION: 36
+VERSION: 38
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -13,6 +13,8 @@ MYSQL-DATABASE:
 
 TELEMETRY:
   ENABLED: true
+  AI:
+    ENABLED: true
 
 # Knockback modifier - it very much depends on the hit delay. You should test what is the optimal for you.
 KNOCKBACK:

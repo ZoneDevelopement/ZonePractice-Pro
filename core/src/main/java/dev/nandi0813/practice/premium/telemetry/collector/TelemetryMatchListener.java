@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.premium.telemetry.listener;
+package dev.nandi0813.practice.premium.telemetry.collector;
 
 import dev.nandi0813.api.Event.Match.MatchEndEvent;
 import dev.nandi0813.api.Event.Match.MatchStartEvent;
@@ -15,24 +15,34 @@ import dev.nandi0813.practice.manager.profile.statistics.LadderStats;
 import dev.nandi0813.practice.premium.telemetry.MatchTelemetry;
 import dev.nandi0813.practice.premium.telemetry.PlayerTelemetry;
 import dev.nandi0813.practice.premium.telemetry.RoundTelemetry;
-import dev.nandi0813.practice.premium.telemetry.TelemetryLogger;
+import dev.nandi0813.practice.premium.telemetry.ServerFingerprintUtil;
+import dev.nandi0813.practice.premium.telemetry.bootstrap.TelemetryBootstrap;
+import dev.nandi0813.practice.premium.telemetry.transport.ai.AiTrainingLogger;
+import dev.nandi0813.practice.premium.telemetry.transport.ai.AiTrainingMatchPayload;
+import dev.nandi0813.practice.premium.telemetry.transport.regular.TelemetryLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.net.NetworkInterface;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TelemetryMatchListener implements Listener {
 
     private static final int SCHEMA_VERSION = 1;
-    private static final String FALLBACK_SERVER_ID = "unknown-host";
-    private static volatile String cachedServerId;
+    private static final int MAX_CONCURRENT_AI_RECORDINGS = 5;
     private final Map<String, MatchStartSnapshot> snapshots = new ConcurrentHashMap<>();
+    private final Map<String, AiTrainingCollector> aiCollectors = new ConcurrentHashMap<>();
 
     @EventHandler
     public void onMatchStart(MatchStartEvent event) {
@@ -52,6 +62,17 @@ public class TelemetryMatchListener implements Listener {
         }
 
         snapshots.put(match.getId(), new MatchStartSnapshot(System.currentTimeMillis(), eloBefore));
+
+        if (AiTrainingCollector.isSupportedLadder(match)) {
+            if (aiCollectors.size() >= MAX_CONCURRENT_AI_RECORDINGS) {
+                // Bukkit.getLogger().warning("[ZonePractice] Skipping AI recording for match " + match.getId() + " (active recordings cap=" + MAX_CONCURRENT_AI_RECORDINGS + ")");
+                return;
+            }
+
+            AiTrainingCollector collector = new AiTrainingCollector(match);
+            aiCollectors.put(match.getId(), collector);
+            collector.start();
+        }
     }
 
     @EventHandler
@@ -74,7 +95,7 @@ public class TelemetryMatchListener implements Listener {
                 match.getArena().getName(),
                 isRanked(match),
                 match.getWinsNeeded(),
-                getServerId(),
+                ServerFingerprintUtil.getServerId(),
                 ZonePractice.getInstance().getPluginMeta().getVersion(),
                 Bukkit.getBukkitVersion(),
                 matchStartTs,
@@ -88,7 +109,115 @@ public class TelemetryMatchListener implements Listener {
                 System.currentTimeMillis()
         );
 
-        TelemetryLogger.logAsync(telemetry);
+        if (TelemetryBootstrap.isActive()) {
+            TelemetryLogger.logAsync(telemetry);
+        }
+        if (TelemetryBootstrap.isAiCollectionActive()) {
+            AiTrainingCollector collector = aiCollectors.remove(match.getId());
+            if (collector != null) {
+                collector.stop();
+                if (collector.hasRows()) {
+                    AiTrainingMatchPayload aiPayload = collector.toPayload();
+                    AiTrainingLogger.logAsync(aiPayload);
+                }
+            }
+        } else {
+            AiTrainingCollector collector = aiCollectors.remove(match.getId());
+            if (collector != null) {
+                collector.stop();
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        Action action = event.getAction();
+        if (action != Action.LEFT_CLICK_AIR
+                && action != Action.LEFT_CLICK_BLOCK
+                && action != Action.RIGHT_CLICK_AIR
+                && action != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+
+        AiTrainingCollector collector = getAiCollectorByPlayer(event.getPlayer());
+        if (collector == null) {
+            return;
+        }
+
+        if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
+            collector.markLmb(event.getPlayer());
+        } else {
+            collector.markRmb(event.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+        if (!(event.getEntity().getShooter() instanceof Player player)) {
+            return;
+        }
+
+        AiTrainingCollector collector = getAiCollectorByPlayer(player);
+        if (collector != null) {
+            collector.markRmb(player);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) {
+            return;
+        }
+
+        AiTrainingCollector collector = getAiCollectorByPlayer(player);
+        if (collector != null) {
+            collector.markInventoryOpen(player);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockPlace(BlockPlaceEvent event) {
+        AiTrainingCollector collector = getAiCollectorByPlayer(event.getPlayer());
+        if (collector != null) {
+            collector.incrementBlocksPlaced(event.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player target)) {
+            return;
+        }
+
+        Player attacker = null;
+        if (event.getDamager() instanceof Player damager) {
+            attacker = damager;
+        } else if (event.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof Player shooter) {
+            attacker = shooter;
+        }
+
+        if (attacker == null) {
+            return;
+        }
+
+        AiTrainingCollector attackerCollector = getAiCollectorByPlayer(attacker);
+        AiTrainingCollector targetCollector = getAiCollectorByPlayer(target);
+        if (attackerCollector == null || attackerCollector != targetCollector) {
+            return;
+        }
+
+        attackerCollector.markLmb(attacker);
+        attackerCollector.addDamageDealt(attacker, event.getFinalDamage());
+        attackerCollector.addDamageTaken(target, event.getFinalDamage());
+    }
+
+    private AiTrainingCollector getAiCollectorByPlayer(Player player) {
+        Match match = dev.nandi0813.practice.manager.fight.match.MatchManager.getInstance().getLiveMatchByPlayer(player);
+        if (match == null) {
+            return null;
+        }
+
+        return aiCollectors.get(match.getId());
     }
 
     private List<PlayerTelemetry> buildPlayerTelemetry(Match match, UUID winnerUuid, MatchStartSnapshot snapshot) {
@@ -225,19 +354,6 @@ public class TelemetryMatchListener implements Listener {
         return profile.getStats().getLadderStat(normalLadder).getElo();
     }
 
-    private UUID findOpponentUuid(List<Player> players, UUID playerUuid) {
-        if (players.size() != 2) {
-            return null;
-        }
-
-        for (Player player : players) {
-            if (!player.getUniqueId().equals(playerUuid)) {
-                return player.getUniqueId();
-            }
-        }
-
-        return null;
-    }
 
     private Player findOpponentPlayer(List<Player> players, Player player) {
         if (players.size() != 2) {
@@ -253,83 +369,6 @@ public class TelemetryMatchListener implements Listener {
         return null;
     }
 
-    private static String getServerId() {
-        String current = cachedServerId;
-        if (current != null && !current.isBlank()) {
-            return current;
-        }
-
-        String resolved = resolveServerIdFingerprint();
-        cachedServerId = resolved;
-        return resolved;
-    }
-
-    private static String resolveServerIdFingerprint() {
-        List<String> macs = collectMacAddresses();
-        if (!macs.isEmpty()) {
-            macs.sort(String::compareTo);
-            String joined = String.join("|", macs);
-            return "macsha256:" + sha256Hex(joined);
-        }
-
-        String host = System.getenv("HOSTNAME");
-        if (host == null || host.isBlank()) {
-            host = System.getProperty("user.name", "unknown") + "@" + System.getProperty("os.name", "unknown");
-        }
-        return "hostuuid:" + UUID.nameUUIDFromBytes(host.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static List<String> collectMacAddresses() {
-        List<String> result = new ArrayList<>();
-        try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = interfaces.nextElement();
-                if (!networkInterface.isUp() || networkInterface.isLoopback() || networkInterface.isVirtual()) {
-                    continue;
-                }
-
-                byte[] hardwareAddress = networkInterface.getHardwareAddress();
-                String mac = normalizeMac(hardwareAddress);
-                if (mac != null) {
-                    result.add(mac);
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return result;
-    }
-
-    private static String normalizeMac(byte[] mac) {
-        if (mac == null || mac.length < 6) {
-            return null;
-        }
-
-        StringBuilder builder = new StringBuilder();
-        for (byte b : mac) {
-            builder.append(String.format(Locale.ROOT, "%02x", b));
-        }
-
-        String value = builder.toString();
-        if (value.equals("000000000000") || value.equals("ffffffffffff")) {
-            return null;
-        }
-        return value;
-    }
-
-    private static String sha256Hex(String input) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-            StringBuilder builder = new StringBuilder(hash.length * 2);
-            for (byte b : hash) {
-                builder.append(String.format(Locale.ROOT, "%02x", b));
-            }
-            return builder.toString();
-        } catch (Exception ignored) {
-            return FALLBACK_SERVER_ID;
-        }
-    }
 
     private String toTelemetryMatchUuid(String rawMatchId) {
         if (rawMatchId == null || rawMatchId.isBlank()) {
