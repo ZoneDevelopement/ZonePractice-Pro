@@ -87,63 +87,60 @@ public class CustomLadderEditorGui extends GUI {
 
     @Override
     public void update() {
-        Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
-        {
-            Inventory inventory = gui.get(1);
-            inventory.clear();
+        Inventory inventory = gui.get(1);
+        inventory.clear();
 
-            List<ItemStack> armorContent = new ArrayList<>(Arrays.asList(ladder.getKitData().getArmor()));
-            for (int i : new int[]{18, 27, 36, 45}) {
-                if (armorContent.get(Math.abs(i / 9 - 5)) != null)
-                    inventory.setItem(i, armorContent.get(Math.abs(i / 9 - 5)));
-                else
-                    inventory.setItem(i, GUIManager.getDUMMY_ITEM());
+        List<ItemStack> armorContent = new ArrayList<>(Arrays.asList(ladder.getKitData().getArmor()));
+        for (int i : new int[]{18, 27, 36, 45}) {
+            if (armorContent.get(Math.abs(i / 9 - 5)) != null)
+                inventory.setItem(i, armorContent.get(Math.abs(i / 9 - 5)));
+            else
+                inventory.setItem(i, GUIManager.getDUMMY_ITEM());
+        }
+
+        ItemStack infoItem = GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.INFO")
+                .replace("%kit%", String.valueOf(this.kit))
+                .replace("%weightClass%", (ranked ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName()))
+                .replace("%ladder%", ladder.getDisplayName())
+                .replace("%ladderOriginal%", ladder.getName())
+                .get();
+        inventory.setItem(0, infoItem);
+
+        inventory.setItem(6, GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.SAVE").get());
+        inventory.setItem(7, GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.LOAD-DEFAULT").get());
+        inventory.setItem(8, GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.CANCEL").get());
+
+        // Frame
+        for (int i : new int[]{1, 3, 5, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 28, 37, 46}) {
+            inventory.setItem(i, GUIManager.getFILLER_ITEM());
+        }
+
+        inventory.setItem(2, getRankedItem());
+        inventory.setItem(4, getEffectItem());
+
+        if (ladder.getCustomKitExtraItems().get(ranked) != null) {
+            for (ItemStack item : ladder.getCustomKitExtraItems().get(ranked)) {
+                inventory.setItem(inventory.firstEmpty(), Objects.requireNonNullElseGet(item, GUIManager::getDUMMY_ITEM));
             }
+        }
 
-            ItemStack infoItem = GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.INFO")
-                    .replace("%kit%", String.valueOf(this.kit))
-                    .replace("%weightClass%", (ranked ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName()))
-                    .replace("%ladder%", ladder.getDisplayName())
-                    .replace("%ladderOriginal%", ladder.getName())
-                    .get();
-            inventory.setItem(0, infoItem);
+        inventory.remove(GUIManager.getDUMMY_ITEM());
 
-            inventory.setItem(6, GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.SAVE").get());
-            inventory.setItem(7, GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.LOAD-DEFAULT").get());
-            inventory.setItem(8, GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.CANCEL").get());
+        for (int i = 0; i < inventory.getSize(); i++)
+            if (inventory.getItem(i) == null)
+                inventory.setItem(i, fillerItem);
 
-            // Frame
-            for (int i : new int[]{1, 3, 5, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 28, 37, 46}) {
-                inventory.setItem(i, GUIManager.getFILLER_ITEM());
-            }
-
-            inventory.setItem(2, getRankedItem());
-            inventory.setItem(4, getEffectItem());
-
-            if (ladder.getCustomKitExtraItems().get(ranked) != null) {
-                for (ItemStack item : ladder.getCustomKitExtraItems().get(ranked)) {
-                    inventory.setItem(inventory.firstEmpty(), Objects.requireNonNullElseGet(item, GUIManager::getDUMMY_ITEM));
-                }
-            }
-
-            inventory.remove(GUIManager.getDUMMY_ITEM());
-
-            for (int i = 0; i < inventory.getSize(); i++)
-                if (inventory.getItem(i) == null)
-                    inventory.setItem(i, fillerItem);
-
-            if (customKit.getExtra() != null) {
-                if (customKit.getExtra().length > 0) {
-                    inventory.setItem(14, customKit.getExtra()[0]);
-                } else {
-                    inventory.setItem(14, null);
-                }
+        if (customKit.getExtra() != null) {
+            if (customKit.getExtra().length > 0) {
+                inventory.setItem(14, customKit.getExtra()[0]);
             } else {
-                inventory.setItem(14, GUIManager.getDUMMY_ITEM());
+                inventory.setItem(14, null);
             }
+        } else {
+            inventory.setItem(14, GUIManager.getDUMMY_ITEM());
+        }
 
-            updatePlayers();
-        });
+        updatePlayers();
     }
 
     @Override

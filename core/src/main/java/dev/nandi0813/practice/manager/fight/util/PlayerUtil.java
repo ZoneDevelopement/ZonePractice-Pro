@@ -7,6 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -15,6 +16,11 @@ import java.util.List;
 import java.util.Map;
 
 public class PlayerUtil {
+
+    private static boolean hasPersonalCraftingGridOpen(Player player) {
+        InventoryType type = player.getOpenInventory().getType();
+        return type == InventoryType.CRAFTING || type == InventoryType.CREATIVE;
+    }
 
     public static ItemStack getPlayerMainHand(Player player) {
         return player.getInventory().getItemInMainHand();
@@ -54,11 +60,13 @@ public class PlayerUtil {
 
             entities.add(player.getWorld().dropItemNaturally(player.getLocation(), item));
         }
-        // Drop items from the 2x2 crafting grid (indices 1-4 of the open inventory)
-        for (int i = 1; i <= 4; i++) {
-            ItemStack item = player.getOpenInventory().getItem(i);
-            if (item == null || item.getType().equals(Material.AIR)) continue;
-            entities.add(player.getWorld().dropItemNaturally(player.getLocation(), item));
+        // Only player inventory views expose the personal 2x2 crafting grid at these slots.
+        if (hasPersonalCraftingGridOpen(player)) {
+            for (int i = 1; i <= 4; i++) {
+                ItemStack item = player.getOpenInventory().getItem(i);
+                if (item == null || item.getType().equals(Material.AIR)) continue;
+                entities.add(player.getWorld().dropItemNaturally(player.getLocation(), item));
+            }
         }
         // Drop cursor item if any
         ItemStack cursor = player.getItemOnCursor();
@@ -72,9 +80,12 @@ public class PlayerUtil {
 
     public static void clearInventory(Player player) {
         player.getInventory().clear();
-        // Clear the 2x2 crafting grid slots (indices 1-4 of the player's open inventory)
-        for (int i = 1; i <= 4; i++)
-            player.getOpenInventory().setItem(i, null);
+        // Clear crafting-grid slots only for personal inventory views (avoid wiping chest GUI slots).
+        if (hasPersonalCraftingGridOpen(player)) {
+            for (int i = 1; i <= 4; i++) {
+                player.getOpenInventory().setItem(i, null);
+            }
+        }
         // Clear any item held on the cursor
         player.setItemOnCursor(null);
     }
