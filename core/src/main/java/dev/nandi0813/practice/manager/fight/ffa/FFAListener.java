@@ -19,10 +19,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -111,16 +108,15 @@ public class FFAListener implements Listener {
             if (fightChange != null) fightChange.addEntityChange(e.getEntity());
         }
 
-        // For arrows in any FFA (build or non-build): tag with FIGHT_ENTITY so
-        // ProjectileLaunch won't remove them on ground-hit, hide from players in
-        // other arenas, and schedule a 5-minute vanilla-style self-removal.
-        if (e.getEntity() instanceof Arrow arrow) {
-            BlockUtil.setMetadata(arrow, FIGHT_ENTITY, ffa);
+        // For arrow-like projectiles (arrow/spectral/trident) in any FFA: tag with
+        // FIGHT_ENTITY so they are preserved and isolated per-arena.
+        if (e.getEntity() instanceof AbstractArrow projectile) {
+            BlockUtil.setMetadata(projectile, FIGHT_ENTITY, ffa);
 
             // Hide from every online player NOT in this FFA
             for (org.bukkit.entity.Player online : ZonePractice.getInstance().getServer().getOnlinePlayers()) {
                 if (!ffa.getPlayers().containsKey(online) && !ffa.getSpectators().contains(online)) {
-                    ZonePractice.getEntityHider().hideEntity(online, arrow);
+                    ZonePractice.getEntityHider().hideEntity(online, projectile);
                 }
             }
         }

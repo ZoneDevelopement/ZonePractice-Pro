@@ -60,7 +60,23 @@ public class MatchManager {
     }
 
     public Match getLiveMatchByPlayer(Player player) {
-        return this.playerMatches.getOrDefault(player, null);
+        Match match = this.playerMatches.get(player);
+        if (match != null) {
+            return match;
+        }
+
+        // Recover from stale Player-object keys by resolving via UUID.
+        UUID playerUuid = player.getUniqueId();
+        for (Match liveMatch : this.liveMatches) {
+            for (Player livePlayer : liveMatch.getPlayers()) {
+                if (playerUuid.equals(livePlayer.getUniqueId())) {
+                    this.playerMatches.put(player, liveMatch);
+                    return liveMatch;
+                }
+            }
+        }
+
+        return null;
     }
 
     public Match getLiveMatchBySpectator(Player spectator) {

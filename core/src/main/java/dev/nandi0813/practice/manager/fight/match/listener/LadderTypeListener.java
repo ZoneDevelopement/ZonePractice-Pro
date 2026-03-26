@@ -114,16 +114,33 @@ public class LadderTypeListener implements Listener {
         return false;
     }
 
-    private static void registerMatchArrow(Arrow arrow, Match match) {
-        // Tag the arrow with the match it belongs to for visibility/tracking
-        if (!BlockUtil.hasMetadata(arrow, FIGHT_ENTITY)) {
-            BlockUtil.setMetadata(arrow, FIGHT_ENTITY, match);
+    private static void registerMatchProjectile(AbstractArrow projectile, Match match) {
+        // Tag match-owned arrow-like projectiles (arrow, spectral, trident) for tracking.
+        if (!BlockUtil.hasMetadata(projectile, FIGHT_ENTITY)) {
+            BlockUtil.setMetadata(projectile, FIGHT_ENTITY, match);
         }
 
         // Register for entity rollback cleanup and visibility hiding from other matches
-        if (!match.getFightChange().containsEntity(arrow)) {
-            match.addEntityChange(arrow);
+        if (!match.getFightChange().containsEntity(projectile)) {
+            match.addEntityChange(projectile);
         }
+    }
+
+    private static Match resolveProjectileMatch(Projectile projectile) {
+        Match taggedMatch = BlockUtil.getMetadata(projectile, FIGHT_ENTITY, Match.class);
+        if (!ListenerUtil.checkMetaData(taggedMatch)) {
+            return taggedMatch;
+        }
+
+        if (projectile.getShooter() instanceof Player shooter) {
+            Match shooterMatch = MatchManager.getInstance().getLiveMatchByPlayer(shooter);
+            if (shooterMatch != null) {
+                BlockUtil.setMetadata(projectile, FIGHT_ENTITY, shooterMatch);
+            }
+            return shooterMatch;
+        }
+
+        return null;
     }
 
     // ========== EVENT HANDLERS ==========
@@ -176,10 +193,10 @@ public class LadderTypeListener implements Listener {
             }
         }
 
-        if (e.getEntity() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
+        if (e.getEntity() instanceof AbstractArrow projectile && projectile.getShooter() instanceof Player player) {
             Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
             if (match != null) {
-                registerMatchArrow(arrow, match);
+                registerMatchProjectile(projectile, match);
             }
         }
     }
@@ -187,11 +204,11 @@ public class LadderTypeListener implements Listener {
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent e) {
-        Entity entity = e.getEntity();
-        Match mv = BlockUtil.getMetadata(entity, FIGHT_ENTITY, Match.class);
-        if (ListenerUtil.checkMetaData(mv)) return;
-
-        Match match = mv;
+        Projectile projectile = e.getEntity();
+        Match match = resolveProjectileMatch(projectile);
+        if (match == null) {
+            return;
+        }
 
         if (match.getLadder() instanceof LadderHandle ladderHandle) {
             ladderHandle.handleEvents(e, match);
@@ -533,8 +550,8 @@ public class LadderTypeListener implements Listener {
         // Tag the arrow so ProjectileLaunch won't immediately remove it on ground-hit,
         // register it for rollback cleanup (and hiding from players in other matches),
         // and schedule a 5-minute vanilla-style self-removal.
-        if (e.getProjectile() instanceof org.bukkit.entity.Arrow arrow) {
-            registerMatchArrow(arrow, match);
+        if (e.getProjectile() instanceof AbstractArrow projectile) {
+            registerMatchProjectile(projectile, match);
         }
     }
 
