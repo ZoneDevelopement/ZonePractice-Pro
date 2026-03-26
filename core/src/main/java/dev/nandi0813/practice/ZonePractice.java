@@ -95,6 +95,12 @@ public final class ZonePractice extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        instance = this;
+
+        if (!AntiMalware.runStartupScan(this)) {
+            return;
+        }
+
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().load();
     }
@@ -102,6 +108,7 @@ public final class ZonePractice extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
         adventure = BukkitAudiences.create(this);
         miniMessage = MiniMessage.miniMessage();
         entityHider = new EntityHider(this, EntityHider.Policy.BLACKLIST);

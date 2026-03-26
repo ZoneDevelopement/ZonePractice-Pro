@@ -79,6 +79,10 @@
                                     <pattern>dev.faststats</pattern>
                                     <shadedPattern>dev.nandi0813.practice.dependencies.faststats</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>dev.nandi0813.practice.dependencies.asm</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
