@@ -104,14 +104,15 @@ public class ArenaCopyUtilListener implements Listener {
             position2.setWorld(copyWorld);
 
             ArenaCopy arenaCopy = new ArenaCopy(arena.getName() + "_" + (arena.getCopies().size() + 1), arena);
-            this.copyArena(profile, arenaCopy, cuboid, reference, newLocation);
-
             arenaCopy.setCorner1(corner1.clone().subtract(reference).add(newLocation));
             arenaCopy.setCorner2(corner2.clone().subtract(reference).add(newLocation));
             arenaCopy.createCuboid();
 
+            arenaCopy.getMainArena().setCopying(true);
             copyingCuboids.add(arenaCopy.getCuboid());
             addCopyingChunks(arenaCopy.getCuboid());  // Register chunks for O(1) physics blocking
+
+            this.copyArena(profile, arenaCopy, cuboid, reference, newLocation);
 
             arenaCopy.setPosition1(position1.clone().subtract(reference).add(newLocation));
             arenaCopy.setPosition2(position2.clone().subtract(reference).add(newLocation));
@@ -192,8 +193,6 @@ public class ArenaCopyUtilListener implements Listener {
         final int maxSize = copyFrom.getSizeX() * copyFrom.getSizeY() * copyFrom.getSizeZ();
         final int[] currentSize = {0};
 
-        arenaCopy.getMainArena().setCopying(true);
-
         ActionBar actionBar = profile.getActionBar();
         final String ACTION_BAR_ID = "arena_copy";
 
@@ -250,10 +249,7 @@ public class ArenaCopyUtilListener implements Listener {
                 if (!blockIterator.hasNext()) {
                     cancelTask(this, arenaCopy, actionBar, ACTION_BAR_ID);
 
-                    arenaCopy.getMainArena().getCopies().add(arenaCopy);
-                    ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Copy).update();
-                    ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Main).update();
-                    GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
+                    completeCopy(arenaCopy);
 
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (player.hasPermission("zpp.setup"))
@@ -375,19 +371,45 @@ public class ArenaCopyUtilListener implements Listener {
 
             newBlock.setBiome(oldBlock.getBiome());
         } catch (Exception e) {
-            // Skip problematic blocks (e.g., MaterialData type incompatibilities)
-            // This allows the copy process to continue without halting
+            // Keep at least the correct material even when BlockData fails to clone.
+            newBlock.setType(oldBlock.getType(), false);
         }
+    }
+
+    private void completeCopy(ArenaCopy arenaCopy) {
+        arenaCopy.getMainArena().getCopies().add(arenaCopy);
+        ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Copy).update();
+        ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Main).update();
+        GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
     }
 
     protected void copyArena(Profile profile, ArenaCopy arenaCopy, Cuboid copyFrom, Location reference, Location newLocation) {
         if (SoftDependUtil.isFAWE_ENABLED && PermanentConfig.ARENA_COPY_FAWE_ENABLED) {
-            FaweUtil.copyFAWE(copyFrom, reference, newLocation);
+            boolean success = FaweUtil.copyFAWEWithResult(copyFrom, reference, newLocation);
 
-            arenaCopy.getMainArena().getCopies().add(arenaCopy);
-            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Copy).update();
-            ArenaGUISetupManager.getInstance().getArenaSetupGUIs().get(arenaCopy.getMainArena()).get(GUIType.Arena_Main).update();
-            GUIManager.getInstance().searchGUI(GUIType.Arena_Summary).update();
+            arenaCopy.getMainArena().setCopying(false);
+            ArenaCopyUtilListener.getCopyingCuboids().remove(arenaCopy.getCuboid());
+            removeCopyingChunks(arenaCopy.getCuboid());
+            removeNonPlayerEntities(arenaCopy.getCuboid());
+
+            if (!success) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (player.hasPermission("zpp.setup")) {
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.ERROR-DURING-COPY-GENERATE")
+                                .replace("%arena%", Common.serializeNormalToMMString(arenaCopy.getMainArena().getDisplayName())));
+                    }
+                }
+                return;
+            }
+
+            completeCopy(arenaCopy);
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (player.hasPermission("zpp.setup")) {
+                    Common.sendMMMessage(player, LanguageManager.getString("ARENA.COPY-GENERATED")
+                            .replace("%arena%", arenaCopy.getMainArena().getDisplayName()));
+                }
+            }
         } else {
             this.copyNormal(profile, arenaCopy, copyFrom, reference, newLocation);
         }

@@ -185,6 +185,7 @@ public class BuildListener implements Listener {
                 spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
             }
             trackDependentBlocksAbove(block, spectatable);
+            trackGravityBlocksAbove(block, spectatable);
         }
     }
 
@@ -276,6 +277,21 @@ public class BuildListener implements Listener {
     }
 
     /**
+     * Tracks contiguous gravity blocks (sand, gravel, concrete powder, anvils, etc.)
+     * above an exploded block before physics turns them into FallingBlock entities.
+     */
+    private static void trackGravityBlocksAbove(Block base, Spectatable spectatable) {
+        Block above = base.getRelative(0, 1, 0);
+        while (!above.getType().isAir() && above.getType().hasGravity()) {
+            if (!BlockUtil.hasMetadata(above, PLACED_IN_FIGHT)) {
+                spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(above));
+            }
+            above = above.getRelative(0, 1, 0);
+        }
+    }
+
+    /**
+            trackGravityBlocksAbove(block, spectatable);
      * Core explosion handler shared by {@link EntityExplodeEvent} and
      * (on modern) {@code BlockExplodeEvent}.
      * <ul>
@@ -373,6 +389,24 @@ public class BuildListener implements Listener {
 
     @EventHandler
     public void onEntitySpawnEvent(EntitySpawnEvent e) {
+        if (e.getEntity() instanceof FallingBlock fallingBlock) {
+            if (e.isCancelled()) return;
+
+            Block sourceBlock = e.getLocation().getBlock();
+            Spectatable spectatable = getByBlock(sourceBlock);
+            if (spectatable == null || !spectatable.isBuild()) return;
+
+            BlockUtil.setMetadata(fallingBlock, PLACED_IN_FIGHT, spectatable);
+            spectatable.addEntityChange(fallingBlock);
+
+            if (!BlockUtil.hasMetadata(sourceBlock, PLACED_IN_FIGHT)) {
+                Material originalMaterial = fallingBlock.getBlockData().getMaterial();
+                spectatable.getFightChange().addArenaBlockChange(
+                        new ChangedBlock(sourceBlock, originalMaterial));
+            }
+            return;
+        }
+
         if (!(e.getEntity() instanceof TNTPrimed tnt)) return;
         if (e.isCancelled()) return;
 

@@ -292,8 +292,8 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
         for (Player spectator : new ArrayList<>(spectators))
             removeSpectator(spectator);
 
-        // Reset the arena.
-        resetMap();
+        // Reset the arena and only make it reusable after rollback completes.
+        resetMap(() -> this.arena.setAvailable(true));
 
         this.cancel();
 
@@ -303,8 +303,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             }
         }
 
-        // Set arena to available
-        this.arena.setAvailable(true);
+        // Availability is flipped in the reset callback above.
     }
 
     /*
