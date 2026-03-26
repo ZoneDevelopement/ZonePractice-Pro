@@ -22,8 +22,10 @@ public enum PermanentConfig {
     static {
         if (ARENA_FAST_COPY_ENABLED) {
             int multiplier = ConfigManager.getInt("ARENA.FAST-COPY.MULTIPLIER");
-            if (multiplier < 1 || multiplier > 30) {
-                multiplier = 5;
+            if (multiplier < 1) {
+                multiplier = 1;
+            } else if (multiplier > 100) {
+                multiplier = 100;
             }
 
             ARENA_COPY_MAX_CHANGES = ARENA_COPY_MAX_CHANGES * multiplier;
