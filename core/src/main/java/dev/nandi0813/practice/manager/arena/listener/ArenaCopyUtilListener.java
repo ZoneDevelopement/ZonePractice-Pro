@@ -381,7 +381,7 @@ public class ArenaCopyUtilListener implements Listener {
     }
 
     protected void copyArena(Profile profile, ArenaCopy arenaCopy, Cuboid copyFrom, Location reference, Location newLocation) {
-        if (SoftDependUtil.isFAWE_ENABLED) {
+        if (SoftDependUtil.isFAWE_ENABLED && PermanentConfig.ARENA_COPY_FAWE_ENABLED) {
             FaweUtil.copyFAWE(copyFrom, reference, newLocation);
 
             arenaCopy.getMainArena().getCopies().add(arenaCopy);

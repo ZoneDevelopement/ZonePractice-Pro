@@ -1,4 +1,4 @@
-VERSION: 38
+VERSION: 40
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -502,7 +502,10 @@ SIDEBAR:
 ARENA:
   LOAD-CHUNKS: true # If true, the server will load the enabled arena's chunks.
   TELEPORT-TO-COPY: false # Recommend: false,  If you copy an arena, the server will teleport you there, so you can watch it happening.
-  FAST-COPY: false # If true, the server more likely to be slow, but it triples the copy performance. 100x50x65 arena copy takes 1,5 minutes with fast copy.
+  FAST-COPY: # If true, the server more likely to be slow, but it triples the copy performance. 100x50x65 arena copy takes 1,5 minutes with fast copy.
+    USE-FAWE: false
+    ENABLED: true
+    MULTIPLIER: 10 # Be careful with this value.
   DEFAULT-ICON: # If default icon is enabled it won't be necessary to set an arena icon, but you still can.
     ENABLED: false
     ICON:
