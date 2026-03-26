@@ -581,9 +581,6 @@ public class LadderTypeListener implements Listener {
         Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
         if (match == null) return;
 
-        ItemStack item = e.getItem();
-        if (item == null) return;
-
         delegateToLadderHandle(e, match);
     }
 

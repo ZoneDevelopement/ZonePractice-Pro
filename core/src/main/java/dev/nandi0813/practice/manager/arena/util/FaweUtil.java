@@ -30,10 +30,6 @@ public enum FaweUtil {
         }
     }
 
-    public static void copyFAWE(final Cuboid copyFrom, final Location reference, final Location newLocation) {
-        copyFAWEWithResult(copyFrom, reference, newLocation);
-    }
-
     public static boolean copyFAWEWithResult(final Cuboid copyFrom, final Location reference, final Location newLocation) {
         Location newLoc = copyFrom.getLowerNE().clone();
         newLoc.setWorld(ArenaWorldUtil.getArenasCopyWorld());

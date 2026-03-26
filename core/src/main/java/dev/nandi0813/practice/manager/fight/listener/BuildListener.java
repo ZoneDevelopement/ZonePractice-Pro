@@ -101,7 +101,7 @@ public class BuildListener implements Listener {
             if (!BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) continue;
 
             Spectatable tagged = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
-            if (!ListenerUtil.checkMetaData(tagged) && tagged != null && tagged.isBuild()) {
+            if (!ListenerUtil.checkMetaData(tagged) && tagged.isBuild()) {
                 return tagged;
             }
         }
@@ -222,7 +222,7 @@ public class BuildListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlockPlaced();
         BlockState replacedState = event.getBlockReplacedState();
-        Spectatable spectatable = null;
+        Spectatable spectatable;
         boolean needsMetadata = false;
 
         if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
@@ -367,7 +367,7 @@ public class BuildListener implements Listener {
         }
 
         if (spectatable instanceof Match match) {
-            onApplyFuseTime(tnt, match);
+            onApplyFuseTime(tnt);
         }
     }
 
@@ -380,7 +380,7 @@ public class BuildListener implements Listener {
      * The modern subclass overrides this to use its own fuse-tick map populated by
      * {@code TNTPrimeEvent}.
      */
-    protected void onApplyFuseTime(TNTPrimed tnt, Match match) {
+    protected void onApplyFuseTime(TNTPrimed tnt) {
         final String key = locationKey(tnt.getLocation());
         if (setFuseTick.containsKey(key)) {
             tnt.setFuseTicks(setFuseTick.remove(key));

@@ -348,15 +348,6 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     }
 
     /**
-     * Gets the ladder as a ScoringLadder if applicable.
-     *
-     * @return Optional containing the ScoringLadder, or empty if not applicable
-     */
-    public Optional<ScoringLadder> asScoringLadder() {
-        return ladder instanceof ScoringLadder s ? Optional.of(s) : Optional.empty();
-    }
-
-    /**
      * Handles player death using the ladder's respawn mechanics.
      * Returns the death result which indicates how the death should be processed.
      *
@@ -368,19 +359,6 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             return respawnableLadder.handlePlayerDeath(player, this, getCurrentRound());
         }
         return DeathResult.ELIMINATED;
-    }
-
-    /**
-     * Checks if the round should end based on ladder-specific scoring.
-     *
-     * @param triggerPlayer The player who triggered the scoring check
-     * @return true if the round should end based on scoring conditions
-     */
-    public boolean shouldEndRoundByScoring(Player triggerPlayer) {
-        if (ladder instanceof ScoringLadder scoringLadder) {
-            return scoringLadder.shouldEndRound(this, getCurrentRound(), triggerPlayer);
-        }
-        return false;
     }
 
     /*
@@ -493,10 +471,6 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     public void addEntityChange(@NotNull List<Entity> entities) {
         for (Entity entity : entities)
             addEntityChange(entity);
-    }
-
-    public void resetMap() {
-        resetMap(null);
     }
 
     /**

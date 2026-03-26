@@ -160,7 +160,7 @@ public class FightChangeOptimized {
         if (change == null) return;
 
         long pos = BlockPosition.encode(change.getLocation());
-        BlockChangeEntry entry = blocks.computeIfAbsent(pos, k -> new BlockChangeEntry(change));
+        BlockChangeEntry entry = blocks.computeIfAbsent(pos, _ -> new BlockChangeEntry(change));
 
         // -1 disables temp build auto-removal; block remains until normal rollback.
         if (destroyTime <= 0) {
