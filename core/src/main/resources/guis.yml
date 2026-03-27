@@ -1,4 +1,4 @@
-VERSION: 28
+VERSION: 29
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1154,6 +1154,16 @@ GUIS:
           - ""
           - "&eClick to queue immediately"
           - "&8&m------------------------"
+      SWITCH-TO-RANKED:
+        NAME: "&cSwitch to Ranked"
+        MATERIAL: IRON_SWORD
+        LORE:
+          - "&8&m------------------------"
+          - "&7Switch to the ranked"
+          - "&7queue selector"
+          - ""
+          - "&eClick to switch"
+          - "&8&m------------------------"
       CUSTOM-KIT-QUEUE:
         NAME: "&6&lCustom Kit Queue"
         MATERIAL: BOOK
@@ -1228,6 +1238,16 @@ GUIS:
           - "&7from the selected category"
           - ""
           - "&eClick to queue immediately"
+          - "&8&m------------------------"
+      SWITCH-TO-UNRANKED:
+        NAME: "&aSwitch to Unranked"
+        MATERIAL: WOODEN_SWORD
+        LORE:
+          - "&8&m------------------------"
+          - "&7Switch to the unranked"
+          - "&7queue selector"
+          - ""
+          - "&eClick to switch"
           - "&8&m------------------------"
       CUSTOM-KIT-QUEUE:
         NAME: "&6&lCustom Kit Queue"

@@ -1,4 +1,4 @@
-VERSION: 42
+VERSION: 43
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -31,6 +31,10 @@ KNOCKBACK:
 #
 # Queue settings
 QUEUE:
+  COMBINED:
+    ENABLED: true # If true, lobby uses a single queue item instead of separate ranked and unranked items.
+    DEFAULT-GUI: "UNRANKED" # Options: UNRANKED, RANKED
+    SWITCH-ENABLED: true
   UNRANKED:
     CUSTOM-KIT:
       ENABLED: true # If false, the custom kit queue feature is disabled and only shows filler items
@@ -46,6 +50,7 @@ QUEUE:
       SIZE: 6
       QUICK-MATCH-ENABLED: true
       QUICK-MATCH-SLOT: 45
+      SWITCH-MODE-SLOT: 49
       LADDER-SLOTS:
         - 20
         - 21
@@ -112,6 +117,7 @@ QUEUE:
       SIZE: 6
       QUICK-MATCH-ENABLED: true
       QUICK-MATCH-SLOT: 45
+      SWITCH-MODE-SLOT: 49
       LADDER-SLOTS:
         - 20
         - 21

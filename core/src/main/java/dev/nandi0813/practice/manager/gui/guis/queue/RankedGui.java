@@ -20,6 +20,8 @@ import org.bukkit.inventory.ItemStack;
 public class RankedGui extends QueueSelectorGui {
 
     private static final String CUSTOM_QUEUE_ITEM_PATH = "GUIS.RANKED-GUI.ICONS.CUSTOM-KIT-QUEUE";
+    private static final String SWITCH_TO_UNRANKED_ITEM_PATH = "GUIS.RANKED-GUI.ICONS.SWITCH-TO-UNRANKED";
+    private static final int DEFAULT_SWITCH_SLOT = 49;
 
     public RankedGui() {
         super(GUIType.Queue_Ranked);
@@ -63,6 +65,7 @@ public class RankedGui extends QueueSelectorGui {
     @Override
     protected void decoratePage(int pageId, Inventory inventory) {
         int slot = inventory.getSize() - 1;
+        placeSwitchItem(inventory);
 
         if (!ConfigManager.getBoolean("QUEUE.RANKED.CUSTOM-KIT.ENTRY-ENABLED")
                 || !CustomKitQueueManager.getInstance().isCustomKitQueueEnabled()) {
@@ -83,6 +86,19 @@ public class RankedGui extends QueueSelectorGui {
 
     @Override
     protected boolean handleCustomTopInventoryClick(Player player, int rawSlot, InventoryView inventoryView, ItemStack item) {
+        int switchSlot = getSwitchModeSlot();
+        if (isQueueGuiSwitchEnabled()
+                && switchSlot >= 0
+                && switchSlot < inventoryView.getTopInventory().getSize()
+                && rawSlot == switchSlot) {
+            GUI unrankedGui = GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked);
+            if (unrankedGui != null) {
+                int currentPage = this.getInGuiPlayers().getOrDefault(player, 1);
+                unrankedGui.open(player, currentPage);
+            }
+            return true;
+        }
+
         int customQueueSlot = inventoryView.getTopInventory().getSize() - 1;
         if (rawSlot != customQueueSlot) {
             return false;
@@ -100,5 +116,36 @@ public class RankedGui extends QueueSelectorGui {
             gui.open(player);
         }
         return true;
+    }
+
+    private void placeSwitchItem(Inventory inventory) {
+        if (!isQueueGuiSwitchEnabled()) {
+            return;
+        }
+
+        int switchSlot = getSwitchModeSlot();
+        if (switchSlot < 0 || switchSlot >= inventory.getSize()) {
+            return;
+        }
+
+        ItemStack switchItem = GUIFile.getGuiItem(SWITCH_TO_UNRANKED_ITEM_PATH).get();
+        if (switchItem == null) {
+            switchItem = ItemCreateUtil.createItem("&aSwitch to Unranked", Material.WOODEN_SWORD);
+        }
+
+        inventory.setItem(switchSlot, switchItem);
+    }
+
+    private int getSwitchModeSlot() {
+        return ConfigManager.getInt("QUEUE.RANKED.SELECTOR-GUI.SWITCH-MODE-SLOT", DEFAULT_SWITCH_SLOT);
+    }
+
+    private boolean isQueueGuiSwitchEnabled() {
+        String path = "QUEUE.COMBINED.SWITCH-ENABLED";
+        if (!ConfigManager.getConfig().isBoolean(path)) {
+            return true;
+        }
+
+        return ConfigManager.getBoolean(path);
     }
 }

@@ -5,6 +5,8 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.inventory.inventories.StaffInventory;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvItem;
+import dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.QueueInvItem;
+import dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.UnrankedInvItem;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.staffitems.CheckInventoryInvItem;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -158,7 +160,7 @@ public class InventoryListener implements Listener {
             if (itemInHand.getType() == Material.AIR || !itemInHand.hasItemMeta()) return;
 
             InvItem heldInvItem = inventory.getInvItem(Common.getItemDisplayName(itemInHand), itemInHand.getType());
-            if (!(heldInvItem instanceof dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.UnrankedInvItem))
+            if (!(heldInvItem instanceof UnrankedInvItem) && !(heldInvItem instanceof QueueInvItem))
                 return;
 
             e.setCancelled(true);

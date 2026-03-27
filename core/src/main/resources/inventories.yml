@@ -1,4 +1,4 @@
-VERSION: 2
+VERSION: 3
 
 #
 # Spawn inventories
@@ -6,6 +6,11 @@ VERSION: 2
 #
 LOBBY-BASIC:
   NORMAL:
+    QUEUE:
+      SLOT: 0
+      ITEM:
+        NAME: "&6Queue &7(Right-Click)"
+        MATERIAL: GOLDEN_SWORD
     UNRANKED:
       SLOT: 0
       ITEM:
