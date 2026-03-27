@@ -50,7 +50,6 @@ import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import lombok.Getter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -70,8 +69,6 @@ public final class ZonePractice extends JavaPlugin {
 
     @Getter
     private static ZonePractice instance;
-    @Getter
-    private static BukkitAudiences adventure;
     @Getter
     private static MiniMessage miniMessage;
     @Getter
@@ -97,10 +94,6 @@ public final class ZonePractice extends JavaPlugin {
     public void onLoad() {
         instance = this;
 
-        if (!AntiMalware.runStartupScan(this)) {
-            return;
-        }
-
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().load();
     }
@@ -109,7 +102,6 @@ public final class ZonePractice extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        adventure = BukkitAudiences.create(this);
         miniMessage = MiniMessage.miniMessage();
         entityHider = new EntityHider(this, EntityHider.Policy.BLACKLIST);
         arenaCopyUtilListener = new ArenaCopyUtilListener();
@@ -241,7 +233,6 @@ public final class ZonePractice extends JavaPlugin {
         LadderManager.getInstance().saveLadders();
         SidebarManager.getInstance().close();
         InventoryManager.getInstance().setData();
-        if (adventure != null) adventure.close();
         if (metrics != null) metrics.shutdown();
         faststats_metrics.shutdown();
         MysqlManager.closeConnection();

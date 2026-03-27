@@ -54,7 +54,7 @@ public enum MysqlManager {
         final String username = ConfigManager.getString("MYSQL-DATABASE.CONNECTION.USER");
         final String password = ConfigManager.getString("MYSQL-DATABASE.CONNECTION.PASSWORD");
 
-        final String url = "jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8";
+        final String url = "jdbc:mariadb://" + host + ":" + port + "/" + database + "?useSsl=false&characterEncoding=utf8";
 
         try {
             HikariConfig config = new HikariConfig();

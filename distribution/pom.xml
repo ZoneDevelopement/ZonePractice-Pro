@@ -31,7 +31,7 @@
 
     <build>
         <defaultGoal>clean install</defaultGoal>
-        <finalName>ZonePractice Pro v7.2.0-SNAPSHOT</finalName>
+        <finalName>ZonePracticePro-${project.version}</finalName>
 
         <plugins>
             <plugin>
@@ -45,14 +45,26 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <minimizeJar>false</minimizeJar>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
 
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>org.intellij</exclude>
-                                    <exclude>org.jetbrains</exclude>
-                                </excludes>
-                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/maven/**</exclude>
+                                        <exclude>META-INF/proguard/**</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>**/module-info.class</exclude>
+                                        <exclude>org/intellij/**</exclude>
+                                        <exclude>org/jetbrains/**</exclude>
+                                        <exclude>org/jspecify/**</exclude>
+                                        <exclude>**/.DS_Store</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
 
                             <relocations>
                                 <relocation>
@@ -86,6 +98,10 @@
                                 <relocation>
                                     <pattern>com.zaxxer.hikari</pattern>
                                     <shadedPattern>dev.nandi0813.practice.dependencies.hikari</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.mariadb</pattern>
+                                    <shadedPattern>dev.nandi0813.practice.dependencies.mariadb</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
