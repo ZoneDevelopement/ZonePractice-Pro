@@ -165,4 +165,4 @@ jobs:
             purpur
             bukkit
             spigot
-          game-versions: '>=1.21.11'
+          game-versions: '1.21.11'
