@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.profile.cosmetics.armortrim;
 
 import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsData;
 import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
 import dev.nandi0813.practice.manager.profile.cosmetics.deatheffect.DeathEffect;
 import org.bukkit.entity.Player;
@@ -82,6 +83,12 @@ public enum CosmeticsPermissionSanitizer {
         DeathEffect deathEffect = profile.getCosmeticsData().getDeathEffect();
         if (deathEffect != null && !CosmeticsPermissionManager.hasDeathEffectPermission(player, deathEffect)) {
             profile.getCosmeticsData().setDeathEffect(DeathEffect.NONE);
+            changed = true;
+        }
+
+        CosmeticsData.LobbyItemType lobbyItemType = profile.getCosmeticsData().getLobbyItemType();
+        if (lobbyItemType != null && !CosmeticsPermissionManager.hasLobbyItemPermission(player, lobbyItemType)) {
+            profile.getCosmeticsData().setLobbyItemType(CosmeticsData.LobbyItemType.NONE);
             changed = true;
         }
 

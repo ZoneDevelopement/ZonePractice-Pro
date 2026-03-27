@@ -94,68 +94,78 @@ system before cloning or pulling updates:
 
 ## Commands & Permissions
 
-All commands and permission nodes are defined in `core/src/main/resources/plugin.yml`.  
-Common commands include `/practice` (aliases: `/prac`, `/zonepractice`, `/zoneprac`, `/zonep`), `/arena`, `/ladder`,
-`/duel`, `/party`, `/spectate`, and many more.  
-Permissions follow the `zpp.*` namespace, such as `zpp.admin` (default: op), `zpp.practice.*`, `zpp.staffmode`, and many
-granular nodes.
+All commands and permission nodes are defined in `core/src/main/resources/plugin.yml`
+
+Common commands include `/practice` (aliases: `/prac`, `/zonepractice`, `/zoneprac`, `/zonep`), `/arena`, `/ladder`, `/duel`, `/party`, `/spectate`, and many more
+
+Permissions follow the `zpp.*` namespace, such as `zpp.admin` (default: op), `zpp.practice.*`, `zpp.staffmode`, and many granular nodes
 
 ### Cosmetics permissions
 
-Some cosmetics permissions are registered dynamically at startup by `CosmeticsPermissionManager`, so they are not fully listed in `plugin.yml`.
+Some cosmetics permissions are registered dynamically at startup by `CosmeticsPermissionManager`, so they are not fully listed in `plugin.yml`
 
 #### Entry permission
 
-- `zpp.cosmetics.main`
-  - Required to run `/cosmetics` (`CosmeticsCommand`).
+1. `zpp.cosmetics.main`
+   Required to run `/cosmetics` (`CosmeticsCommand`)
 
 #### Armor trim permissions
 
-- Tier access:
-  - `zpp.cosmetics.armortrim.base.leather`
-  - `zpp.cosmetics.armortrim.base.gold`
-  - `zpp.cosmetics.armortrim.base.iron`
-  - `zpp.cosmetics.armortrim.base.diamond`
-  - `zpp.cosmetics.armortrim.base.netherite`
-  - wildcard: `zpp.cosmetics.armortrim.base.*`
-- Pattern access:
-  - `zpp.cosmetics.armortrim.pattern.<id>`
-  - wildcard: `zpp.cosmetics.armortrim.pattern.*`
-- Material access:
-  - `zpp.cosmetics.armortrim.material.<id>`
-  - wildcard: `zpp.cosmetics.armortrim.material.*`
-- Apply trim to all armor (copy from base):
-  - `zpp.cosmetics.armortrim.apply-global`
+1. Tier access:
+   1. `zpp.cosmetics.armortrim.base.leather`
+   2. `zpp.cosmetics.armortrim.base.gold`
+   3. `zpp.cosmetics.armortrim.base.iron`
+   4. `zpp.cosmetics.armortrim.base.diamond`
+   5. `zpp.cosmetics.armortrim.base.netherite`
+   6. wildcard: `zpp.cosmetics.armortrim.base.*`
+2. Pattern access:
+   1. `zpp.cosmetics.armortrim.pattern.<id>`
+   2. wildcard: `zpp.cosmetics.armortrim.pattern.*`
+3. Material access:
+   1. `zpp.cosmetics.armortrim.material.<id>`
+   2. wildcard: `zpp.cosmetics.armortrim.material.*`
+4. Apply trim to all armor (copy from base):
+   1. `zpp.cosmetics.armortrim.apply-global`
 
-`<id>` values come from Mojang/Paper trim registries and are sanitized to lowercase alphanumeric/underscore (for example: `sentry`, `vex`, `amethyst`, `netherite`).
+`<id>` values come from Mojang/Paper trim registries and are sanitized to lowercase alphanumeric/underscore (for example: sentry, vex, amethyst, netherite)
 
 #### Death effect permissions
 
-- Per effect:
-  - `zpp.cosmetics.deatheffect.none`
-  - `zpp.cosmetics.deatheffect.flame`
-  - `zpp.cosmetics.deatheffect.lightning`
-  - `zpp.cosmetics.deatheffect.firework`
-  - `zpp.cosmetics.deatheffect.explosion`
-  - `zpp.cosmetics.deatheffect.blood`
-  - `zpp.cosmetics.deatheffect.enchant`
-  - `zpp.cosmetics.deatheffect.ender`
-  - `zpp.cosmetics.deatheffect.hearts`
-  - `zpp.cosmetics.deatheffect.ice`
-- Wildcard:
-  - `zpp.cosmetics.deatheffect.*`
+1. Per effect:
+   1. `zpp.cosmetics.deatheffect.none`
+   2. `zpp.cosmetics.deatheffect.flame`
+   3. `zpp.cosmetics.deatheffect.lightning`
+   4. `zpp.cosmetics.deatheffect.firework`
+   5. `zpp.cosmetics.deatheffect.explosion`
+   6. `zpp.cosmetics.deatheffect.blood`
+   7. `zpp.cosmetics.deatheffect.enchant`
+   8. `zpp.cosmetics.deatheffect.ender`
+   9. `zpp.cosmetics.deatheffect.hearts`
+   10. `zpp.cosmetics.deatheffect.ice`
+2. Wildcard:
+   1. `zpp.cosmetics.deatheffect.*`
 
 #### Shield layout permissions
 
-- Open/use shield cosmetics:
-  - `zpp.cosmetics.shield.use`
-  - wildcard: `zpp.cosmetics.shield.*`
-- Layout count limits:
-  - `zpp.cosmetics.shield.layouts.1` ... `zpp.cosmetics.shield.layouts.21`
-  - wildcard: `zpp.cosmetics.shield.layouts.*`
-  - unlimited alias: `zpp.cosmetics.shield.layouts.unlimited`
+1. Open/use shield cosmetics:
+   1. `zpp.cosmetics.shield.use`
+   2. wildcard: `zpp.cosmetics.shield.*`
+2. Layout count limits:
+   1. `zpp.cosmetics.shield.layouts.1` to `zpp.cosmetics.shield.layouts.21`
+   2. wildcard: `zpp.cosmetics.shield.layouts.*`
+   3. unlimited alias: `zpp.cosmetics.shield.layouts.unlimited`
 
-If none of the layout-count permissions are set, the code falls back to `1` max layout.
+If none of the layout count permissions are set, the code falls back to 1 max layout
+
+#### Lobby movement permissions
+
+1. Per item:
+   1. `zpp.cosmetics.lobby.none`
+   2. `zpp.cosmetics.lobby.wind_charge`
+   3. `zpp.cosmetics.lobby.trident`
+   4. `zpp.cosmetics.lobby.spear`
+2. Wildcard:
+   1. `zpp.cosmetics.lobby.*`
 
 ### Groups and cosmetics permissions
 

@@ -1,4 +1,4 @@
-VERSION: 41
+VERSION: 42
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -231,6 +231,8 @@ MATCH-SETTINGS:
         - ""
   MATCH-STATISTIC:
     REMOVE-AFTER: 60 # After the seconds, the players won't be able to open their match statistics.
+  TITLE:
+    START-COUNTDOWN-FROM: 5
   HEALTH-BELOW-NAME:
     SATURATED-HEART-INDICATOR: true # If true, the below-name heart icon turns yellow when the player is saturated.
     LOW-HEALTH-DECIMAL-RATIO: true # If true, health below 2 hearts is shown as a decimal ratio (current/max).

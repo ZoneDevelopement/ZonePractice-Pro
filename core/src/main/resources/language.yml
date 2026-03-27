@@ -1340,6 +1340,7 @@ QUEUES:
     BANNED: "<red>You are banned from playing ranked matches. Reason: <yellow>%reason%"
     NO-REASON: "NULL"
   CUSTOM:
+    NO-PERMISSION: "<red>You don't have permission."
     NO-SAVED-KITS: "<red>You do not have any saved custom kits ready to host."
     KIT-NOT-READY: "<red>This custom kit is not ready for queueing."
     HOSTED: "<green>You are now hosting a custom queue with <yellow>%kit%<green>."

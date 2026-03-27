@@ -62,6 +62,7 @@ public abstract class Inventory {
 
         this.set(player);
         this.setArmor(player);
+        InventoryManager.getInstance().applyLobbyCosmetics(player);
 
         player.updateInventory();
     }

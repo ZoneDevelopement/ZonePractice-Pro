@@ -1,4 +1,4 @@
-VERSION: 27
+VERSION: 28
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -3224,6 +3224,16 @@ GUIS:
             - "&7Save multiple layouts."
             - ""
             - "&eClick to open."
+        LOBBY-ITEMS:
+          NAME: "&b✦ Lobby Items"
+          MATERIAL: ELYTRA
+          GLOW: false
+          LORE:
+            - ""
+            - "&7Choose your lobby movement"
+            - "&7cosmetic item loadout."
+            - ""
+            - "&eClick to open."
         KILL-EFFECTS:
           NAME: "&c✦ Death Effects"
           MATERIAL: BLAZE_POWDER
@@ -3234,6 +3244,51 @@ GUIS:
             - "&7plays when you kill someone."
             - ""
             - "&eClick to open."
+    LOBBY-ITEMS:
+      TITLE: "&8✦ Lobby Items"
+      NO-PERMISSION-MESSAGE: "<red>You don't have permission for this lobby cosmetic item!"
+      ENTRIES:
+        NONE:
+          NAME: "&7None"
+          MATERIAL: BARRIER
+          LORE:
+            - ""
+            - "&7Disable lobby movement cosmetics."
+            - ""
+            - "&7Status: %status%"
+            - ""
+        WIND_CHARGE:
+          NAME: "&bWind Charge"
+          MATERIAL: WIND_CHARGE
+          LORE:
+            - ""
+            - "&7Infinite lobby wind charge"
+            - "&7while you are in lobby states."
+            - ""
+            - "&7Status: %status%"
+            - ""
+        TRIDENT:
+          NAME: "&3Riptide Trident"
+          MATERIAL: TRIDENT
+          LORE:
+            - ""
+            - "&7Right-click with Trident in main hand"
+            - "&7to trigger riptide boost in lobby."
+            - "&eAuto-placed in hotbar slot 3"
+            - ""
+            - "&7Status: %status%"
+            - ""
+        SPEAR:
+          NAME: "&5Lunge Spear"
+          MATERIAL: NETHERITE_SPEAR
+          LORE:
+            - ""
+            - "&7Right-click with Spear in main hand"
+            - "&7to trigger lunge dash in lobby."
+            - "&eAuto-placed in hotbar slot 3"
+            - ""
+            - "&7Status: %status%"
+            - ""
     DEATH-EFFECTS:
       TITLE: "&8✦ Death Effects"
       NO-PERMISSION-MESSAGE: "<red>You don't have permission for this death effect!"

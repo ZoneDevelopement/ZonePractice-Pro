@@ -116,6 +116,7 @@ public enum GUIType {
     Cosmetics_Shield_PatternPicker,
     Cosmetics_Pattern_Selection,
     Cosmetics_Material_Selection,
+    Cosmetics_LobbyItems,
 
     Cosmetics_DeathEffects,
 

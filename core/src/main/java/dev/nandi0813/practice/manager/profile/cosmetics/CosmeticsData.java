@@ -18,8 +18,20 @@ import java.util.Map;
 @Setter
 public class CosmeticsData {
 
+    public enum LobbyItemType {
+        NONE,
+        WIND_CHARGE,
+        TRIDENT,
+        SPEAR;
+
+        public String getPermissionNode() {
+            return "zpp.cosmetics.lobby." + name().toLowerCase();
+        }
+    }
+
     private ArmorTrimTier activeTier = ArmorTrimTier.LEATHER;
     private DeathEffect deathEffect = DeathEffect.NONE;
+    private LobbyItemType lobbyItemType = LobbyItemType.NONE;
 
     private final List<ShieldLayout> shieldLayouts = new ArrayList<>();
     private int activeShieldLayoutIndex = -1;
@@ -94,6 +106,10 @@ public class CosmeticsData {
 
     public void setDeathEffect(DeathEffect deathEffect) {
         this.deathEffect = deathEffect == null ? DeathEffect.NONE : deathEffect;
+    }
+
+    public void setLobbyItemType(LobbyItemType lobbyItemType) {
+        this.lobbyItemType = lobbyItemType == null ? LobbyItemType.NONE : lobbyItemType;
     }
 
     public void setShieldLayouts(List<ShieldLayout> layouts) {

@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.fight.match.runnable.round;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.Round;
@@ -73,7 +74,7 @@ public class RoundStartRunnable extends BukkitRunnable {
             SoundManager.getInstance().getSound(SoundType.MATCH_STARTED).play(match.getPeople());
         } else {
             // Show countdown number as title
-            if (match.getLadder().isCountdownTitles() && this.seconds <= 3 && this.seconds > 0) {
+            if (match.getLadder().isCountdownTitles() && this.seconds <= ConfigManager.getInt("MATCH-SETTINGS.TITLE.START-COUNTDOWN-FROM", 3) && this.seconds > 0) {
                 TitleUtil.sendTitleToAll(
                         match.getPeople(),
                         Common.deserializeMiniMessage(

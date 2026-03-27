@@ -6,6 +6,7 @@ import dev.nandi0813.practice.manager.fight.match.util.CustomKit;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsData;
 import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
 import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorSlot;
 import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorTrimTier;
@@ -74,6 +75,7 @@ public class ProfileFile extends ConfigFile {
         if (profile.getCosmeticsData() != null) {
             config.set("cosmetics.active-tier", profile.getCosmeticsData().getActiveTier().getId());
             config.set("cosmetics.death-effect", profile.getCosmeticsData().getDeathEffect().getId());
+            config.set("cosmetics.lobby-item", profile.getCosmeticsData().getLobbyItemType().name());
             config.set("cosmetics.shield.active-layout-index", profile.getCosmeticsData().getActiveShieldLayoutIndex());
 
             List<String> serializedShieldLayouts = profile.getCosmeticsData().getShieldLayouts().stream()
@@ -200,6 +202,9 @@ public class ProfileFile extends ConfigFile {
             ArmorTrimTier activeTier = ArmorTrimTier.fromId(config.getString("cosmetics.active-tier", "leather"));
             profile.getCosmeticsData().setActiveTier(activeTier);
             profile.getCosmeticsData().setDeathEffect(DeathEffect.fromId(config.getString("cosmetics.death-effect", "none")));
+            profile.getCosmeticsData().setLobbyItemType(CosmeticsData.LobbyItemType.valueOf(
+                    config.getString("cosmetics.lobby-item", CosmeticsData.LobbyItemType.NONE.name()).toUpperCase(Locale.ROOT)
+            ));
 
             List<ShieldLayout> shieldLayouts = new ArrayList<>();
             for (String serializedLayout : config.getStringList("cosmetics.shield.layouts")) {

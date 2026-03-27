@@ -135,6 +135,11 @@ public class ChooseQueueTypeGui extends GUI {
                 return;
             }
 
+            if (!player.hasPermission("zpp.playerkit.queue.host")) {
+                Common.sendMMMessage(player, LanguageManager.getString("QUEUES.CUSTOM.NO-PERMISSION"));
+                return;
+            }
+
             new CustomKitHostSelectorGui(profile).open(player);
             return;
         }

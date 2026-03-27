@@ -63,6 +63,10 @@ public enum ConfigManager {
         return getConfig().getInt(loc);
     }
 
+    public static int getInt(String loc, int def) {
+        return getConfig().getInt(loc, def);
+    }
+
     public static double getDouble(String loc) {
         return getConfig().getDouble(loc);
     }
