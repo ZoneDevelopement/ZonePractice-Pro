@@ -1,4 +1,4 @@
-VERSION: 33
+VERSION: 43
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -9,7 +9,13 @@ MYSQL-DATABASE:
     PORT: 3306
     DATABASE: zonepractice
     USER: root
-    PASSWORD: ""
+    PASSWORD: mysecretpassword
+
+TELEMETRY:
+  ENABLED: true
+  AI:
+    ENABLED: true
+
 # Knockback modifier - it very much depends on the hit delay. You should test what is the optimal for you.
 KNOCKBACK:
   NORMAL:
@@ -25,7 +31,13 @@ KNOCKBACK:
 #
 # Queue settings
 QUEUE:
+  COMBINED:
+    ENABLED: true # If true, lobby uses a single queue item instead of separate ranked and unranked items.
+    DEFAULT-GUI: "UNRANKED" # Options: UNRANKED, RANKED
+    SWITCH-ENABLED: true
   UNRANKED:
+    CUSTOM-KIT:
+      ENABLED: true # If false, the custom kit queue feature is disabled and only shows filler items
     MAX-QUEUE-TIME: 300 # In sec.
     GUI-UPDATE-MINUTE: 2
     DIVISION-SEARCH:
@@ -38,6 +50,7 @@ QUEUE:
       SIZE: 6
       QUICK-MATCH-ENABLED: true
       QUICK-MATCH-SLOT: 45
+      SWITCH-MODE-SLOT: 49
       LADDER-SLOTS:
         - 20
         - 21
@@ -90,6 +103,8 @@ QUEUE:
             - "BEDWARS"
             - "SKYWARS"
   RANKED:
+    CUSTOM-KIT:
+      ENTRY-ENABLED: true # If true, ranked selector also shows the custom-kit queue entry.
     MAX-QUEUE-TIME: 300 # In sec.
     GUI-UPDATE-MINUTE: 1
     DEFAULT-ELO: 1000
@@ -102,6 +117,7 @@ QUEUE:
       SIZE: 6
       QUICK-MATCH-ENABLED: true
       QUICK-MATCH-SLOT: 45
+      SWITCH-MODE-SLOT: 49
       LADDER-SLOTS:
         - 20
         - 21
@@ -203,12 +219,12 @@ MATCH-SETTINGS:
       RANKED: false
   END-COMMAND:
     DUEL:
-      UNRANKED:
+      UNRANKED: # Both commands have %player% and %opponent% placeholders.
         WINNER-COMMANDS:
           - ""
         LOSER-COMMANDS:
           - ""
-      RANKED:
+      RANKED: # Both commands have %player% and %opponent% placeholders.
         WINNER-COMMANDS:
           - ""
         LOSER-COMMANDS:
@@ -221,9 +237,18 @@ MATCH-SETTINGS:
         - ""
   MATCH-STATISTIC:
     REMOVE-AFTER: 60 # After the seconds, the players won't be able to open their match statistics.
+  TITLE:
+    START-COUNTDOWN-FROM: 5
+  HEALTH-BELOW-NAME:
+    SATURATED-HEART-INDICATOR: true # If true, the below-name heart icon turns yellow when the player is saturated.
+    LOW-HEALTH-DECIMAL-RATIO: true # If true, health below 2 hearts is shown as a decimal ratio (current/max).
+    LOW-HEALTH-THRESHOLD: 4.0
   BUILD-LIMIT-DEFAULT: 4 # Counts from the first players positions Y level. You can set a unique number for this for every arena, then it will consider where you are standing.
   AFTER-COUNTDOWN: 3 # After the match is over this countdown start, and when it's over, the players teleport back to the lobby.
   GOLDEN-HEAD: # Golden head settings.
+    TEXTURE: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGUzNGM1MGZkY2E4ZTM2YzFlMDUwYjk2M2YyZTZlMWY3MGU0NjVlNTVjNDQzZjY4OTQ3NDQzNDA5Y2M2YTMzOCJ9fX0=" # Optional: direct skin URL or Base64 texture value. If set, item renders as a custom player head.
+    COOLDOWN: 10 # Cooldown in seconds between Golden Head uses.
+    ACTION-BAR-COOLDOWN-MSG: "<gold>🕒 <yellow>%remaining%s"
     ITEM:
       NAME: "&e&lGolden Head"
       MATERIAL: GOLDEN_APPLE
@@ -297,6 +322,14 @@ MATCH-SETTINGS:
         ENABLED: true
         EXP-BAR: true
         TIME: 5 # In sec.
+    AXE:
+      # Re-applies no-damage-tick reset after a blocked shield hit to avoid vanilla
+      # immunity interfering with custom stun/chain-hit behavior.
+      SKIP-VANILLA-DAMAGE-TICK-WHEN-SHIELD-BLOCKED: true
+      SHIELD-STUN:
+        ENABLED: true
+        DURATION-TICKS: 100
+        REQUIRE-AXE: true
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
 #
 # FFA settings
@@ -489,7 +522,10 @@ SIDEBAR:
 ARENA:
   LOAD-CHUNKS: true # If true, the server will load the enabled arena's chunks.
   TELEPORT-TO-COPY: false # Recommend: false,  If you copy an arena, the server will teleport you there, so you can watch it happening.
-  FAST-COPY: false # If true, the server more likely to be slow, but it triples the copy performance. 100x50x65 arena copy takes 1,5 minutes with fast copy.
+  FAST-COPY: # If true, the server more likely to be slow, but it triples the copy performance. 100x50x65 arena copy takes 1,5 minutes with fast copy.
+    USE-FAWE: false
+    ENABLED: true
+    MULTIPLIER: 10 # Be careful with this value.
   DEFAULT-ICON: # If default icon is enabled it won't be necessary to set an arena icon, but you still can.
     ENABLED: false
     ICON:

@@ -70,6 +70,12 @@ public abstract class Ladder {
     protected boolean resetBuildAfterRound = false;
     @Setter
     protected boolean breakAllBlocks = false;
+    @Setter
+    protected int roundEndDelay = 3;
+    @Setter
+    protected boolean roundStatusTitles = true;
+    @Setter
+    protected boolean countdownTitles = true;
 
     protected Ladder(String name, LadderType type) {
         this.name = name;
@@ -107,6 +113,9 @@ public abstract class Ladder {
         this.healthBelowName = ladder.isHealthBelowName();
         this.resetBuildAfterRound = ladder.isResetBuildAfterRound();
         this.breakAllBlocks = ladder.isBreakAllBlocks();
+        this.roundEndDelay = ladder.getRoundEndDelay();
+        this.roundStatusTitles = ladder.isRoundStatusTitles();
+        this.countdownTitles = ladder.isCountdownTitles();
     }
 
     public abstract List<Arena> getArenas();

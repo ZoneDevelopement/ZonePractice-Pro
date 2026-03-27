@@ -86,6 +86,36 @@ public class BuildListener implements Listener {
         return getByLocation(block.getLocation());
     }
 
+    /**
+     * Resolves explosion ownership using center-first lookup, then block-list fallbacks.
+     * This covers edge cases where an explosion center is outside the arena cuboid but
+     * still destroys blocks inside it (common with wandering creepers in FFA).
+     */
+    protected static Spectatable getByExplosion(Location center, List<Block> blockList) {
+        Spectatable byCenter = getByLocation(center);
+        if (byCenter != null) {
+            return byCenter;
+        }
+
+        for (Block block : blockList) {
+            if (!BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) continue;
+
+            Spectatable tagged = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (!ListenerUtil.checkMetaData(tagged) && tagged.isBuild()) {
+                return tagged;
+            }
+        }
+
+        for (Block block : blockList) {
+            Spectatable byBlock = getByBlock(block);
+            if (byBlock != null) {
+                return byBlock;
+            }
+        }
+
+        return null;
+    }
+
     protected static Spectatable getByPlayer(Player player) {
         return FightUtil.getActiveBuildSpectatables().stream()
                 .filter(s -> s.getActivePlayerList().contains(player))
@@ -155,6 +185,7 @@ public class BuildListener implements Listener {
                 spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
             }
             trackDependentBlocksAbove(block, spectatable);
+            trackGravityBlocksAbove(block, spectatable);
         }
     }
 
@@ -191,7 +222,7 @@ public class BuildListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlockPlaced();
         BlockState replacedState = event.getBlockReplacedState();
-        Spectatable spectatable = null;
+        Spectatable spectatable;
         boolean needsMetadata = false;
 
         if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
@@ -246,6 +277,21 @@ public class BuildListener implements Listener {
     }
 
     /**
+     * Tracks contiguous gravity blocks (sand, gravel, concrete powder, anvils, etc.)
+     * above an exploded block before physics turns them into FallingBlock entities.
+     */
+    private static void trackGravityBlocksAbove(Block base, Spectatable spectatable) {
+        Block above = base.getRelative(0, 1, 0);
+        while (!above.getType().isAir() && above.getType().hasGravity()) {
+            if (!BlockUtil.hasMetadata(above, PLACED_IN_FIGHT)) {
+                spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(above));
+            }
+            above = above.getRelative(0, 1, 0);
+        }
+    }
+
+    /**
+            trackGravityBlocksAbove(block, spectatable);
      * Core explosion handler shared by {@link EntityExplodeEvent} and
      * (on modern) {@code BlockExplodeEvent}.
      * <ul>
@@ -274,7 +320,7 @@ public class BuildListener implements Listener {
 
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
-        Spectatable spectatable = getByLocation(e.getLocation());
+        Spectatable spectatable = getByExplosion(e.getLocation(), e.blockList());
 
         if (e.getEntity() instanceof Creeper) {
             if (spectatable == null) return;
@@ -289,7 +335,8 @@ public class BuildListener implements Listener {
                     return;
                 }
             }
-            filterAndTrackExplosionBlocks(e.blockList(), spectatable);
+            // Use handleExplosion to properly track blocks and delegate to ladder handlers
+            handleExplosion(e, e.blockList(), spectatable);
             return;
         }
 
@@ -320,7 +367,7 @@ public class BuildListener implements Listener {
         }
 
         if (spectatable instanceof Match match) {
-            onApplyFuseTime(tnt, match);
+            onApplyFuseTime(tnt);
         }
     }
 
@@ -333,7 +380,7 @@ public class BuildListener implements Listener {
      * The modern subclass overrides this to use its own fuse-tick map populated by
      * {@code TNTPrimeEvent}.
      */
-    protected void onApplyFuseTime(TNTPrimed tnt, Match match) {
+    protected void onApplyFuseTime(TNTPrimed tnt) {
         final String key = locationKey(tnt.getLocation());
         if (setFuseTick.containsKey(key)) {
             tnt.setFuseTicks(setFuseTick.remove(key));
@@ -342,6 +389,24 @@ public class BuildListener implements Listener {
 
     @EventHandler
     public void onEntitySpawnEvent(EntitySpawnEvent e) {
+        if (e.getEntity() instanceof FallingBlock fallingBlock) {
+            if (e.isCancelled()) return;
+
+            Block sourceBlock = e.getLocation().getBlock();
+            Spectatable spectatable = getByBlock(sourceBlock);
+            if (spectatable == null || !spectatable.isBuild()) return;
+
+            BlockUtil.setMetadata(fallingBlock, PLACED_IN_FIGHT, spectatable);
+            spectatable.addEntityChange(fallingBlock);
+
+            if (!BlockUtil.hasMetadata(sourceBlock, PLACED_IN_FIGHT)) {
+                Material originalMaterial = fallingBlock.getBlockData().getMaterial();
+                spectatable.getFightChange().addArenaBlockChange(
+                        new ChangedBlock(sourceBlock, originalMaterial));
+            }
+            return;
+        }
+
         if (!(e.getEntity() instanceof TNTPrimed tnt)) return;
         if (e.isCancelled()) return;
 
@@ -790,7 +855,7 @@ public class BuildListener implements Listener {
 
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
-        Spectatable spectatable = getByBlock(e.getBlock());
+        Spectatable spectatable = getByExplosion(e.getBlock().getLocation(), e.blockList());
         handleExplosion(e, e.blockList(), spectatable);
     }
 

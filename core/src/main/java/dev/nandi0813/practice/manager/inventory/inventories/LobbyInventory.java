@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.inventory.inventories;
 
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.inventory.Inventory;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvItem;
@@ -16,7 +17,12 @@ public class LobbyInventory extends Inventory {
 
         this.invItems.add(new KitEditorInvItem());
         this.invItems.add(new PartyCreateInvItem());
-        this.invItems.add(new RankedInvItem());
+        if (ConfigManager.getBoolean("QUEUE.COMBINED.ENABLED")) {
+            this.invItems.add(new QueueInvItem());
+        } else {
+            this.invItems.add(new RankedInvItem());
+            this.invItems.add(new UnrankedInvItem());
+        }
         this.invItems.add(new RematchInvItem());
         this.invItems.add(new SettingsInvItem());
         this.invItems.add(new CosmeticsInvItem());
@@ -24,7 +30,6 @@ public class LobbyInventory extends Inventory {
         this.invItems.add(new StaffMode());
         this.invItems.add(new SetupInvItem());
         this.invItems.add(new StatisticsInvItem());
-        this.invItems.add(new UnrankedInvItem());
     }
 
     @Override

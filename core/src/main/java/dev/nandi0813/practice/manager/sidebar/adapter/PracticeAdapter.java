@@ -34,8 +34,10 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.profile.group.Group;
+import dev.nandi0813.practice.manager.queue.CustomKitQueueManager;
 import dev.nandi0813.practice.manager.queue.Queue;
 import dev.nandi0813.practice.manager.queue.QueueManager;
+import dev.nandi0813.practice.manager.queue.runnables.CustomKitSearchRunnable;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
 import dev.nandi0813.practice.util.PAPIUtil;
@@ -101,6 +103,8 @@ public class PracticeAdapter implements SidebarAdapter {
         } else if (profile.getStatus().equals(ProfileStatus.QUEUE)) {
             Queue queue = QueueManager.getInstance().getQueue(player);
             Event event = EventManager.getInstance().getEventByPlayer(player);
+            CustomKitQueueManager.HostedCustomKitQueue hostedCustomKitQueue = CustomKitQueueManager.getInstance().getHostedQueue(player);
+            CustomKitSearchRunnable customKitJoinSearch = CustomKitQueueManager.getInstance().getJoinSearch(player);
 
             if (queue != null) {
                 for (String line : config.getStringList("LOBBY.DUEL-QUEUE")) {
@@ -111,6 +115,32 @@ public class PracticeAdapter implements SidebarAdapter {
                             .replaceText(TextReplacementConfig.builder().match("%weightClass%").replacement(queue.isRanked() ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName()).build())
                             .replaceText(TextReplacementConfig.builder().match("%ladderDisplayName%").replacement(queue.getLadder().getDisplayName()).build())
                             .replaceText(TextReplacementConfig.builder().match("%elapsedTime%").replacement(queue.getFormattedDuration()).build())
+                            .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
+                            .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build())
+                    );
+                }
+            } else if (hostedCustomKitQueue != null) {
+                for (String line : config.getStringList("LOBBY.CUSTOM-KIT-QUEUE.HOSTING")) {
+                    sidebar.add(PAPIUtil.runThroughFormat(player, line)
+                            .replaceText(TextReplacementConfig.builder().match("%onlinePlayers%").replacement(String.valueOf(Bukkit.getOnlinePlayers().size())).build())
+                            .replaceText(TextReplacementConfig.builder().match("%inFightPlayers%").replacement(String.valueOf(MatchManager.getInstance().getPlayerInMatchSize())).build())
+                            .replaceText(TextReplacementConfig.builder().match("%inQueuePlayer%").replacement(String.valueOf(QueueManager.getInstance().getQueues().size() + CustomKitQueueManager.getInstance().getHostedQueues().size() + CustomKitQueueManager.getInstance().getJoinSearches().size())).build())
+                            .replaceText(TextReplacementConfig.builder().match("%weightClass%").replacement(WeightClass.UNRANKED.getName()).build())
+                            .replaceText(TextReplacementConfig.builder().match("%ladderDisplayName%").replacement(hostedCustomKitQueue.customLadder().getDisplayName()).build())
+                            .replaceText(TextReplacementConfig.builder().match("%elapsedTime%").replacement(hostedCustomKitQueue.getElapsedSeconds() + "s").build())
+                            .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
+                            .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build())
+                    );
+                }
+            } else if (customKitJoinSearch != null) {
+                for (String line : config.getStringList("LOBBY.CUSTOM-KIT-QUEUE.JOIN-SEARCH")) {
+                    sidebar.add(PAPIUtil.runThroughFormat(player, line)
+                            .replaceText(TextReplacementConfig.builder().match("%onlinePlayers%").replacement(String.valueOf(Bukkit.getOnlinePlayers().size())).build())
+                            .replaceText(TextReplacementConfig.builder().match("%inFightPlayers%").replacement(String.valueOf(MatchManager.getInstance().getPlayerInMatchSize())).build())
+                            .replaceText(TextReplacementConfig.builder().match("%inQueuePlayer%").replacement(String.valueOf(QueueManager.getInstance().getQueues().size() + CustomKitQueueManager.getInstance().getHostedQueues().size() + CustomKitQueueManager.getInstance().getJoinSearches().size())).build())
+                            .replaceText(TextReplacementConfig.builder().match("%weightClass%").replacement(WeightClass.UNRANKED.getName()).build())
+                            .replaceText(TextReplacementConfig.builder().match("%ladderDisplayName%").replacement("Any Hosted Kit").build())
+                            .replaceText(TextReplacementConfig.builder().match("%elapsedTime%").replacement(customKitJoinSearch.getElapsedSeconds() + "s").build())
                             .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
                             .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build())
                     );
@@ -179,8 +209,8 @@ public class PracticeAdapter implements SidebarAdapter {
                                     case FIREBALL_FIGHT:
                                     case MLG_RUSH:
                                         component = component
-                                                .replaceText(TextReplacementConfig.builder().matchLiteral("%playerBedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(duel.getTeam(player)) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build())
-                                                .replaceText(TextReplacementConfig.builder().matchLiteral("%enemyBedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(duel.getTeam(enemy)) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build());
+                                                .replaceText(TextReplacementConfig.builder().matchLiteral("%playerBedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(Objects.requireNonNull(round != null && round.getBedStatus().get(duel.getTeam(player)) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))).build())
+                                                .replaceText(TextReplacementConfig.builder().matchLiteral("%enemyBedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(Objects.requireNonNull(round != null && round.getBedStatus().get(duel.getTeam(enemy)) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))).build());
                                         break;
                                 }
 
@@ -220,8 +250,8 @@ public class PracticeAdapter implements SidebarAdapter {
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%team1boxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM1)))).build())
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%team2boxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partySplit.getTeamPlayers(TeamEnum.TEAM2)))).build());
                                     case BEDWARS, FIREBALL_FIGHT, MLG_RUSH -> component
-                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team1BedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build())
-                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team2BedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build());
+                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team1BedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(Objects.requireNonNull(round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))).build())
+                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%team2BedStatus%").replacement(ZonePractice.getMiniMessage().deserialize(Objects.requireNonNull(round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))).build());
                                     default -> component;
                                 };
 
@@ -243,8 +273,8 @@ public class PracticeAdapter implements SidebarAdapter {
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%partyTeamBoxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partyVsParty.getTeamPlayers(team)))).build())
                                             .replaceText(TextReplacementConfig.builder().matchLiteral("%enemyTeamBoxingHits%").replacement(String.valueOf(Boxing.getTeamBoxingStrokes(match, partyVsParty.getTeamPlayers(enemyTeam)))).build());
                                     case BEDWARS, FIREBALL_FIGHT, MLG_RUSH -> component
-                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%partyTeamBedStatus%").replacement(round != null && round.getBedStatus().get(team) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")).build())
-                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%enemyTeamBedStatus%").replacement(round != null && round.getBedStatus().get(enemyTeam) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")).build());
+                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%partyTeamBedStatus%").replacement(Objects.requireNonNull(round != null && round.getBedStatus().get(team) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build())
+                                            .replaceText(TextReplacementConfig.builder().matchLiteral("%enemyTeamBedStatus%").replacement(Objects.requireNonNull(round != null && round.getBedStatus().get(enemyTeam) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))).build());
                                     default -> component;
                                 };
 
@@ -406,8 +436,8 @@ public class PracticeAdapter implements SidebarAdapter {
                                     case FIREBALL_FIGHT:
                                     case MLG_RUSH:
                                         line = line
-                                                .replace("%player1BedStatus%", (round != null && round.getBedStatus().get(duel.getTeam(duel.getPlayer1())) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
-                                                .replace("%player2BedStatus%", (round != null && round.getBedStatus().get(duel.getTeam(duel.getPlayer2())) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
+                                                .replace("%player1BedStatus%", (Objects.requireNonNull(round != null && round.getBedStatus().get(duel.getTeam(duel.getPlayer1())) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))))
+                                                .replace("%player2BedStatus%", (Objects.requireNonNull(round != null && round.getBedStatus().get(duel.getTeam(duel.getPlayer2())) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))));
                                         break;
                                 }
 
@@ -471,8 +501,8 @@ public class PracticeAdapter implements SidebarAdapter {
                                     case FIREBALL_FIGHT:
                                     case MLG_RUSH:
                                         line = line
-                                                .replace("%team1BedStatus%", (round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
-                                                .replace("%team2BedStatus%", (round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
+                                                .replace("%team1BedStatus%", (Objects.requireNonNull(round != null && round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))))
+                                                .replace("%team2BedStatus%", (Objects.requireNonNull(round != null && round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))));
                                         break;
                                 }
 
@@ -494,8 +524,8 @@ public class PracticeAdapter implements SidebarAdapter {
                                     case FIREBALL_FIGHT:
                                     case MLG_RUSH:
                                         line = line
-                                                .replace("%team1BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")))
-                                                .replace("%team2BedStatus%", (round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED")));
+                                                .replace("%team1BedStatus%", (Objects.requireNonNull(round.getBedStatus().get(TeamEnum.TEAM1) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))))
+                                                .replace("%team2BedStatus%", (Objects.requireNonNull(round.getBedStatus().get(TeamEnum.TEAM2) ? config.getString("MATCH.BED-STATUS.NOT-DESTROYED") : config.getString("MATCH.BED-STATUS.DESTROYED"))));
                                         break;
                                 }
 

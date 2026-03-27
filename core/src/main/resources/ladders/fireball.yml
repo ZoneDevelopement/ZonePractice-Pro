@@ -15,9 +15,18 @@ settings:
   startcountdown: 3
   knockback: DEFAULT
   matchtypes:
-    - DUEL
-    - PARTY_SPLIT
-    - PARTY_VS_PARTY
+  - DUEL
+  - PARTY_SPLIT
+  - PARTY_VS_PARTY
+  weightClass: UNRANKED_AND_RANKED
+  maxduration: 900
+  fireworkcooldown: 1
+  startmove: false
+  tntfusetime: 4
+  healthbelowname: false
+  resetbuildafterround: false
+  breakallblocks: false
+  respawntime: 3
 effects: []
 bed-respawn: 3
 fireball-cooldown: 1.0

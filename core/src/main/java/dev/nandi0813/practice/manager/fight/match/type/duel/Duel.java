@@ -151,7 +151,9 @@ public class Duel extends Match implements Team {
                 if (isRespawnableLadder()) {
                     // Respawnable ladder but player is eliminated (e.g., bed destroyed)
                     this.getCurrentStat(player).end(true);
-                    this.teleportPlayer(player);
+                    if (this.getLadder().getRoundEndDelay() <= 0 || this.wasLastDeathVoid(player)) {
+                        this.teleportPlayer(player);
+                    }
                     endRound = true;
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
                     dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
@@ -227,11 +229,12 @@ public class Duel extends Match implements Team {
             return true;
 
         if (this.players.size() == 1) {
-            if (status.equals(MatchStatus.START))
+            if (status.equals(MatchStatus.START)) {
                 this.matchWinner = null;
-            else
+            } else {
                 this.matchWinner = this.players.stream().findAny().get();
-
+                this.loser = this.getOppositePlayer(this.matchWinner);
+            }
             return true;
         }
 

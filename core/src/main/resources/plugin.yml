@@ -322,6 +322,8 @@ permissions:
     description: Share custom kit with others.
   zpp.playerkit.copy:
     description: Copy custom kit from others.
+  zpp.playerkit.queue.host:
+    description: Host a custom kit queue.
 
   # Cosmetics
   zpp.cosmetics.main:
@@ -346,6 +348,21 @@ permissions:
     description: Allow access to Netherite armor tier.
   zpp.cosmetics.armortrim.apply-global:
     description: Copy armor trim setting to all armor types.
+  zpp.cosmetics.lobby.*:
+    description: Access all lobby movement cosmetics.
+    children:
+      zpp.cosmetics.lobby.none: true
+      zpp.cosmetics.lobby.wind_charge: true
+      zpp.cosmetics.lobby.trident: true
+      zpp.cosmetics.lobby.spear: true
+  zpp.cosmetics.lobby.none:
+    description: Select no lobby movement cosmetic.
+  zpp.cosmetics.lobby.wind_charge:
+    description: Select the lobby wind charge cosmetic.
+  zpp.cosmetics.lobby.trident:
+    description: Select the lobby trident cosmetic.
+  zpp.cosmetics.lobby.spear:
+    description: Select the lobby spear cosmetic.
 
   # Note: zpp.cosmetics.pattern.* and zpp.cosmetics.material.* permissions are
   # dynamically registered at runtime by ArmorTrimPermissionManager based on
@@ -356,3 +373,4 @@ permissions:
   zpp.update.notify:
     description: Receive in-game notifications when a new ZonePractice Pro version is released.
     default: op
+

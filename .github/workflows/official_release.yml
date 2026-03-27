@@ -16,20 +16,16 @@ on:
           - release
           - beta
           - alpha
-      release_notes:
-        description: 'Paste the release changelog here'
-        required: true
-        type: string
 
 jobs:
   call_build:
     permissions:
       contents: write
+      packages: write
     uses: ./.github/workflows/reusable_build.yml
     with:
       is-release-build: true
       release-version: ${{ inputs.release_version }}
       release-version-type: ${{ inputs.release_version_type }}
-      release-changelog: ${{ inputs.release_notes }}
       publish-artifacts: true
     secrets: inherit

@@ -35,6 +35,8 @@ public enum GUIType {
 
     Queue_Unranked,
     Queue_Ranked,
+    Queue_CustomKitChooseType,
+    Queue_CustomKitHostSelector,
 
     Party_OtherParties,
     Party_Events,
@@ -114,6 +116,7 @@ public enum GUIType {
     Cosmetics_Shield_PatternPicker,
     Cosmetics_Pattern_Selection,
     Cosmetics_Material_Selection,
+    Cosmetics_LobbyItems,
 
     Cosmetics_DeathEffects,
 

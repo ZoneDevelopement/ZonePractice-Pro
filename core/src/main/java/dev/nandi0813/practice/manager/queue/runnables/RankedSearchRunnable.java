@@ -58,7 +58,7 @@ public class RankedSearchRunnable extends SearchRunnable {
     }
 
     private void sendMSG(int elo) {
-        this.actionBar.setMessage(LanguageManager.getString("QUEUES.ELO-RANGE")
+        this.updateQueueActionBar(LanguageManager.getString("QUEUES.ELO-RANGE")
                 .replace("%from%", String.valueOf(elo - range))
                 .replace("%to%", String.valueOf(elo + range)));
     }

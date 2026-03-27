@@ -38,9 +38,9 @@ public class GoldenAppleSettingHandler implements SettingHandler<Integer> {
             return false; // No cooldown
         }
 
-        // Check if it's a golden head (different item meta)
-        if (item.getItemMeta().equals(dev.nandi0813.practice.manager.server.ServerManager.getInstance()
-                .getGoldenHead().getItem().getItemMeta())) {
+        // Golden heads have their own consume logic/cooldown.
+        if (dev.nandi0813.practice.manager.server.ServerManager.getInstance()
+                .getGoldenHead().isGoldenHead(item)) {
             return false; // Golden heads don't have cooldown
         }
 

@@ -14,12 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 public abstract class NormalLadder extends Ladder {
@@ -84,10 +79,10 @@ public abstract class NormalLadder extends Ladder {
 
         GUIManager.getInstance().searchGUI(GUIType.Ladder_Summary).update();
         LadderSetupManager.getInstance().getLadderSetupGUIs().get(this).get(GUIType.Ladder_Main).update();
-        GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).update();
+        GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).update(true);
 
         if (this.isRanked())
-            GUIManager.getInstance().searchGUI(GUIType.Queue_Ranked).update();
+            GUIManager.getInstance().searchGUI(GUIType.Queue_Ranked).update(true);
     }
 
     public boolean isUnranked() {

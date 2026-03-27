@@ -1,15 +1,18 @@
 package dev.nandi0813.practice.manager.fight.match.runnable.round;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.Round;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
+import dev.nandi0813.practice.manager.fight.match.util.TitleUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -48,6 +51,19 @@ public class RoundStartRunnable extends BukkitRunnable {
             this.round.setRoundStatus(RoundStatus.LIVE);
             this.round.beginRunnable();
 
+            // Show "FIGHT!" title when countdown finishes
+            if (match.getLadder().isCountdownTitles()) {
+                TitleUtil.sendTitleToAll(
+                        match.getPeople(),
+                        Common.deserializeMiniMessage(
+                                LanguageManager.getString("MATCH.START-TITLES.FIGHT")
+                        ),
+                        100,
+                        1000,
+                        200
+                );
+            }
+
             if (this.round.getRoundNumber() == 1) {
                 message = StringUtil.replaceSecondString(LanguageManager.getString(path + ".START.MATCH-STARTED"), seconds);
                 this.match.setStatus(MatchStatus.LIVE);
@@ -57,6 +73,19 @@ public class RoundStartRunnable extends BukkitRunnable {
 
             SoundManager.getInstance().getSound(SoundType.MATCH_STARTED).play(match.getPeople());
         } else {
+            // Show countdown number as title
+            if (match.getLadder().isCountdownTitles() && this.seconds <= ConfigManager.getInt("MATCH-SETTINGS.TITLE.START-COUNTDOWN-FROM", 3) && this.seconds > 0) {
+                TitleUtil.sendTitleToAll(
+                        match.getPeople(),
+                        Common.deserializeMiniMessage(
+                                LanguageManager.getString("MATCH.START-TITLES.COUNTDOWN").replace("%remaining%", String.valueOf(seconds))
+                        ),
+                        100,
+                        800,
+                        100
+                );
+            }
+
             if (round.getRoundNumber() == 1)
                 message = StringUtil.replaceSecondString(LanguageManager.getString(path + ".START.MATCH-STARTING"), seconds);
             else
@@ -89,5 +118,6 @@ public class RoundStartRunnable extends BukkitRunnable {
         Bukkit.getScheduler().cancelTask(this.getTaskId());
         running = false;
     }
-
 }
+
+

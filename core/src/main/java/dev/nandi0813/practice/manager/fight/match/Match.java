@@ -16,6 +16,7 @@ import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
 import dev.nandi0813.practice.manager.fight.match.util.MatchUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
+import dev.nandi0813.practice.manager.fight.util.DeathCause;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.guis.MatchStatsGui;
@@ -84,6 +85,8 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     private final Map<UUID, UUID> lastAttackerMap = new HashMap<>();
     /** Timestamp (ms) of the last attacker hit, keyed by victim UUID. */
     private final Map<UUID, Long> lastAttackerTime = new HashMap<>();
+    /** Tracks whether a player's last registered death in this match was void-related. */
+    private final Map<UUID, Boolean> lastDeathWasVoid = new HashMap<>();
     /** How long (ms) a last-attacker is considered valid for void attribution. */
     private static final long LAST_ATTACKER_EXPIRY_MS = 4_000L;
 
@@ -211,9 +214,43 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
         return null;
     }
 
+    public boolean wasLastDeathVoid(Player player) {
+        return lastDeathWasVoid.getOrDefault(player.getUniqueId(), false);
+    }
+
+    public void clearRoundDeathCauses() {
+        lastDeathWasVoid.clear();
+    }
+
+    private static boolean isVoidDeathMessage(String deathMessage) {
+        if (deathMessage == null) {
+            return false;
+        }
+
+        if (deathMessage.equals(DeathCause.VOID.getMessage())) {
+            return true;
+        }
+
+        String voidByPlayerPattern = DeathCause.VOID_BY_PLAYER.getMessage();
+        if (voidByPlayerPattern == null) {
+            return false;
+        }
+
+        int placeholderIndex = voidByPlayerPattern.indexOf("%killer%");
+        if (placeholderIndex < 0) {
+            return deathMessage.equals(voidByPlayerPattern);
+        }
+
+        String prefix = voidByPlayerPattern.substring(0, placeholderIndex);
+        String suffix = voidByPlayerPattern.substring(placeholderIndex + "%killer%".length());
+        return deathMessage.startsWith(prefix) && deathMessage.endsWith(suffix);
+    }
+
     public void killPlayer(Player player, Player killer, String deathMessage) {
         if (this.getCurrentStat(player).isSet())
             return;
+
+        boolean voidDeath = isVoidDeathMessage(deathMessage);
 
         // If no explicit killer and the death message is the plain void message,
         // check whether a recent attacker should be credited instead.
@@ -222,11 +259,14 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             if (lastAttacker != null && !lastAttacker.equals(player) && deathMessage != null
                     && deathMessage.equals(dev.nandi0813.practice.manager.fight.util.DeathCause.VOID.getMessage())) {
                 killer = lastAttacker;
+                voidDeath = true;
                 deathMessage = dev.nandi0813.practice.manager.fight.util.DeathCause.VOID_BY_PLAYER
                         .getMessage()
                         .replace("%killer%", killer.getName());
             }
         }
+
+        lastDeathWasVoid.put(player.getUniqueId(), voidDeath);
 
         deathMessage = TeamUtil.replaceTeamNames((deathMessage != null ? deathMessage : ""), player, this instanceof Team team ? team.getTeam(player) : TeamEnum.FFA);
         matchPlayers.get(player).die(deathMessage, this.getCurrentStat(player));
@@ -292,8 +332,8 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
         for (Player spectator : new ArrayList<>(spectators))
             removeSpectator(spectator);
 
-        // Reset the arena.
-        resetMap();
+        // Reset the arena and only make it reusable after rollback completes.
+        resetMap(() -> this.arena.setAvailable(true));
 
         this.cancel();
 
@@ -303,8 +343,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             }
         }
 
-        // Set arena to available
-        this.arena.setAvailable(true);
+        // Availability is flipped in the reset callback above.
     }
 
     /*
@@ -349,15 +388,6 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     }
 
     /**
-     * Gets the ladder as a ScoringLadder if applicable.
-     *
-     * @return Optional containing the ScoringLadder, or empty if not applicable
-     */
-    public Optional<ScoringLadder> asScoringLadder() {
-        return ladder instanceof ScoringLadder s ? Optional.of(s) : Optional.empty();
-    }
-
-    /**
      * Handles player death using the ladder's respawn mechanics.
      * Returns the death result which indicates how the death should be processed.
      *
@@ -369,19 +399,6 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             return respawnableLadder.handlePlayerDeath(player, this, getCurrentRound());
         }
         return DeathResult.ELIMINATED;
-    }
-
-    /**
-     * Checks if the round should end based on ladder-specific scoring.
-     *
-     * @param triggerPlayer The player who triggered the scoring check
-     * @return true if the round should end based on scoring conditions
-     */
-    public boolean shouldEndRoundByScoring(Player triggerPlayer) {
-        if (ladder instanceof ScoringLadder scoringLadder) {
-            return scoringLadder.shouldEndRound(this, getCurrentRound(), triggerPlayer);
-        }
-        return false;
     }
 
     /*
@@ -494,10 +511,6 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     public void addEntityChange(@NotNull List<Entity> entities) {
         for (Entity entity : entities)
             addEntityChange(entity);
-    }
-
-    public void resetMap() {
-        resetMap(null);
     }
 
     /**

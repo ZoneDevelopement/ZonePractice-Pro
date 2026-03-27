@@ -46,9 +46,19 @@ public class FFAManager {
     }
 
     public FFA getFFAByPlayer(Player player) {
-        for (FFAArena ffaArena : ArenaManager.getInstance().getFFAArenas())
-            if (ffaArena.getFfa().getPlayers().containsKey(player))
-                return ffaArena.getFfa();
+        for (FFAArena ffaArena : ArenaManager.getInstance().getFFAArenas()) {
+            FFA ffa = ffaArena.getFfa();
+            if (ffa.getPlayers().containsKey(player)) {
+                return ffa;
+            }
+
+            // Fallback for stale Player-object map keys.
+            for (Player ffaPlayer : ffa.getPlayers().keySet()) {
+                if (player.getUniqueId().equals(ffaPlayer.getUniqueId())) {
+                    return ffa;
+                }
+            }
+        }
         return null;
     }
 

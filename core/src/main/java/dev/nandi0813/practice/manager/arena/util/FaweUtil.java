@@ -30,7 +30,7 @@ public enum FaweUtil {
         }
     }
 
-    public static void copyFAWE(final Cuboid copyFrom, final Location reference, final Location newLocation) {
+    public static boolean copyFAWEWithResult(final Cuboid copyFrom, final Location reference, final Location newLocation) {
         Location newLoc = copyFrom.getLowerNE().clone();
         newLoc.setWorld(ArenaWorldUtil.getArenasCopyWorld());
 
@@ -47,9 +47,11 @@ public enum FaweUtil {
             forwardExtentCopy.setCopyingEntities(true);
 
             Operations.complete(forwardExtentCopy);
+            return true;
 
         } catch (Exception e) {
             Common.sendConsoleMMMessage("<red>" + "Error during copy-paste operation: " + e.getMessage());
+            return false;
         }
     }
 

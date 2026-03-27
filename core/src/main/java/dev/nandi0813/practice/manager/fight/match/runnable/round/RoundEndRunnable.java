@@ -2,12 +2,17 @@ package dev.nandi0813.practice.manager.fight.match.runnable.round;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.Round;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
+import dev.nandi0813.practice.manager.fight.match.interfaces.PlayerWinner;
+import dev.nandi0813.practice.manager.fight.match.util.TitleUtil;
+import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class RoundEndRunnable extends BukkitRunnable {
@@ -29,21 +34,35 @@ public class RoundEndRunnable extends BukkitRunnable {
      * responsible for starting the next round.
      */
     private final boolean suppressNextRound;
+    private final boolean rollbackBeforeNextRound;
+
+    /**
+     * Tracks whether we have already sent the round-end titles and messages.
+     * This prevents duplicate title sends if the runnable is reused.
+     */
+    private boolean titlesSent = false;
 
     public RoundEndRunnable(Round round, boolean ended) {
-        this(round, ended, false);
+        this(round, ended, false, false);
     }
 
     public RoundEndRunnable(Round round, boolean ended, boolean suppressNextRound) {
+        this(round, ended, suppressNextRound, false);
+    }
+
+    public RoundEndRunnable(Round round, boolean ended, boolean suppressNextRound, boolean rollbackBeforeNextRound) {
         this.round = round;
         this.match = round.getMatch();
         this.ended = ended;
         this.suppressNextRound = suppressNextRound;
+        this.rollbackBeforeNextRound = rollbackBeforeNextRound;
 
-        if (ended)
+        // Use the ladder's ROUND_END_DELAY setting
+        if (!ended) {
+            this.seconds = round.getMatch().getLadder().getRoundEndDelay();
+        } else {
             this.seconds = ConfigManager.getConfig().getInt("MATCH-SETTINGS.AFTER-COUNTDOWN");
-        else
-            this.seconds = 0;
+        }
     }
 
     public RoundEndRunnable begin() {
@@ -51,9 +70,90 @@ public class RoundEndRunnable extends BukkitRunnable {
         if (this.ended) match.setStatus(MatchStatus.END);
 
         running = true;
+        
+        // Send titles and victory/defeat messages immediately (before delay)
+        sendRoundEndTitles();
+        
         this.runTaskTimer(ZonePractice.getInstance(), 0, 20L);
 
         return this;
+    }
+
+    /**
+     * Sends victory/defeat titles to players if enabled in ladder settings
+     */
+    private void sendRoundEndTitles() {
+        if (titlesSent) return;
+        titlesSent = true;
+
+        if (!match.getLadder().isRoundStatusTitles()) {
+            return;
+        }
+
+        if (this.ended) {
+            // Match is ending - show match winner/loser titles
+            Object matchWinnerObj = match.getMatchWinner();
+            if (matchWinnerObj instanceof Player winner) {
+
+                // Show green "VICTORY!" to winner
+                TitleUtil.sendTitle(
+                        winner,
+                        Common.deserializeMiniMessage(
+                                LanguageManager.getString("MATCH.END-TITLES.MATCH.VICTORY")
+                        ),
+                        200,
+                        1500,
+                        300
+                );
+                
+                // Show red "DEFEAT" to losers
+                for (Player player : match.getPlayers()) {
+                    if (player != winner) {
+                        TitleUtil.sendTitle(
+                                player,
+                                Common.deserializeMiniMessage(
+                                        LanguageManager.getString("MATCH.END-TITLES.MATCH.DEFEAT")
+                                ),
+                                200,
+                                1500,
+                                300
+                        );
+                    }
+                }
+            }
+        } else {
+            // Round is ending - show round winner title
+            if (round instanceof PlayerWinner) {
+                Player roundWinner = ((PlayerWinner) round).getRoundWinner();
+                if (roundWinner != null) {
+                    // Show green "VICTORY!" to round winner
+                        TitleUtil.sendTitle(
+                                roundWinner,
+                                Common.deserializeMiniMessage(
+                                        LanguageManager.getString("MATCH.END-TITLES.ROUND.VICTORY")
+                                ),
+                                200,
+                                1500,
+                                300
+                        );
+                    
+                    // Show red "DEFEAT" to losers
+                    for (Player player : match.getPlayers()) {
+                        if (player != roundWinner) {
+                            TitleUtil.sendTitle(
+                                    player,
+                                    Common.deserializeMiniMessage(
+                                            LanguageManager.getString("MATCH.END-TITLES.ROUND.DEFEAT")
+                                    ),
+                                    200,
+                                    1500,
+                                    300
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -73,10 +173,14 @@ public class RoundEndRunnable extends BukkitRunnable {
 
             if (ended)
                 match.endMatch();
+            else if (rollbackBeforeNextRound)
+                match.resetMap(match::startNextRound);
             else if (!suppressNextRound)
                 match.startNextRound();
         } else
             seconds--;
     }
-
 }
+
+
+

@@ -64,6 +64,9 @@ public class FightChangeOptimized {
     // Reusable rollback task
     private RollbackTask rollbackTask;
 
+    // Chunk tickets held only for the duration of a rollback to keep arena chunks loaded.
+    private final java.util.Set<Long> rollbackChunkTickets = new java.util.HashSet<>();
+
     /**
      * True while a rollback is in progress. Used by block spread/burn listeners to
      * cancel new fire spread during the multi-tick rollback window so fire doesn't
@@ -157,7 +160,7 @@ public class FightChangeOptimized {
         if (change == null) return;
 
         long pos = BlockPosition.encode(change.getLocation());
-        BlockChangeEntry entry = blocks.computeIfAbsent(pos, k -> new BlockChangeEntry(change));
+        BlockChangeEntry entry = blocks.computeIfAbsent(pos, _ -> new BlockChangeEntry(change));
 
         // -1 disables temp build auto-removal; block remains until normal rollback.
         if (destroyTime <= 0) {
@@ -329,6 +332,10 @@ public class FightChangeOptimized {
     public void rollback(int maxCheck, int maxChange, @org.jetbrains.annotations.Nullable Runnable onComplete) {
         rollingBack = true;
 
+        if (ZonePractice.getInstance().isEnabled()) {
+            addRollbackChunkTickets();
+        }
+
         // Remove all entities (both tracked and cuboid entities in one pass)
         removeAllEntities();
 
@@ -342,6 +349,7 @@ public class FightChangeOptimized {
             // Nothing to restore — still extinguish any lingering fire
             extinguishFire();
             rollingBack = false;
+            removeRollbackChunkTickets();
             if (onComplete != null) {
                 if (org.bukkit.Bukkit.isPrimaryThread()) {
                     onComplete.run();
@@ -357,6 +365,7 @@ public class FightChangeOptimized {
             quickRollback();
             extinguishFire();
             rollingBack = false;
+            removeRollbackChunkTickets();
             if (onComplete != null) onComplete.run();
             return;
         }
@@ -364,6 +373,7 @@ public class FightChangeOptimized {
         // Cancel existing rollback if running
         if (rollbackTask != null && rollbackTask.isRunning) {
             rollbackTask.cancel();
+            removeRollbackChunkTickets();
         }
 
         // Start new rollback task
@@ -388,16 +398,58 @@ public class FightChangeOptimized {
         }
         trackedEntities.clear();
 
-        // Also cleanup any remaining entities in cuboid (comprehensive)
-        // This catches any entities that weren't tracked
-        for (Entity entity : cuboid.getEntities()) {
-            if (entity instanceof Player) continue;
-            // Skip hologram text displays
-            if (isHologramTextDisplay(entity)) continue;
-            if (entity.isValid()) {
-                entity.remove();
+        // Also cleanup any remaining entities in every arena chunk.
+        // We load chunks here so non-living entities in currently-unloaded chunks
+        // (e.g. minecarts/end crystals) cannot leak into the next match.
+        int minChunkX = cuboid.getLowerX() >> 4;
+        int maxChunkX = cuboid.getUpperX() >> 4;
+        int minChunkZ = cuboid.getLowerZ() >> 4;
+        int maxChunkZ = cuboid.getUpperZ() >> 4;
+
+        for (int cx = minChunkX; cx <= maxChunkX; cx++) {
+            for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
+                org.bukkit.Chunk chunk = world.getChunkAt(cx, cz);
+                for (Entity entity : chunk.getEntities()) {
+                    if (entity instanceof Player) continue;
+                    if (isHologramTextDisplay(entity)) continue;
+                    if (entity.isValid()) {
+                        entity.remove();
+                    }
+                }
             }
         }
+    }
+
+    private void addRollbackChunkTickets() {
+        org.bukkit.plugin.Plugin plugin = ZonePractice.getInstance();
+        if (!plugin.isEnabled()) {
+            return;
+        }
+        int minChunkX = cuboid.getLowerX() >> 4;
+        int maxChunkX = cuboid.getUpperX() >> 4;
+        int minChunkZ = cuboid.getLowerZ() >> 4;
+        int maxChunkZ = cuboid.getUpperZ() >> 4;
+
+        for (int cx = minChunkX; cx <= maxChunkX; cx++) {
+            for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
+                world.addPluginChunkTicket(cx, cz, plugin);
+                rollbackChunkTickets.add((((long) cx) << 32) | (cz & 0xFFFFFFFFL));
+            }
+        }
+    }
+
+    private void removeRollbackChunkTickets() {
+        org.bukkit.plugin.Plugin plugin = ZonePractice.getInstance();
+        if (!plugin.isEnabled()) {
+            rollbackChunkTickets.clear();
+            return;
+        }
+        for (Long chunkKey : rollbackChunkTickets) {
+            int cx = (int) (chunkKey >> 32);
+            int cz = (int) (long) chunkKey;
+            world.removePluginChunkTicket(cx, cz, plugin);
+        }
+        rollbackChunkTickets.clear();
     }
 
     /**
@@ -497,13 +549,12 @@ public class FightChangeOptimized {
 
                     checkCounter++;
 
-                    // OPTIMIZATION: Skip blocks in unloaded chunks (prevents lag)
+                    // Ensure the chunk is loaded before restoring this block.
                     int chunkX = BlockPosition.getX(pos) >> 4;
                     int chunkZ = BlockPosition.getZ(pos) >> 4;
 
                     if (!world.isChunkLoaded(chunkX, chunkZ)) {
-                        blocks.remove(pos); // Remove from live map - arena should be loaded
-                        continue;
+                        world.getChunkAt(chunkX, chunkZ);
                     }
 
                     changeCounter++;
@@ -527,6 +578,7 @@ public class FightChangeOptimized {
                     // Extinguish any fire that spread during the multi-tick rollback
                     extinguishFire();
                     rollingBack = false;
+                    removeRollbackChunkTickets();
 
                     if (onComplete != null) {
                         onComplete.run(); // already on main thread (runTaskTimer)
@@ -545,6 +597,7 @@ public class FightChangeOptimized {
                 this.cancel();
                 isRunning = false;
                 rollingBack = false;
+                removeRollbackChunkTickets();
                 Common.sendConsoleMMMessage("<red>Rollback error at block " + processedBlocks + "/" + totalBlocks + ": " + e.getMessage());
             }
         }

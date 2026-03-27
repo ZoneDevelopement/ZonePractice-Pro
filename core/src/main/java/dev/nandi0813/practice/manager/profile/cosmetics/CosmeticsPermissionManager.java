@@ -32,6 +32,10 @@ public enum CosmeticsPermissionManager {
         PluginManager pluginManager = Bukkit.getPluginManager();
 
         registerPermission(pluginManager, "zpp.cosmetics.shield.use", "Use shield cosmetics.");
+        registerPermission(pluginManager, "zpp.cosmetics.lobby.*", "Use all lobby item cosmetics.");
+        for (CosmeticsData.LobbyItemType lobbyItemType : CosmeticsData.LobbyItemType.values()) {
+            registerPermission(pluginManager, lobbyItemType.getPermissionNode(), "Use lobby item cosmetic " + lobbyItemType.name().toLowerCase(Locale.ROOT) + ".");
+        }
         registerPermission(pluginManager, "zpp.cosmetics.shield.layouts.*", "Use all shield layout slots.");
         registerPermission(pluginManager, "zpp.cosmetics.shield.layouts.unlimited", "Use unlimited shield layouts.");
         for (int layouts = 1; layouts <= MAX_SHIELD_LAYOUTS; layouts++) {
@@ -174,6 +178,20 @@ public enum CosmeticsPermissionManager {
         return player.isOp()
                 || player.hasPermission("zpp.cosmetics.shield.*")
                 || player.hasPermission("zpp.cosmetics.shield.use");
+    }
+
+    public static boolean hasLobbyItemPermission(Player player, CosmeticsData.LobbyItemType lobbyItemType) {
+        if (player == null || lobbyItemType == null) {
+            return false;
+        }
+
+        if (lobbyItemType == CosmeticsData.LobbyItemType.NONE) {
+            return true;
+        }
+
+        return player.isOp()
+                || player.hasPermission("zpp.cosmetics.lobby.*")
+                || player.hasPermission(lobbyItemType.getPermissionNode());
     }
 
     public static int getMaxShieldLayouts(Player player) {

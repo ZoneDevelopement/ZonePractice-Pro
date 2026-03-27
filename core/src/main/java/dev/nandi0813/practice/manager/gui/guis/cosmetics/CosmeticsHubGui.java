@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.gui.guis.cosmetics.armortrim.ArmorTrimMain
 import dev.nandi0813.practice.manager.gui.guis.cosmetics.deatheffect.DeathEffectsGui;
 import dev.nandi0813.practice.manager.gui.guis.cosmetics.shield.ShieldLayoutListGui;
 import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsData;
 import dev.nandi0813.practice.manager.profile.cosmetics.deatheffect.DeathEffect;
 import dev.nandi0813.practice.manager.profile.cosmetics.shield.ShieldLayout;
 import dev.nandi0813.practice.util.InventoryUtil;
@@ -23,9 +24,10 @@ import java.util.List;
 
 /**
  * Main cosmetics hub. Opens from the lobby hotbar item or /cosmetics command.
- * Three navigation buttons lead to sub-GUIs:
+ * Four navigation buttons lead to sub-GUIs:
  *  • Armor Trims  (existing CosmeticsGui)
  *  • Shield       (new ShieldCosmeticsGui)
+ *  • Lobby Items  (new LobbyItemsGui)
  *  • Kill Effects (new KillEffectGui)
  */
 public class CosmeticsHubGui extends GUI {
@@ -33,9 +35,10 @@ public class CosmeticsHubGui extends GUI {
     private static final ItemStack FILLER_ITEM = GUIFile.getGuiItem("GENERAL-FILLER-ITEM").get();
 
     private static final int ROWS           = 3;
-    private static final int TRIMS_SLOT     = 11;
-    private static final int SHIELD_SLOT    = 13;
-    private static final int KILL_EFF_SLOT  = 15;
+    private static final int TRIMS_SLOT       = 10;
+    private static final int SHIELD_SLOT      = 12;
+    private static final int LOBBY_ITEMS_SLOT = 14;
+    private static final int KILL_EFF_SLOT    = 16;
 
     private final Profile profile;
 
@@ -59,6 +62,7 @@ public class CosmeticsHubGui extends GUI {
 
         inv.setItem(TRIMS_SLOT,    buildTrimsButton());
         inv.setItem(SHIELD_SLOT,   buildShieldButton());
+        inv.setItem(LOBBY_ITEMS_SLOT, buildLobbyItemsButton());
         inv.setItem(KILL_EFF_SLOT, buildKillEffectButton());
 
         updatePlayers();
@@ -73,6 +77,7 @@ public class CosmeticsHubGui extends GUI {
         switch (slot) {
             case TRIMS_SLOT -> new ArmorTrimMainGui(profile, this).open(player);
             case SHIELD_SLOT -> new ShieldLayoutListGui(profile, this).open(player);
+            case LOBBY_ITEMS_SLOT -> new LobbyItemsGui(profile, this).open(player);
             case KILL_EFF_SLOT -> new DeathEffectsGui(profile, this).open(player);
         }
     }
@@ -133,6 +138,26 @@ public class CosmeticsHubGui extends GUI {
         GUIItem item = new GUIItem(name, mat, finalLore);
         item.setGlowing(GUIFile.getConfig().getBoolean(
                 "GUIS.COSMETICS.HUB.BUTTONS.KILL-EFFECTS.GLOW", false));
+        return item.get();
+    }
+
+    private ItemStack buildLobbyItemsButton() {
+        String name = GUIFile.getConfig().getString(
+                "GUIS.COSMETICS.HUB.BUTTONS.LOBBY-ITEMS.NAME", "&b✦ Lobby Items");
+        Material mat = safeMaterial(
+                GUIFile.getConfig().getString("GUIS.COSMETICS.HUB.BUTTONS.LOBBY-ITEMS.MATERIAL"),
+                Material.ELYTRA);
+        List<String> lore = getOrDefaultLore("GUIS.COSMETICS.HUB.BUTTONS.LOBBY-ITEMS.LORE",
+                List.of("&7Select movement cosmetics", "&7for your lobby loadout."));
+
+        CosmeticsData.LobbyItemType active = profile.getCosmeticsData().getLobbyItemType();
+        List<String> finalLore = new ArrayList<>(lore);
+        finalLore.add("");
+        finalLore.add("&7Active item: &e" + formatName(active == null ? "NONE" : active.name()));
+
+        GUIItem item = new GUIItem(name, mat, finalLore);
+        item.setGlowing(GUIFile.getConfig().getBoolean(
+                "GUIS.COSMETICS.HUB.BUTTONS.LOBBY-ITEMS.GLOW", false));
         return item.get();
     }
 

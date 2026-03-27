@@ -31,20 +31,27 @@ public class RewardCommandManager {
 
     public void executeCommands(Duel duel, boolean ranked) {
         if (duel.getMatchWinner() != null && this.winnerCommand.containsKey(ranked)) {
+            String opponent = duel.getLoser() != null ? duel.getLoser().getName() : "";
             for (String command : this.winnerCommand.get(ranked)) {
                 if (!command.isEmpty()) {
-                    ServerManager.runConsoleCommand(command.replace("%player%", duel.getMatchWinner().getName()));
+                    ServerManager.runConsoleCommand(command
+                            .replace("%player%", duel.getMatchWinner().getName())
+                            .replace("%opponent%", opponent)
+                    );
                 }
             }
         }
 
         if (duel.getLoser() != null && this.loserCommand.containsKey(ranked)) {
+            String opponent = duel.getMatchWinner() != null ? duel.getMatchWinner().getName() : "";
             for (String command : this.loserCommand.get(ranked)) {
                 if (!command.isEmpty()) {
-                    ServerManager.runConsoleCommand(command.replace("%player%", duel.getLoser().getName()));
+                    ServerManager.runConsoleCommand(command
+                            .replace("%player%", duel.getLoser().getName())
+                            .replace("%opponent%", opponent)
+                    );
                 }
             }
         }
     }
-
 }

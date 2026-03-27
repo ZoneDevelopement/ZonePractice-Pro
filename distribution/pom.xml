@@ -10,11 +10,11 @@
     <parent>
         <groupId>dev.nandi0813</groupId>
         <artifactId>practice-parent</artifactId>
-        <version>7.2.0-SNAPSHOT</version>
+        <version>7.3.0-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <maven.compiler.release>8</maven.compiler.release>
+        <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Use repository root for profile copy targets, even when running from this module -->
         <repo.root>${maven.multiModuleProjectDirectory}</repo.root>
@@ -27,17 +27,31 @@
             <version>${project.parent.version}</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- Ensure database drivers are shaded into the distribution JAR -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>6.3.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>3.5.6</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <defaultGoal>clean install</defaultGoal>
-        <finalName>ZonePractice Pro v7.2.0-SNAPSHOT</finalName>
+        <finalName>ZonePracticePro-${project.version}</finalName>
 
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -45,14 +59,26 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <minimizeJar>false</minimizeJar>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
 
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>org.intellij</exclude>
-                                    <exclude>org.jetbrains</exclude>
-                                </excludes>
-                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/maven/**</exclude>
+                                        <exclude>META-INF/proguard/**</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>**/module-info.class</exclude>
+                                        <exclude>org/intellij/**</exclude>
+                                        <exclude>org/jetbrains/**</exclude>
+                                        <exclude>org/jspecify/**</exclude>
+                                        <exclude>**/.DS_Store</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
 
                             <relocations>
                                 <relocation>
@@ -75,6 +101,18 @@
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>dev.nandi0813.practice.dependencies.bstats</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>dev.faststats</pattern>
+                                    <shadedPattern>dev.nandi0813.practice.dependencies.faststats</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>dev.nandi0813.practice.dependencies.asm</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.zaxxer.hikari</pattern>
+                                    <shadedPattern>dev.nandi0813.practice.dependencies.hikari</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
@@ -88,7 +126,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.42</version>
+                            <version>1.18.44</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

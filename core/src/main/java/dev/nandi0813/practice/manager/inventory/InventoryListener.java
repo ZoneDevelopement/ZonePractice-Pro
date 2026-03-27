@@ -1,33 +1,40 @@
 package dev.nandi0813.practice.manager.inventory;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.inventory.inventories.StaffInventory;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.InvItem;
+import dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.QueueInvItem;
+import dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.UnrankedInvItem;
 import dev.nandi0813.practice.manager.inventory.inventoryitem.staffitems.CheckInventoryInvItem;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsData;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.server.WorldEnum;
 import dev.nandi0813.practice.util.Common;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 public class InventoryListener implements Listener {
 
@@ -35,6 +42,26 @@ public class InventoryListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractWithInvItem(PlayerInteractEvent e) {
+        if (e.getHand() == EquipmentSlot.OFF_HAND) {
+            Action action = e.getAction();
+            if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+                ItemStack offHand = e.getPlayer().getInventory().getItemInOffHand();
+                if (isTaggedCosmetic(offHand)
+                        && InventoryManager.getInstance().getLobbyCosmeticType(offHand) == CosmeticsData.LobbyItemType.WIND_CHARGE) {
+                    ItemStack mainHand = e.getPlayer().getInventory().getItemInMainHand();
+                    if (!mainHand.getType().isAir() && !isTaggedCosmetic(mainHand)) {
+                        e.setCancelled(true);
+                        e.setUseItemInHand(Event.Result.DENY);
+                    }
+                }
+            }
+            return;
+        }
+
+        if (e.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
@@ -76,6 +103,7 @@ public class InventoryListener implements Listener {
 
         if (invItem != null) {
             e.setCancelled(true);
+            e.setUseItemInHand(Event.Result.DENY);
             invItem.handleClickEvent(player);
         }
     }
@@ -132,7 +160,7 @@ public class InventoryListener implements Listener {
             if (itemInHand.getType() == Material.AIR || !itemInHand.hasItemMeta()) return;
 
             InvItem heldInvItem = inventory.getInvItem(Common.getItemDisplayName(itemInHand), itemInHand.getType());
-            if (!(heldInvItem instanceof dev.nandi0813.practice.manager.inventory.inventoryitem.lobbyitems.UnrankedInvItem))
+            if (!(heldInvItem instanceof UnrankedInvItem) && !(heldInvItem instanceof QueueInvItem))
                 return;
 
             e.setCancelled(true);
@@ -195,6 +223,13 @@ public class InventoryListener implements Listener {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         ProfileStatus profileStatus = profile.getStatus();
 
+        ItemStack currentItem = e.getCurrentItem();
+        ItemStack cursorItem = e.getCursor();
+        if (isTaggedCosmetic(currentItem) || isTaggedCosmetic(cursorItem)) {
+            e.setCancelled(true);
+            return;
+        }
+
         if (isLobbyStatus(profileStatus)) {
             if (!isLobbyProtectionAllowed("allow-inventory-interact") && !player.hasPermission("zpp.admin")) {
                 e.setCancelled(true);
@@ -213,6 +248,12 @@ public class InventoryListener implements Listener {
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent e) {
         Player player = e.getPlayer();
+
+        if (isTaggedCosmetic(e.getItemDrop().getItemStack())) {
+            e.setCancelled(true);
+            return;
+        }
+
         Profile profile = ProfileManager.getInstance().getProfile(player);
         ProfileStatus profileStatus = profile.getStatus();
 
@@ -321,6 +362,12 @@ public class InventoryListener implements Listener {
     @EventHandler
     public void onItemSwitchHand(PlayerSwapHandItemsEvent e) {
         Player player = e.getPlayer();
+
+        if (isTaggedCosmetic(e.getMainHandItem()) || isTaggedCosmetic(e.getOffHandItem())) {
+            e.setCancelled(true);
+            return;
+        }
+
         if (player.isOp() || player.hasPermission("*")) return;
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
@@ -334,6 +381,102 @@ public class InventoryListener implements Listener {
 
     private boolean isLobbyStatus(ProfileStatus profileStatus) {
         return profileStatus == ProfileStatus.LOBBY;
+    }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent e) {
+        for (ItemStack itemStack : e.getNewItems().values()) {
+            if (isTaggedCosmetic(itemStack)) {
+                e.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPrepareCraft(PrepareItemCraftEvent e) {
+        for (ItemStack matrixItem : e.getInventory().getMatrix()) {
+            if (isTaggedCosmetic(matrixItem)) {
+                e.getInventory().setResult(null);
+                return;
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onLobbyWindChargeLaunch(ProjectileLaunchEvent e) {
+        if (!(e.getEntity().getShooter() instanceof Player player)) {
+            return;
+        }
+
+        if (!"WIND_CHARGE".equals(e.getEntityType().name())) {
+            return;
+        }
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null || !InventoryManager.getInstance().isLobbyCosmeticsState(profile)) {
+            return;
+        }
+
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> InventoryManager.getInstance().applyLobbyCosmetics(player));
+    }
+
+    @EventHandler
+    public void onLobbyTridentBoost(PlayerInteractEvent event) {
+        Action action = event.getAction();
+        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        ItemStack item = event.getItem();
+
+        // 1. Alap ellenőrzések
+        if (item == null || item.getType() != Material.TRIDENT || !isTaggedCosmetic(item)) {
+            return;
+        }
+
+        // 2. Típus ellenőrzése
+        CosmeticsData.LobbyItemType itemType = InventoryManager.getInstance().getLobbyCosmeticType(item);
+        if (itemType != CosmeticsData.LobbyItemType.TRIDENT) {
+            return;
+        }
+
+        // 3. Profil és státusz ellenőrzése
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null || !InventoryManager.getInstance().isLobbyCosmeticsState(profile)) {
+            return;
+        }
+
+        // 4. Cooldown ellenőrzése
+        if (player.hasCooldown(Material.TRIDENT)) {
+            event.setCancelled(true);
+            return;
+        }
+
+        // Itt nem cancel-öljük egyből az eventet, hogy a Riptide animáció el tudjon indulni.
+        // Ehelyett a Riptide fogja feldobni, mi pedig adunk rá egy extra lökőerőt.
+
+        Vector direction = player.getLocation().getDirection();
+        Vector velocity = direction.multiply(2.5).setY(1.2);
+
+        player.setVelocity(velocity);
+        //player.getWorld().playSound(player.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_3, 1.0f, 1.0f);
+
+        // Elindítjuk a Riptide animációt (20 tick = 1 másodperc)
+        player.startRiptideAttack(20, 2.5f, item);
+        player.setCooldown(Material.TRIDENT, 12);
+
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
+            InventoryManager.getInstance().applyLobbyCosmetics(player));
+    }
+
+    private boolean isTaggedCosmetic(ItemStack itemStack) {
+        return InventoryManager.getInstance().isLobbyCosmeticItem(itemStack);
     }
 
     private boolean isLobbyProtectionAllowed(String setting) {

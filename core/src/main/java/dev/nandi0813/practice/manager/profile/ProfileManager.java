@@ -2,8 +2,10 @@ package dev.nandi0813.practice.manager.profile;
 
 import dev.nandi0813.api.Event.NewPlayerJoin;
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.backend.MysqlManager;
 import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.gui.guis.profile.ProfileSettingsGui;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StartUpCallback;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -13,10 +15,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class ProfileManager {
 
@@ -105,7 +105,14 @@ public class ProfileManager {
                 }
             }
 
-            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), startUpCallback::onLoadingDone);
+            Collection<Profile> loadedProfiles = ProfileManager.getInstance().getProfiles().values();
+            CompletableFuture<Void> loadFuture = MysqlManager.loadProfilesAsync(loadedProfiles);
+            loadFuture.whenComplete((ignored, throwable) -> {
+                if (throwable != null) {
+                    Common.sendConsoleMMMessage("<red>Error: " + throwable.getMessage());
+                }
+                Bukkit.getScheduler().runTask(ZonePractice.getInstance(), startUpCallback::onLoadingDone);
+            });
         });
     }
 

@@ -67,6 +67,7 @@ public abstract class Round extends BukkitRunnable {
     }
 
     public void startRound() {
+        this.match.clearRoundDeathCauses();
         this.roundStartRunnable = new RoundStartRunnable(this).begin();
 
         for (Player player : match.getPlayers()) {
@@ -117,10 +118,9 @@ public abstract class Round extends BukkitRunnable {
             }
         } else if (needsReset) {
             // Non-ending round that requires an arena rollback.
-            // resetMap fires startNextRound() only after every block is restored.
-            // suppressNextRound=true so the runnable doesn't also call startNextRound().
-            this.roundEndRunnable = new RoundEndRunnable(this, false, true).begin();
-            this.match.resetMap(this.match::startNextRound);
+            // Delay rollback until after ROUND_END_DELAY so death effects/titles stay visible.
+            // suppressNextRound=true because rollback callback will start the next round.
+            this.roundEndRunnable = new RoundEndRunnable(this, false, true, true).begin();
         } else {
             // Non-ending round, no reset needed — start the next round immediately.
             this.roundEndRunnable = new RoundEndRunnable(this, false).begin();

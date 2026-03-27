@@ -116,7 +116,10 @@ public class LadderTypeConfig {
                 SettingType.WEIGHT_CLASS,
                 SettingType.ROUNDS,
                 SettingType.MAX_DURATION,
-                SettingType.START_COUNTDOWN
+                SettingType.START_COUNTDOWN,
+                SettingType.ROUND_END_DELAY,
+                SettingType.ROUND_STATUS_TITLES,
+                SettingType.COUNTDOWN_TITLES
         );
     }
 

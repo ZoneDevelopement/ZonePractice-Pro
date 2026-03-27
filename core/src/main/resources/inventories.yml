@@ -1,4 +1,4 @@
-VERSION: 2
+VERSION: 3
 
 #
 # Spawn inventories
@@ -6,6 +6,11 @@ VERSION: 2
 #
 LOBBY-BASIC:
   NORMAL:
+    QUEUE:
+      SLOT: 0
+      ITEM:
+        NAME: "&6Queue &7(Right-Click)"
+        MATERIAL: GOLDEN_SWORD
     UNRANKED:
       SLOT: 0
       ITEM:
@@ -18,7 +23,7 @@ LOBBY-BASIC:
         NAME: "&cRanked Queue &7(Right-Click)"
         MATERIAL: IRON_SWORD
     COSMETICS:
-      SLOT: 2
+      SLOT: 4
       ITEM:
         NAME: "&dCosmetics Hub &7(Right-Click)"
         MATERIAL: NETHER_STAR
@@ -34,17 +39,17 @@ LOBBY-BASIC:
         FLAGS:
           - "HIDE_ENCHANTS"
     ENABLE-SPECTATE-MODE:
-      SLOT: 3
+      SLOT: -1
       ITEM:
         NAME: "&aEnable &eSpectate Mode &7(Right-Click)"
         MATERIAL: REDSTONE_TORCH
     PARTY-CREATE:
-      SLOT: 4
+      SLOT: 7
       ITEM:
         NAME: "&dCreate Party &7(Right-Click)"
         MATERIAL: NAME_TAG
     SETTINGS:
-      SLOT: 7
+      SLOT: -1
       ITEM:
         NAME: "&aSettings &7(Right-Click)"
         MATERIAL: CLOCK
@@ -59,22 +64,22 @@ LOBBY-BASIC:
         NAME: "&6Kit Editor &7(Right-Click)"
         MATERIAL: BOOK
     SETUP:
-      SLOT: 5
+      SLOT: -1
       ITEM:
         NAME: "&cManage Server &7(Right-Click)"
         MATERIAL: REDSTONE
     STAFF-MODE:
-      SLOT: 5
+      SLOT: -1
       ITEM:
         NAME: "&aEnable &dStaff Mode &7(Right-Click)"
         MATERIAL: PINK_DYE
     REMATCH:
-      SLOT: 3
+      SLOT: 4
       ITEM:
         NAME: "&6Rematch &7(Right-Click)"
         MATERIAL: BLAZE_POWDER
     STATISTICS:
-      SLOT: 6
+      SLOT: -1
       ITEM:
         NAME: "&2Statistics &7(Right-Click)"
         MATERIAL: EMERALD

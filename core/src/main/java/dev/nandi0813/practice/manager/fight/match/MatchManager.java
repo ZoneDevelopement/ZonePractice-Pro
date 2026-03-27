@@ -1,7 +1,5 @@
 package dev.nandi0813.practice.manager.fight.match;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
 import dev.nandi0813.practice.manager.fight.belowname.BelowNameManager;
@@ -56,12 +54,29 @@ public class MatchManager {
 
         Bukkit.getPluginManager().registerEvents(new LadderTypeListener(), practice);
 
+
         this.belowNameManager = BelowNameManager.getInstance();
-        PacketEvents.getAPI().getEventManager().registerListener(this.belowNameManager, PacketListenerPriority.NORMAL);
+        // PacketEvents.getAPI().getEventManager().registerListener(this.belowNameManager, PacketListenerPriority.NORMAL);
     }
 
     public Match getLiveMatchByPlayer(Player player) {
-        return this.playerMatches.getOrDefault(player, null);
+        Match match = this.playerMatches.get(player);
+        if (match != null) {
+            return match;
+        }
+
+        // Recover from stale Player-object keys by resolving via UUID.
+        UUID playerUuid = player.getUniqueId();
+        for (Match liveMatch : this.liveMatches) {
+            for (Player livePlayer : liveMatch.getPlayers()) {
+                if (playerUuid.equals(livePlayer.getUniqueId())) {
+                    this.playerMatches.put(player, liveMatch);
+                    return liveMatch;
+                }
+            }
+        }
+
+        return null;
     }
 
     public Match getLiveMatchBySpectator(Player spectator) {

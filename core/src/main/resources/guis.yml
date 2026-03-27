@@ -1,4 +1,4 @@
-VERSION: 23
+VERSION: 29
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1154,6 +1154,26 @@ GUIS:
           - ""
           - "&eClick to queue immediately"
           - "&8&m------------------------"
+      SWITCH-TO-RANKED:
+        NAME: "&cSwitch to Ranked"
+        MATERIAL: IRON_SWORD
+        LORE:
+          - "&8&m------------------------"
+          - "&7Switch to the ranked"
+          - "&7queue selector"
+          - ""
+          - "&eClick to switch"
+          - "&8&m------------------------"
+      CUSTOM-KIT-QUEUE:
+        NAME: "&6&lCustom Kit Queue"
+        MATERIAL: BOOK
+        LORE:
+          - "&8&m------------------------"
+          - "&7Host your own custom kit"
+          - "&7or join someone else's"
+          - ""
+          - "&eClick to open"
+          - "&8&m------------------------"
       LADDER:
         NAME: "%ladder%"
         LORE: # Options: %elo%, %win%, %kills%, %deaths%, %win_streak%, %best_win_streak%, %lose_streak%, %best_lose_streak%
@@ -1219,6 +1239,26 @@ GUIS:
           - ""
           - "&eClick to queue immediately"
           - "&8&m------------------------"
+      SWITCH-TO-UNRANKED:
+        NAME: "&aSwitch to Unranked"
+        MATERIAL: WOODEN_SWORD
+        LORE:
+          - "&8&m------------------------"
+          - "&7Switch to the unranked"
+          - "&7queue selector"
+          - ""
+          - "&eClick to switch"
+          - "&8&m------------------------"
+      CUSTOM-KIT-QUEUE:
+        NAME: "&6&lCustom Kit Queue"
+        MATERIAL: BOOK
+        LORE:
+          - "&8&m------------------------"
+          - "&7Host your own custom kit"
+          - "&7or join someone else's"
+          - ""
+          - "&eClick to open"
+          - "&8&m------------------------"
       LADDER:
         NAME: "%ladder%"
         LORE: # Options: %elo%, %win%, %kills%, %deaths%, %win_streak%, %best_win_streak%, %lose_streak%, %best_lose_streak%
@@ -1242,6 +1282,95 @@ GUIS:
         LORE:
           - ""
           - "&eThis ladder is &cdisabled&e."
+  CUSTOM-KIT-QUEUE:
+    CHOOSE-TYPE:
+      TITLE: "&8Custom Kit Queue"
+      SIZE: 3
+      SLOTS:
+        HOST-OWN: 11
+        JOIN-OTHERS: 15
+        BACK: 18
+      ICONS:
+        FILLER-ITEM:
+          NAME: " "
+          MATERIAL: BLACK_STAINED_GLASS_PANE
+        QUEUE-OWN-KIT:
+          NAME: "&aQueue Your Own Kit"
+          MATERIAL: WRITABLE_BOOK
+          LORE:
+            - "&8&m------------------------"
+            - "&7Select one of your saved"
+            - "&7custom kits and host it"
+            - ""
+            - "&eClick to continue"
+            - "&8&m------------------------"
+        QUEUE-OTHERS-KITS:
+          NAME: "&eQueue Others Kits"
+          MATERIAL: BOOK
+          LORE:
+            - "&8&m------------------------"
+            - "&7Join the first available"
+            - "&7hosted custom-kit queue"
+            - ""
+            - "&eClick to search"
+            - "&8&m------------------------"
+        BACK:
+          NAME: "&cBack"
+          MATERIAL: ARROW
+    HOST-SELECTOR:
+      TITLE: "&8Select Custom Kit To Host"
+      SIZE: 3
+      SLOTS:
+        BACK: 22
+        NO-KITS: 13
+        KIT-SLOTS:
+          - 10
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 16
+      ICONS:
+        FILLER-ITEM:
+          NAME: " "
+          MATERIAL: BLACK_STAINED_GLASS_PANE
+        NO-KITS:
+          NAME: "&cNo Saved Custom Kits"
+          MATERIAL: BARRIER
+          LORE:
+            - "&8&m------------------------"
+            - "&7Create and enable a custom kit"
+            - "&7first, then come back here."
+            - ""
+            - "&eUse custom kit editor"
+            - "&8&m------------------------"
+        BACK:
+          NAME: "&cBack"
+          MATERIAL: ARROW
+    QUEUE-OTHERS:
+      TITLE: "&8Join Custom Kit Queue"
+      SIZE: 3
+      SLOTS:
+        NO-HOSTED: 13
+        BACK: 22
+      ICONS:
+        FILLER-ITEM:
+          NAME: " "
+          MATERIAL: BLACK_STAINED_GLASS_PANE
+        NO-HOSTED:
+          NAME: "&cNo One Hosting"
+          MATERIAL: BARRIER
+          LORE:
+            - "&8&m------------------------"
+            - "&7There are no custom kit"
+            - "&7queues available at the moment."
+            - ""
+            - "&eWait for others to host"
+            - "&8&m------------------------"
+        BACK:
+          NAME: "&cBack"
+          MATERIAL: ARROW
   SPECTATOR-MENU:
     TITLE: "&8Spectator Menu - Page %page%"
     ICONS:
@@ -2270,6 +2399,55 @@ GUIS:
               - ""
               - "&a&lLEFT-CLICK &ato reduce the delay."
               - "&b&lRIGHT-CLICK &bto increase the delay."
+          ROUND-END-DELAY:
+            NAME: "&7Round End Delay: &6%roundEndDelay% sec"
+            MATERIAL: CLOCK
+            LORE:
+              - ""
+              - "&7Time to wait after a round ends before"
+              - "&7starting the next transition. Allows"
+              - "&7death effects to complete."
+              - ""
+              - "&a&lLEFT-CLICK &ato reduce the delay."
+              - "&b&lRIGHT-CLICK &bto increase the delay."
+          ROUND-STATUS-TITLES:
+            ENABLED:
+              NAME: "&7Round Status Titles: &aEnabled"
+              MATERIAL: WRITTEN_BOOK
+              LORE:
+                - ""
+                - "&7Shows green &aVICTORY! &7and red"
+                - "&cDEFEAT &7titles when a round ends."
+                - ""
+                - "&e&lClick here &7to &cdisable&7."
+            DISABLED:
+              NAME: "&7Round Status Titles: &cDisabled"
+              MATERIAL: WRITTEN_BOOK
+              LORE:
+                - ""
+                - "&7Shows green &aVICTORY! &7and red"
+                - "&cDEFEAT &7titles when a round ends."
+                - ""
+                - "&e&lClick here &7to &aenable&7."
+          COUNTDOWN-TITLES:
+            ENABLED:
+              NAME: "&7Countdown Titles: &aEnabled"
+              MATERIAL: CLOCK
+              LORE:
+                - ""
+                - "&7Displays &63, 2, 1, FIGHT! &7titles"
+                - "&7during the round start countdown."
+                - ""
+                - "&e&lClick here &7to &cdisable&7."
+            DISABLED:
+              NAME: "&7Countdown Titles: &cDisabled"
+              MATERIAL: CLOCK
+              LORE:
+                - ""
+                - "&7Displays &63, 2, 1, FIGHT! &7titles"
+                - "&7during the round start countdown."
+                - ""
+                - "&e&lClick here &7to &aenable&7."
           BOXING:
             NAME: "&7Boxing Strokes to Win: &6%boxingWinHits%"
             MATERIAL: LEVER
@@ -3066,6 +3244,16 @@ GUIS:
             - "&7Save multiple layouts."
             - ""
             - "&eClick to open."
+        LOBBY-ITEMS:
+          NAME: "&b✦ Lobby Items"
+          MATERIAL: ELYTRA
+          GLOW: false
+          LORE:
+            - ""
+            - "&7Choose your lobby movement"
+            - "&7cosmetic item loadout."
+            - ""
+            - "&eClick to open."
         KILL-EFFECTS:
           NAME: "&c✦ Death Effects"
           MATERIAL: BLAZE_POWDER
@@ -3076,6 +3264,49 @@ GUIS:
             - "&7plays when you kill someone."
             - ""
             - "&eClick to open."
+    LOBBY-ITEMS:
+      TITLE: "&8✦ Lobby Items"
+      NO-PERMISSION-MESSAGE: "<red>You don't have permission for this lobby cosmetic item!"
+      ENTRIES:
+        NONE:
+          NAME: "&7None"
+          MATERIAL: BARRIER
+          LORE:
+            - ""
+            - "&7Disable lobby movement cosmetics."
+            - ""
+            - "&7Status: %status%"
+            - ""
+        WIND_CHARGE:
+          NAME: "&bWind Charge"
+          MATERIAL: WIND_CHARGE
+          LORE:
+            - ""
+            - "&7Infinite lobby wind charge"
+            - "&7while you are in lobby states."
+            - ""
+            - "&7Status: %status%"
+            - ""
+        TRIDENT:
+          NAME: "&3Riptide Trident"
+          MATERIAL: TRIDENT
+          LORE:
+            - ""
+            - "&7Right-click with Trident in main hand"
+            - "&7to trigger riptide boost in lobby."
+            - ""
+            - "&7Status: %status%"
+            - ""
+        SPEAR:
+          NAME: "&5Lunge Spear"
+          MATERIAL: NETHERITE_SPEAR
+          LORE:
+            - ""
+            - "&7Right-click with Spear in main hand"
+            - "&7to trigger lunge dash in lobby."
+            - ""
+            - "&7Status: %status%"
+            - ""
     DEATH-EFFECTS:
       TITLE: "&8✦ Death Effects"
       NO-PERMISSION-MESSAGE: "<red>You don't have permission for this death effect!"

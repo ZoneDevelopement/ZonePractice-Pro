@@ -12,10 +12,20 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 public enum PlayerUtil {
     ;
+
+    private static void clearStuckArrows(Player player) {
+        try {
+            Method setArrowsInBody = player.getClass().getMethod("setArrowsInBody", int.class);
+            setArrowsInBody.invoke(player, 0);
+        } catch (Throwable ignored) {
+            // Older APIs may not expose arrow body count.
+        }
+    }
 
     public static void clearPlayer(Player player, boolean deleteInv, boolean fly, boolean entityCollide) {
         player.setFallDistance(0);
@@ -23,6 +33,7 @@ public enum PlayerUtil {
         player.setExp(0);
         player.setLevel(0);
         player.setFoodLevel(23);
+        clearStuckArrows(player);
         player.setGameMode(GameMode.SURVIVAL);
         player.setAllowFlight(fly);
         player.setFlying(fly);

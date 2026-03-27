@@ -1,6 +1,8 @@
 package dev.nandi0813.practice;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import dev.faststats.bukkit.BukkitMetrics;
+import dev.faststats.core.ErrorTracker;
 import dev.nandi0813.practice.command.arena.ArenaCommand;
 import dev.nandi0813.practice.command.event.EventCommand;
 import dev.nandi0813.practice.command.ffa.FFACommand;
@@ -40,11 +42,14 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
+import dev.nandi0813.practice.telemetry.bootstrap.TelemetryBootstrap;
+import dev.nandi0813.practice.telemetry.collector.TelemetryMatchListener;
+import dev.nandi0813.practice.telemetry.transport.ai.AiTrainingLogger;
+import dev.nandi0813.practice.telemetry.transport.regular.TelemetryLogger;
 import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import lombok.Getter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -55,6 +60,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ZonePractice extends JavaPlugin {
 
@@ -63,8 +69,6 @@ public final class ZonePractice extends JavaPlugin {
 
     @Getter
     private static ZonePractice instance;
-    @Getter
-    private static BukkitAudiences adventure;
     @Getter
     private static MiniMessage miniMessage;
     @Getter
@@ -75,10 +79,21 @@ public final class ZonePractice extends JavaPlugin {
     @Getter
     private static volatile boolean fullyLoaded = false;
 
+    // BStats
     private Metrics metrics;
+    private final AtomicBoolean telemetryListenerRegistered = new AtomicBoolean(false);
+
+    public static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
+    private final BukkitMetrics faststats_metrics = BukkitMetrics.factory()
+        .token("98d57804a89964439b95ebbe50247bd4")
+        .errorTracker(ERROR_TRACKER)
+        .debug(false)
+        .create(this);
 
     @Override
     public void onLoad() {
+        instance = this;
+
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().load();
     }
@@ -86,13 +101,14 @@ public final class ZonePractice extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        adventure = BukkitAudiences.create(this);
+
         miniMessage = MiniMessage.miniMessage();
         entityHider = new EntityHider(this, EntityHider.Policy.BLACKLIST);
         arenaCopyUtilListener = new ArenaCopyUtilListener();
 
         PacketEvents.getAPI().init();
         metrics = new Metrics(this, 16055);
+        faststats_metrics.ready();
 
         if (VersionChecker.getBukkitVersion() == null) {
             Common.sendConsoleMMMessage("<red>Unsupported server version! Please use 1.20.6 or 1.21.X");
@@ -103,6 +119,23 @@ public final class ZonePractice extends JavaPlugin {
         new SaveResource().saveResources(this);
 
         ConfigManager.createFile();
+        TelemetryBootstrap.initializeAsync()
+                .thenApply(regularEnabled -> regularEnabled || TelemetryBootstrap.isAiCollectionActive())
+                .thenAccept(enabled -> {
+                    if (!enabled) {
+                        return;
+                    }
+
+                    Bukkit.getScheduler().runTask(this, () -> {
+                        if (!isEnabled()) {
+                            return;
+                        }
+
+                        if (telemetryListenerRegistered.compareAndSet(false, true)) {
+                            Bukkit.getPluginManager().registerEvents(new TelemetryMatchListener(), this);
+                        }
+                    });
+                });
         LanguageManager.createFile(this);
         GUIFile.createFile(this);
         MysqlManager.openConnection();
@@ -197,13 +230,18 @@ public final class ZonePractice extends JavaPlugin {
         EventManager.getInstance().saveEventData();
         ArenaManager.getInstance().saveArenas();
         ProfileManager.getInstance().saveProfiles();
+        MysqlManager.saveProfilesBlocking(ProfileManager.getInstance().getProfiles().values());
         LadderManager.getInstance().saveLadders();
         SidebarManager.getInstance().close();
         InventoryManager.getInstance().setData();
-        if (adventure != null) adventure.close();
         if (metrics != null) metrics.shutdown();
+        faststats_metrics.shutdown();
         MysqlManager.closeConnection();
         BackendManager.save();
+
+        // Flush async telemetry writes at shutdown so completed matches are persisted.
+        TelemetryLogger.shutdown();
+        AiTrainingLogger.shutdown();
     }
 
     /**
