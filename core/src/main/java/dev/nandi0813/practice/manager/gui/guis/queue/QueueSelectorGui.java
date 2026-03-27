@@ -62,6 +62,13 @@ public abstract class QueueSelectorGui extends GUI {
     protected abstract boolean isValidLadder(NormalLadder ladder);
     protected abstract void onLadderClick(Player player, NormalLadder ladder);
 
+    protected void decoratePage(int pageId, Inventory inventory) {
+    }
+
+    protected boolean handleCustomTopInventoryClick(Player player, int rawSlot, InventoryView inventoryView, ItemStack item) {
+        return false;
+    }
+
     // -------------------------------------------------------------------------
     // Build / update lifecycle
     // -------------------------------------------------------------------------
@@ -109,7 +116,7 @@ public abstract class QueueSelectorGui extends GUI {
             return;
         }
 
-        int rows = Math.max(1, Math.min(6, ConfigManager.getInt(queuePath + ".SIZE")));
+        int rows = Math.clamp(ConfigManager.getInt(queuePath + ".SIZE"), 1, 6);
         ItemStack filler = GUIFile.getGuiItem(guiPath + ".ICONS.FILLER-ITEM").get();
         if (filler == null) {
             filler = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
@@ -330,6 +337,8 @@ public abstract class QueueSelectorGui extends GUI {
                 pageTemplates.put(slot, rawTemplate.get());
             }
         }
+
+        decoratePage(pageId, inventory);
     }
 
     private void applyLayoutFillers(Inventory inventory, ItemStack filler, int actualSize) {
@@ -516,6 +525,10 @@ public abstract class QueueSelectorGui extends GUI {
 
         if (item == null || item.getType() == Material.AIR) return;
         if (rawSlot >= inventoryView.getTopInventory().getSize()) return;
+
+        if (handleCustomTopInventoryClick(player, rawSlot, inventoryView, item)) {
+            return;
+        }
 
         if (selectorSlotToPage.containsKey(rawSlot)) {
             int targetPage = selectorSlotToPage.get(rawSlot);

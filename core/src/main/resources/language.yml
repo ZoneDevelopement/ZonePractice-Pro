@@ -1,4 +1,4 @@
-VERSION: 22
+VERSION: 25
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1339,6 +1339,17 @@ QUEUES:
     HIGH-PING: "<red>Your ping is too high for ranked queue."
     BANNED: "<red>You are banned from playing ranked matches. Reason: <yellow>%reason%"
     NO-REASON: "NULL"
+  CUSTOM:
+    NO-SAVED-KITS: "<red>You do not have any saved custom kits ready to host."
+    KIT-NOT-READY: "<red>This custom kit is not ready for queueing."
+    HOSTED: "<green>You are now hosting a custom queue with <yellow>%kit%<green>."
+    CANCELLED: "<yellow>You cancelled your hosted custom queue."
+    WAITING-FOR-HOST: "<yellow>Waiting in queue for someone to host a custom kit..."
+    SEARCH-CANCELLED: "<yellow>You left the custom-kit host queue."
+    SEARCHING-ACTIONBAR: "<yellow>Searching hosted custom kits... <gray>%elapsed%"
+    HOSTING-ACTIONBAR: "<yellow>Hosting custom kit <gold>%kit% <gray>%elapsed%"
+    JOINED: "<green>You joined <yellow>%player%<green>'s hosted queue using <yellow>%kit%<green>."
+    MATCH-FOUND: "<green><yellow>%player% <green>joined your hosted custom queue."
   QUEUE-START: "<green>You are now queued for %weightClass% %ladder%<green>."
   QUEUE-STOPPED: "<green>You are no longer queued for %weightClass% %ladder%<green>."
   LADDER-FROZEN: "<red>%ladder% ladder is no longer available."

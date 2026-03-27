@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.guis.customladder.EditorMenuGui;
 import dev.nandi0813.practice.manager.gui.guis.customladder.premadecustom.CustomLadderSelectorGui;
+import dev.nandi0813.practice.manager.gui.guis.queue.CustomKit.ChooseQueueTypeGui;
 import dev.nandi0813.practice.manager.gui.guis.queue.RankedGui;
 import dev.nandi0813.practice.manager.gui.guis.queue.UnrankedGui;
 import dev.nandi0813.practice.manager.gui.setup.ladder.LadderSetupManager;
@@ -91,6 +92,7 @@ public class LadderManager {
             LadderSetupManager.getInstance().loadGUIs();
             GUIManager.getInstance().addGUI(new UnrankedGui());
             GUIManager.getInstance().addGUI(new RankedGui());
+            GUIManager.getInstance().addGUI(new ChooseQueueTypeGui());
             GUIManager.getInstance().addGUI(new CustomLadderSelectorGui());
             GUIManager.getInstance().addGUI(new EditorMenuGui());
         });

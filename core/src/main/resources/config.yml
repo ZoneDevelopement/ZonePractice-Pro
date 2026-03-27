@@ -1,4 +1,4 @@
-VERSION: 40
+VERSION: 41
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -32,6 +32,8 @@ KNOCKBACK:
 # Queue settings
 QUEUE:
   UNRANKED:
+    CUSTOM-KIT:
+      ENABLED: true # If false, the custom kit queue feature is disabled and only shows filler items
     MAX-QUEUE-TIME: 300 # In sec.
     GUI-UPDATE-MINUTE: 2
     DIVISION-SEARCH:
@@ -96,6 +98,8 @@ QUEUE:
             - "BEDWARS"
             - "SKYWARS"
   RANKED:
+    CUSTOM-KIT:
+      ENTRY-ENABLED: true # If true, ranked selector also shows the custom-kit queue entry.
     MAX-QUEUE-TIME: 300 # In sec.
     GUI-UPDATE-MINUTE: 1
     DEFAULT-ELO: 1000

@@ -1,4 +1,4 @@
-VERSION: 23
+VERSION: 26
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1154,6 +1154,16 @@ GUIS:
           - ""
           - "&eClick to queue immediately"
           - "&8&m------------------------"
+      CUSTOM-KIT-QUEUE:
+        NAME: "&6&lCustom Kit Queue"
+        MATERIAL: BOOK
+        LORE:
+          - "&8&m------------------------"
+          - "&7Host your own custom kit"
+          - "&7or join someone else's"
+          - ""
+          - "&eClick to open"
+          - "&8&m------------------------"
       LADDER:
         NAME: "%ladder%"
         LORE: # Options: %elo%, %win%, %kills%, %deaths%, %win_streak%, %best_win_streak%, %lose_streak%, %best_lose_streak%
@@ -1219,6 +1229,16 @@ GUIS:
           - ""
           - "&eClick to queue immediately"
           - "&8&m------------------------"
+      CUSTOM-KIT-QUEUE:
+        NAME: "&6&lCustom Kit Queue"
+        MATERIAL: BOOK
+        LORE:
+          - "&8&m------------------------"
+          - "&7Host your own custom kit"
+          - "&7or join someone else's"
+          - ""
+          - "&eClick to open"
+          - "&8&m------------------------"
       LADDER:
         NAME: "%ladder%"
         LORE: # Options: %elo%, %win%, %kills%, %deaths%, %win_streak%, %best_win_streak%, %lose_streak%, %best_lose_streak%
@@ -1242,6 +1262,95 @@ GUIS:
         LORE:
           - ""
           - "&eThis ladder is &cdisabled&e."
+  CUSTOM-KIT-QUEUE:
+    CHOOSE-TYPE:
+      TITLE: "&8Custom Kit Queue"
+      SIZE: 3
+      SLOTS:
+        HOST-OWN: 11
+        JOIN-OTHERS: 15
+        BACK: 18
+      ICONS:
+        FILLER-ITEM:
+          NAME: " "
+          MATERIAL: BLACK_STAINED_GLASS_PANE
+        QUEUE-OWN-KIT:
+          NAME: "&aQueue Your Own Kit"
+          MATERIAL: WRITABLE_BOOK
+          LORE:
+            - "&8&m------------------------"
+            - "&7Select one of your saved"
+            - "&7custom kits and host it"
+            - ""
+            - "&eClick to continue"
+            - "&8&m------------------------"
+        QUEUE-OTHERS-KITS:
+          NAME: "&eQueue Others Kits"
+          MATERIAL: BOOK
+          LORE:
+            - "&8&m------------------------"
+            - "&7Join the first available"
+            - "&7hosted custom-kit queue"
+            - ""
+            - "&eClick to search"
+            - "&8&m------------------------"
+        BACK:
+          NAME: "&cBack"
+          MATERIAL: ARROW
+    HOST-SELECTOR:
+      TITLE: "&8Select Custom Kit To Host"
+      SIZE: 3
+      SLOTS:
+        BACK: 22
+        NO-KITS: 13
+        KIT-SLOTS:
+          - 10
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 16
+      ICONS:
+        FILLER-ITEM:
+          NAME: " "
+          MATERIAL: BLACK_STAINED_GLASS_PANE
+        NO-KITS:
+          NAME: "&cNo Saved Custom Kits"
+          MATERIAL: BARRIER
+          LORE:
+            - "&8&m------------------------"
+            - "&7Create and enable a custom kit"
+            - "&7first, then come back here."
+            - ""
+            - "&eUse custom kit editor"
+            - "&8&m------------------------"
+        BACK:
+          NAME: "&cBack"
+          MATERIAL: ARROW
+    QUEUE-OTHERS:
+      TITLE: "&8Join Custom Kit Queue"
+      SIZE: 3
+      SLOTS:
+        NO-HOSTED: 13
+        BACK: 22
+      ICONS:
+        FILLER-ITEM:
+          NAME: " "
+          MATERIAL: BLACK_STAINED_GLASS_PANE
+        NO-HOSTED:
+          NAME: "&cNo One Hosting"
+          MATERIAL: BARRIER
+          LORE:
+            - "&8&m------------------------"
+            - "&7There are no custom kit"
+            - "&7queues available at the moment."
+            - ""
+            - "&eWait for others to host"
+            - "&8&m------------------------"
+        BACK:
+          NAME: "&cBack"
+          MATERIAL: ARROW
   SPECTATOR-MENU:
     TITLE: "&8Spectator Menu - Page %page%"
     ICONS:

@@ -35,6 +35,8 @@ public enum GUIType {
 
     Queue_Unranked,
     Queue_Ranked,
+    Queue_CustomKitChooseType,
+    Queue_CustomKitHostSelector,
 
     Party_OtherParties,
     Party_Events,

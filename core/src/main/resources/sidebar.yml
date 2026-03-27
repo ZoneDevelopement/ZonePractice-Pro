@@ -1,4 +1,4 @@
-VERSION: 3
+VERSION: 4
 
 TITLE: "<gold><b>PRACTICE"
 LOBBY:
@@ -35,6 +35,31 @@ LOBBY:
     - ""
     - "<gold>play.zonepractice.com"
     - "<gray><st>---------------------"
+  CUSTOM-KIT-QUEUE:
+    HOSTING:
+      - "<gray><st>---------------------"
+      - "<white>Online: <gold>%onlinePlayers%"
+      - "<white>In Fights: <gold>%inFightPlayers%"
+      - "<white>In Queue: <gold>%inQueuePlayer%"
+      - "<gray><st>---------------------"
+      - "<gold>Custom Kit Host"
+      - "<white>Kit: <gold>%ladderDisplayName%"
+      - "<white>Time: <gold>%elapsedTime%"
+      - ""
+      - "<gold>play.zonepractice.com"
+      - "<gray><st>---------------------"
+    JOIN-SEARCH:
+      - "<gray><st>---------------------"
+      - "<white>Online: <gold>%onlinePlayers%"
+      - "<white>In Fights: <gold>%inFightPlayers%"
+      - "<white>In Queue: <gold>%inQueuePlayer%"
+      - "<gray><st>---------------------"
+      - "<gold>Custom Kit Queue"
+      - "<white>Searching: <gold>%ladderDisplayName%"
+      - "<white>Time: <gold>%elapsedTime%"
+      - ""
+      - "<gold>play.zonepractice.com"
+      - "<gray><st>---------------------"
   EVENT-QUEUE:
     IDLE:
       - "<gray><st>---------------------"
