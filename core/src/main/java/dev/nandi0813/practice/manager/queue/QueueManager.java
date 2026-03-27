@@ -3,6 +3,8 @@ package dev.nandi0813.practice.manager.queue;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.division.Division;
+import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
@@ -93,6 +95,26 @@ public class QueueManager implements Listener {
         }
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        if (!player.hasPermission("zpp.bypass.ranked.requirements")) {
+            Division requirement = DivisionManager.getInstance().getMinimumForRanked();
+            if (requirement != null && !DivisionManager.getInstance().meetsMinimumForRanked(profile)) {
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.RANKED.DIVISION-REQUIREMENT")
+                        .replace("%division_fullName%", requirement.getFullName())
+                        .replace("%division_shortName%", requirement.getShortName())
+                );
+
+                player.closeInventory();
+                return;
+            }
+        }
+
+        if (profile.getRankedLeft() <= 0 && !player.hasPermission("zpp.bypass.ranked.limit")) {
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.RANKED.NO-RANKED-LEFT"));
+            player.closeInventory();
+            return;
+        }
+
         if (profile.getRankedBan().isBanned()) {
             Common.sendMMMessage(player, LanguageManager.getString("QUEUES.RANKED.BANNED")
                     .replace("%banner%", profile.getRankedBan().getBanner() == null ? "Console" : profile.getRankedBan().getBanner().getPlayer().getName())

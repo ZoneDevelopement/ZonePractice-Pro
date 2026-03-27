@@ -5,11 +5,11 @@ import dev.nandi0813.practice.manager.division.Division;
 import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
-import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
-import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
+import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.queue.QueueManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.command.Command;
@@ -32,7 +32,7 @@ public class RankedCommand implements CommandExecutor {
 
         if (!player.hasPermission("zpp.bypass.ranked.requirements")) {
             Division requirement = DivisionManager.getInstance().getMinimumForRanked();
-            if (requirement != null && (requirement.getExperience() > profile.getStats().getExperience() || requirement.getWin() > profile.getStats().getGlobalWins())) {
+            if (requirement != null && !DivisionManager.getInstance().meetsMinimumForRanked(profile)) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.RANKED.DIVISION-REQUIREMENT")
                         .replace("%division_fullName%", requirement.getFullName())
                         .replace("%division_shortName%", requirement.getShortName())

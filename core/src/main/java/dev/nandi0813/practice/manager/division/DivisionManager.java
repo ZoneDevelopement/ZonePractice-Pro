@@ -135,6 +135,30 @@ public class DivisionManager extends ConfigFile implements Listener {
         return this.divisions.get(index - 1);
     }
 
+    public boolean meetsMinimumForRanked(final Profile profile) {
+        if (profile == null || this.minimumForRanked == null) {
+            return true;
+        }
+
+        int experience = profile.getStats().getExperience();
+        int wins = profile.getStats().getGlobalWins();
+        int elo = profile.getStats().getGlobalElo();
+
+        if (experience < this.minimumForRanked.getExperience()) {
+            return false;
+        }
+
+        if (this.COUNT_BY_WINS && wins < this.minimumForRanked.getWin()) {
+            return false;
+        }
+
+        if (this.COUNT_BY_ELO && elo < this.minimumForRanked.getElo()) {
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
     public void setData() {
     }
