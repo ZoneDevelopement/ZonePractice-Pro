@@ -52,6 +52,9 @@ public class LadderFile extends ConfigFile {
         config.set("settings.healthbelowname", ladder.isHealthBelowName());
         config.set("settings.resetbuildafterround", ladder.isResetBuildAfterRound());
         config.set("settings.breakallblocks", ladder.isBreakAllBlocks());
+        config.set("settings.roundenddelay", ladder.getRoundEndDelay());
+        config.set("settings.roundstatustitles", ladder.isRoundStatusTitles());
+        config.set("settings.countdowntitles", ladder.isCountdownTitles());
 
         if (ladder instanceof RespawnableLadder respawnableLadder) {
             config.set("settings.respawntime", respawnableLadder.getRespawnTime());
@@ -149,6 +152,23 @@ public class LadderFile extends ConfigFile {
         if (config.isBoolean("settings.breakallblocks")) {
             ladder.setBreakAllBlocks(config.getBoolean("settings.breakallblocks"));
         }
+
+        if (config.isInt("settings.roundenddelay")) {
+            int roundEndDelay = config.getInt("settings.roundenddelay");
+            if (roundEndDelay < 0 || roundEndDelay > 30) roundEndDelay = 3;
+            ladder.setRoundEndDelay(roundEndDelay);
+        } else
+            ladder.setRoundEndDelay(3);
+
+        if (config.isBoolean("settings.roundstatustitles")) {
+            ladder.setRoundStatusTitles(config.getBoolean("settings.roundstatustitles"));
+        } else
+            ladder.setRoundStatusTitles(true);
+
+        if (config.isBoolean("settings.countdowntitles")) {
+            ladder.setCountdownTitles(config.getBoolean("settings.countdowntitles"));
+        } else
+            ladder.setCountdownTitles(true);
 
         if (config.isInt("settings.hitdelay")) {
             int hitDelay = config.getInt("settings.hitdelay");

@@ -217,6 +217,15 @@ public class SettingsGui extends GUI {
 
         if (settingTypes.contains(SettingType.BLOCK_RETURN_DELAY))
             settingItems.add(new BlockReturnDelayItem(this, ladder));
+
+        if (settingTypes.contains(SettingType.ROUND_END_DELAY))
+            settingItems.add(new RoundEndDelayItem(this, ladder));
+
+        if (settingTypes.contains(SettingType.ROUND_STATUS_TITLES))
+            settingItems.add(new RoundStatusTitlesItem(this, ladder));
+
+        if (settingTypes.contains(SettingType.COUNTDOWN_TITLES))
+            settingItems.add(new CountdownTitlesItem(this, ladder));
     }
 
 }

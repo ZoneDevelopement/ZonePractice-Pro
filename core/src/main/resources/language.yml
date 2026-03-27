@@ -1,4 +1,4 @@
-VERSION: 25
+VERSION: 26
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1357,6 +1357,16 @@ QUEUES:
   NO-AVAILABLE-ARENA: "<red>Can't find available arena!"
   NO-MATCH-IN-TIME: "<red>We couldn't find a match in %maxTime% minutes."
 MATCH:
+  START-TITLES:
+    COUNTDOWN: "<red><bold>%remaining%"
+    FIGHT: "<gold><bold>Fight!"
+  END-TITLES:
+    MATCH:
+      VICTORY: "<green><bold>Victory!"
+      DEFEAT: "<red><bold>Defeat!"
+    ROUND:
+      VICTORY: "<green><bold>Victory!"
+      DEFEAT: "<red><bold>Defeat!"
   COOLDOWN:
     ENDER-PEARL: "<red>You cannot use this for another <yellow>%seconds% <red>%secondName%."
     GOLDEN-APPLE: "<red>You cannot eat another <gold>golden apple</gold> for another <yellow>%seconds% <red>%secondName%."

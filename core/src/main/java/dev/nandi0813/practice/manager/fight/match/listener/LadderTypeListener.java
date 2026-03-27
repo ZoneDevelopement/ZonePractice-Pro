@@ -459,18 +459,21 @@ public class LadderTypeListener implements Listener {
         RoundStatus roundStatus = match.getCurrentRound().getRoundStatus();
         BasicArena arena = match.getArena();
         Cuboid cuboid = arena.getCuboid();
+        boolean inRoundEndDelay = roundStatus.equals(RoundStatus.END) && match.getLadder().getRoundEndDelay() > 0;
+        boolean allowEndDelayTeleport = !inRoundEndDelay || match.wasLastDeathVoid(player);
 
         if ((match.getCurrentStat(player).isSet() || match.getCurrentRound().getTempKill(player) != null) && !arena.getCuboid().contains(e.getTo())) {
             if (roundStatus.equals(RoundStatus.LIVE))
                 player.teleport(arena.getCuboid().getCenter());
-            else
+            else if (allowEndDelayTeleport)
                 match.teleportPlayer(player);
 
             return;
         }
 
         if (!roundStatus.equals(RoundStatus.LIVE) && !arena.getCuboid().contains(e.getTo())) {
-            match.teleportPlayer(player);
+            if (allowEndDelayTeleport)
+                match.teleportPlayer(player);
             return;
         }
 

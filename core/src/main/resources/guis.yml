@@ -1,4 +1,4 @@
-VERSION: 26
+VERSION: 27
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -2379,6 +2379,55 @@ GUIS:
               - ""
               - "&a&lLEFT-CLICK &ato reduce the delay."
               - "&b&lRIGHT-CLICK &bto increase the delay."
+          ROUND-END-DELAY:
+            NAME: "&7Round End Delay: &6%roundEndDelay% sec"
+            MATERIAL: CLOCK
+            LORE:
+              - ""
+              - "&7Time to wait after a round ends before"
+              - "&7starting the next transition. Allows"
+              - "&7death effects to complete."
+              - ""
+              - "&a&lLEFT-CLICK &ato reduce the delay."
+              - "&b&lRIGHT-CLICK &bto increase the delay."
+          ROUND-STATUS-TITLES:
+            ENABLED:
+              NAME: "&7Round Status Titles: &aEnabled"
+              MATERIAL: WRITTEN_BOOK
+              LORE:
+                - ""
+                - "&7Shows green &aVICTORY! &7and red"
+                - "&cDEFEAT &7titles when a round ends."
+                - ""
+                - "&e&lClick here &7to &cdisable&7."
+            DISABLED:
+              NAME: "&7Round Status Titles: &cDisabled"
+              MATERIAL: WRITTEN_BOOK
+              LORE:
+                - ""
+                - "&7Shows green &aVICTORY! &7and red"
+                - "&cDEFEAT &7titles when a round ends."
+                - ""
+                - "&e&lClick here &7to &aenable&7."
+          COUNTDOWN-TITLES:
+            ENABLED:
+              NAME: "&7Countdown Titles: &aEnabled"
+              MATERIAL: CLOCK
+              LORE:
+                - ""
+                - "&7Displays &63, 2, 1, FIGHT! &7titles"
+                - "&7during the round start countdown."
+                - ""
+                - "&e&lClick here &7to &cdisable&7."
+            DISABLED:
+              NAME: "&7Countdown Titles: &cDisabled"
+              MATERIAL: CLOCK
+              LORE:
+                - ""
+                - "&7Displays &63, 2, 1, FIGHT! &7titles"
+                - "&7during the round start countdown."
+                - ""
+                - "&e&lClick here &7to &aenable&7."
           BOXING:
             NAME: "&7Boxing Strokes to Win: &6%boxingWinHits%"
             MATERIAL: LEVER
