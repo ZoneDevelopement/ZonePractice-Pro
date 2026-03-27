@@ -116,7 +116,7 @@ public class LobbyItemsGui extends GUI {
     }
 
     private ItemStack buildOptionItem(CosmeticsData.LobbyItemType type, CosmeticsData.LobbyItemType selected, Player player) {
-        boolean unlocked = player == null || CosmeticsPermissionManager.hasLobbyItemPermission(player, type);
+        boolean unlocked = player != null && CosmeticsPermissionManager.hasLobbyItemPermission(player, type);
         boolean active = type == selected;
 
         String basePath = "GUIS.COSMETICS.LOBBY-ITEMS.ENTRIES." + type.name();
