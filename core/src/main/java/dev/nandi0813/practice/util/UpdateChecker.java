@@ -8,8 +8,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,9 @@ public enum UpdateChecker {
 
     private static final String API_URL =
             "https://api.github.com/repos/" + GITHUB_REPO + "/releases";
+
+    private static final String TAGS_API_URL =
+            "https://api.github.com/repos/" + GITHUB_REPO + "/tags";
 
     // ------------------------------------------------------------------ state
 
@@ -94,8 +99,8 @@ public enum UpdateChecker {
 
             } catch (Exception e) {
                 checked = true;
-                plugin.getLogger().log(Level.WARNING,
-                        "[ZonePractice] Update check failed: " + e.getMessage());
+                Common.sendConsoleMMMessage("<gray>[ZonePractice] <yellow>Update check failed: <red>" + e.getMessage());
+                plugin.getLogger().log(Level.FINE, "[ZonePractice] Update check exception details:", e);
             }
         });
     }
@@ -156,31 +161,8 @@ public enum UpdateChecker {
      * Fetches the list of release tag names from GitHub, newest-first.
      */
     private static List<String> fetchReleaseVersions() throws Exception {
-        URL url = new URL(API_URL + "?per_page=20&page=1");
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5_000);
-        conn.setReadTimeout(5_000);
-        conn.setRequestProperty("Accept", "application/vnd.github+json");
-        conn.setRequestProperty("X-GitHub-Api-Version", "2022-11-28");
-        conn.setRequestProperty("User-Agent", "ZonePractice-UpdateChecker");
-
+        JSONArray releases = fetchJsonArray(API_URL + "?per_page=20&page=1");
         List<String> versions = new ArrayList<>();
-
-        if (conn.getResponseCode() != 200) return versions;
-
-        StringBuilder response = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-        } finally {
-            conn.disconnect();
-        }
-
-        JSONArray releases = new JSONArray(response.toString());
         for (int i = 0; i < releases.length(); i++) {
             JSONObject release = releases.getJSONObject(i);
 
@@ -196,7 +178,51 @@ public enum UpdateChecker {
                 versions.add(tag);
             }
         }
+
+        // This repository may only publish pre-releases. Fall back to tags in that case.
+        if (versions.isEmpty()) {
+            JSONArray tags = fetchJsonArray(TAGS_API_URL + "?per_page=20&page=1");
+            for (int i = 0; i < tags.length(); i++) {
+                JSONObject tagObj = tags.getJSONObject(i);
+                String tag = tagObj.optString("name", "");
+                if (tag.startsWith("v") || tag.startsWith("V")) {
+                    tag = tag.substring(1);
+                }
+                if (!tag.isEmpty()) {
+                    versions.add(tag);
+                }
+            }
+        }
+
         return versions;
+    }
+
+    private static JSONArray fetchJsonArray(String endpoint) throws IOException {
+        URL url = URI.create(endpoint).toURL();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5_000);
+        conn.setReadTimeout(5_000);
+        conn.setRequestProperty("Accept", "application/vnd.github+json");
+        conn.setRequestProperty("X-GitHub-Api-Version", "2022-11-28");
+        conn.setRequestProperty("User-Agent", "ZonePractice-UpdateChecker");
+
+        if (conn.getResponseCode() != 200) {
+            conn.disconnect();
+            return new JSONArray();
+        }
+
+        StringBuilder response = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+        } finally {
+            conn.disconnect();
+        }
+
+        return new JSONArray(response.toString());
     }
 
     /**

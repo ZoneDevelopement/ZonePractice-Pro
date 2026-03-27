@@ -230,6 +230,7 @@ public final class ZonePractice extends JavaPlugin {
         EventManager.getInstance().saveEventData();
         ArenaManager.getInstance().saveArenas();
         ProfileManager.getInstance().saveProfiles();
+        MysqlManager.saveProfilesBlocking(ProfileManager.getInstance().getProfiles().values());
         LadderManager.getInstance().saveLadders();
         SidebarManager.getInstance().close();
         InventoryManager.getInstance().setData();

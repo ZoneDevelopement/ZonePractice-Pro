@@ -9,7 +9,7 @@ MYSQL-DATABASE:
     PORT: 3306
     DATABASE: zonepractice
     USER: root
-    PASSWORD: ""
+    PASSWORD: mysecretpassword
 
 TELEMETRY:
   ENABLED: true
