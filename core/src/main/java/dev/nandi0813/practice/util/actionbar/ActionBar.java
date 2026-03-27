@@ -32,7 +32,7 @@ public class ActionBar {
      */
     public void setMessage(String id, String text, int duration, ActionBarPriority priority) {
         Component component = ZonePractice.getMiniMessage().deserialize(text);
-        activeMessages.put(id, new ActionMessage(component, duration, priority));
+        activeMessages.put(id, new ActionMessage(component, duration, priority, System.nanoTime()));
 
         startRunnableIfNeeded();
         updateDisplay(); // Instantly update the screen
@@ -114,7 +114,15 @@ public class ActionBar {
 
         ActionMessage highest = null;
         for (ActionMessage msg : activeMessages.values()) {
-            if (highest == null || msg.getPriority().getWeight() > highest.getPriority().getWeight()) {
+            if (highest == null) {
+                highest = msg;
+                continue;
+            }
+
+            // For same-priority messages, always show the most recently updated one.
+            if (msg.getPriority().getWeight() > highest.getPriority().getWeight() ||
+                (msg.getPriority().getWeight() == highest.getPriority().getWeight() &&
+                 msg.getUpdatedAtNanos() > highest.getUpdatedAtNanos())) {
                 highest = msg;
             }
         }
@@ -137,11 +145,13 @@ public class ActionBar {
         private Component component;
         private int duration;
         private final ActionBarPriority priority;
+        private final long updatedAtNanos;
 
-        public ActionMessage(Component component, int duration, ActionBarPriority priority) {
+        public ActionMessage(Component component, int duration, ActionBarPriority priority, long updatedAtNanos) {
             this.component = component;
             this.duration = duration;
             this.priority = priority;
+            this.updatedAtNanos = updatedAtNanos;
         }
     }
 }

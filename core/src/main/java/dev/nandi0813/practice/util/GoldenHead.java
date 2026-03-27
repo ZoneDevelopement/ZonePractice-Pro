@@ -197,7 +197,7 @@ public class GoldenHead implements Listener {
                     "golden_head",
                     ConfigManager.getString("MATCH-SETTINGS.GOLDEN-HEAD.ACTION-BAR-COOLDOWN-MSG").replace("%remaining%", String.valueOf(remaining)),
                     2,
-                    ActionBarPriority.HIGH
+                    ActionBarPriority.HIGHEST
             );
 
         }, 0L, 20L);
