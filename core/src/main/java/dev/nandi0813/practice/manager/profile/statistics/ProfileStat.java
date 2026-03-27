@@ -20,6 +20,7 @@ public class ProfileStat {
     private final ProfileFile profileFile;
     private final YamlConfiguration config;
 
+    @Getter
     private final Map<NormalLadder, LadderStats> ladderStats = new HashMap<>();
 
     @Getter

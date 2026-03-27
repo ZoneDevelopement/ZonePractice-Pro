@@ -42,8 +42,6 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.*;
 
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
@@ -108,17 +106,7 @@ public enum LadderUtil {
         /*
          * Delete the ladder statistics from the mysql table.
          */
-        Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
-        {
-            if (!MysqlManager.isConnected(true)) return;
-
-            try (PreparedStatement stmt = MysqlManager.getConnection().prepareStatement("DELETE FROM ladder_stats WHERE ladder=?;")) {
-                stmt.setString(1, ladder.getName());
-                stmt.executeUpdate();
-            } catch (SQLException e) {
-                Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
-            }
-        });
+        MysqlManager.deleteLadderStatsAsync(ladder.getName());
     }
 
     public static void enableLadder(NormalLadder ladder) {

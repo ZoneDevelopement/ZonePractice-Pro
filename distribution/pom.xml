@@ -83,6 +83,10 @@
                                     <pattern>org.objectweb.asm</pattern>
                                     <shadedPattern>dev.nandi0813.practice.dependencies.asm</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>com.zaxxer.hikari</pattern>
+                                    <shadedPattern>dev.nandi0813.practice.dependencies.hikari</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
