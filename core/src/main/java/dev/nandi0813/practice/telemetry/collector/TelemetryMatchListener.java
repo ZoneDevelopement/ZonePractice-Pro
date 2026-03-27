@@ -226,8 +226,9 @@ public class TelemetryMatchListener implements Listener {
 
         for (Player player : match.getPlayers()) {
             UUID playerUuid = player.getUniqueId();
-            Player opponentPlayer = findOpponentPlayer(match.getPlayers(), player);
+            Player opponentPlayer = findOpponentPlayer(match, player);
             UUID opponentUuid = opponentPlayer != null ? opponentPlayer.getUniqueId() : null;
+            String opponentUsername = resolveOpponentUsername(opponentPlayer);
             AggregatedStat stat = aggregateByPlayer.getOrDefault(playerUuid, new AggregatedStat());
 
             Integer eloBefore = snapshot != null ? snapshot.eloByPlayer().get(playerUuid) : null;
@@ -243,7 +244,7 @@ public class TelemetryMatchListener implements Listener {
                     playerUuid,
                     player.getName(),
                     opponentUuid,
-                    opponentPlayer != null ? opponentPlayer.getName() : null,
+                    opponentUsername,
                     eloBefore,
                     eloAfter,
                     eloDelta,
@@ -355,18 +356,36 @@ public class TelemetryMatchListener implements Listener {
     }
 
 
-    private Player findOpponentPlayer(List<Player> players, Player player) {
+    private Player findOpponentPlayer(Match match, Player player) {
+        if (match instanceof Duel duel) {
+            return duel.getOppositePlayer(player);
+        }
+
+        List<Player> players = match.getPlayers();
         if (players.size() != 2) {
             return null;
         }
 
-        for (Player p : players) {
-            if (!p.equals(player)) {
-                return p;
+        for (Player currentPlayer : players) {
+            if (!currentPlayer.equals(player)) {
+                return currentPlayer;
             }
         }
 
         return null;
+    }
+
+    private String resolveOpponentUsername(Player opponentPlayer) {
+        if (opponentPlayer == null) {
+            return "unknown";
+        }
+
+        String opponentName = opponentPlayer.getName();
+        if (opponentName == null || opponentName.isBlank()) {
+            return "unknown";
+        }
+
+        return opponentName;
     }
 
 
