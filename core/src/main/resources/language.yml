@@ -1,4 +1,4 @@
-VERSION: 26
+VERSION: 27
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -36,7 +36,9 @@ COMMAND:
     RANKED:
       NO-RANKED-LEFT: "<red>You have already played all your allowed ranked matches."
       LADDER-NOT-FOUND: "<red>Ladder %ladder% not found."
-      DIVISION-REQUIREMENT: "<red>Your division has to be at least %division_fullName% <red>to play ranked matches."
+      PROGRESS-HEADER: "<gold><bold>Progress towards Ranked:"
+      PROGRESS-EXP: " <gray>• <white>Experience: <yellow>%current%<gray>/<yellow>%required% <green>(%percent%%<green>)"
+      PROGRESS-WINS: " <gray>• <white>Wins: <yellow>%current%<gray>/<yellow>%required% <green>(%percent%%<green>)"
   LEAVE:
     NOT-IN-MATCH: "<red>You are not in a match."
     CANT-LEAVE-DUEL-UNRANKED: "<red>You can't leave unranked duel matches."

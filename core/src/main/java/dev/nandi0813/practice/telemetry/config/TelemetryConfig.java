@@ -9,6 +9,7 @@ public enum TelemetryConfig {
     ;
 
     private static final String DEFAULT_BASE_ENDPOINT = "https://nandi0813.hu";
+    //private static final String DEFAULT_BASE_ENDPOINT = "http://localhost:8000";
     private static final String ACCESS_TOKEN = "c22afd81c269b86c3c479cf1941c4aba5b842afda8228ad3540dab20e014b746";
 
     private static final String REGULAR_ENABLED_PATH = "TELEMETRY.ENABLED";
@@ -18,6 +19,7 @@ public enum TelemetryConfig {
     private static final String MATCHES_PATH = "matches/";
     private static final String AI_MATCHES_PATH = "ai-training/matches/";
     private static final String STATS_ENABLED_PATH = "stats-enabled/";
+    private static final String PRACTICE_STATS_UPLOAD_PATH = "practice-stats/upload/";
 
     public static boolean isRegularEnabled() {
         return ConfigManager.getBoolean(REGULAR_ENABLED_PATH);
@@ -46,6 +48,10 @@ public enum TelemetryConfig {
 
     public static URI resolveStatsEnabledEndpoint() {
         return appendTelemetryPath(STATS_ENABLED_PATH);
+    }
+
+    public static URI resolvePracticeStatsUploadEndpoint() {
+        return appendTelemetryPath(PRACTICE_STATS_UPLOAD_PATH);
     }
 
     private static URI appendTelemetryPath(String suffix) {

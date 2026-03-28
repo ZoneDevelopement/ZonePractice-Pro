@@ -28,6 +28,7 @@ public enum TelemetryBootstrap {
 
     private static volatile boolean active;
     private static volatile boolean aiCollectionActive;
+    private static volatile boolean practiceStatsActive;
     private static volatile CompletableFuture<Boolean> initializationFuture;
 
     public static CompletableFuture<Boolean> initializeAsync() {
@@ -49,6 +50,7 @@ public enum TelemetryBootstrap {
             if (!regularEnabled && !aiEnabled) {
                 active = false;
                 aiCollectionActive = false;
+                practiceStatsActive = false;
                 resolved.set(true);
                 ZonePractice.getInstance().getLogger().info("Telemetry disabled in config (TELEMETRY.ENABLED and TELEMETRY.AI.ENABLED).");
                 initializationFuture = CompletableFuture.completedFuture(false);
@@ -59,6 +61,7 @@ public enum TelemetryBootstrap {
             if (statsEndpoint == null) {
                 active = false;
                 aiCollectionActive = false;
+                practiceStatsActive = false;
                 resolved.set(true);
                 ZonePractice.getInstance().getLogger().info("Telemetry disabled: endpoint is not configured.");
                 initializationFuture = CompletableFuture.completedFuture(false);
@@ -70,6 +73,7 @@ public enum TelemetryBootstrap {
                     .thenApply(result -> {
                         boolean receivingEnabled = false;
                         boolean aiRemoteEnabled = false;
+                        boolean practiceStatsRemoteEnabled = false;
 
                         if (!result.success()) {
                             ZonePractice.getInstance().getLogger().warning(
@@ -80,6 +84,7 @@ public enum TelemetryBootstrap {
                                 JSONObject jsonObject = new JSONObject(result.body);
                                 receivingEnabled = extractBoolean(jsonObject, "is_receiving_enabled", false);
                                 aiRemoteEnabled = extractBoolean(jsonObject, "is_ai_collection_enabled", false);
+                                practiceStatsRemoteEnabled = extractBoolean(jsonObject, "is_practice_stats_enabled", false);
                             } catch (Exception exception) {
                                 ZonePractice.getInstance().getLogger().warning(
                                         "Telemetry stats response parse failed (endpoint=" + statsEndpoint + ", body=" + result.body + ")"
@@ -89,6 +94,7 @@ public enum TelemetryBootstrap {
 
                         active = regularEnabled && receivingEnabled;
                         aiCollectionActive = aiEnabled && aiRemoteEnabled;
+                        practiceStatsActive = regularEnabled && practiceStatsRemoteEnabled;
                         resolved.set(true);
 
                         ZonePractice.getInstance().getLogger().info(
@@ -96,10 +102,12 @@ public enum TelemetryBootstrap {
                                         + " (localRegular=" + regularEnabled
                                         + ", localAi=" + aiEnabled
                                         + ", remoteRegular=" + receivingEnabled
-                                        + ", remoteAi=" + aiRemoteEnabled + ")"
+                                        + ", remoteAi=" + aiRemoteEnabled
+                                        + ", practiceStats=" + practiceStatsActive
+                                        + ", remotePracticeStats=" + practiceStatsRemoteEnabled + ")"
                         );
 
-                        return active || aiCollectionActive;
+                        return active || aiCollectionActive || practiceStatsActive;
                     });
             return initializationFuture;
         }
@@ -119,6 +127,10 @@ public enum TelemetryBootstrap {
 
     public static boolean isAiCollectionActive() {
         return resolved.get() && aiCollectionActive;
+    }
+
+    public static boolean isPracticeStatsActive() {
+        return resolved.get() && practiceStatsActive;
     }
 
     public static CompletableFuture<Boolean> fetchAiCollectionEnabledAsync() {

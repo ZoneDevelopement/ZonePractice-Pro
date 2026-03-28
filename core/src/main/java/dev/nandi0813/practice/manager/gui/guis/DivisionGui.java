@@ -3,7 +3,6 @@ package dev.nandi0813.practice.manager.gui.guis;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.division.Division;
 import dev.nandi0813.practice.manager.division.DivisionManager;
-import java.util.List;
 import dev.nandi0813.practice.manager.division.DivisionUtil;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
@@ -15,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 public class DivisionGui extends GUI {
 
@@ -86,6 +87,7 @@ public class DivisionGui extends GUI {
 
         List<Division> divisions = DivisionManager.getInstance().getDivisions();
         Division currentDivision = profile.getStats().getDivision();
+        Division minDivisionForRanked = DivisionManager.getInstance().getMinimumForRanked();
         int divisionIndex = divisions.indexOf(division);
         int currentIndex = currentDivision != null ? divisions.indexOf(currentDivision) : -1;
 
@@ -116,6 +118,13 @@ public class DivisionGui extends GUI {
             guiItem.setDamage(division.getIconDamage());
 
         guiItem = replacePlaceholders(guiItem, division);
+
+        // Add ranked requirement indicator
+        if (division == minDivisionForRanked) {
+            guiItem.replace("%is_ranked_requirement%", "<green>✓ <green>Unlocks Ranked");
+        } else {
+            guiItem.replace("%is_ranked_requirement%", "");
+        }
 
         return guiItem.get();
     }

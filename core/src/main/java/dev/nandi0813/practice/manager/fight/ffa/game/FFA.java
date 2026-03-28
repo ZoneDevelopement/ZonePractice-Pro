@@ -19,6 +19,7 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
+import dev.nandi0813.practice.telemetry.transport.stats.PracticeStatsTelemetryLogger;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
@@ -198,10 +199,14 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         }
 
         fightPlayers.get(player).die(deathMessage, statistics.get(player));
-        fightPlayers.get(player).getProfile().getStats().getLadderStat(players.get(player)).increaseDeaths();
+        Profile deadProfile = fightPlayers.get(player).getProfile();
+        deadProfile.getStats().getLadderStat(players.get(player)).increaseDeaths();
+        PracticeStatsTelemetryLogger.markDirty(deadProfile);
 
         if (killer != null) {
-            fightPlayers.get(killer).getProfile().getStats().getLadderStat(players.get(killer)).increaseKills();
+            Profile killerProfile = fightPlayers.get(killer).getProfile();
+            killerProfile.getStats().getLadderStat(players.get(killer)).increaseKills();
+            PracticeStatsTelemetryLogger.markDirty(killerProfile);
 
             playDeathEffect(killer, player);
 

@@ -46,6 +46,7 @@ import dev.nandi0813.practice.telemetry.bootstrap.TelemetryBootstrap;
 import dev.nandi0813.practice.telemetry.collector.TelemetryMatchListener;
 import dev.nandi0813.practice.telemetry.transport.ai.AiTrainingLogger;
 import dev.nandi0813.practice.telemetry.transport.regular.TelemetryLogger;
+import dev.nandi0813.practice.telemetry.transport.stats.PracticeStatsTelemetryLogger;
 import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -120,7 +121,9 @@ public final class ZonePractice extends JavaPlugin {
 
         ConfigManager.createFile();
         TelemetryBootstrap.initializeAsync()
-                .thenApply(regularEnabled -> regularEnabled || TelemetryBootstrap.isAiCollectionActive())
+                .thenApply(regularEnabled -> regularEnabled
+                        || TelemetryBootstrap.isAiCollectionActive()
+                        || TelemetryBootstrap.isPracticeStatsActive())
                 .thenAccept(enabled -> {
                     if (!enabled) {
                         return;
@@ -131,7 +134,12 @@ public final class ZonePractice extends JavaPlugin {
                             return;
                         }
 
-                        if (telemetryListenerRegistered.compareAndSet(false, true)) {
+                        if (TelemetryBootstrap.isPracticeStatsActive()) {
+                            PracticeStatsTelemetryLogger.initialize();
+                        }
+
+                        if ((TelemetryBootstrap.isActive() || TelemetryBootstrap.isAiCollectionActive())
+                                && telemetryListenerRegistered.compareAndSet(false, true)) {
                             Bukkit.getPluginManager().registerEvents(new TelemetryMatchListener(), this);
                         }
                     });
@@ -242,6 +250,7 @@ public final class ZonePractice extends JavaPlugin {
         // Flush async telemetry writes at shutdown so completed matches are persisted.
         TelemetryLogger.shutdown();
         AiTrainingLogger.shutdown();
+        PracticeStatsTelemetryLogger.shutdown();
     }
 
     /**
