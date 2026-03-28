@@ -653,8 +653,15 @@ public class LadderTypeListener implements Listener {
             return;
         }
 
-        if (e instanceof EntityDamageByEntityEvent) {
-            onEntityDamageByEntity((EntityDamageByEntityEvent) e);
+        if (e instanceof EntityDamageByEntityEvent damageByEntityEvent) {
+            if (shouldDelegateExplosiveByEntityDamageToLadder(damageByEntityEvent, match)) {
+                if (match.getLadder() instanceof LadderHandle ladderHandle) {
+                    ladderHandle.handleEvents(e, match);
+                }
+                return;
+            }
+
+            onEntityDamageByEntity(damageByEntityEvent);
             return;
         }
 
@@ -876,6 +883,16 @@ public class LadderTypeListener implements Listener {
                 }
             }
         }
+    }
+
+    private static boolean shouldDelegateExplosiveByEntityDamageToLadder(EntityDamageByEntityEvent event, Match match) {
+        Entity damager = event.getDamager();
+        if (!(damager instanceof TNTPrimed) && !(damager instanceof Fireball)) {
+            return false;
+        }
+
+        LadderType ladderType = match.getLadder().getType();
+        return ladderType == LadderType.FIREBALL_FIGHT || ladderType == LadderType.TNT_SUMO;
     }
 
 }
