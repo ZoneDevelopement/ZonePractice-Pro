@@ -17,6 +17,9 @@ import dev.nandi0813.practice.manager.server.WorldEnum;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Mannequin;
+import org.bukkit.entity.NPC;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -113,6 +116,12 @@ public class InventoryListener implements Listener {
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
+        // In lobby, ignore NPC clicks completely so they cannot trigger command-like interactions.
+        if (profile.getStatus() == ProfileStatus.LOBBY && isNpcEntity(e.getRightClicked())) {
+            e.setCancelled(true);
+            return;
+        }
+
         switch (profile.getStatus()) {
             case EVENT:
             case MATCH:
@@ -145,14 +154,25 @@ public class InventoryListener implements Listener {
     @EventHandler
     public void onPlayerAttackEntity(EntityDamageByEntityEvent e) {
         if (!(e.getDamager() instanceof Player player)) return;
-        if (!(e.getEntity() instanceof Player target)) return;
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        if (profile.getStatus() == ProfileStatus.LOBBY && isNpcEntity(e.getEntity())) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if (!(e.getEntity() instanceof Player target)) return;
 
         if (ConfigManager.getBoolean("MATCH-SETTINGS.DUEL.SWORD-TO-DUEL")
                 && profile.getStatus().equals(ProfileStatus.LOBBY)
                 && !profile.isParty()
                 && player.hasPermission("zpp.duel")) {
+
+            Profile targetProfile = ProfileManager.getInstance().getProfile(target);
+            if (targetProfile == null) {
+                return;
+            }
 
             Inventory inventory = InventoryManager.getInstance().getPlayerInventory(player);
             if (inventory == null) return;
@@ -473,6 +493,16 @@ public class InventoryListener implements Listener {
 
         Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
             InventoryManager.getInstance().applyLobbyCosmetics(player));
+    }
+
+    private boolean isNpcEntity(Entity entity) {
+        return switch (entity) {
+            case NPC _, Mannequin _ -> true;
+
+            case Player targetPlayer -> ProfileManager.getInstance().getProfile(targetPlayer) == null;
+            case null, default -> false;
+        };
+
     }
 
     private boolean isTaggedCosmetic(ItemStack itemStack) {

@@ -732,14 +732,12 @@ public class LadderTypeListener implements Listener {
         if (!attackerProfile.getStatus().equals(ProfileStatus.MATCH)) return;
         if (!targetProfile.getStatus().equals(ProfileStatus.MATCH)) return;
 
-        Match attackerMatch = MatchManager.getInstance().getLiveMatchByPlayer(attacker);
+        Match match = MatchManager.getInstance().getLiveMatchByPlayer(attacker);
         Match targetMatch = MatchManager.getInstance().getLiveMatchByPlayer(target);
-        if (attackerMatch == null || attackerMatch != targetMatch) {
+        if (match == null || match != targetMatch) {
             e.setCancelled(true);
             return;
         }
-
-        Match match = attackerMatch;
 
         if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) return;
 
