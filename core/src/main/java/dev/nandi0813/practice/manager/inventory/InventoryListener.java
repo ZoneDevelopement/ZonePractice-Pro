@@ -116,12 +116,6 @@ public class InventoryListener implements Listener {
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
-        // In lobby, ignore NPC clicks completely so they cannot trigger command-like interactions.
-        if (profile.getStatus() == ProfileStatus.LOBBY && isNpcEntity(e.getRightClicked())) {
-            e.setCancelled(true);
-            return;
-        }
-
         switch (profile.getStatus()) {
             case EVENT:
             case MATCH:
@@ -157,8 +151,7 @@ public class InventoryListener implements Listener {
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
-        if (profile.getStatus() == ProfileStatus.LOBBY && isNpcEntity(e.getEntity())) {
-            e.setCancelled(true);
+        if (isNpcEntity(e.getEntity())) {
             return;
         }
 
