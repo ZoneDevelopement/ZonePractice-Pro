@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.sidebar.adapter;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.match.Round;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
@@ -47,13 +48,22 @@ public enum AdapterUtil {
     }
 
     /**
+     * Uses current round time when available, otherwise falls back to "0" during round transitions.
+     */
+    private static String getRoundDurationString(Match match) {
+        Round currentRound = match.getCurrentRound();
+        return currentRound != null ? currentRound.getFormattedTime() : "0";
+    }
+
+    /**
      * Replaces common match placeholders (duration, arena, ladder, ping)
      */
     private static Component replaceCommonMatchPlaceholders(Component line, Match match, Player player) {
+        String roundDuration = getRoundDurationString(match);
         return line
-                .replaceText(replace("%duration%", match.getCurrentRound().getFormattedTime()))
+                .replaceText(replace("%duration%", roundDuration))
                 .replaceText(replace("%totalRounds%", String.valueOf(match.getLadder().getRounds())))
-                .replaceText(replace("%roundDuration%", match.getCurrentRound().getFormattedTime()))
+                .replaceText(replace("%roundDuration%", roundDuration))
                 .replaceText(replace("%matchDuration%", match.getFormattedTime()))
                 .replaceText(replace("%ping%", String.valueOf(PlayerUtil.getPing(player))))
                 .replaceText(replace("%arena%", match.getArena().getDisplayName()))
@@ -215,11 +225,12 @@ public enum AdapterUtil {
     }
 
     public static Component replaceMatchSpectatePlaceholders(Component line, Match match) {
+        String roundDuration = getRoundDurationString(match);
         // Replace common placeholders
         line = line
-                .replaceText(replace("%duration%", match.getCurrentRound().getFormattedTime()))
+                .replaceText(replace("%duration%", roundDuration))
                 .replaceText(replace("%totalRounds%", String.valueOf(match.getLadder().getRounds())))
-                .replaceText(replace("%roundDuration%", match.getCurrentRound().getFormattedTime()))
+                .replaceText(replace("%roundDuration%", roundDuration))
                 .replaceText(replace("%matchDuration%", match.getFormattedTime()))
                 .replaceText(replace("%arena%", match.getArena().getDisplayName()))
                 .replaceText(replace("%ladder%", match.getLadder().getDisplayName()));
