@@ -36,9 +36,7 @@ public enum VersionChecker {
                         return null;
                     }
 
-                    if (mcVersion.equals("1.20.6"))
-                        bukkitVersion = BukkitVersion.v1_20_R4;
-                    else if (mcVersion.startsWith("1.21"))
+                    if (mcVersion.startsWith("1.21"))
                         bukkitVersion = BukkitVersion.v1_21_R3;
                     else {
                         // Unknown version - keep null but log for visibility
@@ -60,7 +58,6 @@ public enum VersionChecker {
 
     @Getter
     public enum BukkitVersion {
-        v1_20_R4, // 1.20.6
         v1_21_R3 // 1.21.X
     }
 

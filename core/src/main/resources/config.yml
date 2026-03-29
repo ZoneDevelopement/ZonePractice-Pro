@@ -1,4 +1,4 @@
-VERSION: 43
+VERSION: 44
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -290,14 +290,33 @@ MATCH-SETTINGS:
         VERTICAL: 1.4
   TNT-SUMO:
     EXPLOSION:
-      EXPLOSION-HORIZONTAL-RADIUS: 4.0 # Maximum block distance on the X and Z axis for a player to take knockback
-      EXPLOSION-VERTICAL-RADIUS: 2.5 # Maximum block distance on the Y axis for a player to take knockback
-      HORIZONTAL-MULTIPLIER: 0.85 # Lowered significantly so players do not fly too far sideways
-      VERTICAL-MULTIPLIER: 1.35 # Increased massively to provide a high base upward launch
-      SWEET-SPOT-Y-BOOST: 1.50 # Increased to ensure perfectly placed TNT launches the player 8 to 10 blocks high
-      GROUNDED-HORIZONTAL-MULTIPLIER: 0.15 # Lowered so grounded players stay closer to the explosion source
-      GROUNDED-VERTICAL-MULTIPLIER: 0.60 # Increased to pop grounded players higher into the air immediately
-      GROUNDED-CHAIN-LIFT: 0.35 # Increased so rapid TNT placement gives a massive upward momentum boost
+      # --- Radius Settings ---
+      HORIZONTAL-RADIUS: 4.0
+      VERTICAL-RADIUS: 2.5
+
+      # --- Multipliers (Base) ---
+      HORIZONTAL-MULTIPLIER: 1.6
+      VERTICAL-MULTIPLIER: 0.75
+      SWEET-SPOT-Y-BOOST: 0.85
+
+      # --- Grounded Physics ---
+      # Controls how players behave when they are touching the block/ground
+      GROUNDED-HORIZONTAL-MULTIPLIER: 0.08
+      GROUNDED-VERTICAL-MULTIPLIER: 0.08
+      GROUNDED-CHAIN-LIFT: 0.12
+
+      # --- Distance & Falloff ---
+      # Defines how knockback scales as you move away from the TNT center
+      NEAR-FULL-FORCE-DISTANCE: 1.5
+      SHARP-FALLOFF-START-DISTANCE: 3.5
+      MID-FORCE-AT-FALLOFF-START: 0.35
+
+      # --- Airborne & Juggling Logic ---
+      # Logic for stacking hits while a player is already in the air
+      AIRBORNE-JUGGLE-MULTIPLIER: 1.08
+      AIRBORNE-STACK-WINDOW-MILLIS: 55
+      AIRBORNE-OVERFLOW-PER-EXTRA-HIT: 0.08
+      AIRBORNE-OVERFLOW-MAX: 0.24
   BOXING:
     CUSTOM-ATTACK-COOLDOWN:
       ENABLED: true

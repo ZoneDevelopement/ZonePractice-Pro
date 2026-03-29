@@ -43,6 +43,7 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
     private static final int TNT_LIMIT = 10;
 
     private static final String TNT_SUMO_TNT = "ZONEPRACTICE_PRO_TNT_SUMO_TNT";
+    private static final String TNT_SUMO_TNT_OWNER = "ZONEPRACTICE_PRO_TNT_SUMO_TNT_OWNER";
     private static final String TNT_SUMO_BLOCK_OWNER = "ZONEPRACTICE_PRO_TNT_SUMO_BLOCK_OWNER";
     private static final String TNT_SUMO_BLOCK_MATERIAL = "ZONEPRACTICE_PRO_TNT_SUMO_BLOCK_MATERIAL";
     private static final String TNT_SUMO_BLOCK_ITEM = "ZONEPRACTICE_PRO_TNT_SUMO_BLOCK_ITEM";
@@ -50,12 +51,19 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
     private static final String TNT_SUMO_CONFIG_PATH = "MATCH-SETTINGS.TNT-SUMO.EXPLOSION.";
     private static final double TNT_SUMO_EXPLOSION_HORIZONTAL_RADIUS = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "EXPLOSION-HORIZONTAL-RADIUS", 4.0);
     private static final double TNT_SUMO_EXPLOSION_VERTICAL_RADIUS = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "EXPLOSION-VERTICAL-RADIUS", 2.5);
-    private static final double TNT_SUMO_HORIZONTAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "HORIZONTAL-MULTIPLIER", 1.4);
-    private static final double TNT_SUMO_VERTICAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "VERTICAL-MULTIPLIER", 0.85);
-    private static final double TNT_SUMO_SWEET_SPOT_Y_BOOST = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "SWEET-SPOT-Y-BOOST", 1.25);
-    private static final double TNT_SUMO_GROUNDED_HORIZONTAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "GROUNDED-HORIZONTAL-MULTIPLIER", 0.10);
-    private static final double TNT_SUMO_GROUNDED_VERTICAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "GROUNDED-VERTICAL-MULTIPLIER", 0.10);
+    private static final double TNT_SUMO_HORIZONTAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "HORIZONTAL-MULTIPLIER", 1.6);
+    private static final double TNT_SUMO_VERTICAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "VERTICAL-MULTIPLIER", 0.75);
+    private static final double TNT_SUMO_SWEET_SPOT_Y_BOOST = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "SWEET-SPOT-Y-BOOST", 0.85);
+    private static final double TNT_SUMO_GROUNDED_HORIZONTAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "GROUNDED-HORIZONTAL-MULTIPLIER", 0.08);
+    private static final double TNT_SUMO_GROUNDED_VERTICAL_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "GROUNDED-VERTICAL-MULTIPLIER", 0.08);
     private static final double TNT_SUMO_GROUNDED_CHAIN_LIFT = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "GROUNDED-CHAIN-LIFT", 0.12);
+    private static final double TNT_SUMO_NEAR_FULL_FORCE_DISTANCE = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "NEAR-FULL-FORCE-DISTANCE", 1.5);
+    private static final double TNT_SUMO_SHARP_FALLOFF_START_DISTANCE = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "SHARP-FALLOFF-START-DISTANCE", 3.5);
+    private static final double TNT_SUMO_MID_FORCE_AT_FALLOFF_START = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "MID-FORCE-AT-FALLOFF-START", 0.35);
+    private static final double TNT_SUMO_AIRBORNE_JUGGLE_MULTIPLIER = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "AIRBORNE-JUGGLE-MULTIPLIER", 1.08);
+    private static final long TNT_SUMO_AIRBORNE_STACK_WINDOW_MILLIS = (long) getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "AIRBORNE-STACK-WINDOW-MILLIS", 55.0);
+    private static final double TNT_SUMO_AIRBORNE_OVERFLOW_PER_EXTRA_HIT = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "AIRBORNE-OVERFLOW-PER-EXTRA-HIT", 0.08);
+    private static final double TNT_SUMO_AIRBORNE_OVERFLOW_MAX = getDoubleOrDefault(TNT_SUMO_CONFIG_PATH + "AIRBORNE-OVERFLOW-MAX", 0.24);
 
     private static final double TNT_SUMO_SWEET_SPOT_MAX_Y_DIFF = 1.25;
     private static final long TNT_SUMO_CHAIN_WINDOW_MILLIS = 850L;
@@ -64,9 +72,10 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
 
     // Increased ceilings to allow the SWEET SPOT boost to actually launch the player
     private static final double TNT_SUMO_MAX_HORIZONTAL_VELOCITY = 1.85;
-    private static final double TNT_SUMO_MAX_UPWARD_VELOCITY = 1.85;
+    private static final double TNT_SUMO_MAX_UPWARD_VELOCITY = 2.2;
 
     private static final Map<UUID, ChainState> TNT_SUMO_CHAIN_STATES = new HashMap<>();
+    private static final Map<UUID, AirborneStackState> TNT_SUMO_AIRBORNE_STACK_STATES = new HashMap<>();
 
     @Getter
     @Setter
@@ -151,9 +160,11 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
         TNTPrimed tntPrimed = block.getWorld().spawn(tntLocation.clone().add(0.5, 0.0, 0.5), TNTPrimed.class);
         tntPrimed.setFuseTicks(0);
         tntPrimed.setIsIncendiary(false);
+        tntPrimed.setSource(player);
 
         BlockUtil.setMetadata(tntPrimed, FIGHT_ENTITY, match);
         BlockUtil.setMetadata(tntPrimed, TNT_SUMO_TNT, match);
+        BlockUtil.setMetadata(tntPrimed, TNT_SUMO_TNT_OWNER, player.getUniqueId());
     }
 
     private static void onBlockBreak(@NotNull org.bukkit.event.block.BlockBreakEvent e, @NotNull Match match) {
@@ -375,9 +386,18 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
     }
 
     private static void applyTntSumoKnockback(Player player, TNTPrimed tnt) {
+        if (isTntOwner(player, tnt)) {
+            // Self-placed TNT should never move the placer.
+            return;
+        }
+
         final Location tntCenter = tnt.getLocation().clone();
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            if (isTntOwner(player, tnt)) {
+                return;
+            }
+
             Location currentPlayerLocation = player.getLocation();
             Vector currentVelocity = player.getVelocity().clone();
             double horizontalRadius = Math.max(0.0, TNT_SUMO_EXPLOSION_HORIZONTAL_RADIUS);
@@ -407,9 +427,7 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
             }
 
             double horizontalDistance = Math.sqrt(horizontalDistanceSquared);
-            double horizontalFactor = 1.0 - (horizontalDistance / horizontalRadius);
-            double verticalFactor = 1.0 - (Math.abs(yDifference) / verticalRadius);
-            double forceFactor = Math.max(0.0, horizontalFactor * verticalFactor);
+            double forceFactor = calculateForceFactor(horizontalDistance, horizontalRadius, yDifference, verticalRadius);
             if (forceFactor <= 0.0) {
                 return;
             }
@@ -436,7 +454,7 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
                     newVelocity.setY(groundedVerticalY);
                 }
 
-                player.setVelocity(limitVelocity(newVelocity));
+                player.setVelocity(limitVelocity(newVelocity, 1.0));
                 return;
             }
 
@@ -461,10 +479,41 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
                 currentVelocity.setY(0.0);
             }
 
+            if (currentVelocity.getY() > 0.0 && isTntBelowPlayer) {
+                // MMC-like juggle: upward players get multiplicative lift when another TNT pops below.
+                currentVelocity.setY(currentVelocity.getY() * TNT_SUMO_AIRBORNE_JUGGLE_MULTIPLIER);
+            }
+
             Vector explosionVelocity = new Vector(horizontalX, verticalY, horizontalZ);
             Vector newVelocity = currentVelocity.add(explosionVelocity);
-            player.setVelocity(limitVelocity(newVelocity));
+            int airborneStackHits = updateAirborneStackHits(playerId);
+            double overflowMultiplier = calculateAirborneOverflowMultiplier(airborneStackHits);
+            player.setVelocity(limitVelocity(newVelocity, overflowMultiplier));
         }, 1L);
+    }
+
+    private static double calculateForceFactor(double horizontalDistance, double horizontalRadius, double yDifference, double verticalRadius) {
+        double nearFullDistance = Math.max(0.0, Math.min(TNT_SUMO_NEAR_FULL_FORCE_DISTANCE, horizontalRadius));
+        double sharpFalloffStart = Math.max(nearFullDistance, Math.min(TNT_SUMO_SHARP_FALLOFF_START_DISTANCE, horizontalRadius));
+
+        double horizontalFactor;
+        if (horizontalDistance <= nearFullDistance) {
+            horizontalFactor = 1.0;
+        } else if (horizontalDistance <= sharpFalloffStart) {
+            double midRange = Math.max(0.0001, sharpFalloffStart - nearFullDistance);
+            double t = (horizontalDistance - nearFullDistance) / midRange;
+            double targetAtFalloffStart = Math.max(0.0, Math.min(1.0, TNT_SUMO_MID_FORCE_AT_FALLOFF_START));
+            horizontalFactor = 1.0 - ((1.0 - targetAtFalloffStart) * t);
+        } else {
+            double sharpRange = Math.max(0.0001, horizontalRadius - sharpFalloffStart);
+            double t = Math.max(0.0, Math.min(1.0, (horizontalDistance - sharpFalloffStart) / sharpRange));
+            double targetAtFalloffStart = Math.max(0.0, Math.min(1.0, TNT_SUMO_MID_FORCE_AT_FALLOFF_START));
+            double sharpDrop = 1.0 - (t * t * t);
+            horizontalFactor = targetAtFalloffStart * Math.max(0.0, sharpDrop);
+        }
+
+        double verticalFactor = Math.max(0.0, 1.0 - (Math.abs(yDifference) / verticalRadius));
+        return Math.max(0.0, horizontalFactor * verticalFactor);
     }
 
     private static boolean isEffectivelyGrounded(@NotNull Player player, @NotNull Location playerLocation, @NotNull Vector currentVelocity) {
@@ -509,8 +558,34 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
         TNT_SUMO_CHAIN_STATES.remove(playerId);
     }
 
-    private static @NotNull Vector limitVelocity(@NotNull Vector velocity) {
-        double maxHorizontal = Math.max(0.0, TNT_SUMO_MAX_HORIZONTAL_VELOCITY);
+    private static int updateAirborneStackHits(@NotNull UUID playerId) {
+        long now = System.currentTimeMillis();
+        AirborneStackState state = TNT_SUMO_AIRBORNE_STACK_STATES.get(playerId);
+
+        if (state == null || now - state.lastHitMillis > TNT_SUMO_AIRBORNE_STACK_WINDOW_MILLIS) {
+            state = new AirborneStackState(1, now);
+            TNT_SUMO_AIRBORNE_STACK_STATES.put(playerId, state);
+            return 1;
+        }
+
+        state.hits += 1;
+        state.lastHitMillis = now;
+        return state.hits;
+    }
+
+    private static double calculateAirborneOverflowMultiplier(int airborneStackHits) {
+        if (airborneStackHits <= 1) {
+            return 1.0;
+        }
+
+        double extra = (airborneStackHits - 1) * Math.max(0.0, TNT_SUMO_AIRBORNE_OVERFLOW_PER_EXTRA_HIT);
+        double cappedExtra = Math.min(Math.max(0.0, TNT_SUMO_AIRBORNE_OVERFLOW_MAX), extra);
+        return 1.0 + cappedExtra;
+    }
+
+    private static @NotNull Vector limitVelocity(@NotNull Vector velocity, double overflowMultiplier) {
+        double overflow = Math.max(1.0, overflowMultiplier);
+        double maxHorizontal = Math.max(0.0, TNT_SUMO_MAX_HORIZONTAL_VELOCITY) * overflow;
         double x = velocity.getX();
         double z = velocity.getZ();
         double horizontalLength = Math.sqrt((x * x) + (z * z));
@@ -521,7 +596,7 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
             z *= scale;
         }
 
-        double maxUpward = Math.max(0.0, TNT_SUMO_MAX_UPWARD_VELOCITY);
+        double maxUpward = Math.max(0.0, TNT_SUMO_MAX_UPWARD_VELOCITY) * overflow;
         double y = velocity.getY();
         y = Math.min(y, maxUpward);
 
@@ -535,12 +610,38 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
         return defaultValue;
     }
 
+    private static boolean isTntOwner(@NotNull Player player, @NotNull TNTPrimed tnt) {
+        UUID ownerId = BlockUtil.getMetadata(tnt, TNT_SUMO_TNT_OWNER, UUID.class);
+        if (ownerId != null) {
+            return ownerId.equals(player.getUniqueId());
+        }
+
+        Entity source = tnt.getSource();
+        return source instanceof Player sourcePlayer && sourcePlayer.getUniqueId().equals(player.getUniqueId());
+    }
+
+    public void cleanup(Player player) {
+        UUID uuid = player.getUniqueId();
+        TNT_SUMO_CHAIN_STATES.remove(uuid);
+        TNT_SUMO_AIRBORNE_STACK_STATES.remove(uuid);
+    }
+
     private static final class ChainState {
         private int chainHits;
         private long lastHitMillis;
 
         private ChainState(int chainHits, long lastHitMillis) {
             this.chainHits = chainHits;
+            this.lastHitMillis = lastHitMillis;
+        }
+    }
+
+    private static final class AirborneStackState {
+        private int hits;
+        private long lastHitMillis;
+
+        private AirborneStackState(int hits, long lastHitMillis) {
+            this.hits = hits;
             this.lastHitMillis = lastHitMillis;
         }
     }

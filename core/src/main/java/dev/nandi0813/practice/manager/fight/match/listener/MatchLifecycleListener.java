@@ -12,6 +12,7 @@ import dev.nandi0813.practice.manager.fight.match.util.DeleteRunnable;
 import dev.nandi0813.practice.manager.fight.match.util.RematchRequest;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
+import dev.nandi0813.practice.manager.ladder.type.TntSumo;
 import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.Profile;
@@ -80,6 +81,10 @@ public class MatchLifecycleListener implements Listener {
                 if (matchPlayerProfile.isParty()) {
                     sendRematchRequest = false;
                     break;
+                }
+
+                if (match.getLadder() instanceof TntSumo tntSumo) {
+                    tntSumo.cleanup(matchPlayer);
                 }
             }
 
