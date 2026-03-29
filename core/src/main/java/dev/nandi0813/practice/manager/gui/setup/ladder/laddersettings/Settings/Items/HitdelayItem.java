@@ -15,18 +15,18 @@ public class HitdelayItem extends SettingItem {
 
     @Override
     public void updateItemStack() {
-        guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.HITDELAY")
-                .replace("%hitdelay%", String.valueOf(ladder.getHitDelay()));
+        guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.ATTACKCOOLDOWN")
+                .replace("%attackcooldown%", String.format("%.1f", ladder.getAttackCooldownModifier()));
     }
 
     @Override
     public void clickEvent(InventoryClickEvent e) {
-        int hitDelay = ladder.getHitDelay();
+        double hitDelay = ladder.getAttackCooldownModifier();
 
         if (e.getClick().isLeftClick() && hitDelay > 0)
-            ladder.setHitDelay(hitDelay - 1);
-        else if (e.getClick().isRightClick() && hitDelay < 100)
-            ladder.setHitDelay(hitDelay + 1);
+            ladder.setAttackCooldownModifier(Math.clamp(Math.round((hitDelay - 0.1) * 10) / 10.0, 0, 3.0));
+        else if (e.getClick().isRightClick() && hitDelay < 3.0)
+            ladder.setAttackCooldownModifier(Math.clamp(Math.round((hitDelay + 0.1) * 10) / 10.0, 0, 3.0));
 
         build(true);
     }

@@ -39,7 +39,7 @@ public abstract class Ladder {
     @Setter
     protected boolean build;
     @Setter
-    protected int hitDelay = 20;
+    protected double attackCooldownModifier = 1.0;
     @Setter
     protected int rounds = 1;
     @Setter
@@ -98,7 +98,7 @@ public abstract class Ladder {
         this.regen = ladder.isRegen();
         this.hunger = ladder.isHunger();
         this.build = ladder.isBuild();
-        this.hitDelay = ladder.getHitDelay();
+        this.attackCooldownModifier = ladder.getAttackCooldownModifier();
         this.rounds = ladder.getRounds();
         this.enderPearlCooldown = ladder.getEnderPearlCooldown();
         this.goldenAppleCooldown = ladder.getGoldenAppleCooldown();

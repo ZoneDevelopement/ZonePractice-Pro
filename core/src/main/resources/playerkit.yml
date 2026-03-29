@@ -241,12 +241,13 @@ GUI:
             - ""
             - "%knockbackTypes%"
         HITDELAY:
-          NAME: "&7Hitdelay: &6%hitdelay% tick"
+          NAME: "&7Attack Cooldown: &6%hitdelay%x"
           MATERIAL: DIAMOND_SWORD
           LORE:
             - ""
-            - "&7Players can hit each other"
-            - "&7at these intervals."
+            - "&71.0 = Normal speed (20 ticks)"
+            - "&70.5 = 2x faster"
+            - "&72.0 = 2x slower"
             - ""
             - "&c&lNote: &71 sec = 20 tick"
             - ""

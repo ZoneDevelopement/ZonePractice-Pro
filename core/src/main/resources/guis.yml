@@ -1,4 +1,4 @@
-VERSION: 29
+VERSION: 30
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -2128,18 +2128,19 @@ GUIS:
               - "&c&lNote: &7Default won't change the knockback."
               - "&7You can change the normal and combo knockbacks"
               - "&7in the config file."
-          HITDELAY:
-            NAME: "&7Hitdelay: &6%hitdelay% tick"
+          ATTACKCOOLDOWN:
+            NAME: "&7Attack Cooldown: &6%attackcooldown%x"
             MATERIAL: DIAMOND_SWORD
             LORE:
               - ""
-              - "&7Players can hit each other"
-              - "&7at these intervals."
+              - "&7Adjust the speed at which the"
+              - "&7attack strength bar recharges."
               - ""
-              - "&c&lNote: &71 sec = 20 tick"
+              - "&eCurrent Multiplier: &f%attackcooldown%x"
+              - "&7(Lower = Faster swinging)"
               - ""
-              - "&a&lLEFT-CLICK &ato reduce the rounds."
-              - "&b&lRIGHT-CLICK &bto increase the rounds."
+              - "&a&lLEFT-CLICK &7to decrease by &c0.1"
+              - "&b&lRIGHT-CLICK &7to increase by &b0.1"
           MAX-DURATION:
             NAME: "&7Max Duration: &6%maxDuration% sec"
             MATERIAL: CLOCK

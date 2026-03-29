@@ -22,7 +22,7 @@ public class CustomLadder extends Ladder {
     private static final boolean DEFAULT_HUNGER = PlayerKitManager.getInstance().getBoolean("DEFAULT-SETTINGS.HUNGER");
     private static final boolean DEFAULT_BUILD = PlayerKitManager.getInstance().getBoolean("DEFAULT-SETTINGS.BUILD");
     private static final int DEFAULT_ROUNDS = PlayerKitManager.getInstance().getInt("DEFAULT-SETTINGS.ROUNDS");
-    private static final int DEFAULT_HITDELAY = PlayerKitManager.getInstance().getInt("DEFAULT-SETTINGS.HITDELAY");
+    private static final double DEFAULT_HITDELAY = convertHitDelayToMultiplier(PlayerKitManager.getInstance().getInt("DEFAULT-SETTINGS.HITDELAY"));
     private static final int DEFAULT_EP_COOLDOWN = PlayerKitManager.getInstance().getInt("DEFAULT-SETTINGS.EP_COOLDOWN");
     private static final int DEFAULT_GA_COOLDOWN = PlayerKitManager.getInstance().getInt("DEFAULT-SETTINGS.GA_COOLDOWN");
 
@@ -59,7 +59,7 @@ public class CustomLadder extends Ladder {
         this.setHunger(DEFAULT_HUNGER);
         this.setBuild(DEFAULT_BUILD);
         this.setRounds(DEFAULT_ROUNDS);
-        this.setHitDelay(DEFAULT_HITDELAY);
+        this.setAttackCooldownModifier(DEFAULT_HITDELAY);
         this.setEnderPearlCooldown(DEFAULT_EP_COOLDOWN);
         this.setGoldenAppleCooldown(DEFAULT_GA_COOLDOWN);
         this.matchTypes = new ArrayList<>(MATCH_TYPES);
@@ -88,7 +88,13 @@ public class CustomLadder extends Ladder {
         if (config.isBoolean(mapPath + HUNGER_PATH)) hunger = config.getBoolean(mapPath + HUNGER_PATH);
         if (config.isBoolean(mapPath + BUILD_PATH)) this.setBuild(config.getBoolean(mapPath + BUILD_PATH));
         if (config.isInt(mapPath + ROUNDS_PATH)) rounds = config.getInt(mapPath + ROUNDS_PATH);
-        if (config.isInt(mapPath + HITDELAY_PATH)) hitDelay = config.getInt(mapPath + HITDELAY_PATH);
+        // Handle both legacy int and new double hitdelay values
+        if (config.isDouble(mapPath + HITDELAY_PATH)) {
+            double value = config.getDouble(mapPath + HITDELAY_PATH);
+            attackCooldownModifier = Math.clamp(value, 0, 3.0);
+        } else if (config.isInt(mapPath + HITDELAY_PATH)) {
+            attackCooldownModifier = convertHitDelayToMultiplier(config.getInt(mapPath + HITDELAY_PATH));
+        }
         if (config.isString(mapPath + KNOCKBACK_PATH)) ladderKnockback.get(config.getString(mapPath + KNOCKBACK_PATH));
         if (config.isInt(mapPath + EP_COOLDOWN_PATH)) enderPearlCooldown = config.getInt(mapPath + EP_COOLDOWN_PATH);
         if (config.isInt(mapPath + GA_COOLDOWN_PATH)) goldenAppleCooldown = config.getInt(mapPath + GA_COOLDOWN_PATH);
@@ -115,7 +121,7 @@ public class CustomLadder extends Ladder {
         config.set(mapPath + HUNGER_PATH, hunger);
         config.set(mapPath + BUILD_PATH, build);
         config.set(mapPath + ROUNDS_PATH, rounds);
-        config.set(mapPath + HITDELAY_PATH, hitDelay);
+        config.set(mapPath + HITDELAY_PATH, attackCooldownModifier);
         config.set(mapPath + KNOCKBACK_PATH, ladderKnockback.get());
         config.set(mapPath + EP_COOLDOWN_PATH, enderPearlCooldown);
         config.set(mapPath + GA_COOLDOWN_PATH, goldenAppleCooldown);
@@ -136,6 +142,15 @@ public class CustomLadder extends Ladder {
     @Override
     public boolean isEnabled() {
         return isReadyToEnable();
+    }
+
+    /**
+     * Converts hitdelay ticks to multiplier (old format to new format)
+     * Default 20 ticks = 1.0 multiplier
+     */
+    private static double convertHitDelayToMultiplier(int ticks) {
+        if (ticks <= 0) return 0;
+        return Math.clamp(ticks / 20.0, 0, 3.0);
     }
 
 }

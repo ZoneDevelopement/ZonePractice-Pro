@@ -62,7 +62,7 @@ public class CustomSettingGUI extends GUI {
         inventory.setItem(BUILD_SLOT, ladder.isBuild() ? StaticItems.BUILD_ITEM.getFirst() : StaticItems.BUILD_ITEM.getSecond());
         inventory.setItem(ROUNDS_SLOT, StaticItems.ROUNDS_ITEM.cloneItem().replace("%rounds%", String.valueOf(ladder.getRounds())).get());
         inventory.setItem(KNOCKBACK_SLOT, getKnockbackItem(ladder));
-        inventory.setItem(HITDELAY_SLOT, StaticItems.HITDELAY_ITEM.cloneItem().replace("%hitdelay%", String.valueOf(ladder.getHitDelay())).get());
+        inventory.setItem(HITDELAY_SLOT, StaticItems.HITDELAY_ITEM.cloneItem().replace("%hitdelay%", String.format("%.1f", ladder.getAttackCooldownModifier())).get());
         inventory.setItem(ENDERPEARL_SLOT, StaticItems.ENDERPEARL_ITEM.cloneItem().replace("%epCooldown%", String.valueOf(ladder.getEnderPearlCooldown())).get());
         inventory.setItem(GOLDENAPPLE_SLOT, StaticItems.GAPPLE_ITEM.cloneItem().replace("%gaCooldown%", String.valueOf(ladder.getGoldenAppleCooldown())).get());
 
@@ -100,10 +100,11 @@ public class CustomSettingGUI extends GUI {
                     setKnockback(ladder);
                     break;
                 case HITDELAY_SLOT:
-                    if (e.isLeftClick() && ladder.getHitDelay() > 1)
-                        ladder.setHitDelay(ladder.getHitDelay() - 1);
-                    else if (e.isRightClick() && ladder.getHitDelay() < 100)
-                        ladder.setHitDelay(ladder.getHitDelay() + 1);
+                    double hitDelay = ladder.getAttackCooldownModifier();
+                    if (e.isLeftClick() && hitDelay > 0)
+                        ladder.setAttackCooldownModifier(Math.clamp(Math.round((hitDelay - 0.1) * 10) / 10.0, 0, 3.0));
+                    else if (e.isRightClick() && hitDelay < 3.0)
+                        ladder.setAttackCooldownModifier(Math.clamp(Math.round((hitDelay + 0.1) * 10) / 10.0, 0, 3.0));
                     break;
                 case ENDERPEARL_SLOT:
                     if (e.isLeftClick() && ladder.getEnderPearlCooldown() > 0)

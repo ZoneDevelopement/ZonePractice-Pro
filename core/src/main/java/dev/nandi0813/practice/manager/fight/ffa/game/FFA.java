@@ -143,6 +143,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
         PlayerUtil.setFightPlayer(player);
         KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, players.get(player));
+        dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, ladder.getAttackCooldownModifier());
 
         ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.FFA);
         SpectatorManager.getInstance().getSpectatorMenuGui().update();
@@ -155,6 +156,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         players.put(player, ladder);
         PlayerUtil.setFightPlayer(player);
         KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, ladder);
+        dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, ladder.getAttackCooldownModifier());
     }
 
     public void removePlayer(Player player) {
@@ -176,6 +178,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         players.remove(player);
         fightPlayers.remove(player);
         statistics.remove(player);
+        dev.nandi0813.practice.manager.fight.util.PlayerUtil.resetAttackSpeed(player);
 
         InventoryManager.getInstance().setLobbyInventory(player, true);
         SpectatorManager.getInstance().getSpectatorMenuGui().update();
@@ -224,6 +227,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         } else {
             PlayerUtil.setFightPlayer(player);
             KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, players.get(player));
+            dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, players.get(player).getAttackCooldownModifier());
 
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                     teleportPlayer(player), 1L);

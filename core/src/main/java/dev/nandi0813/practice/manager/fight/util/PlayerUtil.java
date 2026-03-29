@@ -3,11 +3,16 @@ package dev.nandi0813.practice.manager.fight.util;
 import dev.nandi0813.practice.util.StringUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -16,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 public class PlayerUtil {
+
+    private static final NamespacedKey ATTACK_COOLDOWN_MODIFIER_KEY = NamespacedKey.minecraft("zpp_attack_cooldown_modifier");
 
     private static boolean hasPersonalCraftingGridOpen(Player player) {
         InventoryType type = player.getOpenInventory().getType();
@@ -106,6 +113,7 @@ public class PlayerUtil {
         return player.getHealth() + player.getAbsorptionAmount();
     }
 
+    @SuppressWarnings("deprecation")
     public static void setActiveInventoryTitle(Player player, String title) {
         player.getOpenInventory().setTitle(StringUtil.CC(title));
     }
@@ -164,27 +172,50 @@ public class PlayerUtil {
         }
     }
 
-    public static void setAttackSpeed(Player player, int hitDelay) {
-        // ...existing code...
-        org.bukkit.attribute.AttributeInstance attackSpeed =
-                player.getAttribute(org.bukkit.attribute.Attribute.ATTACK_SPEED);
+    public static void setAttackSpeed(Player player, double cooldownMultiplier) {
+        AttributeInstance attackSpeed = player.getAttribute(Attribute.ATTACK_SPEED);
+        if (attackSpeed == null) {
+            return;
+        }
 
-        if (attackSpeed != null) {
-            attackSpeed.getModifiers().forEach(attackSpeed::removeModifier);
-
-            double attackSpeedValue;
-            if (hitDelay <= 0) {
-                attackSpeedValue = 100.0;
-            } else if (hitDelay >= 20) {
-                attackSpeedValue = 4.0;
-            } else {
-                attackSpeedValue = 4.0 + ((20.0 - hitDelay) / 20.0) * 96.0;
+        // Remove only our own modifier, keep sword/fist/item modifiers intact.
+        for (AttributeModifier modifier : attackSpeed.getModifiers()) {
+            if (ATTACK_COOLDOWN_MODIFIER_KEY.equals(modifier.getKey())) {
+                attackSpeed.removeModifier(modifier);
             }
+        }
 
-            attackSpeed.setBaseValue(attackSpeedValue);
+        // Cooldown multiplier scales cooldown ticks, so ATTACK_SPEED must use inverse scale.
+        double speedMultiplier;
+        if (cooldownMultiplier <= 0D) {
+            speedMultiplier = 256D; // Effectively no cooldown while still preserving item deltas.
+        } else {
+            speedMultiplier = 1D / cooldownMultiplier;
+        }
+
+        AttributeModifier cooldownModifier = new AttributeModifier(
+                ATTACK_COOLDOWN_MODIFIER_KEY,
+                speedMultiplier - 1D,
+                AttributeModifier.Operation.MULTIPLY_SCALAR_1,
+                EquipmentSlotGroup.ANY
+        );
+        attackSpeed.addModifier(cooldownModifier);
+    }
+
+    public static void resetAttackSpeed(Player player) {
+        AttributeInstance attackSpeed = player.getAttribute(Attribute.ATTACK_SPEED);
+        if (attackSpeed == null) {
+            return;
+        }
+
+        for (AttributeModifier modifier : attackSpeed.getModifiers()) {
+            if (ATTACK_COOLDOWN_MODIFIER_KEY.equals(modifier.getKey())) {
+                attackSpeed.removeModifier(modifier);
+            }
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isPlayerStuck(Player player) {
         Block feetBlock = player.getLocation().getBlock();
         Block headBlock = player.getEyeLocation().getBlock();

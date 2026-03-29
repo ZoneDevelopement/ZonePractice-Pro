@@ -101,6 +101,7 @@ public class InventoryManager extends ConfigFile {
     public void setLobbyInventory(Player player, boolean teleport) {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         profile.setStatus(ProfileStatus.LOBBY);
+        dev.nandi0813.practice.manager.fight.util.PlayerUtil.resetAttackSpeed(player);
 
         PlayerUtil.clearPlayer(
                 player,

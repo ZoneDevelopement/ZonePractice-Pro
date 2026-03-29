@@ -38,7 +38,7 @@ public class LadderFile extends ConfigFile {
         config.set("settings.editable", ladder.isEditable());
         config.set("settings.drop-inventory", ladder.isDropInventoryPartyGames());
         config.set("settings.multiRoundStartCountdown", ladder.isMultiRoundStartCountdown());
-        config.set("settings.hitdelay", ladder.getHitDelay());
+        config.set("settings.hitdelay", ladder.getAttackCooldownModifier());
         config.set("settings.rounds", ladder.getRounds());
         config.set("settings.maxduration", ladder.getMaxDuration());
         config.set("settings.epcooldown", ladder.getEnderPearlCooldown());
@@ -172,10 +172,15 @@ public class LadderFile extends ConfigFile {
 
         if (config.isInt("settings.hitdelay")) {
             int hitDelay = config.getInt("settings.hitdelay");
-            if (hitDelay < 0 || hitDelay > 100) hitDelay = 20;
-            ladder.setHitDelay(hitDelay);
+            // Convert old int-based hitdelay (ticks) to multiplier: divide by 20 (default ticks)
+            double multiplier = Math.clamp(hitDelay / 20.0, 0, 3.0);
+            ladder.setAttackCooldownModifier(multiplier);
+        } else if (config.isDouble("settings.hitdelay")) {
+            double hitDelay = config.getDouble("settings.hitdelay");
+            if (hitDelay < 0 || hitDelay > 3.0) hitDelay = 1.0;
+            ladder.setAttackCooldownModifier(hitDelay);
         } else
-            ladder.setHitDelay(20);
+            ladder.setAttackCooldownModifier(1.0);
 
         if (config.isInt("settings.rounds")) {
             int rounds = config.getInt("settings.rounds");

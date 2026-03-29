@@ -7,28 +7,38 @@ import org.bukkit.entity.Player;
 
 /**
  * Handler for the HIT_DELAY setting.
- * Controls the delay between attacks (maximum no damage ticks).
+ * Controls the attack cooldown multiplier (0-3, where 1.0 = normal speed of 20 ticks).
+ * <p>
+ * Examples:
+ * - 0 = instant attacks (no cooldown)
+ * - 0.5 = half speed (10 ticks)
+ * - 1.0 = normal speed (20 ticks)
+ * - 2.0 = double speed (40 ticks)
+ * - 3.0 = triple speed (60 ticks)
  * <p>
  * IMPLEMENTATION LOCATION: This is applied in Round.startRound() when setting up players
  */
-public class HitDelaySettingHandler implements SettingHandler<Integer> {
+public class HitDelaySettingHandler implements SettingHandler<Double> {
 
     @Override
-    public Integer getValue(Match match) {
-        return match.getLadder().getHitDelay();
+    public Double getValue(Match match) {
+        return match.getLadder().getAttackCooldownModifier();
     }
 
     @Override
     public void onMatchStart(Match match) {
-        // Apply hit delay to all players
-        int hitDelay = getValue(match);
+        // Apply attack cooldown to all players
+        double cooldownMultiplier = getValue(match);
         for (Player player : match.getPlayers()) {
-            // Set the damage tick cooldown
-            player.setMaximumNoDamageTicks(hitDelay);
+            // In 1.9+, attack cooldown bar/logic is driven by ATTACK_SPEED.
+            PlayerUtil.setAttackSpeed(player, cooldownMultiplier);
+        }
+    }
 
-            // For modern versions (1.9+), also set the attack speed attribute
-            // This enables spam-clicking for combo mode when hitDelay is low
-            PlayerUtil.setAttackSpeed(player, hitDelay);
+    @Override
+    public void onMatchEnd(Match match) {
+        for (Player player : match.getPlayers()) {
+            PlayerUtil.resetAttackSpeed(player);
         }
     }
 
