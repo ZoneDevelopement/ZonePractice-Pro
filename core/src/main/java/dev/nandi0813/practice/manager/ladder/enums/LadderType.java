@@ -114,7 +114,10 @@ public enum LadderType {
                     SettingType.ROUNDS,
                     SettingType.MAX_DURATION,
                     SettingType.START_COUNTDOWN,
-                    SettingType.SPLEEF_SNOWBALL_MODE
+                    SettingType.SPLEEF_SNOWBALL_MODE,
+                    SettingType.ROUND_END_DELAY,
+                    SettingType.COUNTDOWN_TITLES,
+                    SettingType.ROUND_STATUS_TITLES
             )
     ),
 
