@@ -2,8 +2,8 @@ package dev.nandi0813.practice.telemetry.transport.regular;
 
 import dev.nandi0813.practice.telemetry.MatchTelemetry;
 import dev.nandi0813.practice.telemetry.bootstrap.TelemetryBootstrap;
+import dev.nandi0813.practice.telemetry.bootstrap.TelemetryDebugLog;
 import dev.nandi0813.practice.telemetry.config.TelemetryConfig;
-import dev.nandi0813.practice.util.Common;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -49,7 +49,7 @@ public enum TelemetryLogger {
             writerExecutor.execute(() -> sendRecord(telemetry));
         } catch (Exception exception) {
             droppedRecords.incrementAndGet();
-            Common.sendConsoleMMMessage("<red>Telemetry logger rejected a record: " + exception.getMessage());
+            TelemetryDebugLog.console("<red>Telemetry logger rejected a record: " + exception.getMessage());
         }
     }
 
@@ -105,7 +105,7 @@ public enum TelemetryLogger {
 
             if (endpointUri == null) {
                 transportEnabled = false;
-                Common.sendConsoleMMMessage("<yellow>Telemetry transport disabled: invalid telemetry endpoint in TelemetryLogger.");
+                TelemetryDebugLog.console("<yellow>Telemetry transport disabled: invalid telemetry endpoint in TelemetryLogger.");
                 return;
             }
 
@@ -179,13 +179,13 @@ public enum TelemetryLogger {
 
                         if (!isRetryable(statusCode) || attempt >= MAX_ATTEMPTS) {
                             failedRequests.incrementAndGet();
-                            Common.sendConsoleMMMessage("<red>Telemetry REST failed (status=" + statusCode + ", match=" + telemetry.matchId() + ")");
+                            TelemetryDebugLog.console("<red>Telemetry REST failed (status=" + statusCode + ", match=" + telemetry.matchId() + ")");
                             return;
                         }
                     } else if (attempt >= MAX_ATTEMPTS) {
                         failedRequests.incrementAndGet();
                         String message = throwable != null ? throwable.getMessage() : "unknown error";
-                        Common.sendConsoleMMMessage("<red>Telemetry REST exception (match=" + telemetry.matchId() + "): " + message);
+                        TelemetryDebugLog.console("<red>Telemetry REST exception (match=" + telemetry.matchId() + "): " + message);
                         return;
                     }
 

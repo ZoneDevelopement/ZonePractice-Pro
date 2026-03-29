@@ -1,8 +1,8 @@
 package dev.nandi0813.practice.telemetry.transport.ai;
 
 import dev.nandi0813.practice.telemetry.bootstrap.TelemetryBootstrap;
+import dev.nandi0813.practice.telemetry.bootstrap.TelemetryDebugLog;
 import dev.nandi0813.practice.telemetry.config.TelemetryConfig;
-import dev.nandi0813.practice.util.Common;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -58,7 +58,7 @@ public enum AiTrainingLogger {
             writerExecutor.execute(() -> sendRecord(payload));
         } catch (Exception exception) {
             droppedRecords.incrementAndGet();
-            Common.sendConsoleMMMessage("<red>AI training logger rejected a record: " + exception.getMessage());
+            TelemetryDebugLog.console("<red>AI training logger rejected a record: " + exception.getMessage());
         }
     }
 
@@ -105,7 +105,7 @@ public enum AiTrainingLogger {
 
         if (endpointUri == null) {
             transportEnabled = false;
-            Common.sendConsoleMMMessage("<yellow>AI training transport disabled: invalid AI endpoint.");
+            TelemetryDebugLog.console("<yellow>AI training transport disabled: invalid AI endpoint.");
             return;
         }
 
@@ -183,13 +183,13 @@ public enum AiTrainingLogger {
 
                         if (!isRetryable(statusCode) || attempt >= MAX_ATTEMPTS) {
                             failedRequests.incrementAndGet();
-                            Common.sendConsoleMMMessage("<red>AI training REST failed (status=" + statusCode + ", match=" + payload.matchId() + ")");
+                            TelemetryDebugLog.console("<red>AI training REST failed (status=" + statusCode + ", match=" + payload.matchId() + ")");
                             return;
                         }
                     } else if (attempt >= MAX_ATTEMPTS) {
                         failedRequests.incrementAndGet();
                         String message = throwable != null ? throwable.getMessage() : "unknown error";
-                        Common.sendConsoleMMMessage("<red>AI training REST exception (match=" + payload.matchId() + "): " + message);
+                        TelemetryDebugLog.console("<red>AI training REST exception (match=" + payload.matchId() + "): " + message);
                         return;
                     }
 

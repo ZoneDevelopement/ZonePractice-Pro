@@ -9,6 +9,7 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.statistics.LadderStats;
 import dev.nandi0813.practice.manager.profile.statistics.ProfileStat;
 import dev.nandi0813.practice.telemetry.ServerFingerprintUtil;
+import dev.nandi0813.practice.telemetry.bootstrap.TelemetryDebugLog;
 import dev.nandi0813.practice.telemetry.config.TelemetryConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
@@ -58,7 +59,7 @@ public enum PracticeStatsTelemetryLogger {
         serverHash = ServerFingerprintUtil.getServerId();
 
         if (endpointUri == null) {
-            ZonePractice.getInstance().getLogger().warning("Practice stats telemetry disabled: endpoint is not configured.");
+            TelemetryDebugLog.warning("Practice stats telemetry disabled: endpoint is not configured.");
             return;
         }
 
@@ -218,7 +219,7 @@ public enum PracticeStatsTelemetryLogger {
 
         if (statusCode == 401) {
             if (unauthorizedLogged.compareAndSet(false, true)) {
-                ZonePractice.getInstance().getLogger().warning("Practice stats telemetry unauthorized (401). Check Bearer token configuration.");
+                TelemetryDebugLog.warning("Practice stats telemetry unauthorized (401). Check Bearer token configuration.");
             }
             return;
         }

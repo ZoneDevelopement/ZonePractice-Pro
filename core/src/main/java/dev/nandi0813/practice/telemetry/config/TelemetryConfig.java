@@ -1,7 +1,7 @@
 package dev.nandi0813.practice.telemetry.config;
 
 import dev.nandi0813.practice.manager.backend.ConfigManager;
-import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.telemetry.bootstrap.TelemetryDebugLog;
 
 import java.net.URI;
 
@@ -75,7 +75,7 @@ public enum TelemetryConfig {
                     null
             );
         } catch (Exception exception) {
-            Common.sendConsoleMMMessage("<red>Invalid telemetry endpoint path (" + exception.getMessage() + ")");
+            TelemetryDebugLog.console("<red>Invalid telemetry endpoint path (" + exception.getMessage() + ")");
             return null;
         }
     }
@@ -111,12 +111,12 @@ public enum TelemetryConfig {
             URI uri = URI.create(endpoint.trim());
             String scheme = uri.getScheme();
             if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
-                Common.sendConsoleMMMessage("<red>Telemetry endpoint must use http/https: " + endpoint);
+                TelemetryDebugLog.console("<red>Telemetry endpoint must use http/https: " + endpoint);
                 return null;
             }
             return uri;
         } catch (Exception exception) {
-            Common.sendConsoleMMMessage("<red>Invalid telemetry endpoint: " + endpoint + " (" + exception.getMessage() + ")");
+            TelemetryDebugLog.console("<red>Invalid telemetry endpoint: " + endpoint + " (" + exception.getMessage() + ")");
             return null;
         }
     }
