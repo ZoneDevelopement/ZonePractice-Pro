@@ -386,6 +386,12 @@ public final class ZonePractice extends JavaPlugin {
             server.getPluginCommand("cosmetics").setExecutor(cosmeticsCommand);
         }
 
+        CustomQueueCommand customQueueCommand = new CustomQueueCommand();
+        if (server.getPluginCommand("customqueue") != null) {
+            server.getPluginCommand("customqueue").setExecutor(customQueueCommand);
+            server.getPluginCommand("customqueue").setTabCompleter(customQueueCommand);
+        }
+
         if (ConfigManager.getBoolean("CHAT.PRIVATE-CHAT-ENABLED")) {
             new MessageCommand();
             new ReplyCommand();

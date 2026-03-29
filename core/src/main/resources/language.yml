@@ -1,4 +1,4 @@
-VERSION: 27
+VERSION: 28
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -39,6 +39,14 @@ COMMAND:
       PROGRESS-HEADER: "<gold><bold>Progress towards Ranked:"
       PROGRESS-EXP: " <gray>• <white>Experience: <yellow>%current%<gray>/<yellow>%required% <green>(%percent%%<green>)"
       PROGRESS-WINS: " <gray>• <white>Wins: <yellow>%current%<gray>/<yellow>%required% <green>(%percent%%<green>)"
+    CUSTOM:
+      NO-PERMISSION: "<red>You don't have permission."
+      HELP: "<red>/customqueue <open|join|host <kit>|leave>"
+      HOST-USAGE: "<red>/customqueue host <kit>"
+      KIT-NOT-FOUND: "<red>Custom kit %kit% was not found or is not ready."
+      ALREADY-SEARCHING: "<yellow>You are already searching for a hosted custom kit."
+      ALREADY-HOSTING: "<yellow>You are already hosting a custom kit queue."
+      NOT-IN-CUSTOM-QUEUE: "<red>You are not in a custom kit queue."
   LEAVE:
     NOT-IN-MATCH: "<red>You are not in a match."
     CANT-LEAVE-DUEL-UNRANKED: "<red>You can't leave unranked duel matches."

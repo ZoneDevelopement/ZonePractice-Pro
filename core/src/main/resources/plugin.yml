@@ -53,6 +53,9 @@ commands:
   cosmetics:
     aliases: [cosmetc, csmetic]
     description: Open the cosmetics GUI for armor trim customization.
+  customqueue:
+    aliases: [cqueue, customkitqueue]
+    description: Queue for custom-kit matchmaking commands.
 
 permissions:
   zpp.admin:
@@ -324,6 +327,9 @@ permissions:
     description: Copy custom kit from others.
   zpp.playerkit.queue.host:
     description: Host a custom kit queue.
+  zpp.playerkit.queue.use:
+    description: Use custom kit queue commands.
+    default: true
 
   # Cosmetics
   zpp.cosmetics.main:
