@@ -40,6 +40,7 @@ import dev.nandi0813.practice.manager.queue.QueueManager;
 import dev.nandi0813.practice.manager.queue.runnables.CustomKitSearchRunnable;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
+import dev.nandi0813.practice.util.NameFormatUtil;
 import dev.nandi0813.practice.util.PAPIUtil;
 import dev.nandi0813.practice.util.TPSUtil;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
@@ -57,6 +58,14 @@ public class PracticeAdapter implements SidebarAdapter {
 
     private static String fallbackToZero(String value) {
         return value != null ? value : "0";
+    }
+
+    private static Component displayName(Player target) {
+        Profile targetProfile = ProfileManager.getInstance().getProfile(target);
+        if (targetProfile == null) {
+            return Component.text(target.getName());
+        }
+        return NameFormatUtil.buildFullDisplayName(targetProfile, target.getName());
     }
 
     @Override
@@ -226,7 +235,9 @@ public class PracticeAdapter implements SidebarAdapter {
                                 if (ladderType == LadderType.BOXING) {
                                     for (int i = 1; i <= 3; i++) {
                                         Player topPlayer = MatchUtil.getBoxingTopPlayer(partyFFA, i);
-                                        Component playerName = topPlayer != null ? Component.text(topPlayer.getName()) : ZonePractice.getMiniMessage().deserialize("<red>N/A");
+                                        Component playerName = topPlayer != null
+                                                ? displayName(topPlayer)
+                                                : ZonePractice.getMiniMessage().deserialize("<red>N/A");
                                         Component playerHits = topPlayer != null ? Component.text(match.getCurrentStat(topPlayer).getHit()) : ZonePractice.getMiniMessage().deserialize("<red>N/A");
 
                                         component = component
@@ -357,7 +368,7 @@ public class PracticeAdapter implements SidebarAdapter {
                         if (bracketFight != null) {
                             for (String line : config.getStringList(path)) {
                                 Component component = PAPIUtil.runThroughFormat(player, line)
-                                        .replaceText(TextReplacementConfig.builder().matchLiteral("%enemy%").replacement(bracketFight.getOtherPlayer(player).getName()).build())
+                                        .replaceText(TextReplacementConfig.builder().matchLiteral("%enemy%").replacement(displayName(bracketFight.getOtherPlayer(player))).build())
                                         .replaceText(TextReplacementConfig.builder().matchLiteral("%players%").replacement(String.valueOf(duelEvent.getStartPlayerCount())).build())
                                         .replaceText(TextReplacementConfig.builder().matchLiteral("%alivePlayers%").replacement(String.valueOf(duelEvent.getPlayers().size())).build())
                                         .replaceText(TextReplacementConfig.builder().matchLiteral("%timeLeft%").replacement(duelEvent.getDurationRunnable() != null ? duelEvent.getDurationRunnable().getFormattedTime() : "0").build())
@@ -634,7 +645,9 @@ public class PracticeAdapter implements SidebarAdapter {
 
         Group group = profile.getGroup();
         if (group != null && group.getSidebarExtension() != null && !group.getSidebarExtension().isEmpty()) {
-            sidebar.addAll(group.getSidebarExtension());
+            for (Component extensionLine : group.getSidebarExtension()) {
+                sidebar.add(NameFormatUtil.applyPlayerPlaceholders(NameFormatUtil.applyDivisionPlaceholders(extensionLine, profile), player.getName()));
+            }
         }
 
         if (player.hasPermission("zpp.admin.scoreboard")) {

@@ -7,11 +7,9 @@ import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.nametag.TabIntegration;
 import dev.nandi0813.practice.manager.nametag.TeamPacketBlocker;
 import dev.nandi0813.practice.manager.profile.Profile;
-import dev.nandi0813.practice.manager.profile.group.Group;
-import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.NameFormatUtil;
 import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 
@@ -24,19 +22,17 @@ public enum InventoryUtil {
                 NametagManager.getInstance().reset(player.getName());
             }
         } else {
-            PlayerNametag playerNametag = getLobbyNametag(profile);
+            LobbyNametag playerNametag = getLobbyNametag(profile, player.getName());
 
             Component prefix = playerNametag.getPrefix();
-            NamedTextColor nameColor = playerNametag.getColorOfName();
+            Component name = playerNametag.getName();
+            NamedTextColor nameColor = playerNametag.getScoreboardNameColor();
             Component suffix = playerNametag.getSuffix();
             int sortPriority = playerNametag.getSortPriority();
 
             if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
                 // ── Tab-list formatting ──────────────────────────────────────
-                Component listName = prefix.append(Component.text(player.getName(), nameColor)).append(suffix);
-                listName = listName
-                        .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
-                        .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build());
+                Component listName = prefix.append(name).append(suffix);
 
                 TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
                 if (tabIntegration != null && tabIntegration.isAvailable()) {
@@ -51,29 +47,63 @@ public enum InventoryUtil {
         }
     }
 
+    public static LobbyNametag getLobbyNametag(Profile profile, String playerName) {
+        Component prefix = NameFormatUtil.resolvePrefix(profile);
+        Component name = NameFormatUtil.resolveName(profile, playerName);
+        Component suffix = NameFormatUtil.resolveSuffix(profile);
+
+        NamedTextColor fallback = profile.getGroup() != null ? profile.getGroup().getNameColor() : NamedTextColor.GRAY;
+        NamedTextColor scoreboardNameColor = NameFormatUtil.resolveScoreboardColor(name, fallback);
+        int sortPriority = profile.getGroup() != null ? profile.getGroup().getSortPriority() : 10;
+
+        return new LobbyNametag(prefix, name, scoreboardNameColor, suffix, sortPriority);
+    }
+
     public static PlayerNametag getLobbyNametag(Profile profile) {
-            Group group = profile.getGroup();
-            Component prefix = Component.empty(), suffix = Component.empty();
-            NamedTextColor nameColor = NamedTextColor.GRAY;
-            int sortPriority = 10;
+        String playerName = profile.getPlayer() != null ? profile.getPlayer().getName() : "";
+        LobbyNametag lobbyNametag = getLobbyNametag(profile, playerName);
+        return new PlayerNametag(
+                lobbyNametag.getPrefix(),
+                lobbyNametag.getScoreboardNameColor(),
+                lobbyNametag.getSuffix(),
+                lobbyNametag.getSortPriority()
+        );
+    }
 
-            if (group != null) {
-                prefix = group.getPrefix()
-                        .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "").build())
-                        .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "").build());
+    public static final class LobbyNametag {
+        private final Component prefix;
+        private final Component name;
+        private final NamedTextColor scoreboardNameColor;
+        private final Component suffix;
+        private final int sortPriority;
 
-                suffix = group.getSuffix()
-                        .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "").build())
-                        .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "").build());
+        public LobbyNametag(Component prefix, Component name, NamedTextColor scoreboardNameColor, Component suffix, int sortPriority) {
+            this.prefix = prefix;
+            this.name = name;
+            this.scoreboardNameColor = scoreboardNameColor;
+            this.suffix = suffix;
+            this.sortPriority = sortPriority;
+        }
 
-                nameColor = group.getNameColor();
-                sortPriority = group.getSortPriority();
-            }
+        public Component getPrefix() {
+            return prefix;
+        }
 
-            if (profile.getPrefix() != null) prefix = profile.getPrefix();
-            if (profile.getSuffix() != null) suffix = profile.getSuffix();
+        public Component getName() {
+            return name;
+        }
 
-            return new PlayerNametag(prefix, nameColor, suffix, sortPriority);
+        public NamedTextColor getScoreboardNameColor() {
+            return scoreboardNameColor;
+        }
+
+        public Component getSuffix() {
+            return suffix;
+        }
+
+        public int getSortPriority() {
+            return sortPriority;
+        }
     }
 
 }

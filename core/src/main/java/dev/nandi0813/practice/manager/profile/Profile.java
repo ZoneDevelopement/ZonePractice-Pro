@@ -38,6 +38,7 @@ public class Profile {
     private Group group;
 
     private Component prefix;
+    private String nameTemplate;
     private NamedTextColor nameColor;
     private Component suffix;
 

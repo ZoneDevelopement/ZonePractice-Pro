@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.nametag;
 
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
+import dev.nandi0813.practice.manager.inventory.InventoryUtil;
 import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -237,47 +238,10 @@ public class NametagManager {
                 dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
             if (profile == null) return;
 
-            // Re-calculate the lobby tab list name from profile data
-            Component lobbyPrefix = Component.empty();
-            Component lobbySuffix = Component.empty();
-            NamedTextColor lobbyNameColor = NamedTextColor.GRAY;
-
-            dev.nandi0813.practice.manager.profile.group.Group group = profile.getGroup();
-            if (group != null) {
-                lobbyPrefix = group.getPrefix();
-                lobbySuffix = group.getSuffix();
-                lobbyNameColor = group.getNameColor();
-            }
-
-            // Apply custom prefix/suffix if set
-            if (profile.getPrefix() != null) lobbyPrefix = profile.getPrefix();
-            if (profile.getSuffix() != null) lobbySuffix = profile.getSuffix();
-
-            // Build the tab list name (same as lobby)
-            Component tabListName = lobbyPrefix.append(Component.text(player.getName(), lobbyNameColor)).append(lobbySuffix);
-
-            // Apply division placeholders if needed
-            if (profile.getStats().getDivision() != null) {
-                tabListName = tabListName
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division%")
-                        .replacement(profile.getStats().getDivision().getComponentFullName())
-                        .build())
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division_short%")
-                        .replacement(profile.getStats().getDivision().getComponentShortName())
-                        .build());
-            } else {
-                tabListName = tabListName
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division%")
-                        .replacement(Component.empty())
-                        .build())
-                    .replaceText(net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .match("%division_short%")
-                        .replacement(Component.empty())
-                        .build());
-            }
+            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName());
+            Component tabListName = lobbyNametag.getPrefix()
+                    .append(lobbyNametag.getName())
+                    .append(lobbyNametag.getSuffix());
 
             // Set the tab list name to maintain lobby formatting
             PlayerUtil.setPlayerListName(player, tabListName);

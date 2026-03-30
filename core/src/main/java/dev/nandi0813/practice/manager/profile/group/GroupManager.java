@@ -7,6 +7,7 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.NameFormatUtil;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -49,6 +50,21 @@ public class GroupManager extends ConfigFile {
                 }
             }
 
+            NamedTextColor legacyNameColor = NamedTextColor.NAMES.valueOr(
+                    this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME-COLOR").toLowerCase(),
+                    NamedTextColor.GRAY
+            );
+
+            String prefixTemplate = this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.PREFIX");
+            String nameTemplate = this.config.isSet("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME")
+                    ? this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME")
+                    : "<gray>%player%";
+            String suffixTemplate = this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.SUFFIX");
+
+            Component nameFormat = this.config.isSet("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME")
+                    ? NameFormatUtil.parseConfiguredComponent(nameTemplate)
+                    : Component.text("%player%", legacyNameColor);
+
             Group group = new Group(
                     groupName,
                     this.getString("GROUPS." + groupName + ".NAME"),
@@ -62,9 +78,13 @@ public class GroupManager extends ConfigFile {
                             : DEFAULT_PARTY_MEMBER_LIMIT,
                     this.getInt("GROUPS." + groupName + ".CUSTOM-KIT"),
                     this.getInt("GROUPS." + groupName + ".MODIFIABLE-KIT-PER-LADDER"),
-                    ZonePractice.getMiniMessage().deserialize(this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.PREFIX")),
-                    NamedTextColor.NAMES.valueOr(this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME-COLOR").toLowerCase(), NamedTextColor.GRAY),
-                    ZonePractice.getMiniMessage().deserialize(this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.SUFFIX")),
+                    prefixTemplate,
+                    NameFormatUtil.parseConfiguredComponent(prefixTemplate),
+                    nameTemplate,
+                    nameFormat,
+                    legacyNameColor,
+                    suffixTemplate,
+                    NameFormatUtil.parseConfiguredComponent(suffixTemplate),
                     this.getInt("GROUPS." + groupName + ".LOBBY-NAMETAG.SORT-PRIORITY"),
                     chatFormat,
                     sidebarExtension);

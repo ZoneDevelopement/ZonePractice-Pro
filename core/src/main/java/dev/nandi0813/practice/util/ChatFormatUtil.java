@@ -1,8 +1,10 @@
 package dev.nandi0813.practice.util;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.group.Group;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -13,12 +15,29 @@ import java.util.List;
 public enum ChatFormatUtil {
     ;
 
+    private static String normalizeStaticSpacing(String formattedWithoutMessage) {
+        if (formattedWithoutMessage == null || formattedWithoutMessage.isEmpty()) {
+            return formattedWithoutMessage;
+        }
+
+        // Prevent accidental duplicate spaces in static template text.
+        return formattedWithoutMessage.replaceAll(" {2,}", " ");
+    }
+
     /**
      * Builds the fully-replaced party chat format string.
      */
     public static String buildPartyChatMessage(Player player, String rawMessage) {
-        return LanguageManager.getString("GENERAL-CHAT.PARTY-CHAT")
-                .replace("%%player%%", player.getName())
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        String playerName = profile != null
+                ? ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveName(profile, player.getName()))
+                : player.getName();
+
+        String template = LanguageManager.getString("GENERAL-CHAT.PARTY-CHAT")
+                .replace("%%player%%", playerName)
+                .replace("%%message%%", "%%message%%");
+
+        return normalizeStaticSpacing(template)
                 .replace("%%message%%", rawMessage.replaceFirst("@", ""));
     }
 
@@ -26,8 +45,16 @@ public enum ChatFormatUtil {
      * Builds the fully-replaced staff chat format string.
      */
     public static String buildStaffChatMessage(Player player, String rawMessage) {
-        return LanguageManager.getString("GENERAL-CHAT.STAFF-CHAT")
-                .replace("%%player%%", player.getName())
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        String playerName = profile != null
+                ? ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveName(profile, player.getName()))
+                : player.getName();
+
+        String template = LanguageManager.getString("GENERAL-CHAT.STAFF-CHAT")
+                .replace("%%player%%", playerName)
+                .replace("%%message%%", "%%message%%");
+
+        return normalizeStaticSpacing(template)
                 .replace("%%message%%", rawMessage);
     }
 
@@ -64,11 +91,14 @@ public enum ChatFormatUtil {
         String division      = profile.getStats().getDivision() != null ? profile.getStats().getDivision().getFullName()  : "";
         String divisionShort = profile.getStats().getDivision() != null ? profile.getStats().getDivision().getShortName() : "";
 
-        return format
+        String template = format
                 .replace("%%division%%",       division)
                 .replace("%%division_short%%", divisionShort)
-                .replace("%%player%%",          player.getName())
-                .replace("%%message%%",         message);
+                .replace("%%player%%", ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveName(profile, player.getName())))
+                .replace("%%message%%", "%%message%%");
+
+        return normalizeStaticSpacing(template)
+                .replace("%%message%%", message);
     }
 }
 

@@ -28,8 +28,12 @@ public class Group {
     private final int modifiableKitLimit;
 
     // Nametag stuff
+    private final String prefixTemplate;
     private final Component prefix;
+    private final String nameTemplate;
+    private final Component nameFormat;
     private final NamedTextColor nameColor;
+    private final String suffixTemplate;
     private final Component suffix;
     private final int sortPriority;
 
@@ -38,7 +42,7 @@ public class Group {
     // Set up in the sidebar.yml file
     private final List<Component> sidebarExtension;
 
-    public Group(String name, String displayName, int weight, int unrankedLimit, int rankedLimit, int eventStartLimit, int partyBroadcastLimit, int partyMemberLimit, int customKitLimit, int modifiableKitLimit, Component prefix, NamedTextColor nameColor, Component suffix, int sortPriority, String chatFormat, List<Component> sidebarExtension) {
+    public Group(String name, String displayName, int weight, int unrankedLimit, int rankedLimit, int eventStartLimit, int partyBroadcastLimit, int partyMemberLimit, int customKitLimit, int modifiableKitLimit, String prefixTemplate, Component prefix, String nameTemplate, Component nameFormat, NamedTextColor nameColor, String suffixTemplate, Component suffix, int sortPriority, String chatFormat, List<Component> sidebarExtension) {
         this.name = name;
         this.displayName = displayName;
 
@@ -64,8 +68,12 @@ public class Group {
             this.modifiableKitLimit = modifiableKitLimit;
         }
 
+        this.prefixTemplate = prefixTemplate;
         this.prefix = prefix;
+        this.nameTemplate = nameTemplate;
+        this.nameFormat = nameFormat;
         this.nameColor = nameColor;
+        this.suffixTemplate = suffixTemplate;
         this.suffix = suffix;
         this.sortPriority = sortPriority;
 

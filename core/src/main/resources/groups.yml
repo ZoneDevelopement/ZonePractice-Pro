@@ -1,4 +1,4 @@
-VERSION: 3
+VERSION: 4
 #
 # Player Group settings
 #
@@ -17,6 +17,7 @@ GROUPS:
     MODIFIABLE-KIT-PER-LADDER: 1
     LOBBY-NAMETAG:
       PREFIX: "%division_short% <dark_gray>|<gray> "
+      NAME: "<gradient:green:blue>%player%</gradient>"
       NAME-COLOR: GRAY
       SUFFIX: ""
       SORT-PRIORITY: 4
@@ -33,6 +34,7 @@ GROUPS:
     MODIFIABLE-KIT-PER-LADDER: 2
     LOBBY-NAMETAG:
       PREFIX: "%division_short% <dark_gray>| "
+      NAME: "<gradient:green:blue>%player%</gradient>"
       NAME-COLOR: GRAY
       SUFFIX: " <dark_gray>[<red>Premium<dark_gray>]<gray>"
       SORT-PRIORITY: 3
@@ -49,6 +51,7 @@ GROUPS:
     MODIFIABLE-KIT-PER-LADDER: 4
     LOBBY-NAMETAG:
       PREFIX: "%division_short% <dark_gray>| "
+      NAME: "<gray>%player%"
       NAME-COLOR: GRAY
       SUFFIX: " <dark_gray>[<gold>Supreme<dark_gray>]<gray>"
       SORT-PRIORITY: 2
@@ -65,6 +68,7 @@ GROUPS:
     MODIFIABLE-KIT-PER-LADDER: 0
     LOBBY-NAMETAG:
       PREFIX: "<dark_gray>[<green>Staff<dark_gray>]<gray> "
+      NAME: "<gray>%player%"
       NAME-COLOR: GRAY
       SUFFIX: ""
       SORT-PRIORITY: 1
@@ -81,7 +85,8 @@ GROUPS:
     MODIFIABLE-KIT-PER-LADDER: 4
     LOBBY-NAMETAG:
       PREFIX: "<dark_gray>[<light_purple>Admin<dark_gray>]<gray> "
+      NAME: "<gray>%player%"
       NAME-COLOR: GRAY
       SUFFIX: ""
       SORT-PRIORITY: 0
-    CHAT-FORMAT: "%%division%% <dark_gray>| <dark_gray>[<light_purple>Admin<dark_gray>] <gray> <gray>%%player%%: <white>%%message%%"
+    CHAT-FORMAT: "%%division%% <dark_gray>| <dark_gray>[<light_purple>Admin<dark_gray>] <gray>%%player%%: <white>%%message%%"

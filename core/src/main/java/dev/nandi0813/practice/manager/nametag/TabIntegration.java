@@ -1,6 +1,7 @@
 package dev.nandi0813.practice.manager.nametag;
 
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
+import dev.nandi0813.practice.manager.inventory.InventoryUtil;
 import dev.nandi0813.practice.util.PermanentConfig;
 import lombok.Getter;
 import me.neznamy.tab.api.TabAPI;
@@ -161,40 +162,16 @@ public class TabIntegration {
             TabListFormatManager tabListFormatManager = tabAPI.getTabListFormatManager();
             if (tabListFormatManager == null) return;
 
-            // Get the player's profile to calculate their lobby tab list name
             dev.nandi0813.practice.manager.profile.Profile profile =
-                dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
+                    dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
             if (profile == null) return;
 
-            // Calculate lobby formatting components
-            Component lobbyPrefix = Component.empty();
-            Component lobbySuffix = Component.empty();
-            NamedTextColor lobbyNameColor = NamedTextColor.GRAY;
-
-            dev.nandi0813.practice.manager.profile.group.Group group = profile.getGroup();
-            if (group != null) {
-                lobbyPrefix = group.getPrefix();
-                lobbySuffix = group.getSuffix();
-                lobbyNameColor = group.getNameColor();
-            }
-
-            // Apply custom prefix/suffix if set
-            if (profile.getPrefix() != null) lobbyPrefix = profile.getPrefix();
-            if (profile.getSuffix() != null) lobbySuffix = profile.getSuffix();
-
-            // Apply division placeholders to prefix and suffix
-            if (profile.getStats().getDivision() != null) {
-                lobbyPrefix = applyDivisionPlaceholder(lobbyPrefix, profile.getStats().getDivision());
-                lobbySuffix = applyDivisionPlaceholder(lobbySuffix, profile.getStats().getDivision());
-            } else {
-                lobbyPrefix = removeDivisionPlaceholder(lobbyPrefix);
-                lobbySuffix = removeDivisionPlaceholder(lobbySuffix);
-            }
+            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName());
 
             // Convert components to legacy strings for TAB API
-            String prefixStr = componentToLegacy(lobbyPrefix);
-            String suffixStr = componentToLegacy(lobbySuffix);
-            String nameStr = getColorCode(lobbyNameColor) + player.getName();
+            String prefixStr = componentToLegacy(lobbyNametag.getPrefix());
+            String suffixStr = componentToLegacy(lobbyNametag.getSuffix());
+            String nameStr = componentToLegacy(lobbyNametag.getName());
 
             // Use TAB's TabListFormatManager to set the tab list formatting
             tabListFormatManager.setPrefix(tabPlayer, prefixStr);
@@ -393,40 +370,14 @@ public class TabIntegration {
      */
     private void preserveTabListNameInternal(Player player) {
         try {
-            // Get the player's profile to calculate their lobby tab list name
             dev.nandi0813.practice.manager.profile.Profile profile =
-                dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
+                    dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
             if (profile == null) return;
 
-            // Calculate lobby formatting components
-            Component lobbyPrefix = Component.empty();
-            Component lobbySuffix = Component.empty();
-            NamedTextColor lobbyNameColor = NamedTextColor.GRAY;
-
-            dev.nandi0813.practice.manager.profile.group.Group group = profile.getGroup();
-            if (group != null) {
-                lobbyPrefix = group.getPrefix();
-                lobbySuffix = group.getSuffix();
-                lobbyNameColor = group.getNameColor();
-            }
-
-            // Apply custom prefix/suffix if set
-            if (profile.getPrefix() != null) lobbyPrefix = profile.getPrefix();
-            if (profile.getSuffix() != null) lobbySuffix = profile.getSuffix();
-
-            // Apply division placeholders to prefix and suffix
-            if (profile.getStats().getDivision() != null) {
-                lobbyPrefix = applyDivisionPlaceholder(lobbyPrefix, profile.getStats().getDivision());
-                lobbySuffix = applyDivisionPlaceholder(lobbySuffix, profile.getStats().getDivision());
-            } else {
-                lobbyPrefix = removeDivisionPlaceholder(lobbyPrefix);
-                lobbySuffix = removeDivisionPlaceholder(lobbySuffix);
-            }
-
-            // Build the full tab list name
-            Component tabListName = lobbyPrefix
-                .append(Component.text(player.getName(), lobbyNameColor))
-                .append(lobbySuffix);
+            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName());
+            Component tabListName = lobbyNametag.getPrefix()
+                    .append(lobbyNametag.getName())
+                    .append(lobbyNametag.getSuffix());
 
             // Use internal Bukkit method to set the tablist name (not TAB API)
             PlayerUtil.setPlayerListName(player, tabListName);

@@ -17,10 +17,10 @@ import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.manager.profile.group.GroupManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.ItemSerializationUtil;
+import dev.nandi0813.practice.util.NameFormatUtil;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -49,14 +49,19 @@ public class ProfileFile extends ConfigFile {
             config.set("group", null);
 
         if (profile.getPrefix() != null)
-            config.set("prefix", profile.getPrefix());
+            config.set("prefix", dev.nandi0813.practice.ZonePractice.getMiniMessage().serialize(profile.getPrefix()));
         else
             config.set("prefix", null);
 
         if (profile.getSuffix() != null)
-            config.set("suffix", profile.getSuffix());
+            config.set("suffix", dev.nandi0813.practice.ZonePractice.getMiniMessage().serialize(profile.getSuffix()));
         else
             config.set("suffix", null);
+
+        if (profile.getNameTemplate() != null && !profile.getNameTemplate().isEmpty())
+            config.set("name-template", profile.getNameTemplate());
+        else
+            config.set("name-template", null);
 
         int customKitPerm = profile.getCustomKitPerm();
         if (customKitPerm > 0) config.set("allowed-custom-kits", customKitPerm);
@@ -180,10 +185,13 @@ public class ProfileFile extends ConfigFile {
         }
 
         if (config.isString("prefix"))
-            profile.setPrefix(Component.text(Objects.requireNonNull(config.getString("prefix"))));
+            profile.setPrefix(NameFormatUtil.parseConfiguredComponent(Objects.requireNonNull(config.getString("prefix"))));
 
         if (config.isString("suffix"))
-            profile.setSuffix(Component.text(Objects.requireNonNull(config.getString("suffix"))));
+            profile.setSuffix(NameFormatUtil.parseConfiguredComponent(Objects.requireNonNull(config.getString("suffix"))));
+
+        if (config.isString("name-template"))
+            profile.setNameTemplate(config.getString("name-template"));
 
         if (config.isInt("allowed-custom-kits"))
             profile.setAllowedCustomKits(config.getInt("allowed-custom-kits"));

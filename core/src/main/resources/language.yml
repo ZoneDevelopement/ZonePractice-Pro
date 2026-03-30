@@ -1,4 +1,4 @@
-VERSION: 28
+VERSION: 29
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -821,6 +821,7 @@ COMMAND:
           - "<red><st>------------------------------------------------"
           - "<red>/%label% nametag prefix <player> <prefix> - Set the prefix."
           - "<red>/%label% nametag suffix <player> <suffix> - Set the suffix"
+          - "<red>/%label% nametag name <player> <name> - Set the MiniMessage name (chat/tab)."
           - "<red>/%label% nametag reset <player> - Reset the nametag of the player."
           - "<red><st>------------------------------------------------"
         TARGET-OFFLINE: "<red>%target% is not online."
@@ -830,7 +831,9 @@ COMMAND:
         PLAYER-PREFIX-SET: "<gold>%player% <yellow>set your prefix to %prefix%<yellow>."
         SUFFIX-SET: "<yellow>You set <gold>%target%'s <yellow>suffix to %suffix%<yellow>."
         PLAYER-SUFFIX-SET: "<gold>%player% <yellow>set your suffix to %suffix%<yellow>."
-        RELOADED: "<yellow>You reset <gold>%target%'s <yellow>nametag."
+        NAME-SET: "<yellow>You set <gold>%target%'s <yellow>name to %name%<yellow>."
+        PLAYER-NAME-SET: "<gold>%player% <yellow>set your name format to %name%<yellow>."
+        RELOADED: "<yellow>You reseted <gold>%target%'s <yellow>nametag."
         PLAYER-RELOADED: "<gold>%player% <yellow>has reset your nametag."
       TELEPORT:
         COMMAND-HELP: "<red>/%label% teleport <world>"
