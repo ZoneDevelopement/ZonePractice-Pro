@@ -75,6 +75,10 @@ public enum PlayerUtil {
             player.setGameMode(GameMode.SURVIVAL);
             player.setFlying(false);
             player.setAllowFlight(false);
+            // Players can be marked non-collidable while temporarily spectating; restore combat hitboxes.
+            dev.nandi0813.practice.manager.fight.util.PlayerUtil.setCollidesWithEntities(player, true);
+            // Clear stale invulnerability frames so shield-stun / rapid follow-up hits work consistently.
+            player.setNoDamageTicks(0);
         });
     }
 
