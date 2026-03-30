@@ -10,14 +10,23 @@ public enum LeaveArg {
     ;
 
     public static void run(Player player) {
+        // First check if player is in an FFA as a participant
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
 
-        if (ffa == null) {
-            Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.LEAVE.NOT-IN-FFA"));
+        if (ffa != null) {
+            ffa.removePlayer(player);
             return;
         }
 
-        ffa.removePlayer(player);
+        // Then check if player is spectating an FFA
+        FFA spectatingFfa = FFAManager.getInstance().getFFABySpectator(player);
+        if (spectatingFfa != null) {
+            spectatingFfa.removeSpectator(player);
+            return;
+        }
+
+        // Player is not in any FFA
+        Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.LEAVE.NOT-IN-FFA"));
     }
 
 }

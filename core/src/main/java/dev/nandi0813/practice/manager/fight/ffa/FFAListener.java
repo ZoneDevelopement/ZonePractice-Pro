@@ -78,6 +78,14 @@ public class FFAListener implements Listener {
 
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
+        
+        // Prevent interaction while waiting for kit selection
+        if (ffa.isPlayerWaitingForKitSelection(player)) {
+            ffa.playerSelectKit(player, player.getInventory().getHeldItemSlot());
+            e.setCancelled(true);
+            return;
+        }
+        
         if (!action.equals(Action.RIGHT_CLICK_AIR) && !action.equals(Action.RIGHT_CLICK_BLOCK)) return;
 
         Block clickedBlock = e.getClickedBlock();
@@ -96,11 +104,36 @@ public class FFAListener implements Listener {
     }
 
     @EventHandler
+    public void onInventoryClick(org.bukkit.event.inventory.InventoryClickEvent e) {
+        if (!(e.getWhoClicked() instanceof Player player)) return;
+
+        FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
+        if (ffa == null) return;
+
+        // Only handle clicks while waiting for kit selection
+        if (!ffa.isPlayerWaitingForKitSelection(player)) return;
+
+        e.setCancelled(true);
+
+        // Check if the clicked item is an enchanted book (kit selection)
+        if (e.getCurrentItem() != null && (e.getCurrentItem().getType() == Material.ENCHANTED_BOOK || e.getCurrentItem().getType() == Material.BOOK)) {
+            int slot = e.getSlot();
+            ffa.playerSelectKit(player, slot);
+        }
+    }
+
+    @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
         if (!(e.getEntity().getShooter() instanceof Player player)) return;
 
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
+
+        // Prevent projectile launch while waiting for kit selection
+        if (ffa.isPlayerWaitingForKitSelection(player)) {
+            e.setCancelled(true);
+            return;
+        }
 
         if (ffa.isBuild()) {
             // Build FFAs: track all projectiles for entity rollback cleanup
@@ -397,10 +430,21 @@ public class FFAListener implements Listener {
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(target);
         if (ffa == null) return;
 
-        // Resolve the attacker (direct hit or projectile shooter)
+        // Prevent damage to players waiting for kit selection
+        if (ffa.isPlayerWaitingForKitSelection(target)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        // ...existing code...
         Player attacker = null;
         if (e.getDamager() instanceof Player damager) {
             attacker = damager;
+
+            if (ffa.isPlayerWaitingForKitSelection(damager)) {
+                e.setCancelled(true);
+                return;
+            }
         } else if (e.getDamager() instanceof Projectile projectile) {
             if (projectile.getShooter() instanceof Player shooter) {
                 attacker = shooter;
@@ -414,6 +458,23 @@ public class FFAListener implements Listener {
         // Record the attacker for void-kill attribution
         if (attacker != null) {
             ffa.recordAttack(target, attacker);
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent e) {
+        if (!(e.getEntity() instanceof Player target)) {
+            return;
+        }
+
+        Profile profile = ProfileManager.getInstance().getProfile(target);
+        if (profile == null) return;
+
+        FFA ffa = FFAManager.getInstance().getFFAByPlayer(target);
+        if (ffa == null) return;
+
+        if (ffa.isPlayerWaitingForKitSelection(target)) {
+            e.setCancelled(true);
         }
     }
 

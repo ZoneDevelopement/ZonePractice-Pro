@@ -2,6 +2,8 @@ package dev.nandi0813.practice.command.singlecommands;
 
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
+import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
@@ -41,6 +43,28 @@ public class LeaveCommand extends BukkitCommand {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile == null) return false;
 
+        // First check if player is in an FFA as a participant
+        FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
+        if (ffa != null) {
+            ffa.removePlayer(player);
+            return true;
+        }
+
+        // Then check if player is spectating an FFA
+        FFA spectatingFfa = FFAManager.getInstance().getFFABySpectator(player);
+        if (spectatingFfa != null) {
+            spectatingFfa.removeSpectator(player);
+            return true;
+        }
+
+        // Check if player is in a regular match as a spectator
+        Match liveMatch = MatchManager.getInstance().getLiveMatchBySpectator(player);
+        if (liveMatch != null) {
+            liveMatch.removeSpectator(player);
+            return true;
+        }
+
+        // Otherwise, check if player is in a match as a participant
         if (!profile.getStatus().equals(ProfileStatus.MATCH)) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.LEAVE.NOT-IN-MATCH"));
             return false;

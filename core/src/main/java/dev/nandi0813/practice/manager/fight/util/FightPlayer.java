@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
-public class FightPlayer {
+public abstract class FightPlayer {
 
     protected final Player player;
     protected final UUID uuid;

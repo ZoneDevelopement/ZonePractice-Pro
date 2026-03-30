@@ -7,9 +7,9 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.ffa.FFAFightPlayer;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.util.KitUtil;
-import dev.nandi0813.practice.manager.fight.util.FightPlayer;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.inventory.Inventory;
@@ -42,7 +42,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     private static final Random random = new Random();
 
     private final Map<Player, NormalLadder> players = new HashMap<>();
-    private final Map<Player, FightPlayer> fightPlayers = new HashMap<>();
+    private final Map<Player, FFAFightPlayer> fightPlayers = new HashMap<>();
     private final Map<Player, Statistic> statistics = new HashMap<>();
 
     private final List<Player> spectators = new ArrayList<>();
@@ -121,7 +121,10 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             return;
 
         players.put(player, ladder);
-        fightPlayers.put(player, new FightPlayer(player, this));
+        
+        // Use FFAFightPlayer to handle custom kit selection
+        FFAFightPlayer ffaFightPlayer = new FFAFightPlayer(player, this, ladder);
+        fightPlayers.put(player, ffaFightPlayer);
         statistics.put(player, new Statistic(ProfileManager.getInstance().getUuids().get(player)));
 
         // Hide the spectators
@@ -142,7 +145,10 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         this.sendMessage(LanguageManager.getString("FFA.GAME.PLAYER-JOIN").replace("%player%", player.getName()), true);
 
         PlayerUtil.setFightPlayer(player);
-        KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, players.get(player));
+        
+        // Show kit chooser or apply default kit
+        ffaFightPlayer.showKitChooserOrApplyKit();
+        
         dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, ladder.getAttackCooldownModifier());
 
         ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.FFA);
@@ -157,6 +163,30 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         PlayerUtil.setFightPlayer(player);
         KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, ladder);
         dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, ladder.getAttackCooldownModifier());
+    }
+
+    /**
+     * Called when a player selects a custom kit from their inventory.
+     * Once a kit is selected, the player becomes a full combatant.
+     *
+     * @param player the player selecting a kit
+     * @param slot the inventory slot of the selected kit
+     */
+    public void playerSelectKit(Player player, int slot) {
+        FFAFightPlayer ffaFightPlayer = fightPlayers.get(player);
+        ffaFightPlayer.selectKit(slot);
+    }
+
+    /**
+     * Returns whether a player is waiting to select a kit.
+     * Players waiting for kit selection cannot be hurt or interact with others.
+     *
+     * @param player the player to check
+     * @return true if player is waiting for kit selection, false otherwise
+     */
+    public boolean isPlayerWaitingForKitSelection(Player player) {
+        FFAFightPlayer ffaFightPlayer = fightPlayers.get(player);
+        return ffaFightPlayer.isWaitingForKitSelection();
     }
 
     public void removePlayer(Player player) {
