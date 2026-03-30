@@ -129,8 +129,7 @@ public enum NameFormatUtil {
         } else if (group != null && group.getNameFormat() != null) {
             nameComponent = applyPlayerPlaceholders(applyDivisionPlaceholders(group.getNameFormat(), profile), playerName);
         } else {
-            NamedTextColor fallback = group != null && group.getNameColor() != null ? group.getNameColor() : NamedTextColor.GRAY;
-            nameComponent = Component.text(playerName == null ? "" : playerName, fallback);
+            nameComponent = Component.text(playerName == null ? "" : playerName, NamedTextColor.GRAY);
         }
         return nameComponent;
     }

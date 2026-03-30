@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public class GroupManager extends ConfigFile {
@@ -38,7 +39,7 @@ public class GroupManager extends ConfigFile {
     }
 
     public void loadGroups() {
-        for (String groupName : this.config.getConfigurationSection("GROUPS").getKeys(false)) {
+        for (String groupName : Objects.requireNonNull(this.config.getConfigurationSection("GROUPS")).getKeys(false)) {
             String chatFormat = null;
             if (this.config.isSet("GROUPS." + groupName + ".CHAT-FORMAT"))
                 chatFormat = this.getString("GROUPS." + groupName + ".CHAT-FORMAT");
@@ -50,11 +51,6 @@ public class GroupManager extends ConfigFile {
                 }
             }
 
-            NamedTextColor legacyNameColor = NamedTextColor.NAMES.valueOr(
-                    this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME-COLOR").toLowerCase(),
-                    NamedTextColor.GRAY
-            );
-
             String prefixTemplate = this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.PREFIX");
             String nameTemplate = this.config.isSet("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME")
                     ? this.getString("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME")
@@ -63,7 +59,7 @@ public class GroupManager extends ConfigFile {
 
             Component nameFormat = this.config.isSet("GROUPS." + groupName + ".LOBBY-NAMETAG.NAME")
                     ? NameFormatUtil.parseConfiguredComponent(nameTemplate)
-                    : Component.text("%player%", legacyNameColor);
+                    : Component.text("%player%", NamedTextColor.GRAY);
 
             Group group = new Group(
                     groupName,
@@ -82,7 +78,6 @@ public class GroupManager extends ConfigFile {
                     NameFormatUtil.parseConfiguredComponent(prefixTemplate),
                     nameTemplate,
                     nameFormat,
-                    legacyNameColor,
                     suffixTemplate,
                     NameFormatUtil.parseConfiguredComponent(suffixTemplate),
                     this.getInt("GROUPS." + groupName + ".LOBBY-NAMETAG.SORT-PRIORITY"),
@@ -108,7 +103,7 @@ public class GroupManager extends ConfigFile {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile.getPlayer().isOp()) {
             try {
-                profile.setGroup(groups.get(groups.size() - 1));
+                profile.setGroup(groups.getLast());
             } catch (Exception e) {
                 Common.sendConsoleMMMessage("<red>Failed to set group for " + profile.getPlayer().getName() + "! Error: " + e.getMessage());
             }
@@ -133,7 +128,7 @@ public class GroupManager extends ConfigFile {
 
         // If player has no permissions for any group, assign them to the lowest weighted group (default)
         if (currentGroup == null && !groups.isEmpty()) {
-            currentGroup = groups.get(0); // First group in sorted list = lowest weight
+            currentGroup = groups.getFirst(); // First group in sorted list = lowest weight
         }
 
         return currentGroup;
