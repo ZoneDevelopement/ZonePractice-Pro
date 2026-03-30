@@ -1,4 +1,4 @@
-VERSION: 46
+VERSION: 47
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -559,6 +559,8 @@ ARENA:
 EVENT:
   MULTIPLE: false # If true, multiple events can happen in the same time. But only one can be in the collecting phase.
   AUTO-EVENTS: true
+  DUEL:
+    POST-KILL-DELAY: 3 # Seconds to wait after a duel-event elimination before forwarding/next round. (alias: event-post-kill-delay)
   ENDERPEARL-COOLDOWN: 10 # In sec.
   BROADCAST:
     ENABLE: true

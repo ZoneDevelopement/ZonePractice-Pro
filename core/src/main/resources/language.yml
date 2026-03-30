@@ -1,4 +1,4 @@
-VERSION: 29
+VERSION: 31
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1221,6 +1221,16 @@ DUEL-ROUND-SELECTOR:
   PARTY-RANDOM-ERROR: "<red>There was an error happened contact discord."
   ENEMY-PARTY-OFFLINE: "<red>Enemy party not available."
 EVENT:
+  DUEL:
+    EVENT-ROUND-WON-TITLE: "<green><bold>VICTORY!"
+    EVENT-ROUND-WON-SUBTITLE: "<gray>You won this round!"
+    EVENT-ROUND-LOST-TITLE: "<red><bold>DEFEAT..."
+    EVENT-ROUND-LOST-SUBTITLE: "<gray>Better luck next time!"
+    EVENT-MATCH-WON-TITLE: "<gold><bold>TOURNAMENT WINNER!"
+    EVENT-MATCH-WON-SUBTITLE: "<yellow>Congratulations on winning the event!"
+    EVENT-FIGHT-WON-TITLE: "<aqua>%winner% <gray>won the round"
+    POST-KILL-COUNTDOWN-TITLE: "<yellow>Next round in"
+    POST-KILL-COUNTDOWN-SUBTITLE: "<red>%seconds% <gray>%secondName%"
   EVENT-QUEUE-STARTED-PLAYER: "<red>%player% <gray>started the <yellow>%event% <gray>event. <click:run_command:/event join><hover:show_text:'<green>Click here <yellow>to join the event.'><yellow>Join Event</hover></click>"
   EVENT-QUEUE-STARTED-CONSOLE: "<red>%consoleName% <gray>started the <yellow>%event% <gray>event. <click:run_command:/event join><hover:show_text:'<green>Click here <yellow>to join the event.'><yellow>Join Event</hover></click>"
   EVENT-CANT-START-ONTIME: "<red>Unfortunately the event could not start on time, so it was cancelled."

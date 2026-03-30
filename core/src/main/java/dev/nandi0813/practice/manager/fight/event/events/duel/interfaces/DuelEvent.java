@@ -4,6 +4,7 @@ import dev.nandi0813.api.Event.Event.EventEndEvent;
 import dev.nandi0813.api.Event.Spectate.Start.EventSpectateStartEvent;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.event.enums.EventStatus;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
 import dev.nandi0813.practice.manager.fight.event.runnables.DurationRunnable;
@@ -113,11 +114,17 @@ public abstract class DuelEvent extends Event {
         int seconds = startRunnable.getSeconds();
 
         if (seconds == 0) {
+            this.sendEventStartFightTitle();
             startRunnable.cancel();
 
             this.getDurationRunnable().begin();
             this.status = EventStatus.LIVE;
         } else {
+            int titleCountdownFrom = dev.nandi0813.practice.manager.backend.ConfigManager.getInt("MATCH-SETTINGS.TITLE.START-COUNTDOWN-FROM", 5);
+            if (seconds <= titleCountdownFrom) {
+                this.sendEventStartCountdownTitle(seconds);
+            }
+
             if (seconds <= 5) {
                 this.sendMessage(LanguageManager.getString(LANGUAGE_PATH + ".ROUND-STARTING")
                                 .replace("%seconds%", String.valueOf(seconds))
@@ -130,6 +137,27 @@ public abstract class DuelEvent extends Event {
 
             startRunnable.decreaseTime();
         }
+    }
+
+    private void sendEventStartCountdownTitle(int seconds) {
+        String countdownTitle = LanguageManager.getString("MATCH.START-TITLES.COUNTDOWN").replace("%remaining%", String.valueOf(seconds));
+        for (Player recipient : this.getTitleRecipients()) {
+            EventManager.getInstance().sendRawEventTitle(recipient, countdownTitle, "");
+        }
+    }
+
+    private void sendEventStartFightTitle() {
+        String fightTitle = LanguageManager.getString("MATCH.START-TITLES.FIGHT");
+        for (Player recipient : this.getTitleRecipients()) {
+            EventManager.getInstance().sendRawEventTitle(recipient, fightTitle, "");
+        }
+    }
+
+    private List<Player> getTitleRecipients() {
+        Set<Player> recipients = new LinkedHashSet<>();
+        recipients.addAll(this.players);
+        recipients.addAll(this.getSpectators());
+        return new ArrayList<>(recipients);
     }
 
     @Override
@@ -190,6 +218,7 @@ public abstract class DuelEvent extends Event {
         }
 
         if (this.winner != null) {
+
             this.sendMessage(LanguageManager.getString(LANGUAGE_PATH + ".WON-EVENT").replace("%winner%", this.winner.getName()), true);
 
             for (String cmd : this.eventData.getType().getWinnerCMD()) {
