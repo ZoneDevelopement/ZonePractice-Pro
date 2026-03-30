@@ -46,10 +46,6 @@ public class RoundEndRunnable extends BukkitRunnable {
         this(round, ended, false, false);
     }
 
-    public RoundEndRunnable(Round round, boolean ended, boolean suppressNextRound) {
-        this(round, ended, suppressNextRound, false);
-    }
-
     public RoundEndRunnable(Round round, boolean ended, boolean suppressNextRound, boolean rollbackBeforeNextRound) {
         this.round = round;
         this.match = round.getMatch();

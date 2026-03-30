@@ -1,4 +1,4 @@
-VERSION: 44
+VERSION: 46
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -241,8 +241,11 @@ MATCH-SETTINGS:
     START-COUNTDOWN-FROM: 5
   HEALTH-BELOW-NAME:
     SATURATED-HEART-INDICATOR: true # If true, the below-name heart icon turns yellow when the player is saturated.
-    LOW-HEALTH-DECIMAL-RATIO: true # If true, health below 2 hearts is shown as a decimal ratio (current/max).
+    DECIMAL-HEART-INDICATOR:
+      ALWAYS-SHOW: true # If true, the below-name heart icon always shows the decimal hearts.
+      LOW-HEALTH-DECIMAL-RATIO: true # If true, health below 2 hearts is shown as a decimal ratio (current/max).
     LOW-HEALTH-THRESHOLD: 4.0
+    SCALE: 20 # The scale setting defines the health display range between 10 and 100 with a default value of 20.
   BUILD-LIMIT-DEFAULT: 4 # Counts from the first players positions Y level. You can set a unique number for this for every arena, then it will consider where you are standing.
   AFTER-COUNTDOWN: 3 # After the match is over this countdown start, and when it's over, the players teleport back to the lobby.
   GOLDEN-HEAD: # Golden head settings.

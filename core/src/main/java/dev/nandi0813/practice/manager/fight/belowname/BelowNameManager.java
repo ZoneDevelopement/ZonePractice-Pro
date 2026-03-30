@@ -7,17 +7,21 @@ import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.*;
 
 import java.util.Locale;
+import java.util.Objects;
 
 public class BelowNameManager {
 
-    private static final String SATURATED_HEART_INDICATOR_PATH = "MATCH-SETTINGS.HEALTH-BELOW-NAME.SATURATED-HEART-INDICATOR";
-    private static final String LOW_HEALTH_RATIO_PATH = "MATCH-SETTINGS.HEALTH-BELOW-NAME.LOW-HEALTH-DECIMAL-RATIO";
+    private static final boolean SATURATED_HEART_INDICATOR = ConfigManager.getBoolean("MATCH-SETTINGS.HEALTH-BELOW-NAME.SATURATED-HEART-INDICATOR");
+    private static final boolean DECIMAL_ALWAYS_SHOW = ConfigManager.getBoolean("MATCH-SETTINGS.HEALTH-BELOW-NAME.DECIMAL-HEART-INDICATOR.ALWAYS-SHOW");
+    private static final boolean LOW_HEALTH_RATIO = ConfigManager.getBoolean("MATCH-SETTINGS.HEALTH-BELOW-NAME.DECIMAL-HEART-INDICATOR.LOW-HEALTH-DECIMAL-RATIO");
     private static final double LOW_HEALTH_THRESHOLD = ConfigManager.getDouble("MATCH-SETTINGS.HEALTH-BELOW-NAME.LOW-HEALTH-THRESHOLD") * 2.0;
+    private static final double CONFIG_SCALE = ConfigManager.getDouble("MATCH-SETTINGS.HEALTH-BELOW-NAME.SCALE");
 
 private static BelowNameManager instance;
 
@@ -36,9 +40,6 @@ public static BelowNameManager getInstance() {
     }
 
     private final Runnable hpUpdate = () -> {
-        boolean saturatedHeartIndicatorEnabled = ConfigManager.getBoolean(SATURATED_HEART_INDICATOR_PATH);
-        boolean lowHealthRatioEnabled = ConfigManager.getBoolean(LOW_HEALTH_RATIO_PATH);
-
         for (Player player : Bukkit.getOnlinePlayers()) {
             Scoreboard scoreboard = player.getScoreboard();
             Objective objective = scoreboard.getObjective(objectiveName);
@@ -54,12 +55,7 @@ public static BelowNameManager getInstance() {
                 Score score = objective.getScore(otherPlayer.getName());
                 score.setScore(hp);
 
-                Component formattedHealth = formatHealth(
-                        otherPlayer,
-                        health,
-                        saturatedHeartIndicatorEnabled,
-                        lowHealthRatioEnabled
-                );
+                Component formattedHealth = formatHealth(otherPlayer, health);
 
                 score.customName(null);
                 score.numberFormat(NumberFormat.fixed(formattedHealth));
@@ -93,19 +89,24 @@ public static BelowNameManager getInstance() {
         }
     }
 
-    private Component formatHealth(Player player, double health, boolean saturatedHeartIndicatorEnabled, boolean lowHealthRatioEnabled) {
+    private Component formatHealth(Player player, double health) {
         NamedTextColor heartColor = NamedTextColor.RED;
-        if (saturatedHeartIndicatorEnabled && isSaturated(player)) {
+        if (SATURATED_HEART_INDICATOR && isSaturated(player)) {
             heartColor = NamedTextColor.YELLOW;
         }
 
-        if (lowHealthRatioEnabled && health < LOW_HEALTH_THRESHOLD) {
-            double hearts = health / 2.0;
-            return Component.text(String.format(Locale.US, "%.1f ", hearts), NamedTextColor.WHITE)
-                    .append(Component.text("♥", heartColor));
+        double scale = Math.clamp(CONFIG_SCALE == 0 ? 20.0 : CONFIG_SCALE, 10.0, 100.0);
+        double maxHealth = Objects.requireNonNull(player.getAttribute(Attribute.MAX_HEALTH)).getValue();
+        double displayHealth = (health / maxHealth) * scale;
+
+        if (DECIMAL_ALWAYS_SHOW || (LOW_HEALTH_RATIO && health < LOW_HEALTH_THRESHOLD)) {
+            return Component.text(
+                        String.format(Locale.US, "%.1f", displayHealth),
+                        NamedTextColor.WHITE
+                    ).append(Component.text("♥", heartColor));
         }
 
-        return Component.text((int) Math.ceil(health) + " ", NamedTextColor.WHITE)
+        return Component.text((int) Math.ceil(displayHealth) + " ", NamedTextColor.WHITE)
                 .append(Component.text("♥", heartColor));
     }
 
