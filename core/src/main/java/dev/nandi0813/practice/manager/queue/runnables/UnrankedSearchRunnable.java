@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.division.Division;
 import dev.nandi0813.practice.manager.division.DivisionManager;
+import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.queue.Queue;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -38,9 +39,6 @@ public class UnrankedSearchRunnable extends SearchRunnable {
                     if (q.getPlayer() == queue.getPlayer())
                         continue;
 
-                    if (q.getLadder() != queue.getLadder())
-                        continue;
-
                     if (queue.getProfile().getIgnoredPlayers().contains(q.getProfile()))
                         continue;
                     else if (q.getProfile().getIgnoredPlayers().contains(queue.getProfile()))
@@ -51,10 +49,16 @@ public class UnrankedSearchRunnable extends SearchRunnable {
 
                     Division queueDivision = q.getProfile().getStats().getDivision();
                     if (acceptableDivisions.contains(queueDivision)) {
-                        this.cancel();
-                        queue.startMatch(q);
+                        for (NormalLadder ladder : getShuffledQueuedLadders()) {
+                            if (!q.isQueued(ladder)) {
+                                continue;
+                            }
 
-                        return;
+                            this.cancel();
+                            queue.startMatch(q, ladder);
+
+                            return;
+                        }
                     }
                 }
             }

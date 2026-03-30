@@ -1,4 +1,4 @@
-VERSION: 4
+VERSION: 5
 
 TITLE: "<gold><b>PRACTICE"
 LOBBY:
@@ -31,6 +31,18 @@ LOBBY:
     - "<white>In Queue: <gold>%inQueuePlayer%"
     - "<gray><st>---------------------"
     - "%weightClass% %ladderDisplayName%"
+    - "<white>Time: <gold>%elapsedTime%"
+    - ""
+    - "<gold>play.zonepractice.com"
+    - "<gray><st>---------------------"
+  DUEL-QUEUE-MULTI:
+    - "<gray><st>---------------------"
+    - "<white>Online: <gold>%onlinePlayers%"
+    - "<white>In Fights: <gold>%inFightPlayers%"
+    - "<white>In Queue: <gold>%inQueuePlayer%"
+    - "<gray><st>---------------------"
+    - "%weightClass% %multiQueueLabel%"
+    - "%multiQueueCurrentLadder%"
     - "<white>Time: <gold>%elapsedTime%"
     - ""
     - "<gold>play.zonepractice.com"

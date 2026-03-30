@@ -2,6 +2,8 @@ package dev.nandi0813.practice.manager.sidebar.adapter;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.event.events.duel.interfaces.DuelEvent;
 import dev.nandi0813.practice.manager.fight.event.events.duel.interfaces.DuelFight;
@@ -40,9 +42,7 @@ import dev.nandi0813.practice.manager.queue.QueueManager;
 import dev.nandi0813.practice.manager.queue.runnables.CustomKitSearchRunnable;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
-import dev.nandi0813.practice.util.NameFormatUtil;
-import dev.nandi0813.practice.util.PAPIUtil;
-import dev.nandi0813.practice.util.TPSUtil;
+import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -66,6 +66,18 @@ public class PracticeAdapter implements SidebarAdapter {
             return Component.text(target.getName());
         }
         return NameFormatUtil.buildFullDisplayName(targetProfile, target.getName());
+    }
+
+    private static Component parseColoredText(String text) {
+        if (text == null || text.isEmpty()) {
+            return Component.empty();
+        }
+
+        if (text.contains("&") || text.contains("§")) {
+            text = StringUtil.legacyColorToMiniMessage(text);
+        }
+
+        return Common.deserializeMiniMessage(text);
     }
 
     @Override
@@ -116,13 +128,39 @@ public class PracticeAdapter implements SidebarAdapter {
             CustomKitSearchRunnable customKitJoinSearch = CustomKitQueueManager.getInstance().getJoinSearch(player);
 
             if (queue != null) {
-                for (String line : config.getStringList("LOBBY.DUEL-QUEUE")) {
+                boolean multiQueue = queue.getQueuedLadders().size() > 1;
+                String ladderDisplayName = queue.getLadder() != null ? queue.getLadder().getDisplayName() : "Unknown";
+                String multiQueueLabel = "";
+                String multiQueueCurrent = "";
+
+                if (multiQueue) {
+                    multiQueueLabel = ConfigManager.getString("QUEUE.MULTI.SIDEBAR.MULTIPLE-LABEL");
+                    if (multiQueueLabel.isEmpty()) {
+                        multiQueueLabel = LanguageManager.getString("QUEUES.MULTI.SIDEBAR-MULTIPLE");
+                    }
+                    if (multiQueueLabel.isEmpty()) {
+                        multiQueueLabel = "Multiple Ladders";
+                    }
+
+                    String currentFormat = ConfigManager.getString("QUEUE.MULTI.SIDEBAR.CURRENT-LADDER-FORMAT");
+                    if (currentFormat.isEmpty()) {
+                        currentFormat = "<white>Current: <gold>%ladder%";
+                    }
+
+                    multiQueueCurrent = currentFormat.replace("%ladder%", queue.getCyclingSidebarLadder());
+                    ladderDisplayName = multiQueueLabel;
+                }
+
+                String duelQueuePath = multiQueue && config.isList("LOBBY.DUEL-QUEUE-MULTI") ? "LOBBY.DUEL-QUEUE-MULTI" : "LOBBY.DUEL-QUEUE";
+                for (String line : config.getStringList(duelQueuePath)) {
                     sidebar.add(PAPIUtil.runThroughFormat(player, line)
                             .replaceText(TextReplacementConfig.builder().match("%onlinePlayers%").replacement(String.valueOf(Bukkit.getOnlinePlayers().size())).build())
                             .replaceText(TextReplacementConfig.builder().match("%inFightPlayers%").replacement(String.valueOf(MatchManager.getInstance().getPlayerInMatchSize())).build())
                             .replaceText(TextReplacementConfig.builder().match("%inQueuePlayer%").replacement(String.valueOf(QueueManager.getInstance().getQueues().size())).build())
                             .replaceText(TextReplacementConfig.builder().match("%weightClass%").replacement(queue.isRanked() ? WeightClass.RANKED.getName() : WeightClass.UNRANKED.getName()).build())
-                            .replaceText(TextReplacementConfig.builder().match("%ladderDisplayName%").replacement(queue.getLadder().getDisplayName()).build())
+                            .replaceText(TextReplacementConfig.builder().match("%ladderDisplayName%").replacement(parseColoredText(ladderDisplayName)).build())
+                            .replaceText(TextReplacementConfig.builder().match("%multiQueueLabel%").replacement(parseColoredText(multiQueueLabel)).build())
+                            .replaceText(TextReplacementConfig.builder().match("%multiQueueCurrentLadder%").replacement(parseColoredText(multiQueueCurrent)).build())
                             .replaceText(TextReplacementConfig.builder().match("%elapsedTime%").replacement(queue.getFormattedDuration()).build())
                             .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
                             .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build())

@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.division.Division;
 import dev.nandi0813.practice.manager.division.DivisionManager;
+import dev.nandi0813.practice.manager.fight.match.enums.WeightClass;
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
@@ -24,6 +25,9 @@ import java.util.List;
 
 @Getter
 public class QueueManager implements Listener {
+
+    private static final String MULTI_QUEUE_CONFIG_PATH = "QUEUE.MULTI";
+    private static final String MULTI_QUEUE_PERMISSION_DEFAULT = "zpp.queue.multi";
 
     private static QueueManager instance;
 
@@ -46,22 +50,34 @@ public class QueueManager implements Listener {
     }
 
     public int getQueueSize(final Ladder ladder, final boolean ranked) {
+        if (!(ladder instanceof NormalLadder normalLadder)) {
+            return 0;
+        }
+
         int size = 0;
         for (Queue queue : queues)
-            if (queue.getLadder().equals(ladder) && queue.isRanked() == ranked)
+            if (queue.isRanked() == ranked && queue.isQueued(normalLadder))
                 size++;
         return size;
     }
 
     public int getQueueSize(final Ladder ladder) {
+        if (!(ladder instanceof NormalLadder normalLadder)) {
+            return 0;
+        }
+
         int size = 0;
         for (Queue queue : queues)
-            if (queue.getLadder().equals(ladder))
+            if (queue.isQueued(normalLadder))
                 size++;
         return size;
     }
 
     public void createUnrankedQueue(Player player, NormalLadder ladder) {
+        createUnrankedQueue(player, ladder, false);
+    }
+
+    public void createUnrankedQueue(Player player, NormalLadder ladder, boolean keepInventoryOpen) {
         if (ladder.isFrozen()) {
             Common.sendMMMessage(player, LanguageManager.getString("QUEUES.UNRANKED.LADDER-FROZEN").replace("%ladder%", ladder.getDisplayName()));
             return;
@@ -72,12 +88,14 @@ public class QueueManager implements Listener {
             return;
         }
 
-        player.closeInventory();
-        Queue queue = new Queue(player, ladder, false);
-        queue.startQueue();
+        toggleQueue(player, ladder, false, keepInventoryOpen);
     }
 
     public void createRankedQueue(Player player, NormalLadder ladder) {
+        createRankedQueue(player, ladder, false);
+    }
+
+    public void createRankedQueue(Player player, NormalLadder ladder, boolean keepInventoryOpen) {
         if (ladder.isFrozen()) {
             Common.sendMMMessage(player, LanguageManager.getString("QUEUES.RANKED.LADDER-FROZEN").replace("%ladder%", ladder.getDisplayName()));
             return;
@@ -90,7 +108,9 @@ public class QueueManager implements Listener {
 
         if (PlayerUtil.getPing(player) > ConfigManager.getInt("QUEUE.RANKED.MAX-PING")) {
             Common.sendMMMessage(player, LanguageManager.getString("QUEUES.RANKED.HIGH-PING"));
-            player.closeInventory();
+            if (!keepInventoryOpen) {
+                player.closeInventory();
+            }
             return;
         }
 
@@ -101,29 +121,128 @@ public class QueueManager implements Listener {
             if (requirement != null && !DivisionManager.getInstance().meetsMinimumForRanked(profile)) {
                 sendRankedProgressMessage(player, profile, requirement);
 
-                player.closeInventory();
+                if (!keepInventoryOpen) {
+                    player.closeInventory();
+                }
                 return;
             }
         }
 
         if (profile.getRankedLeft() <= 0 && !player.hasPermission("zpp.bypass.ranked.limit")) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.RANKED.NO-RANKED-LEFT"));
-            player.closeInventory();
+            if (!keepInventoryOpen) {
+                player.closeInventory();
+            }
             return;
         }
 
         if (profile.getRankedBan().isBanned()) {
+            String bannerName = "Console";
+            if (profile.getRankedBan().getBanner() != null && profile.getRankedBan().getBanner().getPlayer() != null) {
+                bannerName = profile.getRankedBan().getBanner().getPlayer().getName();
+            }
+
             Common.sendMMMessage(player, LanguageManager.getString("QUEUES.RANKED.BANNED")
-                    .replace("%banner%", profile.getRankedBan().getBanner() == null ? "Console" : profile.getRankedBan().getBanner().getPlayer().getName())
+                    .replace("%banner%", bannerName != null ? bannerName : "")
                     .replace("%reason%", profile.getRankedBan().getReason() == null ? LanguageManager.getString("QUEUES.RANKED.NO-REASON") : profile.getRankedBan().getReason()));
 
-            player.closeInventory();
+            if (!keepInventoryOpen) {
+                player.closeInventory();
+            }
             return;
         }
 
-        player.closeInventory();
-        Queue queue = new Queue(player, ladder, true);
-        queue.startQueue();
+        toggleQueue(player, ladder, true, keepInventoryOpen);
+    }
+
+    public void endAllQueuesForPlayer(Player player, boolean foundMatch, String message) {
+        Queue queue = getQueue(player);
+        if (queue != null) {
+            queue.endQueue(foundMatch, message);
+        }
+    }
+
+    public boolean isMultiQueueAllowed(Player player) {
+        if (!ConfigManager.getBoolean(MULTI_QUEUE_CONFIG_PATH + ".ENABLED")) {
+            return false;
+        }
+
+        String permission = getMultiQueuePermissionNode();
+        return player.hasPermission(permission);
+    }
+
+    private String getMultiQueuePermissionNode() {
+        String path = MULTI_QUEUE_CONFIG_PATH + ".PERMISSION";
+        String permission = ConfigManager.getString(path);
+        return permission.isEmpty() ? MULTI_QUEUE_PERMISSION_DEFAULT : permission;
+    }
+
+    private int getMultiQueueLimit() {
+        return ConfigManager.getInt(MULTI_QUEUE_CONFIG_PATH + ".MAX-LADDERS", 3);
+    }
+
+    private void toggleQueue(Player player, NormalLadder ladder, boolean ranked, boolean keepInventoryOpen) {
+        Queue existingQueue = getQueue(player);
+        boolean allowMultiQueue = isMultiQueueAllowed(player);
+        boolean preserveOpenInventory = keepInventoryOpen && allowMultiQueue;
+
+        if (existingQueue != null && existingQueue.isRanked() != ranked) {
+            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.MULTI.CANT-MIX-TYPES"));
+            return;
+        }
+
+        if (existingQueue == null) {
+            if (!preserveOpenInventory) {
+                player.closeInventory();
+            }
+
+            Queue queue = new Queue(player, ladder, ranked, preserveOpenInventory);
+            queue.startQueue();
+            return;
+        }
+
+        if (!allowMultiQueue) {
+            if (existingQueue.isQueued(ladder)) {
+                endAllQueuesForPlayer(player, false, LanguageManager.getString("QUEUES.QUEUE-STOPPED")
+                        .replace("%weightClass%", ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName())
+                        .replace("%ladder%", ladder.getDisplayName()));
+                return;
+            }
+
+            endAllQueuesForPlayer(player, false, null);
+
+            player.closeInventory();
+
+            Queue queue = new Queue(player, ladder, ranked, false);
+            queue.startQueue();
+            return;
+        }
+
+        if (existingQueue.isQueued(ladder)) {
+            existingQueue.removeLadder(ladder);
+
+            if (existingQueue.getQueuedLadders().isEmpty()) {
+                endAllQueuesForPlayer(player, false, LanguageManager.getString("QUEUES.QUEUE-STOPPED")
+                        .replace("%weightClass%", ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName())
+                        .replace("%ladder%", ladder.getDisplayName()));
+            } else {
+                Common.sendMMMessage(player, LanguageManager.getString("QUEUES.QUEUE-STOPPED")
+                        .replace("%weightClass%", ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName())
+                        .replace("%ladder%", ladder.getDisplayName()));
+            }
+            return;
+        }
+
+        int limit = getMultiQueueLimit();
+        if (limit > 0 && existingQueue.getQueuedLadders().size() >= limit) {
+            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.MULTI.MAX-LADDERS").replace("%max%", String.valueOf(limit)));
+            return;
+        }
+
+        existingQueue.addLadder(ladder);
+        Common.sendMMMessage(player, LanguageManager.getString("QUEUES.QUEUE-START")
+                .replace("%weightClass%", ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName())
+                .replace("%ladder%", ladder.getDisplayName()));
     }
 
     private void sendRankedProgressMessage(Player player, Profile profile, Division requirement) {
@@ -159,10 +278,7 @@ public class QueueManager implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
-        Queue queue = this.getQueue(player);
-
-        if (queue != null)
-            queue.endQueue(false, null);
+        endAllQueuesForPlayer(player, false, null);
     }
 
 }

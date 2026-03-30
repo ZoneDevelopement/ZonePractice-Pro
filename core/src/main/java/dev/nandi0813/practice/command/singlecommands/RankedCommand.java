@@ -25,9 +25,15 @@ public class RankedCommand implements CommandExecutor {
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
-        if (!profile.getStatus().equals(ProfileStatus.LOBBY) || profile.isStaffMode() || profile.isParty()) {
+        boolean lobbyOrQueue = profile.getStatus().equals(ProfileStatus.LOBBY) || profile.getStatus().equals(ProfileStatus.QUEUE);
+        if (!lobbyOrQueue || profile.isStaffMode() || profile.isParty()) {
             Common.sendMMMessage(player, LanguageManager.getString("CANT-USE-COMMAND"));
             return false;
+        }
+
+        if (args.length == 0) {
+            GUIManager.getInstance().searchGUI(GUIType.Queue_Ranked).open(player);
+            return true;
         }
 
         if (!player.hasPermission("zpp.bypass.ranked.requirements")) {
@@ -45,9 +51,7 @@ public class RankedCommand implements CommandExecutor {
             return false;
         }
 
-        if (args.length == 0) {
-            GUIManager.getInstance().searchGUI(GUIType.Queue_Ranked).open(player);
-        } else if (args.length == 1) {
+        if (args.length == 1) {
             NormalLadder ladder = LadderManager.getInstance().getLadder(args[0]);
             if (ladder == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.RANKED.LADDER-NOT-FOUND").replace("%ladder%", args[0]));

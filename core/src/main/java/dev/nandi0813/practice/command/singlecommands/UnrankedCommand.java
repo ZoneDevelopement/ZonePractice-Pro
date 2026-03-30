@@ -23,9 +23,15 @@ public class UnrankedCommand implements CommandExecutor {
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
-        if (!profile.getStatus().equals(ProfileStatus.LOBBY) || profile.isStaffMode() || profile.isParty()) {
+        boolean lobbyOrQueue = profile.getStatus().equals(ProfileStatus.LOBBY) || profile.getStatus().equals(ProfileStatus.QUEUE);
+        if (!lobbyOrQueue || profile.isStaffMode() || profile.isParty()) {
             Common.sendMMMessage(player, LanguageManager.getString("CANT-USE-COMMAND"));
             return false;
+        }
+
+        if (args.length == 0) {
+            GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).open(player);
+            return true;
         }
 
         if (!player.hasPermission("zpp.bypass.unranked.limit") && profile.getUnrankedLeft() <= 0) {
@@ -33,9 +39,7 @@ public class UnrankedCommand implements CommandExecutor {
             return false;
         }
 
-        if (args.length == 0) {
-            GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).open(player);
-        } else if (args.length == 1) {
+        if (args.length == 1) {
             NormalLadder ladder = LadderManager.getInstance().getLadder(args[0]);
             if (ladder == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.QUEUES.UNRANKED.LADDER-NOT-FOUND").replace("%ladder%", args[0]));

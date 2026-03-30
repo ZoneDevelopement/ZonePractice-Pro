@@ -11,16 +11,19 @@ import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
+import dev.nandi0813.practice.manager.queue.Queue;
 import dev.nandi0813.practice.manager.queue.QueueManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
@@ -220,6 +223,8 @@ public abstract class QueueSelectorGui extends GUI {
             }
         }
 
+        applySelectionGlowToOpenPlayers();
+
         updatePlayers();
     }
 
@@ -231,7 +236,11 @@ public abstract class QueueSelectorGui extends GUI {
     public void open(Player player, int page) {
         super.open(player, page);
         // Delay matches the 2L delay in GUI.open so we start only after inGuiPlayers is set
-        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), this::startTicker, 3L);
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            this.startTicker();
+            InventoryView view = player.getOpenInventory();
+            applySelectionGlow(player, page, view.getTopInventory());
+        }, 3L);
     }
 
     @Override
@@ -547,6 +556,7 @@ public abstract class QueueSelectorGui extends GUI {
             NormalLadder randomLadder = getRandomQuickMatchLadder(ladders);
             if (randomLadder != null) {
                 onLadderClick(player, randomLadder);
+                applySelectionGlow(player, page, inventoryView.getTopInventory());
             }
             return;
         }
@@ -558,6 +568,7 @@ public abstract class QueueSelectorGui extends GUI {
 
         if (currentMap.containsKey(rawSlot)) {
             onLadderClick(player, currentMap.get(rawSlot));
+            applySelectionGlow(player, page, inventoryView.getTopInventory());
         }
     }
 
@@ -582,6 +593,65 @@ public abstract class QueueSelectorGui extends GUI {
                 item.setItemMeta(meta);
             }
         }
+    }
+
+    private void applySelectionGlowToOpenPlayers() {
+        for (Map.Entry<Player, Integer> entry : this.getInGuiPlayers().entrySet()) {
+            Player player = entry.getKey();
+            int page = entry.getValue();
+
+            if (player == null || !player.isOnline()) {
+                continue;
+            }
+
+            InventoryView view = player.getOpenInventory();
+            applySelectionGlow(player, page, view.getTopInventory());
+        }
+    }
+
+    private void applySelectionGlow(Player player, int page, Inventory inventory) {
+        if (inventory == null) {
+            return;
+        }
+
+        Map<Integer, NormalLadder> ladders = pageLadderSlots.get(page);
+        if (ladders == null || ladders.isEmpty()) {
+            return;
+        }
+
+        Queue queue = QueueManager.getInstance().getQueue(player);
+
+        for (Map.Entry<Integer, NormalLadder> entry : ladders.entrySet()) {
+            ItemStack item = inventory.getItem(entry.getKey());
+            if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            boolean selected = queue != null
+                    && queue.isRanked() == isRanked()
+                    && queue.isQueued(entry.getValue())
+                    && QueueManager.getInstance().isMultiQueueAllowed(player);
+
+            setItemGlow(item, selected);
+            inventory.setItem(entry.getKey(), item);
+        }
+    }
+
+    private void setItemGlow(ItemStack item, boolean glowing) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+
+        if (glowing) {
+            meta.addEnchant(Enchantment.UNBREAKING, 1, true);
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        } else {
+            meta.removeEnchant(Enchantment.UNBREAKING);
+            meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+        }
+
+        item.setItemMeta(meta);
     }
 
     private List<CategoryConfig> loadCategories(String queuePath) {

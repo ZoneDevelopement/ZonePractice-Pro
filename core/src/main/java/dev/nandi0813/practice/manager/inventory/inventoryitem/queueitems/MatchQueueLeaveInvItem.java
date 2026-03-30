@@ -16,7 +16,7 @@ public class MatchQueueLeaveInvItem extends InvItem {
     public void handleClickEvent(Player player) {
         Queue queue = QueueManager.getInstance().getQueue(player);
         if (queue != null) {
-            queue.endQueue(false, null);
+            QueueManager.getInstance().endAllQueuesForPlayer(player, false, null);
             return;
         }
 

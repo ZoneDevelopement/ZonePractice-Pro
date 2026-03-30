@@ -1,4 +1,4 @@
-VERSION: 47
+VERSION: 48
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -35,6 +35,13 @@ QUEUE:
     ENABLED: true # If true, lobby uses a single queue item instead of separate ranked and unranked items.
     DEFAULT-GUI: "UNRANKED" # Options: UNRANKED, RANKED
     SWITCH-ENABLED: true
+  MULTI:
+    ENABLED: true
+    PERMISSION: "zpp.queue.multi"
+    MAX-LADDERS: 3 # Set to -1 or 0 for unlimited.
+    SIDEBAR:
+      MULTIPLE-LABEL: "Multiple Ladders"
+      CURRENT-LADDER-FORMAT: "<white>Current: <gold>%ladder%"
   UNRANKED:
     CUSTOM-KIT:
       ENABLED: true # If false, the custom kit queue feature is disabled and only shows filler items

@@ -51,7 +51,7 @@ public class InventoryManager extends ConfigFile {
     private final List<Player> setupModePlayers = new ArrayList<>();
     private final NamespacedKey lobbyCosmeticItemKey = new NamespacedKey(ZonePractice.getInstance(), "zpp-cosmetic-item");
     private final NamespacedKey lobbyCosmeticTypeKey = new NamespacedKey(ZonePractice.getInstance(), "zpp-cosmetic-type");
-    private final Map<java.util.UUID, ItemStack> storedOffhandItems = new HashMap<>();
+    private final Map<UUID, ItemStack> storedOffhandItems = new HashMap<>();
 
     private InventoryManager() {
         super("", "inventories");
@@ -110,9 +110,8 @@ public class InventoryManager extends ConfigFile {
                 true);
 
         if (ZonePractice.getInstance().isEnabled()) {
-            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
-                InventoryUtil.setLobbyNametag(player, profile);
-            });
+            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
+                    InventoryUtil.setLobbyNametag(player, profile));
         } else {
             InventoryUtil.setLobbyNametag(player, profile);
         }
@@ -139,8 +138,15 @@ public class InventoryManager extends ConfigFile {
     }
 
     public void setMatchQueueInventory(Player player) {
+        setMatchQueueInventory(player, true);
+    }
+
+    public void setMatchQueueInventory(Player player, boolean closeInventory) {
         ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.QUEUE);
-        player.closeInventory();
+
+        if (closeInventory) {
+            player.closeInventory();
+        }
 
         this.setInventory(player, Inventory.InventoryType.MATCH_QUEUE);
     }
@@ -196,7 +202,7 @@ public class InventoryManager extends ConfigFile {
         ItemStack itemInMiddle = inv.getItem(middleSlot);
 
         ItemStack currentOffHand = inv.getItemInOffHand();
-        if (currentOffHand != null && !currentOffHand.getType().isAir()) {
+        if (!currentOffHand.getType().isAir()) {
             storedOffhandItems.put(player.getUniqueId(), currentOffHand);
         }
 
@@ -217,7 +223,7 @@ public class InventoryManager extends ConfigFile {
         PlayerInventory inv = player.getInventory();
         ItemStack offHand = inv.getItemInOffHand();
 
-        if (offHand == null || offHand.getType().isAir() || isLobbyCosmeticItem(offHand)) {
+        if (offHand.getType().isAir() || isLobbyCosmeticItem(offHand)) {
             inv.setItemInOffHand(stored);
             return;
         }
@@ -296,7 +302,7 @@ public class InventoryManager extends ConfigFile {
                 case WIND_CHARGE -> "&bWind Charge";
                 case TRIDENT -> "&3Riptide Trident";
                 case SPEAR -> "&5Lunge Spear";
-                case NONE -> null;
+                default -> throw new IllegalStateException("Unexpected value: " + type);
             };
 
             meta.displayName(Common.legacyToComponent(displayName));
@@ -378,7 +384,7 @@ public class InventoryManager extends ConfigFile {
     public void getData() {
         if (!BackendManager.getConfig().isConfigurationSection("INV-ARMORS")) return;
 
-        for (String key : BackendManager.getConfig().getConfigurationSection("INV-ARMORS").getKeys(false)) {
+        for (String key : Objects.requireNonNull(BackendManager.getConfig().getConfigurationSection("INV-ARMORS")).getKeys(false)) {
             Inventory inventory = this.inventories.get(Inventory.InventoryType.valueOf(key));
             if (inventory == null) continue;
 

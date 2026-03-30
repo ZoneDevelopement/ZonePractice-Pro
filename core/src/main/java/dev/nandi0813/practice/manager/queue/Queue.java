@@ -26,7 +26,7 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
+import java.util.*;
 
 public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue {
 
@@ -41,8 +41,8 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
     @Getter
     private final Profile profile;
     @Getter
-    @Setter
     private NormalLadder ladder;
+    private final Set<NormalLadder> queuedLadders = new LinkedHashSet<>();
     @Getter
     @Setter
     private boolean ranked;
@@ -56,12 +56,62 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
     @Setter // Just for testing purposes
     private int duration;
 
+    private final boolean preserveOpenMenuOnStart;
+
     public Queue(Player player, NormalLadder ladder, boolean ranked) {
+        this(player, ladder, ranked, false);
+    }
+
+    public Queue(Player player, NormalLadder ladder, boolean ranked, boolean preserveOpenMenuOnStart) {
         super(0, 20L, false);
         this.player = player;
         this.profile = ProfileManager.getInstance().getProfile(player);
         this.ladder = ladder;
+        this.queuedLadders.add(ladder);
         this.ranked = ranked;
+        this.preserveOpenMenuOnStart = preserveOpenMenuOnStart;
+    }
+
+    public void addLadder(NormalLadder normalLadder) {
+        if (normalLadder == null) {
+            return;
+        }
+
+        this.ladder = normalLadder;
+        this.queuedLadders.add(normalLadder);
+    }
+
+    public void removeLadder(NormalLadder normalLadder) {
+        if (normalLadder == null) {
+            return;
+        }
+
+        boolean removed = this.queuedLadders.remove(normalLadder);
+        if (removed) {
+            this.ladder = this.queuedLadders.stream().findFirst().orElse(null);
+        }
+    }
+
+    public boolean isQueued(NormalLadder normalLadder) {
+        return this.queuedLadders.contains(normalLadder);
+    }
+
+    public List<NormalLadder> getQueuedLadders() {
+        return Collections.unmodifiableList(new ArrayList<>(this.queuedLadders));
+    }
+
+    public String getCyclingSidebarLadder() {
+        if (queuedLadders.isEmpty()) {
+            return "Unknown";
+        }
+
+        if (queuedLadders.size() == 1) {
+            return queuedLadders.iterator().next().getDisplayName();
+        }
+
+        List<NormalLadder> ladders = new ArrayList<>(queuedLadders);
+        int index = (seconds / 2) % ladders.size();
+        return ladders.get(index).getDisplayName();
     }
 
     public void startQueue() {
@@ -77,12 +127,14 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
         this.begin();
 
         // Set the player's inventory to the match queue inventory
-        InventoryManager.getInstance().setMatchQueueInventory(player);
+        InventoryManager.getInstance().setMatchQueueInventory(player, !preserveOpenMenuOnStart);
+
+        String ladderDisplay = this.ladder != null ? this.ladder.getDisplayName() : "Unknown";
 
         // Send the player a message that they have started queueing
         Common.sendMMMessage(player, LanguageManager.getString("QUEUES.QUEUE-START")
                 .replace("%weightClass%", (ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName()))
-                .replace("%ladder%", ladder.getDisplayName())
+                .replace("%ladder%", ladderDisplay)
         );
 
         // Start the queue based on the queue type
@@ -103,15 +155,23 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
         Division division = profile.getStats().getDivision();
 
         if (division == null || !ConfigManager.getBoolean("QUEUE.UNRANKED.DIVISION-SEARCH.ENABLED")) {
+            List<NormalLadder> ladders = new ArrayList<>(this.queuedLadders);
+            Collections.shuffle(ladders);
+
             for (Queue queue : queueManager.getQueues()) {
                 if (queue == queueManager.getQueue(player)) continue;
                 if (queue.getPlayer() == player) continue;
-                if (queue.getLadder() != ladder) continue;
                 if (queue.isRanked()) continue;
 
-                this.cancel();
-                this.startMatch(queue);
-                return;
+                for (NormalLadder normalLadder : ladders) {
+                    if (!queue.isQueued(normalLadder)) {
+                        continue;
+                    }
+
+                    this.cancel();
+                    this.startMatch(queue, normalLadder);
+                    return;
+                }
             }
         } else {
             this.searchRunnable = new UnrankedSearchRunnable(this);
@@ -121,32 +181,42 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
         GUIManager.getInstance().searchGUI(GUIType.Queue_Unranked).update();
     }
 
-    public void startMatch(Queue queue) {
+    public void startMatch(Queue queue, NormalLadder matchedLadder) {
+        if (matchedLadder == null) {
+            return;
+        }
+
+        this.ladder = matchedLadder;
+        queue.ladder = matchedLadder;
+
         // Check if the ladder is frozen or disabled
-        if (ladder.getAvailableArenas().isEmpty()) {
+        if (matchedLadder.getAvailableArenas().isEmpty()) {
             queue.endQueue(false, LanguageManager.getString("QUEUES.NO-AVAILABLE-ARENA"));
             this.endQueue(false, LanguageManager.getString("QUEUES.NO-AVAILABLE-ARENA"));
             return;
         }
 
         // Get an available arena
-        Arena arena = LadderUtil.getAvailableArena(ladder);
+        Arena arena = LadderUtil.getAvailableArena(matchedLadder);
         if (arena == null) {
             queue.endQueue(false, LanguageManager.getString("QUEUES.NO-AVAILABLE-ARENA"));
             this.endQueue(false, LanguageManager.getString("QUEUES.NO-AVAILABLE-ARENA"));
             return;
         }
 
-        queue.endQueue(true, LanguageManager.getString("QUEUES.QUEUE-STOPPED")
+        String stopMessage = LanguageManager.getString("QUEUES.QUEUE-STOPPED")
                 .replace("%weightClass%", (ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName()))
-                .replace("%ladder%", ladder.getDisplayName()));
+                .replace("%ladder%", matchedLadder.getDisplayName());
 
-        this.endQueue(true, LanguageManager.getString("QUEUES.QUEUE-STOPPED")
-                .replace("%weightClass%", (ranked ? WeightClass.RANKED.getMMName() : WeightClass.UNRANKED.getMMName()))
-                .replace("%ladder%", ladder.getDisplayName()));
+        queueManager.endAllQueuesForPlayer(queue.getPlayer(), true, stopMessage);
+        queueManager.endAllQueuesForPlayer(this.player, true, stopMessage);
 
-        Duel duel = new Duel(ladder, arena, Arrays.asList(player, queue.getPlayer()), ranked, ladder.getRounds());
+        Duel duel = new Duel(matchedLadder, arena, Arrays.asList(player, queue.getPlayer()), ranked, matchedLadder.getRounds());
         duel.startMatch();
+    }
+
+    public void startMatch(Queue queue) {
+        this.startMatch(queue, ladder);
     }
 
     public void endQueue(boolean foundMatch, final String message) {
@@ -184,8 +254,22 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
 
     @Override
     public void run() {
-        if (ladder.isFrozen() || !ladder.isEnabled()) {
-            this.endQueue(false, LanguageManager.getString("QUEUES.LADDER-FROZEN").replace("%ladder%", ladder.getDisplayName()));
+        if (queuedLadders.isEmpty()) {
+            this.endQueue(false, null);
+            return;
+        }
+
+        for (NormalLadder normalLadder : new ArrayList<>(queuedLadders)) {
+            if (!normalLadder.isFrozen() && normalLadder.isEnabled()) {
+                continue;
+            }
+
+            this.removeLadder(normalLadder);
+            Common.sendMMMessage(player, LanguageManager.getString("QUEUES.LADDER-FROZEN").replace("%ladder%", normalLadder.getDisplayName()));
+        }
+
+        if (queuedLadders.isEmpty()) {
+            this.endQueue(false, null);
             return;
         }
 

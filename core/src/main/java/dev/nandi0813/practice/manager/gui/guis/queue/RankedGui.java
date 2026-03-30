@@ -59,7 +59,8 @@ public class RankedGui extends QueueSelectorGui {
 
     @Override
     protected void onLadderClick(Player player, NormalLadder ladder) {
-        QueueManager.getInstance().createRankedQueue(player, ladder);
+        boolean keepOpen = QueueManager.getInstance().isMultiQueueAllowed(player);
+        QueueManager.getInstance().createRankedQueue(player, ladder, keepOpen);
     }
 
     @Override

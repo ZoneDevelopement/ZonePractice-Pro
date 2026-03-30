@@ -59,7 +59,8 @@ public class UnrankedGui extends QueueSelectorGui {
 
     @Override
     protected void onLadderClick(Player player, NormalLadder ladder) {
-        QueueManager.getInstance().createUnrankedQueue(player, ladder);
+        boolean keepOpen = QueueManager.getInstance().isMultiQueueAllowed(player);
+        QueueManager.getInstance().createUnrankedQueue(player, ladder, keepOpen);
     }
 
     @Override

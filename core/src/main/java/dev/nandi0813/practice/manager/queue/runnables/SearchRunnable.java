@@ -8,6 +8,10 @@ import dev.nandi0813.practice.util.interfaces.Runnable;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public abstract class SearchRunnable extends Runnable {
 
     protected final QueueManager queueManager = QueueManager.getInstance();
@@ -42,6 +46,12 @@ public abstract class SearchRunnable extends Runnable {
     protected void updateQueueActionBar(String message) {
         // Sets an infinite action bar with NORMAL priority
         this.actionBar.setMessage(ACTION_BAR_ID, message, -1, ActionBarPriority.NORMAL);
+    }
+
+    protected List<dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder> getShuffledQueuedLadders() {
+        List<dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder> ladders = new ArrayList<>(queue.getQueuedLadders());
+        Collections.shuffle(ladders);
+        return ladders;
     }
 
     public abstract void run();

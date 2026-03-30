@@ -228,6 +228,9 @@ permissions:
     default: true
     description: Ignore a player in unranked queue.
 
+  zpp.queue.multi:
+    description: Allows players to queue for multiple ladders in the same queue type.
+
   zpp.duel:
     description: Use the /duel command.
   zpp.duel.selectarena:

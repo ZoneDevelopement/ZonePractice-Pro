@@ -1,4 +1,4 @@
-VERSION: 31
+VERSION: 32
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1374,6 +1374,10 @@ QUEUES:
     HOSTING-ACTIONBAR: "<yellow>Hosting custom kit <gold>%kit% <gray>%elapsed%"
     JOINED: "<green>You joined <yellow>%player%<green>'s hosted queue using <yellow>%kit%<green>."
     MATCH-FOUND: "<green><yellow>%player% <green>joined your hosted custom queue."
+  MULTI:
+    CANT-MIX-TYPES: "<red>You cannot mix ranked and unranked ladders in multi-queue."
+    MAX-LADDERS: "<red>You can only queue for <yellow>%max% <red>ladders at once."
+    SIDEBAR-MULTIPLE: "Multiple Ladders"
   QUEUE-START: "<green>You are now queued for %weightClass% %ladder%<green>."
   QUEUE-STOPPED: "<green>You are no longer queued for %weightClass% %ladder%<green>."
   LADDER-FROZEN: "<red>%ladder% ladder is no longer available."
