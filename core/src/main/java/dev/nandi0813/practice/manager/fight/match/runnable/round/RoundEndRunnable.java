@@ -7,13 +7,20 @@ import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.Round;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
+import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.interfaces.PlayerWinner;
+import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
+import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersVsPlayers;
+import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersVsPlayersRound;
 import dev.nandi0813.practice.manager.fight.match.util.TitleUtil;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RoundEndRunnable extends BukkitRunnable {
 
@@ -97,6 +104,9 @@ public class RoundEndRunnable extends BukkitRunnable {
                         Common.deserializeMiniMessage(
                                 LanguageManager.getString("MATCH.END-TITLES.MATCH.VICTORY")
                         ),
+                        Common.deserializeMiniMessage(
+                                getMatchSubtitle(winner, true)
+                        ),
                         200,
                         1500,
                         300
@@ -110,6 +120,9 @@ public class RoundEndRunnable extends BukkitRunnable {
                                 Common.deserializeMiniMessage(
                                         LanguageManager.getString("MATCH.END-TITLES.MATCH.DEFEAT")
                                 ),
+                                Common.deserializeMiniMessage(
+                                        getMatchSubtitle(winner, false)
+                                ),
                                 200,
                                 1500,
                                 300
@@ -122,12 +135,15 @@ public class RoundEndRunnable extends BukkitRunnable {
             if (round instanceof PlayerWinner) {
                 Player roundWinner = ((PlayerWinner) round).getRoundWinner();
                 if (roundWinner != null) {
+                    String subtitle = getRoundSubtitle(roundWinner, null);
+
                     // Show green "VICTORY!" to round winner
                         TitleUtil.sendTitle(
                                 roundWinner,
                                 Common.deserializeMiniMessage(
                                         LanguageManager.getString("MATCH.END-TITLES.ROUND.VICTORY")
                                 ),
+                                Common.deserializeMiniMessage(subtitle),
                                 200,
                                 1500,
                                 300
@@ -141,6 +157,7 @@ public class RoundEndRunnable extends BukkitRunnable {
                                     Common.deserializeMiniMessage(
                                             LanguageManager.getString("MATCH.END-TITLES.ROUND.DEFEAT")
                                     ),
+                                    Common.deserializeMiniMessage(subtitle),
                                     200,
                                     1500,
                                     300
@@ -148,8 +165,133 @@ public class RoundEndRunnable extends BukkitRunnable {
                         }
                     }
                 }
+            } else if (round instanceof PlayersVsPlayersRound playersVsPlayersRound) {
+                TeamEnum winnerTeam = playersVsPlayersRound.getRoundWinner();
+                if (winnerTeam == null || !(match instanceof PlayersVsPlayers playersVsPlayers)) {
+                    return;
+                }
+
+                String subtitle = getRoundSubtitle(null, winnerTeam);
+                for (Player player : match.getPlayers()) {
+                    boolean wonRound = playersVsPlayers.getTeam(player) == winnerTeam;
+                    String titlePath = wonRound ? "MATCH.END-TITLES.ROUND.VICTORY" : "MATCH.END-TITLES.ROUND.DEFEAT";
+
+                    TitleUtil.sendTitle(
+                            player,
+                            Common.deserializeMiniMessage(LanguageManager.getString(titlePath)),
+                            Common.deserializeMiniMessage(subtitle),
+                            200,
+                            1500,
+                            300
+                    );
+                }
             }
         }
+    }
+
+    private String getRoundSubtitle(Player roundWinner, TeamEnum winnerTeam) {
+        if (!isMultiRoundMatch()) {
+            return "";
+        }
+
+        String subtitlePath = winnerTeam != null
+                ? "MATCH.END-TITLES.ROUND.SUBTITLE-TEAM"
+                : "MATCH.END-TITLES.ROUND.SUBTITLE-PLAYER";
+
+        return applyPlaceholders(
+                LanguageManager.getString(subtitlePath),
+                getRoundScorePlaceholders(roundWinner, winnerTeam)
+        );
+    }
+
+    private Map<String, String> getRoundScorePlaceholders(Player roundWinner, TeamEnum winnerTeam) {
+        Map<String, String> placeholders = new HashMap<>();
+        Player losingPlayer = null;
+
+        if (roundWinner != null) {
+            for (Player player : match.getPlayers()) {
+                if (player != roundWinner) {
+                    losingPlayer = player;
+                    break;
+                }
+            }
+
+            int winnerScore = match.getWonRounds(roundWinner);
+            int loserScore = losingPlayer != null ? match.getWonRounds(losingPlayer) : 0;
+
+            placeholders.put("%winner%", roundWinner.getName());
+            placeholders.put("%loser%", losingPlayer != null ? losingPlayer.getName() : "-");
+            placeholders.put("%winnerScore%", String.valueOf(winnerScore));
+            placeholders.put("%loserScore%", String.valueOf(loserScore));
+            if (match instanceof Team teamMatch) {
+                placeholders.put("%scoredTeam%", teamMatch.getTeam(roundWinner).getNameMM());
+            } else {
+                placeholders.put("%scoredTeam%", "-");
+            }
+        } else if (winnerTeam != null && match instanceof PlayersVsPlayers playersVsPlayers) {
+            TeamEnum loserTeam = winnerTeam == TeamEnum.TEAM1 ? TeamEnum.TEAM2 : TeamEnum.TEAM1;
+            int winnerScore = playersVsPlayers.getWonRounds(winnerTeam);
+            int loserScore = playersVsPlayers.getWonRounds(loserTeam);
+
+            placeholders.put("%winnerScore%", String.valueOf(winnerScore));
+            placeholders.put("%loserScore%", String.valueOf(loserScore));
+            placeholders.put("%scoredTeam%", winnerTeam.getNameMM());
+            placeholders.put("%team1Name%", TeamEnum.TEAM1.getNameMM());
+            placeholders.put("%team2Name%", TeamEnum.TEAM2.getNameMM());
+            placeholders.put("%team1Score%", String.valueOf(playersVsPlayers.getWonRounds(TeamEnum.TEAM1)));
+            placeholders.put("%team2Score%", String.valueOf(playersVsPlayers.getWonRounds(TeamEnum.TEAM2)));
+        }
+
+        placeholders.put("%roundNumber%", String.valueOf(round.getRoundNumber()));
+        placeholders.put("%winsNeeded%", String.valueOf(match.getWinsNeeded()));
+        return placeholders;
+    }
+
+    private String getMatchSubtitle(Player winner, boolean victory) {
+        if (!isMultiRoundMatch()) {
+            return "";
+        }
+
+        String path = victory
+                ? "MATCH.END-TITLES.MATCH.SUBTITLE-VICTORY"
+                : "MATCH.END-TITLES.MATCH.SUBTITLE-DEFEAT";
+
+        return applyPlaceholders(LanguageManager.getString(path), getMatchScorePlaceholders(winner));
+    }
+
+    private boolean isMultiRoundMatch() {
+        return match.getWinsNeeded() > 1;
+    }
+
+    private Map<String, String> getMatchScorePlaceholders(Player winner) {
+        Map<String, String> placeholders = new HashMap<>();
+        Player losingPlayer = null;
+
+        for (Player player : match.getPlayers()) {
+            if (player != winner) {
+                losingPlayer = player;
+                break;
+            }
+        }
+
+        int winnerScore = match.getWonRounds(winner);
+        int loserScore = losingPlayer != null ? match.getWonRounds(losingPlayer) : 0;
+
+        placeholders.put("%winner%", winner.getName());
+        placeholders.put("%loser%", losingPlayer != null ? losingPlayer.getName() : "-");
+        placeholders.put("%winnerScore%", String.valueOf(winnerScore));
+        placeholders.put("%loserScore%", String.valueOf(loserScore));
+        placeholders.put("%roundNumber%", String.valueOf(round.getRoundNumber()));
+        placeholders.put("%winsNeeded%", String.valueOf(match.getWinsNeeded()));
+        return placeholders;
+    }
+
+    private String applyPlaceholders(String template, Map<String, String> placeholders) {
+        String formatted = template == null ? "" : template;
+        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+            formatted = formatted.replace(entry.getKey(), entry.getValue());
+        }
+        return formatted;
     }
 
     @Override
