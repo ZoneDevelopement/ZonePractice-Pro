@@ -1,4 +1,4 @@
-VERSION: 30
+VERSION: 31
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -2396,6 +2396,18 @@ GUIS:
               - ""
               - "&7This controls the %blockReturnDelayTarget%"
               - "&7return delay after placement."
+              - "&7Set to &e-1 &7to disable auto return."
+              - ""
+              - "&a&lLEFT-CLICK &ato reduce the delay."
+              - "&b&lRIGHT-CLICK &bto increase the delay."
+          TEMP-BUILD-RETURN-DELAY:
+            NAME: "&7Temporary Block Return Delay: &6%tempBuildReturnDelay%"
+            MATERIAL: RED_TERRACOTTA
+            LORE:
+              - ""
+              - "&7This controls how long placed"
+              - "&7temporary blocks stay before"
+              - "&7they automatically disappear."
               - "&7Set to &e-1 &7to disable auto return."
               - ""
               - "&a&lLEFT-CLICK &ato reduce the delay."
