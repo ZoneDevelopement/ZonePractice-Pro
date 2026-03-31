@@ -65,7 +65,7 @@ public class PracticeAdapter implements SidebarAdapter {
         if (targetProfile == null) {
             return Component.text(target.getName());
         }
-        return NameFormatUtil.buildFullDisplayName(targetProfile, target.getName());
+        return NameFormatUtil.resolveName(targetProfile, target.getName());
     }
 
     private static Component parseColoredText(String text) {
