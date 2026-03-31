@@ -56,6 +56,9 @@ commands:
   customqueue:
     aliases: [cqueue, customkitqueue]
     description: Queue for custom-kit matchmaking commands.
+  matchhistory:
+    aliases: [mh, matchhist]
+    description: View match history for a player.
 
 permissions:
   zpp.admin:
@@ -383,3 +386,7 @@ permissions:
     description: Receive in-game notifications when a new ZonePractice Pro version is released.
     default: op
 
+  # Match History
+  practice.matchhistory:
+    description: Access /matchhistory command.
+    default: op

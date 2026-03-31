@@ -669,3 +669,27 @@ CHAT:
     ENABLED: true
     SHORTCUT: true # If true, you can use send message like #hello world instead of enabling staff chat each time.
   PRIVATE-CHAT-ENABLED: true # Private message system /message (/m) and /reply (/re, /r)
+#
+# Match History settings
+MATCH-HISTORY:
+  ENABLED: true
+  GUI:
+    TITLE: "&6Match History &7- &e%player%"
+    SIZE: 27
+
+  MATCH-ITEM:
+    MATERIAL: PAPER
+    NAME: "&eMatch vs &f%opponent%"
+    LORE:
+      - "&7Result: %result%"
+      - "&7Score: %score%"
+      - "&7Kit: %kit%"
+      - "&7Arena: %arena%"
+      - "&7Your Health: %player_health%"
+      - "&7Opponent Health: %opponent_health%"
+      - "&7Duration: %duration%"
+      - "&7Played: %date%"
+
+  MESSAGES:
+    NO-HISTORY: "&cThis player has no match history."
+    PLAYER-NOT-FOUND: "&cPlayer not found."
