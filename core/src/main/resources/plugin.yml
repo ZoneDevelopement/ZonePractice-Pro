@@ -387,6 +387,6 @@ permissions:
     default: op
 
   # Match History
-  practice.matchhistory:
+  zpp.matchhistory:
     description: Access /matchhistory command.
     default: op
