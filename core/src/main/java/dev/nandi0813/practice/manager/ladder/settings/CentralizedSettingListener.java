@@ -85,24 +85,24 @@ public class CentralizedSettingListener implements Listener {
         }
     }
 
-    @EventHandler ( priority = EventPriority.NORMAL )
+    @EventHandler ( priority = EventPriority.LOW )
     public void onEntityRegainHealth(EntityRegainHealthEvent e) {
         if (!(e.getEntity() instanceof Player player)) return;
         processEvent(e, player);
     }
 
-    @EventHandler ( priority = EventPriority.NORMAL )
+    @EventHandler ( priority = EventPriority.LOW )
     public void onFoodLevelChange(FoodLevelChangeEvent e) {
         if (!(e.getEntity() instanceof Player player)) return;
         processEvent(e, player);
     }
 
-    @EventHandler ( priority = EventPriority.NORMAL )
+    @EventHandler ( priority = EventPriority.LOW )
     public void onPlayerItemConsume(PlayerItemConsumeEvent e) {
         processEvent(e, e.getPlayer());
     }
 
-    @EventHandler ( priority = EventPriority.NORMAL )
+    @EventHandler ( priority = EventPriority.LOW )
     public void onPlayerMove(PlayerMoveEvent e) {
         processEvent(e, e.getPlayer());
     }
