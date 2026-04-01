@@ -608,11 +608,13 @@ public final class AiTrainingCollector {
                 continue;
             }
 
-            double currentDistanceSquared = candidate.getLocation().distanceSquared(player.getLocation());
-            if (currentDistanceSquared < nearestDistanceSquared) {
-                nearestDistanceSquared = currentDistanceSquared;
-                nearest = candidate;
-            }
+            try {
+                double currentDistanceSquared = candidate.getLocation().distanceSquared(player.getLocation());
+                if (currentDistanceSquared < nearestDistanceSquared) {
+                    nearestDistanceSquared = currentDistanceSquared;
+                    nearest = candidate;
+                }
+            } catch (Exception ignored) {}
         }
 
         return nearest;

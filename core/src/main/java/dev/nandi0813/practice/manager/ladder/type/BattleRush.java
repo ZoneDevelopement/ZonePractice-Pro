@@ -18,7 +18,7 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class BattleRush extends PortalFight implements LadderHandle, TempBuild, RespawnableLadder, BlockReturnDelay {
+public class BattleRush extends PortalFight implements LadderHandle, TempBuild, RespawnableLadder, TempBuildReturnDelay {
 
     @Getter
     @Setter
@@ -27,7 +27,7 @@ public class BattleRush extends PortalFight implements LadderHandle, TempBuild, 
     // Saved by using interface and LadderFile.java
     @Getter
     @Setter
-    private int blockReturnDelaySeconds;
+    private int tempBuildReturnDelaySeconds;
 
     public BattleRush(String name, LadderType type) {
         super(name, type);
@@ -52,11 +52,11 @@ public class BattleRush extends PortalFight implements LadderHandle, TempBuild, 
             return true;
         } else if (e instanceof BlockPlaceEvent) {
             onBlockPlace((BlockPlaceEvent) e, match);
-            TempBuild.onBlockPlace((BlockPlaceEvent) e, match, blockReturnDelaySeconds);
+            TempBuild.onBlockPlace((BlockPlaceEvent) e, match, tempBuildReturnDelaySeconds);
             return true;
         } else if (e instanceof PlayerBucketEmptyEvent) {
             onBucketEmpty((PlayerBucketEmptyEvent) e, match);
-            TempBuild.onBucketEmpty((PlayerBucketEmptyEvent) e, match, blockReturnDelaySeconds);
+            TempBuild.onBucketEmpty((PlayerBucketEmptyEvent) e, match, tempBuildReturnDelaySeconds);
             return true;
         } else if (e instanceof BlockFromToEvent) {
             onLiquidFlow((BlockFromToEvent) e);
@@ -80,9 +80,5 @@ public class BattleRush extends PortalFight implements LadderHandle, TempBuild, 
         }
     }
 
-    @Override
-    public String getContextTargetForBlockReturn() {
-        return "Placed Blocks";
-    }
 
 }

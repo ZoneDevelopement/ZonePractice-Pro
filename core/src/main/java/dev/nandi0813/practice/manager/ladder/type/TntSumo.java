@@ -12,6 +12,8 @@ import dev.nandi0813.practice.manager.fight.util.DeathCause;
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.BlockReturnDelay;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuild;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuildReturnDelay;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import lombok.Getter;
@@ -24,10 +26,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -38,7 +42,7 @@ import java.util.*;
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
-public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDelay {
+public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, TempBuildReturnDelay, BlockReturnDelay {
 
     private static final int TNT_LIMIT = 10;
 
@@ -79,6 +83,10 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
 
     @Getter
     @Setter
+    private int tempBuildReturnDelaySeconds;
+
+    @Getter
+    @Setter
     private int blockReturnDelaySeconds;
 
     public TntSumo(String name, LadderType type) {
@@ -98,8 +106,12 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
             onBlockPlace(blockPlaceEvent, match);
             return true;
         }
-        if (e instanceof org.bukkit.event.block.BlockBreakEvent blockBreakEvent) {
+        if (e instanceof BlockBreakEvent blockBreakEvent) {
             onBlockBreak(blockBreakEvent, match);
+            return true;
+        }
+        if (e instanceof PlayerBucketEmptyEvent playerBucketEmptyEvent) {
+            onBucketEmpty(playerBucketEmptyEvent, match);
             return true;
         }
         if (e instanceof EntityDamageEvent entityDamageEvent) {
@@ -134,6 +146,12 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
         }
 
         Material blockMaterial = block.getType();
+
+        if (!blockMaterial.equals(Material.TNT)) {
+            TempBuild.onBlockPlace(e, match, ((TntSumo) match.getLadder()).getTempBuildReturnDelaySeconds());
+            return;
+        }
+
         ItemStack returnItem = createPlacedReturnItem(e, blockMaterial);
         BlockUtil.setMetadata(block, PLACED_IN_FIGHT, match);
         BlockUtil.setMetadata(block, TNT_SUMO_BLOCK_OWNER, player.getUniqueId());
@@ -144,10 +162,6 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
         Block underBlock = block.getLocation().subtract(0, 1, 0).getBlock();
         if (ArenaUtil.turnsToDirt(underBlock)) {
             match.getFightChange().addArenaBlockChange(new ChangedBlock(underBlock));
-        }
-
-        if (!blockMaterial.equals(Material.TNT)) {
-            return;
         }
 
         if (((TntSumo) match.getLadder()).getBlockReturnDelaySeconds() >= 0) {
@@ -167,10 +181,15 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
         BlockUtil.setMetadata(tntPrimed, TNT_SUMO_TNT_OWNER, player.getUniqueId());
     }
 
-    private static void onBlockBreak(@NotNull org.bukkit.event.block.BlockBreakEvent e, @NotNull Match match) {
+    private static void onBlockBreak(@NotNull BlockBreakEvent e, @NotNull Match match) {
         Block block = e.getBlock();
 
         if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+            return;
+        }
+
+        TempBuild.onBlockBreak(e, match);
+        if (e.isCancelled()) {
             return;
         }
 
@@ -383,6 +402,14 @@ public class TntSumo extends NormalLadder implements LadderHandle, BlockReturnDe
 
     private static void onItemDrop(@NotNull org.bukkit.event.player.PlayerDropItemEvent e) {
         e.setCancelled(true);
+    }
+
+    private static void onBucketEmpty(@NotNull PlayerBucketEmptyEvent e, @NotNull Match match) {
+        if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+            return;
+        }
+
+        TempBuild.onBucketEmpty(e, match, ((TntSumo) match.getLadder()).getTempBuildReturnDelaySeconds());
     }
 
     private static void applyTntSumoKnockback(Player player, TNTPrimed tnt) {

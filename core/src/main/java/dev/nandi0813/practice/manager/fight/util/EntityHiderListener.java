@@ -328,7 +328,9 @@ public class EntityHiderListener implements PacketListener, Listener {
                 if (match == null) return;
 
                 for (LivingEntity entity : e.getAffectedEntities()) {
-                    if (!match.getPlayers().contains((Player) entity)) {
+                    if (!(entity instanceof Player livingPlayer)) continue;
+
+                    if (!match.getPlayers().contains(livingPlayer)) {
                         e.setIntensity(entity, 0);
                     }
                 }

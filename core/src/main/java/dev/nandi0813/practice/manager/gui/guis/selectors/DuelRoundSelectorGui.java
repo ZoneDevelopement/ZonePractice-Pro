@@ -180,7 +180,7 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
 
                     Match match = getMatch(party, arena, rounds);
                     if (match == null) {
-                        Common.sendMMMessage(player, LanguageManager.getString("DUEL-ROUND-SELECTOR.PARTY-RANDOM-ERROR"));
+                        Common.sendMMMessage(player, LanguageManager.getString("PARTY.NO-AVAILABLE-ARENA"));
                         return;
                     }
 

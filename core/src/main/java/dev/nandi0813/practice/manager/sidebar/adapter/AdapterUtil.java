@@ -96,7 +96,7 @@ public enum AdapterUtil {
 
         String prefix = "player" + rank;
         return line
-                .replaceText(replace("%" + prefix + "%", getDisplayName(player)))
+                .replaceText(replace("%" + prefix + "%", getSidebarName(player)))
                 .replaceText(replace("%" + prefix + "rounds%", getRoundString(match.getWinsNeeded(), partyFFA.getWonRounds(player))))
                 .replaceText(replace("%" + prefix + "roundsNumber%", String.valueOf(partyFFA.getWonRounds(player))));
     }
@@ -106,16 +106,17 @@ public enum AdapterUtil {
      */
     private static Component replaceColoredPlayerName(Component line, @RegExp String placeholder, TeamEnum team, Player player) {
         if (player == null) return line.replaceText(replace(placeholder, Component.empty()));
-        return line.replaceText(replace(placeholder, team.getColor().append(getDisplayName(player))));
+        return line.replaceText(replace(placeholder, team.getColor().append(getSidebarName(player))));
     }
 
-    private static Component getDisplayName(Player player) {
+    private static Component getSidebarName(Player player) {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile == null) {
             return Component.text(player.getName());
         }
 
-        return NameFormatUtil.buildFullDisplayName(profile, player.getName());
+        // Sidebar placeholders should render player names only (no external prefix/suffix).
+        return NameFormatUtil.resolveName(profile, player.getName());
     }
 
     // ==================== Public Methods ====================
@@ -142,7 +143,7 @@ public enum AdapterUtil {
     public static Component replaceMatchPlaceholders(Player player, Component line, Match match) {
         // Replace %player% for non-DUEL matches
         if (match.getType() != MatchType.DUEL) {
-            line = line.replaceText(replace("%player%", getDisplayName(player)));
+            line = line.replaceText(replace("%player%", getSidebarName(player)));
         }
 
         // Replace common placeholders
@@ -165,12 +166,12 @@ public enum AdapterUtil {
         // Replace combined placeholders for colored player names (boxing)
         line = replaceColoredPlayerName(line, "%playerTeamColor%%player%", team, player)
                 .replaceText(replace("%enemyTeamColor%%enemyName%",
-                        enemy == null ? Component.empty() : enemyTeam.getColor().append(getDisplayName(enemy))));
+                        enemy == null ? Component.empty() : enemyTeam.getColor().append(getSidebarName(enemy))));
 
         // Replace individual placeholders
         line = line
-                .replaceText(replace("%player%", getDisplayName(player)))
-                .replaceText(replace("%enemyName%", enemy == null ? Component.empty() : getDisplayName(enemy)));
+                .replaceText(replace("%player%", getSidebarName(player)))
+                .replaceText(replace("%enemyName%", enemy == null ? Component.empty() : getSidebarName(enemy)));
 
         // Replace team and round info
         return line
@@ -271,15 +272,15 @@ public enum AdapterUtil {
 
         // Replace colored player names for boxing
         line = replaceColoredPlayerName(line, "%team1color%%player1%", TeamEnum.TEAM1, player1)
-                .replaceText(replace("%team2color%%player2%", TeamEnum.TEAM2.getColor().append(getDisplayName(player2))));
+                .replaceText(replace("%team2color%%player2%", TeamEnum.TEAM2.getColor().append(getSidebarName(player2))));
 
         // Replace individual player info
         return line
-                .replaceText(replace("%player1%", getDisplayName(player1)))
+                .replaceText(replace("%player1%", getSidebarName(player1)))
                 .replaceText(replace("%player1ping%", getPingString(player1)))
                 .replaceText(replace("%player1rounds%", getRoundString(duel.getWinsNeeded(), duel.getWonRounds(player1))))
                 .replaceText(replace("%player1roundsNumber%", String.valueOf(duel.getWonRounds(player1))))
-                .replaceText(replace("%player2%", getDisplayName(player2)))
+                .replaceText(replace("%player2%", getSidebarName(player2)))
                 .replaceText(replace("%player2ping%", getPingString(player2)))
                 .replaceText(replace("%player2rounds%", getRoundString(duel.getWinsNeeded(), duel.getWonRounds(player2))))
                 .replaceText(replace("%player2roundsNumber%", String.valueOf(duel.getWonRounds(player2))));

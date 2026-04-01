@@ -218,6 +218,9 @@ public class SettingsGui extends GUI {
         if (settingTypes.contains(SettingType.BLOCK_RETURN_DELAY))
             settingItems.add(new BlockReturnDelayItem(this, ladder));
 
+        if (settingTypes.contains(SettingType.TEMP_BUILD_RETURN_DELAY))
+            settingItems.add(new TempBuildReturnDelayItem(this, ladder));
+
         if (settingTypes.contains(SettingType.ROUND_END_DELAY))
             settingItems.add(new RoundEndDelayItem(this, ladder));
 

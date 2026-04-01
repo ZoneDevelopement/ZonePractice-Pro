@@ -27,10 +27,8 @@ settings:
   resetbuildafterround: false
   breakallblocks: false
   respawntime: 3
-  tempbuild-delay: 6
-  block-return-delay: 0
+  temp-build-return-delay: 6
 respawn-time: 3
-tempbuild-delay: 10
 icon:
   ==: org.bukkit.inventory.ItemStack
   DataVersion: 4671

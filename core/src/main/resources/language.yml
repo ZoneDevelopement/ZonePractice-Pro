@@ -1,4 +1,4 @@
-VERSION: 32
+VERSION: 33
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1392,9 +1392,13 @@ MATCH:
     MATCH:
       VICTORY: "<green><bold>Victory!"
       DEFEAT: "<red><bold>Defeat!"
+      SUBTITLE-VICTORY: "<gray>Final score: <green>%winnerScore% <dark_gray>- <red>%loserScore%"
+      SUBTITLE-DEFEAT: "<gray>Final score: <green>%winnerScore% <dark_gray>- <red>%loserScore%"
     ROUND:
       VICTORY: "<green><bold>Victory!"
       DEFEAT: "<red><bold>Defeat!"
+      SUBTITLE-PLAYER: "<gray><yellow>%winner% <dark_gray>(<green>%winnerScore%<dark_gray>) <gray>- <dark_gray>(<red>%loserScore%<dark_gray>) <yellow>%loser%"
+      SUBTITLE-TEAM: "<gray><yellow>%scoredTeam% <gray>scored <dark_gray>| <gray>%team1Name% <white>%team1Score% <dark_gray>- <white>%team2Score% <gray>%team2Name%"
   COOLDOWN:
     ENDER-PEARL: "<red>You cannot use this for another <yellow>%seconds% <red>%secondName%."
     GOLDEN-APPLE: "<red>You cannot eat another <gold>golden apple</gold> for another <yellow>%seconds% <red>%secondName%."

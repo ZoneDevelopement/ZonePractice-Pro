@@ -2,9 +2,9 @@ package dev.nandi0813.practice.manager.ladder.type;
 
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.BlockReturnDelay;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuild;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuildReturnDelay;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import lombok.Getter;
@@ -17,12 +17,12 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class PearlFight extends NormalLadder implements LadderHandle, TempBuild, BlockReturnDelay {
+public class PearlFight extends NormalLadder implements LadderHandle, TempBuild, TempBuildReturnDelay {
 
     // Saved by using interface and LadderFile.java
     @Getter
     @Setter
-    protected int blockReturnDelaySeconds;
+    protected int tempBuildReturnDelaySeconds;
 
     public PearlFight(String name, LadderType type) {
         super(name, type);
@@ -33,13 +33,13 @@ public class PearlFight extends NormalLadder implements LadderHandle, TempBuild,
     @Override
     public boolean handleEvents(Event e, Match match) {
         if (e instanceof PlayerBucketEmptyEvent) {
-            TempBuild.onBucketEmpty((PlayerBucketEmptyEvent) e, match, blockReturnDelaySeconds);
+            TempBuild.onBucketEmpty((PlayerBucketEmptyEvent) e, match, tempBuildReturnDelaySeconds);
             return true;
         } else if (e instanceof BlockBreakEvent) {
             TempBuild.onBlockBreak((BlockBreakEvent) e, match);
             return true;
         } else if (e instanceof BlockPlaceEvent) {
-            TempBuild.onBlockPlace((BlockPlaceEvent) e, match, blockReturnDelaySeconds);
+            TempBuild.onBlockPlace((BlockPlaceEvent) e, match, tempBuildReturnDelaySeconds);
             return true;
         } else if (e instanceof EntityDamageEvent) {
             onPlayerDamage((EntityDamageEvent) e, match);
@@ -57,9 +57,5 @@ public class PearlFight extends NormalLadder implements LadderHandle, TempBuild,
         }
     }
 
-    @Override
-    public String getContextTargetForBlockReturn() {
-        return "Placed Blocks";
-    }
 
 }

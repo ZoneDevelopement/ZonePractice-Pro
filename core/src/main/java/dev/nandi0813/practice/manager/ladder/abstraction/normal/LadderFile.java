@@ -4,6 +4,7 @@ import dev.nandi0813.practice.manager.backend.ConfigFile;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.BlockReturnDelay;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.CustomConfig;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.RespawnableLadder;
+import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuildReturnDelay;
 import dev.nandi0813.practice.manager.ladder.enums.WeightClassType;
 import dev.nandi0813.practice.manager.ladder.util.LadderFileUtil;
 import dev.nandi0813.practice.util.BasicItem;
@@ -62,6 +63,10 @@ public class LadderFile extends ConfigFile {
 
         if (ladder instanceof BlockReturnDelay blockReturnDelay) {
             config.set("settings.block-return-delay", blockReturnDelay.getBlockReturnDelaySeconds());
+        }
+
+        if (ladder instanceof TempBuildReturnDelay tempBuildReturnDelay) {
+            config.set("settings.temp-build-return-delay", tempBuildReturnDelay.getTempBuildReturnDelaySeconds());
         }
 
         if (ladder.getIcon() != null)
@@ -253,6 +258,25 @@ public class LadderFile extends ConfigFile {
 
             if (buildDelay < -1 || buildDelay > 30) buildDelay = 6;
             blockReturnDelay.setBlockReturnDelaySeconds(buildDelay);
+        }
+
+        if (ladder instanceof TempBuildReturnDelay tempBuildReturnDelay) {
+            int buildDelay = 6;
+
+            if (config.isInt("settings.temp-build-return-delay")) {
+                buildDelay = config.getInt("settings.temp-build-return-delay");
+            } else if (config.isInt("settings.tempbuild-delay")) {
+                buildDelay = config.getInt("settings.tempbuild-delay");
+            } else if (config.isInt("tempbuild-delay")) {
+                buildDelay = config.getInt("tempbuild-delay");
+            } else if (config.isInt("settings.block-return-delay")) {
+                buildDelay = config.getInt("settings.block-return-delay");
+            } else if (config.isInt("block-return-delay-seconds")) {
+                buildDelay = config.getInt("block-return-delay-seconds");
+            }
+
+            if (buildDelay < -1 || buildDelay > 30) buildDelay = 6;
+            tempBuildReturnDelay.setTempBuildReturnDelaySeconds(buildDelay);
         }
 
         if (config.isString("settings.knockback"))
