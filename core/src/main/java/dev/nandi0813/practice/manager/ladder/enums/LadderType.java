@@ -65,7 +65,6 @@ public enum LadderType {
             .withCommonSettings()
             .withPearlSettings()
             .withSetting(SettingType.TEMP_BUILD_RETURN_DELAY)
-            .withSetting(SettingType.BLOCK_RETURN_DELAY)
     ),
 
     BOXING(LadderTypeConfig.builder(

@@ -1,4 +1,4 @@
-VERSION: 33
+VERSION: 34
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1404,6 +1404,8 @@ MATCH:
     GOLDEN-APPLE: "<red>You cannot eat another <gold>golden apple</gold> for another <yellow>%seconds% <red>%secondName%."
     FIREBALL: "<red>You cannot throw another fireball for another <yellow>%seconds% <red>%secondName%."
     FIREWORK-ROCKET-COOLDOWN: "<red>You cannot use firework rockets for another <yellow>%seconds% <red>%secondName%."
+  ACTIONBAR:
+    TNT-SUMO-TNT-EARN: "<yellow><bold>+1 TNT <gray>(Attack)"
   CANT-BUILD-OUTSIDE-ARENA: "<red>You can't build outside the arena."
   CANT-BUILD-OVER-LIMIT: "<red>You can't build there."
   CANT-CRAFT: "<red>You can't craft with this ladder."

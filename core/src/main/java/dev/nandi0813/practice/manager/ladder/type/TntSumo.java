@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.ladder.type;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.util.ArenaUtil;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
@@ -10,12 +11,14 @@ import dev.nandi0813.practice.manager.fight.util.BlockUtil;
 import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import dev.nandi0813.practice.manager.fight.util.DeathCause;
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
-import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.BlockReturnDelay;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuild;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.TempBuildReturnDelay;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
+import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.util.actionbar.ActionBarPriority;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -42,9 +45,13 @@ import java.util.*;
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
 import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
-public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, TempBuildReturnDelay, BlockReturnDelay {
+public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, TempBuildReturnDelay {
 
     private static final int TNT_LIMIT = 10;
+    private static final String TNT_ATTACK_REWARD_ACTIONBAR_ID = "tnt_sumo_tnt_attack_reward";
+    private static final String TNT_EARN_ACTIONBAR_MESSAGE = LanguageManager.getString("MATCH.ACTIONBAR.TNT-SUMO-TNT-EARN");
+
+    private static final Map<UUID, ItemStack> TNT_SUMO_PLAYER_TNT_CACHE = new HashMap<>();
 
     private static final String TNT_SUMO_TNT = "ZONEPRACTICE_PRO_TNT_SUMO_TNT";
     private static final String TNT_SUMO_TNT_OWNER = "ZONEPRACTICE_PRO_TNT_SUMO_TNT_OWNER";
@@ -85,19 +92,10 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
     @Setter
     private int tempBuildReturnDelaySeconds;
 
-    @Getter
-    @Setter
-    private int blockReturnDelaySeconds;
-
     public TntSumo(String name, LadderType type) {
         super(name, type);
         this.startMove = false;
         this.hunger = false;
-    }
-
-    @Override
-    public String getContextTargetForBlockReturn() {
-        return "TNT";
     }
 
     @Override
@@ -153,6 +151,8 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
         }
 
         ItemStack returnItem = createPlacedReturnItem(e, blockMaterial);
+        TNT_SUMO_PLAYER_TNT_CACHE.put(player.getUniqueId(), returnItem.clone());
+
         BlockUtil.setMetadata(block, PLACED_IN_FIGHT, match);
         BlockUtil.setMetadata(block, TNT_SUMO_BLOCK_OWNER, player.getUniqueId());
         BlockUtil.setMetadata(block, TNT_SUMO_BLOCK_MATERIAL, blockMaterial);
@@ -162,10 +162,6 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
         Block underBlock = block.getLocation().subtract(0, 1, 0).getBlock();
         if (ArenaUtil.turnsToDirt(underBlock)) {
             match.getFightChange().addArenaBlockChange(new ChangedBlock(underBlock));
-        }
-
-        if (((TntSumo) match.getLadder()).getBlockReturnDelaySeconds() >= 0) {
-            scheduleBlockReturn(e, match, player, returnItem);
         }
 
         Location tntLocation = block.getLocation().clone();
@@ -221,26 +217,6 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
         ItemStack returnItem = getStoredBlockItem(block, material);
         PlayerUtil.returnItemToCurrentSlotOrInventory(owner, returnItem);
         owner.updateInventory();
-    }
-
-    private static void scheduleBlockReturn(@NotNull BlockPlaceEvent e, @NotNull Match match, @NotNull Player player, @NotNull ItemStack returnItem) {
-        long delayTicks = ((TntSumo) match.getLadder()).getBlockReturnDelaySeconds() * 20L;
-        Material material = returnItem.getType();
-
-        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-            if (e.isCancelled() || MatchManager.getInstance().getLiveMatchByPlayer(player) != match) {
-                return;
-            }
-            if (!match.getPlayers().contains(player) || match.getCurrentStat(player).isSet()) {
-                return;
-            }
-            if (material.equals(Material.TNT) && countTnt(player) >= TNT_LIMIT) {
-                return;
-            }
-
-            PlayerUtil.returnItemToCurrentSlotOrInventory(player, returnItem.clone());
-            player.updateInventory();
-        }, delayTicks);
     }
 
     private static void onEntityExplode(@NotNull EntityExplodeEvent e, @NotNull Match match) {
@@ -359,6 +335,15 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
             applyTntSumoKnockback(player, tnt);
             e.setDamage(0);
             return;
+        }
+
+        if (e instanceof EntityDamageByEntityEvent entityDamageByEntityEvent
+                && entityDamageByEntityEvent.getDamager() instanceof Player attacker
+                && entityDamageByEntityEvent.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK
+                && !attacker.getUniqueId().equals(player.getUniqueId())
+                && match.getPlayers().contains(attacker)
+                && !match.getCurrentStat(attacker).isSet()) {
+            rewardTntForMeleeHit(attacker);
         }
 
         if (e.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
@@ -648,10 +633,56 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
         return source instanceof Player sourcePlayer && sourcePlayer.getUniqueId().equals(player.getUniqueId());
     }
 
+    private static void rewardTntForMeleeHit(@NotNull Player attacker) {
+        if (countTnt(attacker) >= TNT_LIMIT) {
+            return;
+        }
+
+        PlayerUtil.returnItemToCurrentSlotOrInventory(attacker, getTntItemStack(attacker));
+        attacker.updateInventory();
+
+        Profile profile = ProfileManager.getInstance().getProfile(attacker);
+        if (profile != null) {
+            profile.getActionBar().setMessage(
+                    TNT_ATTACK_REWARD_ACTIONBAR_ID,
+                    TNT_EARN_ACTIONBAR_MESSAGE,
+                    3,
+                    ActionBarPriority.NORMAL
+            );
+        }
+    }
+
+    private static @NotNull ItemStack getTntItemStack(@NotNull Player player) {
+        for (ItemStack itemStack : player.getInventory().getStorageContents()) {
+            if (itemStack != null && itemStack.getType().equals(Material.TNT)) {
+                ItemStack clone = itemStack.clone();
+                clone.setAmount(1);
+                TNT_SUMO_PLAYER_TNT_CACHE.put(player.getUniqueId(), clone);
+                return clone;
+            }
+        }
+
+        ItemStack offHand = player.getInventory().getItemInOffHand();
+        if (offHand.getType().equals(Material.TNT)) {
+            ItemStack clone = offHand.clone();
+            clone.setAmount(1);
+            TNT_SUMO_PLAYER_TNT_CACHE.put(player.getUniqueId(), clone);
+            return clone;
+        }
+
+        ItemStack cached = TNT_SUMO_PLAYER_TNT_CACHE.get(player.getUniqueId());
+        if (cached != null) {
+            return cached.clone();
+        }
+
+        return new ItemStack(Material.TNT, 1);
+    }
+
     public void cleanup(Player player) {
         UUID uuid = player.getUniqueId();
         TNT_SUMO_CHAIN_STATES.remove(uuid);
         TNT_SUMO_AIRBORNE_STACK_STATES.remove(uuid);
+        TNT_SUMO_PLAYER_TNT_CACHE.remove(uuid);
     }
 
     private static final class ChainState {
@@ -674,3 +705,5 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
         }
     }
 }
+
+
