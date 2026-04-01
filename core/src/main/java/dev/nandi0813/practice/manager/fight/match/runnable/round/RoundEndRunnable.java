@@ -93,6 +93,12 @@ public class RoundEndRunnable extends BukkitRunnable {
             return;
         }
 
+        // If MULTI_ROUND_START_COUNTDOWN is disabled, don't show victory/defeat titles
+        // The "FIGHT!" title from RoundStartRunnable will be displayed instead
+        if (match.getLadder().getRoundEndDelay() <= 0 && !this.ended) {
+            return;
+        }
+
         if (this.ended) {
             // Match is ending - show match winner/loser titles
             Object matchWinnerObj = match.getMatchWinner();
