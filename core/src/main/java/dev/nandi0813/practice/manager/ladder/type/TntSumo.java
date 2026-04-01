@@ -413,18 +413,9 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
     }
 
     private static void applyTntSumoKnockback(Player player, TNTPrimed tnt) {
-        if (isTntOwner(player, tnt)) {
-            // Self-placed TNT should never move the placer.
-            return;
-        }
-
         final Location tntCenter = tnt.getLocation().clone();
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-            if (isTntOwner(player, tnt)) {
-                return;
-            }
-
             Location currentPlayerLocation = player.getLocation();
             Vector currentVelocity = player.getVelocity().clone();
             double horizontalRadius = Math.max(0.0, TNT_SUMO_EXPLOSION_HORIZONTAL_RADIUS);
@@ -462,21 +453,35 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
             Vector direction = explosionToPlayer.clone().normalize();
             UUID playerId = player.getUniqueId();
             boolean isEffectivelyGrounded = isEffectivelyGrounded(player, currentPlayerLocation, currentVelocity);
+            boolean isOwner = isTntOwner(player, tnt);
 
             if (isEffectivelyGrounded) {
                 int chainHits = updateChainHits(playerId);
                 double groundedHorizontalX = direction.getX() * TNT_SUMO_GROUNDED_HORIZONTAL_MULTIPLIER * forceFactor;
                 double groundedHorizontalZ = direction.getZ() * TNT_SUMO_GROUNDED_HORIZONTAL_MULTIPLIER * forceFactor;
-                double baseGroundedVerticalY = Math.max(0.0, TNT_SUMO_GROUNDED_VERTICAL_MULTIPLIER * forceFactor);
-                double chainLiftBonus = calculateGroundedChainLiftBonus(chainHits, forceFactor);
-                double groundedVerticalY = Math.max(0.0, baseGroundedVerticalY + chainLiftBonus);
+                double groundedVerticalY = 0.0;
+
+                if (isOwner) {
+                    Vector lookDir = player.getLocation().getDirection();
+                    lookDir.setY(0);
+                    if (lookDir.lengthSquared() > 0) {
+                        lookDir.normalize().multiply(0.12);
+                        groundedHorizontalX = lookDir.getX();
+                        groundedHorizontalZ = lookDir.getZ();
+                    } else {
+                        groundedHorizontalX = 0.0;
+                        groundedHorizontalZ = 0.0;
+                    }
+                    groundedVerticalY = 0.05;
+                } else {
+                    double baseGroundedVerticalY = Math.max(0.0, TNT_SUMO_GROUNDED_VERTICAL_MULTIPLIER * forceFactor);
+                    double chainLiftBonus = calculateGroundedChainLiftBonus(chainHits, forceFactor);
+                    groundedVerticalY = Math.max(0.0, baseGroundedVerticalY + chainLiftBonus);
+                }
 
                 Vector groundedVelocity = new Vector(groundedHorizontalX, groundedVerticalY, groundedHorizontalZ);
-
-                // CRITICAL FIX: Add instead of Replace! This accumulates the momentum from 2-3 chained blasts!
                 Vector newVelocity = currentVelocity.add(groundedVelocity);
 
-                // Ensure they physically get the upward momentum of the chain without fighting gravity drops
                 if (newVelocity.getY() < groundedVerticalY) {
                     newVelocity.setY(groundedVerticalY);
                 }
@@ -492,22 +497,18 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
             double verticalY = direction.getY() * TNT_SUMO_VERTICAL_MULTIPLIER * forceFactor;
 
             if (yDifference > 0.0 && yDifference <= TNT_SUMO_SWEET_SPOT_MAX_Y_DIFF) {
-                // TNT under the feet gets a stronger upward launch.
                 verticalY = Math.max(0.0, verticalY) + (TNT_SUMO_SWEET_SPOT_Y_BOOST * forceFactor);
             } else if (yDifference <= 0.0) {
-                // TNT at the same level or above is severely limited.
                 verticalY = Math.max(0.05, verticalY * 0.2);
             }
 
             boolean isFalling = currentVelocity.getY() < 0.0;
             boolean isTntBelowPlayer = yDifference > 0.0;
             if (isFalling && isTntBelowPlayer) {
-                // Cancel downward momentum first so airborne juggles get the full upward bounce.
                 currentVelocity.setY(0.0);
             }
 
             if (currentVelocity.getY() > 0.0 && isTntBelowPlayer) {
-                // MMC-like juggle: upward players get multiplicative lift when another TNT pops below.
                 currentVelocity.setY(currentVelocity.getY() * TNT_SUMO_AIRBORNE_JUGGLE_MULTIPLIER);
             }
 
@@ -520,8 +521,8 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
     }
 
     private static double calculateForceFactor(double horizontalDistance, double horizontalRadius, double yDifference, double verticalRadius) {
-        double nearFullDistance = Math.max(0.0, Math.min(TNT_SUMO_NEAR_FULL_FORCE_DISTANCE, horizontalRadius));
-        double sharpFalloffStart = Math.max(nearFullDistance, Math.min(TNT_SUMO_SHARP_FALLOFF_START_DISTANCE, horizontalRadius));
+        double nearFullDistance = Math.clamp(horizontalRadius, 0.0, TNT_SUMO_NEAR_FULL_FORCE_DISTANCE);
+        double sharpFalloffStart = Math.clamp(horizontalRadius, nearFullDistance, TNT_SUMO_SHARP_FALLOFF_START_DISTANCE);
 
         double horizontalFactor;
         if (horizontalDistance <= nearFullDistance) {
@@ -529,12 +530,12 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
         } else if (horizontalDistance <= sharpFalloffStart) {
             double midRange = Math.max(0.0001, sharpFalloffStart - nearFullDistance);
             double t = (horizontalDistance - nearFullDistance) / midRange;
-            double targetAtFalloffStart = Math.max(0.0, Math.min(1.0, TNT_SUMO_MID_FORCE_AT_FALLOFF_START));
+            double targetAtFalloffStart = Math.clamp(TNT_SUMO_MID_FORCE_AT_FALLOFF_START, 0.0, 1.0);
             horizontalFactor = 1.0 - ((1.0 - targetAtFalloffStart) * t);
         } else {
             double sharpRange = Math.max(0.0001, horizontalRadius - sharpFalloffStart);
-            double t = Math.max(0.0, Math.min(1.0, (horizontalDistance - sharpFalloffStart) / sharpRange));
-            double targetAtFalloffStart = Math.max(0.0, Math.min(1.0, TNT_SUMO_MID_FORCE_AT_FALLOFF_START));
+            double t = Math.clamp((horizontalDistance - sharpFalloffStart) / sharpRange, 0.0, 1.0);
+            double targetAtFalloffStart = Math.clamp(TNT_SUMO_MID_FORCE_AT_FALLOFF_START, 0.0, 1.0);
             double sharpDrop = 1.0 - (t * t * t);
             horizontalFactor = targetAtFalloffStart * Math.max(0.0, sharpDrop);
         }
@@ -606,7 +607,7 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
         }
 
         double extra = (airborneStackHits - 1) * Math.max(0.0, TNT_SUMO_AIRBORNE_OVERFLOW_PER_EXTRA_HIT);
-        double cappedExtra = Math.min(Math.max(0.0, TNT_SUMO_AIRBORNE_OVERFLOW_MAX), extra);
+        double cappedExtra = Math.clamp(TNT_SUMO_AIRBORNE_OVERFLOW_MAX, 0.0, extra);
         return 1.0 + cappedExtra;
     }
 
