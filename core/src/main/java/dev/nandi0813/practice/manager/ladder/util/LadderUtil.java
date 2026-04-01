@@ -3,6 +3,7 @@ package dev.nandi0813.practice.manager.ladder.util;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
+import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.backend.MysqlManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
@@ -114,12 +115,21 @@ public enum LadderUtil {
 
         if (!ladder.getPreviouslyAssignedArenas().isEmpty()) {
             for (String arenaName : new HashSet<>(ladder.getPreviouslyAssignedArenas())) {
+                // Try normal arena first
                 Arena arena = ArenaManager.getInstance().getNormalArena(arenaName);
                 if (arena != null) {
                     if (ladder.getPreviouslyAssignedArenas().contains(arena.getName()) &&
                         arena.getAssignedLadderTypes().contains(ladder.getType())
                     ) {
                         arena.getAssignedLadders().add(ladder);
+                    }
+                } else {
+                    // Try FFA arena if normal arena not found
+                    FFAArena ffaArena = ArenaManager.getInstance().getFFAArena(arenaName);
+                    if (ffaArena != null) {
+                        if (ladder.getPreviouslyAssignedArenas().contains(ffaArena.getName())) {
+                            ffaArena.getAssignedLadders().add(ladder);
+                        }
                     }
                 }
             }
