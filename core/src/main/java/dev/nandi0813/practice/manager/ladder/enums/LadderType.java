@@ -65,7 +65,6 @@ public enum LadderType {
             .withCommonSettings()
             .withPearlSettings()
             .withSetting(SettingType.TEMP_BUILD_RETURN_DELAY)
-            .withSetting(SettingType.BLOCK_RETURN_DELAY)
     ),
 
     BOXING(LadderTypeConfig.builder(
@@ -92,7 +91,8 @@ public enum LadderType {
             .withCommonSettings()
             .withSettings(
                     SettingType.GOLDEN_APPLE_COOLDOWN,
-                    SettingType.TEMP_BUILD_RETURN_DELAY
+                    SettingType.TEMP_BUILD_RETURN_DELAY,
+                    SettingType.MULTI_ROUND_START_COUNTDOWN
             )
             .withBuildSettings()
     ),

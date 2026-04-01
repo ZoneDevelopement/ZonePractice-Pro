@@ -25,12 +25,13 @@ public class HungerSettingHandler implements SettingHandler<Boolean> {
             return false;
         }
 
-        // If hunger is disabled or player is dead, keep food level at 20
-        if (!getValue(match) || match.getCurrentStat(player).isSet()) {
+        // If hunger is disabled, keep food level at 20
+        if (!getValue(match)) {
             e.setFoodLevel(20);
             return true;
         }
 
+        // Hunger is enabled, allow natural food level changes
         return false;
     }
 }
