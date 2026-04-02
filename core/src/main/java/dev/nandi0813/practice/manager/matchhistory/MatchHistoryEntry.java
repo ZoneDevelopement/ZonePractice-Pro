@@ -44,51 +44,13 @@ public class MatchHistoryEntry {
         this.playedAt = playedAt;
     }
 
-    /** Returns true if the given player was the winner of this match. */
     public boolean isWinner(UUID uuid) {
         return winnerUuid != null && winnerUuid.equals(uuid);
     }
 
-    /** Returns the formatted duration as MM:SS */
     public String getFormattedDuration() {
         int minutes = matchDuration / 60;
         int seconds = matchDuration % 60;
         return String.format("%02d:%02d", minutes, seconds);
-    }
-
-    /** Returns the score string from the perspective of the given player */
-    public String getScoreFor(UUID uuid) {
-        if (uuid.equals(playerUuid)) {
-            return playerScore + " - " + opponentScore;
-        } else {
-            return opponentScore + " - " + playerScore;
-        }
-    }
-
-    /** Returns the opponent name from the perspective of the given player */
-    public String getOpponentNameFor(UUID uuid) {
-        if (uuid.equals(playerUuid)) {
-            return opponentName;
-        } else {
-            return playerName;
-        }
-    }
-
-    /** Returns player final health (hearts) from the perspective of the given player */
-    public double getPlayerHealthFor(UUID uuid) {
-        if (uuid.equals(playerUuid)) {
-            return playerFinalHealth;
-        } else {
-            return opponentFinalHealth;
-        }
-    }
-
-    /** Returns opponent final health (hearts) from the perspective of the given player */
-    public double getOpponentHealthFor(UUID uuid) {
-        if (uuid.equals(playerUuid)) {
-            return opponentFinalHealth;
-        } else {
-            return playerFinalHealth;
-        }
     }
 }
