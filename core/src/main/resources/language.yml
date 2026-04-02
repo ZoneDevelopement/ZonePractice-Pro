@@ -617,6 +617,9 @@ COMMAND:
     INVALID-MATCH-ID: "<red>Match id is either invalid or it has expired."
     INVALID-PLAYER: "<red>Player statistics are not available for this match."
     INVALID-ROUND: "<red>Round cannot be found in statistics."
+  MATCH-HISTORY:
+    NO-HISTORY: "<red>This player has no match history yet."
+    PLAYER-NOT-FOUND: "<red>Player not found."
   PARTY:
     CANT-USE-COMMAND: "<red>You can't use this right now."
     ARGUMENTS:
