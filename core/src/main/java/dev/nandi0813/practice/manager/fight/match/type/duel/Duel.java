@@ -13,10 +13,12 @@ import dev.nandi0813.practice.manager.fight.match.enums.WeightClass;
 import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
+import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
+import dev.nandi0813.practice.manager.matchhistory.MatchHistoryManager;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Getter
 public class Duel extends Match implements Team {
@@ -262,6 +265,44 @@ public class Duel extends Match implements Team {
             return player2;
         else
             return player1;
+    }
+
+    /**
+     * Records this duel in the MatchHistory system.
+     * Called by {@link Match#endMatch()} before players are removed, so health
+     * data is still readable from round statistics.
+     */
+    @Override
+    protected void onMatchEnd() {
+        if (player1 == null || player2 == null) return;
+
+        // Collect final health from the last round's statistics (set during round end).
+        Round lastRound = this.getCurrentRound();
+        java.util.Map<UUID, Statistic> stats = lastRound.getStatistics();
+
+        Statistic stat1 = stats.get(player1.getUniqueId());
+        Statistic stat2 = stats.get(player2.getUniqueId());
+
+        double p1Health = (stat1 != null && stat1.isSet())
+                ? stat1.getEndHeart()
+                : (player1.isOnline() ? player1.getHealth() : 0.0);
+
+        double p2Health = (stat2 != null && stat2.isSet())
+                ? stat2.getEndHeart()
+                : (player2.isOnline() ? player2.getHealth() : 0.0);
+
+        UUID winnerUuid = matchWinner != null ? matchWinner.getUniqueId() : null;
+
+        MatchHistoryManager.getInstance().saveMatchAsync(
+                player1.getUniqueId(), player2.getUniqueId(),
+                player1.getName(), player2.getName(),
+                this.ladder.getName(),
+                this.arena.getName(),
+                getWonRounds(player1), getWonRounds(player2),
+                p1Health, p2Health,
+                winnerUuid,
+                this.duration
+        );
     }
 
 }
