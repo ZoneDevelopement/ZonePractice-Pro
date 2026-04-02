@@ -197,7 +197,6 @@ public class LadderTypeListener implements Listener {
             if (!target.isOnline() || target.isDead()) {
                 return;
             }
-            target.setNoDamageTicks(0);
         });
     }
 

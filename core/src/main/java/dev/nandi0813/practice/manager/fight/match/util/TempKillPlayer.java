@@ -107,7 +107,6 @@ public class TempKillPlayer extends BukkitRunnable {
         player.setGameMode(GameMode.SURVIVAL);
         player.setAllowFlight(false);
         player.setFlying(false);
-        player.setNoDamageTicks(0);
         dev.nandi0813.practice.manager.fight.util.PlayerUtil.setCollidesWithEntities(player, true);
 
         match.teleportPlayer(player);
