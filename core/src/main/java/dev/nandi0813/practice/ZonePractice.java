@@ -22,11 +22,11 @@ import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.*;
 import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
+import dev.nandi0813.practice.manager.matchhistory.MatchHistoryManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAListener;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.listener.BuildListener;
 import dev.nandi0813.practice.manager.fight.listener.EPCountdownListener;
-import dev.nandi0813.practice.manager.matchhistory.MatchHistoryManager;
 import dev.nandi0813.practice.manager.fight.listener.FireworkRocketCooldownListener;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.util.EntityHider;
@@ -148,7 +148,7 @@ public final class ZonePractice extends JavaPlugin {
         LanguageManager.createFile(this);
         GUIFile.createFile(this);
         MysqlManager.openConnection();
-        MatchHistoryManager.getInstance(); // initialize singleton
+        MatchHistoryManager.getInstance(); // eagerly initialise singleton
         DivisionManager.getInstance().getData();
         ArenaWorldUtil.createArenaWorld();
         BackendManager.createFile(this);
