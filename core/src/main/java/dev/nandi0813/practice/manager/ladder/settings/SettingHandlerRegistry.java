@@ -7,7 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -78,8 +80,7 @@ public enum SettingHandlerRegistry {
      * @param player The player involved (can be null)
      */
     public static void processEvent(Event event, Match match, Player player) {
-        // Get all setting types enabled for this ladder
-        for (SettingType settingType : match.getLadder().getType().getSettingTypes()) {
+        for (SettingType settingType : getEffectiveSettingTypes(match)) {
             SettingHandler<?> handler = getHandler(settingType);
             if (handler != null) {
                 try {
@@ -92,6 +93,19 @@ public enum SettingHandlerRegistry {
             }
         }
 
+    }
+
+    /**
+     * Resolves setting types that should be processed at runtime for the given match.
+     * Hunger handling is always included because ladders still control behavior via ladder.isHunger().
+     */
+    public static Set<SettingType> getEffectiveSettingTypes(Match match) {
+        EnumSet<SettingType> settingTypes = EnumSet.noneOf(SettingType.class);
+        settingTypes.addAll(match.getLadder().getType().getSettingTypes());
+        settingTypes.add(SettingType.HUNGER);
+        settingTypes.add(SettingType.REGENERATION);
+        settingTypes.add(SettingType.EDITABLE);
+        return settingTypes;
     }
 
     /**

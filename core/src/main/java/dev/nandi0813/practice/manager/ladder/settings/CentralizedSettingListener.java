@@ -53,7 +53,7 @@ public class CentralizedSettingListener implements Listener {
         Match match = (Match) e.getMatch();
 
         // Trigger onMatchStart for all active settings
-        for (SettingType settingType : match.getLadder().getType().getSettingTypes()) {
+        for (SettingType settingType : SettingHandlerRegistry.getEffectiveSettingTypes(match)) {
             SettingHandler<?> handler = SettingHandlerRegistry.getHandler(settingType);
             if (handler != null) {
                 try {
@@ -73,7 +73,7 @@ public class CentralizedSettingListener implements Listener {
         Match match = (Match) e.getMatch();
 
         // Trigger onMatchEnd for all active settings
-        for (SettingType settingType : match.getLadder().getType().getSettingTypes()) {
+        for (SettingType settingType : SettingHandlerRegistry.getEffectiveSettingTypes(match)) {
             SettingHandler<?> handler = SettingHandlerRegistry.getHandler(settingType);
             if (handler != null) {
                 try {
