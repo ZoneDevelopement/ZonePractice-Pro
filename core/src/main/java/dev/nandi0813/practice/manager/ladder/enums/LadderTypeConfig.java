@@ -119,7 +119,8 @@ public class LadderTypeConfig {
                 SettingType.START_COUNTDOWN,
                 SettingType.ROUND_END_DELAY,
                 SettingType.ROUND_STATUS_TITLES,
-                SettingType.COUNTDOWN_TITLES
+                SettingType.COUNTDOWN_TITLES,
+                SettingType.HUNGER
         );
     }
 
