@@ -88,6 +88,9 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
     private static final Map<UUID, ChainState> TNT_SUMO_CHAIN_STATES = new HashMap<>();
     private static final Map<UUID, AirborneStackState> TNT_SUMO_AIRBORNE_STACK_STATES = new HashMap<>();
 
+    private static final Map<UUID, Long> TNT_SUMO_TNT_REWARD_COOLDOWN = new HashMap<>();
+    private static final long TNT_SUMO_TNT_REWARD_COOLDOWN_MILLIS = 250L;
+
     @Getter
     @Setter
     private int tempBuildReturnDelaySeconds;
@@ -343,7 +346,14 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
                 && !attacker.getUniqueId().equals(player.getUniqueId())
                 && match.getPlayers().contains(attacker)
                 && !match.getCurrentStat(attacker).isSet()) {
-            rewardTntForMeleeHit(attacker);
+
+            long now = System.currentTimeMillis();
+            long last = TNT_SUMO_TNT_REWARD_COOLDOWN.getOrDefault(attacker.getUniqueId(), 0L);
+
+            if (now - last >= TNT_SUMO_TNT_REWARD_COOLDOWN_MILLIS) {
+                TNT_SUMO_TNT_REWARD_COOLDOWN.put(attacker.getUniqueId(), now);
+                rewardTntForMeleeHit(attacker);
+            }
         }
 
         if (e.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
@@ -683,6 +693,7 @@ public class TntSumo extends NormalLadder implements LadderHandle, TempBuild, Te
         TNT_SUMO_CHAIN_STATES.remove(uuid);
         TNT_SUMO_AIRBORNE_STACK_STATES.remove(uuid);
         TNT_SUMO_PLAYER_TNT_CACHE.remove(uuid);
+        TNT_SUMO_TNT_REWARD_COOLDOWN.remove(uuid);
     }
 
     private static final class ChainState {

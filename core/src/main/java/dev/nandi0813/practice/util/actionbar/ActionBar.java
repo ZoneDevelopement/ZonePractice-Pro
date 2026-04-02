@@ -7,6 +7,8 @@ import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,14 +48,6 @@ public class ActionBar {
         updateDisplay();
     }
 
-    /**
-     * Clears all current action bar messages.
-     */
-    public void clearAll() {
-        activeMessages.clear();
-        updateDisplay();
-    }
-
     private void startRunnableIfNeeded() {
         if (actionBarRunnable == null || !actionBarRunnable.isRunning()) {
             actionBarRunnable = new ActionBarRunnable(this);
@@ -72,19 +66,22 @@ public class ActionBar {
         }
 
         boolean changed = false;
+        List<String> toRemove = new ArrayList<>();
 
-        // Decrease duration for all active messages
         for (Map.Entry<String, ActionMessage> entry : activeMessages.entrySet()) {
             ActionMessage msg = entry.getValue();
             if (msg.getDuration() > 0) {
                 msg.setDuration(msg.getDuration() - 1);
 
-                // Remove if time has expired
                 if (msg.getDuration() <= 0) {
-                    activeMessages.remove(entry.getKey());
+                    toRemove.add(entry.getKey());
                     changed = true;
                 }
             }
+        }
+
+        for (String key : toRemove) {
+            activeMessages.remove(key);
         }
 
         if (changed) {
