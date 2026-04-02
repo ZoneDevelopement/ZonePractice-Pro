@@ -1,7 +1,7 @@
 package dev.nandi0813.practice.command.singlecommands;
 
 import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.guis.MatchHistoryGui;
 import dev.nandi0813.practice.manager.matchhistory.MatchHistoryEntry;
 import dev.nandi0813.practice.manager.matchhistory.MatchHistoryManager;
@@ -28,55 +28,45 @@ public class MatchHistoryCommand implements CommandExecutor, TabCompleter {
         }
 
         if (!player.hasPermission("zpp.matchhistory")) {
-            Common.sendMMMessage(player, "<red>You don't have permission to use this command.");
+            Common.sendMMMessage(player, LanguageManager.getString("NO-PERMISSION"));
             return true;
         }
 
-        if (!ConfigManager.getBoolean("MATCH-HISTORY.ENABLED")) {
-            Common.sendMMMessage(player, "<red>Match history is currently disabled.");
-            return true;
-        }
-
-        // Determine target player
+        // Determine target
         final UUID targetUuid;
         final String targetName;
 
         if (args.length == 0) {
-            // Show sender's own history
             targetUuid = player.getUniqueId();
             targetName = player.getName();
         } else {
-            // Try to find the named player (online or offline)
             @SuppressWarnings("deprecation")
             OfflinePlayer offlineTarget = Bukkit.getOfflinePlayer(args[0]);
-
             if (!offlineTarget.hasPlayedBefore() && !offlineTarget.isOnline()) {
-                String msg = ConfigManager.getString("MATCH-HISTORY.MESSAGES.PLAYER-NOT-FOUND");
-                if (msg == null || msg.isEmpty()) msg = "&cPlayer not found.";
-                Common.sendMMMessage(player, msg);
+                Common.sendMMMessage(player,
+                        LanguageManager.getString("COMMAND.MATCH-HISTORY.PLAYER-NOT-FOUND"));
                 return true;
             }
-
             targetUuid = offlineTarget.getUniqueId();
             targetName = offlineTarget.getName() != null ? offlineTarget.getName() : args[0];
         }
 
-        // Load history async, then open GUI on main thread
+        // Load async, open GUI on main thread
         MatchHistoryManager.getInstance().loadHistoryAsync(targetUuid).thenAccept(entries -> {
             Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
                 if (!player.isOnline()) return;
 
                 if (entries == null || entries.isEmpty()) {
-                    String msg = ConfigManager.getString("MATCH-HISTORY.MESSAGES.NO-HISTORY");
-                    if (msg == null || msg.isEmpty()) msg = "&cThis player has no match history.";
-                    Common.sendMMMessage(player, msg);
+                    Common.sendMMMessage(player,
+                            LanguageManager.getString("COMMAND.MATCH-HISTORY.NO-HISTORY"));
                     return;
                 }
 
-                // Open the history GUI from the viewer's perspective
-                List<MatchHistoryEntry> display = entries.size() > 5 ? entries.subList(0, 5) : entries;
-                MatchHistoryGui gui = new MatchHistoryGui(targetUuid, targetName, display);
-                gui.open(player);
+                List<MatchHistoryEntry> display = entries.size() > 5
+                        ? entries.subList(0, 5)
+                        : entries;
+
+                new MatchHistoryGui(targetUuid, targetName, display).open(player);
             });
         });
 
@@ -84,14 +74,14 @@ public class MatchHistoryCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command,
+                                      String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
             String partial = args[0].toLowerCase();
             for (Player online : Bukkit.getOnlinePlayers()) {
-                if (online.getName().toLowerCase().startsWith(partial)) {
+                if (online.getName().toLowerCase().startsWith(partial))
                     completions.add(online.getName());
-                }
             }
         }
         return completions;
