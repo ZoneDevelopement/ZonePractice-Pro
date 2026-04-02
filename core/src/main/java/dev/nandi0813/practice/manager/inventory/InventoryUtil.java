@@ -52,7 +52,7 @@ public enum InventoryUtil {
         Component name = NameFormatUtil.resolveName(profile, playerName);
         Component suffix = NameFormatUtil.resolveSuffix(profile);
 
-        NamedTextColor scoreboardNameColor = NameFormatUtil.resolveScoreboardColor(name, NamedTextColor.GRAY);
+        NamedTextColor scoreboardNameColor = NameFormatUtil.resolveScoreboardColor(profile, playerName, NamedTextColor.GRAY);
         int sortPriority = profile.getGroup() != null ? profile.getGroup().getSortPriority() : 10;
 
         return new LobbyNametag(prefix, name, scoreboardNameColor, suffix, sortPriority);

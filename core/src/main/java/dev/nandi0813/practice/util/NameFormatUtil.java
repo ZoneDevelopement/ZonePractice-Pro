@@ -11,6 +11,25 @@ import net.kyori.adventure.text.format.TextColor;
 public enum NameFormatUtil {
     ;
 
+    private static TextColor findFirstExplicitColor(Component component) {
+        if (component == null) {
+            return null;
+        }
+
+        if (component.color() != null) {
+            return component.color();
+        }
+
+        for (Component child : component.children()) {
+            TextColor childColor = findFirstExplicitColor(child);
+            if (childColor != null) {
+                return childColor;
+            }
+        }
+
+        return null;
+    }
+
     public static Component parseConfiguredComponent(String raw) {
         if (raw == null || raw.isEmpty()) {
             return Component.empty();
@@ -134,19 +153,11 @@ public enum NameFormatUtil {
         return nameComponent;
     }
 
-    public static Component buildFullDisplayName(Profile profile, String playerName) {
-        return resolvePrefix(profile)
-                .append(resolveName(profile, playerName))
-                .append(resolveSuffix(profile));
-    }
+    public static NamedTextColor resolveScoreboardColor(Profile profile, String playerName, NamedTextColor fallback) {
+        Component nameComponent = resolveName(profile, playerName);
 
-    public static String buildFullDisplayNameMiniMessage(Profile profile, String playerName) {
-        return ZonePractice.getMiniMessage().serialize(buildFullDisplayName(profile, playerName));
-    }
-
-    public static NamedTextColor resolveScoreboardColor(Component nameComponent, NamedTextColor fallback) {
-        if (nameComponent != null && nameComponent.color() != null) {
-            TextColor color = nameComponent.color();
+        TextColor color = findFirstExplicitColor(nameComponent);
+        if (color != null) {
             if (color instanceof NamedTextColor named) {
                 return named;
             }

@@ -17,7 +17,6 @@ import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
-import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
@@ -54,12 +53,10 @@ public class Duel extends Match implements Team {
 
         this.player1 = players.getFirst();
         this.playerProfiles.put(player1, ProfileManager.getInstance().getProfile(player1));
-        NametagManager.getInstance().setNametag(player1, TeamEnum.TEAM1.getPrefix(), TeamEnum.TEAM1.getNameColor(), TeamEnum.TEAM1.getSuffix(), 20);
 
         if (players.size() == 2) {
             this.player2 = players.get(1);
             this.playerProfiles.put(player2, ProfileManager.getInstance().getProfile(player2));
-            NametagManager.getInstance().setNametag(player2, TeamEnum.TEAM2.getPrefix(), TeamEnum.TEAM2.getNameColor(), TeamEnum.TEAM2.getSuffix(), 21);
         } else {
             this.player2 = null;
         }
