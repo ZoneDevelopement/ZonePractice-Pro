@@ -27,7 +27,6 @@ import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.RespawnableLadder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.ScoringLadder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
-import dev.nandi0813.practice.manager.matchhistory.MatchHistoryManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
@@ -339,8 +338,9 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
 
         Bukkit.getPluginManager().callEvent(new MatchEndEvent(this));
 
-        // --- Match History logging ---
-        logMatchHistory();
+        // Hook for subclasses to record match history before players are removed.
+        // Health data is still accessible at this point.
+        onMatchEnd();
 
         for (Player player : new ArrayList<>(players))
             removePlayer(player, false);
@@ -363,50 +363,11 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     }
 
     /**
-     * Logs the match into the MatchHistory system when the match is a 1v1 Duel.
-     * Called at the start of endMatch() before players are removed so health data is still accessible.
+     * Called during {@link #endMatch()} before players are removed, while health
+     * data is still available. Subclasses override this to record match history.
+     * The base implementation is intentionally empty.
      */
-    private void logMatchHistory() {
-        if (!(this instanceof Duel duel)) return;
-
-        Player p1 = duel.getPlayer1();
-        Player p2 = duel.getPlayer2();
-        if (p1 == null || p2 == null) return;
-
-        Player winner = duel.getMatchWinner();
-
-        // Collect final health from the last round's statistics (set during round end)
-        Round lastRound = this.getCurrentRound();
-        Map<UUID, Statistic> stats = lastRound.getStatistics();
-
-        double p1Health = 0.0;
-        double p2Health = 0.0;
-
-        Statistic stat1 = stats.get(p1.getUniqueId());
-        Statistic stat2 = stats.get(p2.getUniqueId());
-
-        if (stat1 != null && stat1.isSet()) p1Health = stat1.getEndHeart();
-        else if (p1.isOnline()) p1Health = p1.getHealth();
-
-        if (stat2 != null && stat2.isSet()) p2Health = stat2.getEndHeart();
-        else if (p2.isOnline()) p2Health = p2.getHealth();
-
-        int p1Score = duel.getWonRounds(p1);
-        int p2Score = duel.getWonRounds(p2);
-
-        UUID winnerUuid = winner != null ? winner.getUniqueId() : null;
-
-        MatchHistoryManager.getInstance().saveMatchAsync(
-                p1.getUniqueId(), p2.getUniqueId(),
-                p1.getName(), p2.getName(),
-                this.ladder.getName(),
-                this.arena.getName(),
-                p1Score, p2Score,
-                p1Health, p2Health,
-                winnerUuid,
-                this.duration
-        );
-    }
+    protected void onMatchEnd() {}
 
     /*
      * Statistics methods
