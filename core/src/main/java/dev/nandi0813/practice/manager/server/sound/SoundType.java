@@ -10,5 +10,7 @@ public enum SoundType {
     TOTEM_SAVE_PLAYER, // Only in modern
     EVENT_QUEUE_COUNTDOWN,
     EVENT_START_COUNTDOWN,
+    GUI_CLICK_ADVANCE,
+    GUI_CLICK_BACK,
 
 }
