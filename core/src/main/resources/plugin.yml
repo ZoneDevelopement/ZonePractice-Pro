@@ -56,6 +56,9 @@ commands:
   customqueue:
     aliases: [cqueue, customkitqueue]
     description: Queue for custom-kit matchmaking commands.
+  nick:
+    aliases: [nickname]
+    description: Change your formatted display name.
 
 permissions:
   zpp.admin:
@@ -128,6 +131,19 @@ permissions:
     description: Set player's nametag.
   zpp.practice.nametag.reset:
     description: Reset player's nametag.
+  zpp.practice.nametag.name.others:
+    description: Allow changing other players' name format through /practice nametag name.
+    default: op
+
+  zpp.nick.use:
+    description: Use /nick for your own display name.
+    default: true
+  zpp.nick.others:
+    description: Set another player's display name using /nick.
+    default: op
+  zpp.nick.reset.others:
+    description: Reset another player's display name using /nick reset.
+    default: op
 
   zpp.practice.unranked.default:
     description: Reset the player's daily unranked limit to default.

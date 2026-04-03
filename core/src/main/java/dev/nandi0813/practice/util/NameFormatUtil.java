@@ -7,9 +7,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public enum NameFormatUtil {
     ;
+
+    private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
 
     private static TextColor findFirstExplicitColor(Component component) {
         if (component == null) {
@@ -65,6 +68,29 @@ public enum NameFormatUtil {
         return template
                 .replaceText(TextReplacementConfig.builder().matchLiteral("%player%").replacement(player).build())
                 .replaceText(TextReplacementConfig.builder().matchLiteral("%%player%%").replacement(player).build());
+    }
+
+    public static String normalizePlayerNameTemplate(String rawTemplate) {
+        if (rawTemplate == null || rawTemplate.isEmpty()) {
+            return rawTemplate;
+        }
+
+        String normalized = rawTemplate;
+        if (normalized.contains("&") || normalized.contains("\u00A7")) {
+            normalized = StringUtil.legacyColorToMiniMessage(normalized);
+        }
+
+        boolean hasPlayerPlaceholder = normalized.contains("%player%") || normalized.contains("%%player%%");
+        if (hasPlayerPlaceholder) {
+            return rawTemplate;
+        }
+
+        String plainText = PLAIN_TEXT_SERIALIZER.serialize(ZonePractice.getMiniMessage().deserialize(normalized)).trim();
+        if (!plainText.isEmpty()) {
+            return rawTemplate;
+        }
+
+        return rawTemplate + "%player%";
     }
 
     private static Component renderTemplate(String rawTemplate, Profile profile, String playerName) {

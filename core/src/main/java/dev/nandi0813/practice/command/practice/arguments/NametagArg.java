@@ -79,7 +79,12 @@ public enum NametagArg {
             } else if (args[1].equalsIgnoreCase("name")) {
                 String nameTemplate = joinArgs(args, 3);
 
-                targetProfile.setNameTemplate(nameTemplate);
+                if (player != target && !player.hasPermission("zpp.practice.nametag.name.others")) {
+                    Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
+                    return;
+                }
+
+                targetProfile.setNameTemplate(NameFormatUtil.normalizePlayerNameTemplate(nameTemplate));
                 InventoryUtil.setLobbyNametag(target, targetProfile);
 
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.NAME-SET")
@@ -167,7 +172,7 @@ public enum NametagArg {
             } else if (args[1].equalsIgnoreCase("name")) {
                 String nameTemplate = joinArgs(args, 3);
 
-                targetProfile.setNameTemplate(nameTemplate);
+                targetProfile.setNameTemplate(NameFormatUtil.normalizePlayerNameTemplate(nameTemplate));
                 InventoryUtil.setLobbyNametag(target, targetProfile);
 
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.NAMETAG.NAME-SET")
@@ -214,8 +219,12 @@ public enum NametagArg {
             return StringUtil.copyPartialMatches(args[1], arguments, new ArrayList<>());
         } else if (args.length == 3) {
             if ((args[1].equalsIgnoreCase("prefix") || args[1].equalsIgnoreCase("suffix") || args[1].equalsIgnoreCase("name")) && player.hasPermission("zpp.practice.nametag.set")) {
-                for (Player online : Bukkit.getOnlinePlayers())
-                    arguments.add(online.getName());
+                if (args[1].equalsIgnoreCase("name") && !player.hasPermission("zpp.practice.nametag.name.others")) {
+                    arguments.add(player.getName());
+                } else {
+                    for (Player online : Bukkit.getOnlinePlayers())
+                        arguments.add(online.getName());
+                }
             } else if (args[1].equalsIgnoreCase("reset") && player.hasPermission("zpp.practice.nametag.reset")) {
                 for (Player online : Bukkit.getOnlinePlayers())
                     arguments.add(online.getName());

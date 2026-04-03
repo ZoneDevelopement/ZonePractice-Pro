@@ -1,4 +1,4 @@
-VERSION: 34
+VERSION: 35
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -29,6 +29,15 @@ COMMAND:
     CANT-YOURSELF: "<red>You can't ignore yourself."
     IGNORE-ON: "<green>You are now ignoring <yellow>%target%<green>."
     IGNORE-OFF: "<green>You are <red>no <green>longer ignoring <yellow>%target%<green>."
+  NICK:
+    HELP: "<red>/%label% [player] <formatted name> <gray>or <red>/%label% reset [player]"
+    TARGET-OFFLINE: "<red>%target% is not online."
+    SET-SELF: "<green>Your display name has been set to %name%<green>."
+    SET-OTHER: "<green>You set <yellow>%target%<green>'s display name to %name%<green>."
+    SET-BY: "<yellow>%player% <green>set your display name to %name%<green>."
+    RESET-SELF: "<green>Your display name has been reset to default."
+    RESET-OTHER: "<green>You reset <yellow>%target%<green>'s display name."
+    RESETED-BY: "<yellow>%player% <green>reset your display name."
   QUEUES:
     UNRANKED:
       NO-UNRANKED-LEFT: "<red>You have already played all your allowed unranked matches."
