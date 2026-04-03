@@ -18,6 +18,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
 public class MatchManager {
@@ -32,9 +34,9 @@ public class MatchManager {
 
     private final BelowNameManager belowNameManager;
 
-    private final Map<String, Match> matches = new HashMap<>();
-    private final List<Match> liveMatches = new ArrayList<>();
-    private final Map<Player, Match> playerMatches = new HashMap<>();
+    private final Map<String, Match> matches = new ConcurrentHashMap<>();
+    private final List<Match> liveMatches = new CopyOnWriteArrayList<>();
+    private final Map<Player, Match> playerMatches = new ConcurrentHashMap<>();
     private final Set<RematchRequest> rematches = new HashSet<>();
 
     private MatchManager() {
@@ -68,7 +70,8 @@ public class MatchManager {
         // Recover from stale Player-object keys by resolving via UUID.
         UUID playerUuid = player.getUniqueId();
         for (Match liveMatch : this.liveMatches) {
-            for (Player livePlayer : liveMatch.getPlayers()) {
+            // Snapshot players to avoid CME if match player lists mutate during packet-thread checks.
+            for (Player livePlayer : new ArrayList<>(liveMatch.getPlayers())) {
                 if (playerUuid.equals(livePlayer.getUniqueId())) {
                     this.playerMatches.put(player, liveMatch);
                     return liveMatch;
