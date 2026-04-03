@@ -244,7 +244,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             playDeathEffect(killer, player);
 
             if (arena.isReKitAfterKill()) {
-                KitUtil.loadDefaultLadderKit(killer, TeamEnum.FFA, players.get(killer));
+                applySelectedOrDefaultKit(killer);
             }
 
             if (arena.isHealthResetOnKill()) {
@@ -256,11 +256,24 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             this.removePlayer(player);
         } else {
             PlayerUtil.setFightPlayer(player);
-            KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, players.get(player));
+            applySelectedOrDefaultKit(player);
             dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, players.get(player).getAttackCooldownModifier());
 
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                     teleportPlayer(player), 1L);
+        }
+    }
+
+    private void applySelectedOrDefaultKit(Player player) {
+        FFAFightPlayer ffaFightPlayer = fightPlayers.get(player);
+        if (ffaFightPlayer != null) {
+            ffaFightPlayer.showKitChooserOrApplyKit();
+            return;
+        }
+
+        NormalLadder ladder = players.get(player);
+        if (ladder != null) {
+            KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, ladder);
         }
     }
 
