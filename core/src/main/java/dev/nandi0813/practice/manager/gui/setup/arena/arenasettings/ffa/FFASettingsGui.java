@@ -19,6 +19,8 @@ public class FFASettingsGui extends GUI {
     private static final ItemStack BUILD_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.BUILD.DISABLED").get();
     private static final ItemStack REKIT_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.RE-KIT-AFTER-KILL.ENABLED").get();
     private static final ItemStack REKIT_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.RE-KIT-AFTER-KILL.DISABLED").get();
+    private static final ItemStack HEALTH_BELOW_NAME_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.HEALTH-BELOW-NAME.ENABLED").get();
+    private static final ItemStack HEALTH_BELOW_NAME_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.HEALTH-BELOW-NAME.DISABLED").get();
     private static final ItemStack HEALTH_RESET_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.HEALTH-RESET-ON-KILL.ENABLED").get();
     private static final ItemStack HEALTH_RESET_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.HEALTH-RESET-ON-KILL.DISABLED").get();
     private static final ItemStack LOBBYDEATH_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.LOBBY-AFTER-DEATH.ENABLED").get();
@@ -60,7 +62,7 @@ public class FFASettingsGui extends GUI {
         }
 
         if (ffaArena.isReKitAfterKill()) {
-            inventory.setItem(12, REKIT_ENABLED_ITEM);
+            inventory.setItem(13, REKIT_ENABLED_ITEM);
         } else {
             inventory.setItem(12, REKIT_DISABLED_ITEM);
         }
@@ -69,6 +71,12 @@ public class FFASettingsGui extends GUI {
             inventory.setItem(14, LOBBYDEATH_ENABLED_ITEM);
         } else {
             inventory.setItem(14, LOBBYDEATH_DISABLED_ITEM);
+        }
+
+        if (ffaArena.isHealthBelowName()) {
+            inventory.setItem(15, HEALTH_BELOW_NAME_ENABLED_ITEM);
+        } else {
+            inventory.setItem(15, HEALTH_BELOW_NAME_DISABLED_ITEM);
         }
 
         if (ffaArena.isHealthResetOnKill()) {
@@ -102,6 +110,10 @@ public class FFASettingsGui extends GUI {
                     break;
                 case 16:
                     ffaArena.setHealthResetOnKill(!ffaArena.isHealthResetOnKill());
+                    this.update();
+                    break;
+                case 15:
+                    ffaArena.setHealthBelowName(!ffaArena.isHealthBelowName());
                     this.update();
                     break;
                 case 27:

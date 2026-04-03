@@ -23,11 +23,13 @@ import java.util.Set;
 public class FFAArena extends DisplayArena {
 
     private static final boolean DEFAULT_HEALTH_RESET_ON_KILL = ConfigManager.getBoolean("FFA.HEALTH-RESET-ON-KILL");
+    private static final boolean DEFAULT_HEALTH_BELOW_NAME = ConfigManager.getBoolean("FFA.HEALTH-BELOW-NAME");
 
     private final FFA ffa;
     private boolean reKitAfterKill;
     private boolean lobbyAfterDeath;
     private boolean healthResetOnKill;
+    private boolean healthBelowName;
 
     public FFAArena(String name) {
         super(name, ArenaType.FFA);
@@ -38,6 +40,7 @@ public class FFAArena extends DisplayArena {
         this.portalLoc2 = null;
         this.portalProtection = false;
         this.healthResetOnKill = DEFAULT_HEALTH_RESET_ON_KILL;
+        this.healthBelowName = DEFAULT_HEALTH_BELOW_NAME;
 
         this.getData();
 
@@ -60,6 +63,7 @@ public class FFAArena extends DisplayArena {
         config.set("reKitAfterKill", this.reKitAfterKill);
         config.set("lobbyAfterDeath", this.lobbyAfterDeath);
         config.set("healthResetOnKill", this.healthResetOnKill);
+        config.set("healthBelowName", this.healthBelowName);
 
         config.set("ladders", ArenaUtil.getLadderNames(this));
 
@@ -86,6 +90,9 @@ public class FFAArena extends DisplayArena {
 
         if (config.isBoolean("healthResetOnKill"))
             this.setHealthResetOnKill(config.getBoolean("healthResetOnKill"));
+
+        if (config.isBoolean("healthBelowName"))
+            this.setHealthBelowName(config.getBoolean("healthBelowName"));
 
         if (config.isList("ladders")) {
             for (String ladderName : config.getStringList("ladders")) {
@@ -152,6 +159,14 @@ public class FFAArena extends DisplayArena {
         }
 
         this.healthResetOnKill = healthResetOnKill;
+    }
+
+    public void setHealthBelowName(boolean healthBelowName) throws IllegalStateException {
+        if (this.enabled) {
+            throw new IllegalStateException("Cannot edit while arena is enabled.");
+        }
+
+        this.healthBelowName = healthBelowName;
     }
 
     public void setBuild(boolean build) {
