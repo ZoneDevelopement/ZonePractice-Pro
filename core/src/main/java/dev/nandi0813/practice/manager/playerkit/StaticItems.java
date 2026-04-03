@@ -166,5 +166,7 @@ public enum StaticItems {
     public static final GUIItem HITDELAY_ITEM = PlayerKitManager.getInstance().getGuiItem("GUI.CUSTOM-SETTINGS.ICONS.NORMAL-SETTINGS.HITDELAY");
     public static final GUIItem ENDERPEARL_ITEM = PlayerKitManager.getInstance().getGuiItem("GUI.CUSTOM-SETTINGS.ICONS.NORMAL-SETTINGS.ENDERPEARL-COOLDOWN");
     public static final GUIItem GAPPLE_ITEM = PlayerKitManager.getInstance().getGuiItem("GUI.CUSTOM-SETTINGS.ICONS.NORMAL-SETTINGS.GOLDENAPPLE-COOLDOWN");
+    public static final GUIItem WIND_CHARGE_ITEM = PlayerKitManager.getInstance().getGuiItem("GUI.CUSTOM-SETTINGS.ICONS.NORMAL-SETTINGS.WIND-CHARGE-COOLDOWN");
+    public static final Pair<ItemStack, ItemStack> HEALTH_BELOW_NAME_ITEM = new Pair<>(PlayerKitManager.getInstance().getGuiItem("GUI.CUSTOM-SETTINGS.ICONS.NORMAL-SETTINGS.HEALTH-BELOW-NAME.ENABLED").get(), PlayerKitManager.getInstance().getGuiItem("GUI.CUSTOM-SETTINGS.ICONS.NORMAL-SETTINGS.HEALTH-BELOW-NAME.DISABLED").get());
 
 }

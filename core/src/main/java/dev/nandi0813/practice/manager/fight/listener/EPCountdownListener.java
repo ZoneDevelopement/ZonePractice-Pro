@@ -10,6 +10,7 @@ import io.papermc.paper.event.player.PlayerItemCooldownEvent;
 import org.bukkit.Material;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.WindCharge;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -58,6 +59,26 @@ public class EPCountdownListener implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onWindChargeCooldownSet(PlayerItemCooldownEvent e) {
+        if (e.getType() != Material.WIND_CHARGE) {
+            return;
+        }
+
+        Player player = e.getPlayer();
+        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
+        if (match == null) {
+            return;
+        }
+
+        int duration = match.getLadder().getWindChargeCooldown();
+        if (duration <= 0) {
+            e.setCancelled(true);
+        } else {
+            e.setCooldown(duration * 20);
+        }
+    }
+
     @EventHandler
     public void onProjectileShoot(ProjectileLaunchEvent e) {
         if (!(e.getEntity() instanceof EnderPearl)) {
@@ -92,6 +113,31 @@ public class EPCountdownListener implements Listener {
             }
 
             ModernItemCooldownHandler.handleEnderPearl(player, duration, e);
+        }
+    }
+
+    @EventHandler
+    public void onWindChargeShoot(ProjectileLaunchEvent e) {
+        if (!(e.getEntity() instanceof WindCharge)) {
+            return;
+        }
+
+        if (!(e.getEntity().getShooter() instanceof Player windPlayer)) {
+            return;
+        }
+
+        Match windMatch = MatchManager.getInstance().getLiveMatchByPlayer(windPlayer);
+        if (windMatch == null) {
+            return;
+        }
+
+        int duration = windMatch.getLadder().getWindChargeCooldown();
+        if (duration <= 0) {
+            return;
+        }
+
+        if (!windMatch.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+            e.setCancelled(true);
         }
     }
 

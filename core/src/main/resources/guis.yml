@@ -1,4 +1,4 @@
-VERSION: 32
+VERSION: 33
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -2347,6 +2347,16 @@ GUIS:
               - ""
               - "&7This setting includes both enchanted"
               - "&7and non-enchanted golden apples."
+              - ""
+              - "&a&lLEFT-CLICK &ato reduce the cooldown."
+              - "&b&lRIGHT-CLICK &bto increase the cooldown."
+          WIND-CHARGE-COOLDOWN:
+            NAME: "&7Wind Charge Cooldown: &6%windChargeCooldown% sec"
+            MATERIAL: WIND_CHARGE
+            LORE:
+              - ""
+              - "&7Players must wait this long before"
+              - "&7they can launch the next wind charge."
               - ""
               - "&a&lLEFT-CLICK &ato reduce the cooldown."
               - "&b&lRIGHT-CLICK &bto increase the cooldown."

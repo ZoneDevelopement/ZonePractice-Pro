@@ -1,4 +1,4 @@
-VERSION: 3
+VERSION: 4
 
 GUI:
   MAIN:
@@ -276,6 +276,35 @@ GUI:
             - ""
             - "&a&lLEFT-CLICK &ato reduce the cooldown."
             - "&b&lRIGHT-CLICK &bto increase the cooldown."
+        WIND-CHARGE-COOLDOWN:
+          NAME: "&7Wind Charge Cooldown: &6%windChargeCooldown% sec"
+          MATERIAL: WIND_CHARGE
+          LORE:
+            - ""
+            - "&7Players must wait this long before"
+            - "&7they can launch the next wind charge."
+            - ""
+            - "&a&lLEFT-CLICK &ato reduce the cooldown."
+            - "&b&lRIGHT-CLICK &bto increase the cooldown."
+        HEALTH-BELOW-NAME:
+          ENABLED:
+            NAME: "&7Health Below Name: &aEnabled"
+            MATERIAL: RED_DYE
+            LORE:
+              - ""
+              - "&7Players will display their hearts"
+              - "&7during the match."
+              - ""
+              - "&e&lClick here &7to &cdisable&7."
+          DISABLED:
+            NAME: "&7Health Below Name: &cDisabled"
+            MATERIAL: RED_DYE
+            LORE:
+              - ""
+              - "&7Players will display their hearts"
+              - "&7during the match."
+              - ""
+              - "&e&lClick here &7to &aenable&7."
   ITEMS:
     CATEGORY-GUI:
       TITLE: "&8Item categories"
@@ -421,7 +450,7 @@ GUI:
             - "STONE_HOE"
             - "IRON_HOE"
             - "DIAMOND_HOE"
-            - "NETHERITE_HOE"
+            - "WIND_CHARGE"
             - "EXPERIENCE_BOTTLE"
             - "SNOWBALL"
             - "FIREWORK_ROCKET"
@@ -751,6 +780,8 @@ DEFAULT-SETTINGS:
   HITDELAY: 20
   EP_COOLDOWN: 13
   GA_COOLDOWN: 5
+  WIND_CHARGE_COOLDOWN: 0
+  HEALTH_BELOW_NAME: false
 
 MATCH-TYPES: # Options: DUEL, PARTY_FFA, PARTY_SPLIT, PARTY_VS_PARTY
   - "DUEL"

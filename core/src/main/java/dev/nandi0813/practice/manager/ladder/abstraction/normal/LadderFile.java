@@ -45,6 +45,7 @@ public class LadderFile extends ConfigFile {
         config.set("settings.epcooldown", ladder.getEnderPearlCooldown());
         config.set("settings.gacooldown", ladder.getGoldenAppleCooldown());
         config.set("settings.fireworkcooldown", ladder.getFireworkRocketCooldown());
+        config.set("settings.windchargecooldown", ladder.getWindChargeCooldown());
         config.set("settings.startcountdown", ladder.getStartCountdown());
         config.set("settings.startmove", ladder.isStartMove());
         config.set("settings.matchtypes", LadderFileUtil.getMatchTypeNames(ladder.getMatchTypes()));
@@ -215,6 +216,14 @@ public class LadderFile extends ConfigFile {
             int fireworkCooldown = config.getInt("settings.fireworkcooldown");
             if (fireworkCooldown < 0 || fireworkCooldown > 30) fireworkCooldown = 1;
             ladder.setFireworkRocketCooldown(fireworkCooldown);
+        }
+
+        if (config.isInt("settings.windchargecooldown")) {
+            int windChargeCooldown = config.getInt("settings.windchargecooldown");
+            if (windChargeCooldown < 0 || windChargeCooldown > 30) windChargeCooldown = 0;
+            ladder.setWindChargeCooldown(windChargeCooldown);
+        } else {
+            ladder.setWindChargeCooldown(0);
         }
 
         if (config.isInt("settings.startcountdown")) {

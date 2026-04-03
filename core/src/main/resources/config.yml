@@ -1,4 +1,4 @@
-VERSION: 50
+VERSION: 51
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -286,6 +286,8 @@ MATCH-SETTINGS:
   ENDERPEARL:
     COOLDOWN: 13 # This is the default cooldown. You can change it in the ladder settings.
     EXP-BAR: true # Countdown shows on exp bar.
+  WIND-CHARGE:
+    COOLDOWN: 0 # Default wind charge cooldown in seconds. You can change it in the ladder settings.
   FIREWORK-ROCKET:
     COOLDOWN: 1 # Cooldown in seconds for using firework rockets with elytra. Default is 1 second.
   FIREBALL-FIGHT: # These are multiplier values, so please test what is optimal for you and don't change them too much at once or the difference will multiply.
