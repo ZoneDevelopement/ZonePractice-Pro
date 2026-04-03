@@ -7,6 +7,7 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.NameFormatUtil;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -21,6 +22,8 @@ import java.util.List;
 
 public class NickCommand implements CommandExecutor, TabCompleter {
 
+    private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
+
     private static String joinArgs(String[] args, int start) {
         StringBuilder builder = new StringBuilder();
         for (int i = start; i < args.length; i++) {
@@ -34,6 +37,18 @@ public class NickCommand implements CommandExecutor, TabCompleter {
         Profile targetProfile = ProfileManager.getInstance().getProfile(target);
         targetProfile.setNameTemplate(NameFormatUtil.normalizePlayerNameTemplate(nameTemplate));
         InventoryUtil.setLobbyNametag(target, targetProfile);
+    }
+
+    private static boolean isSelfTemplateKeepingName(Player player, String rawTemplate) {
+        String normalizedTemplate = NameFormatUtil.normalizePlayerNameTemplate(rawTemplate);
+        String plainName = PLAIN_TEXT_SERIALIZER.serialize(
+                NameFormatUtil.applyPlayerPlaceholders(
+                        NameFormatUtil.parseConfiguredComponent(normalizedTemplate),
+                        player.getName()
+                )
+        ).trim();
+
+        return plainName.equals(player.getName());
     }
 
     @Override
@@ -106,6 +121,11 @@ public class NickCommand implements CommandExecutor, TabCompleter {
             return false;
         }
 
+        if (target.equals(player) && !isSelfTemplateKeepingName(player, nameTemplate)) {
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.NICK.SELF-NAME-LOCKED"));
+            return false;
+        }
+
         applyNameTemplate(target, nameTemplate);
 
         if (target.equals(player)) {
@@ -133,6 +153,7 @@ public class NickCommand implements CommandExecutor, TabCompleter {
 
         if (args.length == 1) {
             arguments.add("reset");
+
             if (player.hasPermission("zpp.nick.others") || player.hasPermission("zpp.nick.reset.others")) {
                 for (Player online : Bukkit.getOnlinePlayers()) {
                     arguments.add(online.getName());
@@ -150,4 +171,3 @@ public class NickCommand implements CommandExecutor, TabCompleter {
         return completion;
     }
 }
-

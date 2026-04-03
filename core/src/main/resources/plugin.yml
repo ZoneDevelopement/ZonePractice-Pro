@@ -136,14 +136,18 @@ permissions:
     default: op
 
   zpp.nick.use:
-    description: Use /nick for your own display name.
+    description: Use /nick command.
     default: true
   zpp.nick.others:
     description: Set another player's display name using /nick.
     default: op
+    children:
+      zpp.nick.use: true
   zpp.nick.reset.others:
     description: Reset another player's display name using /nick reset.
     default: op
+    children:
+      zpp.nick.use: true
 
   zpp.practice.unranked.default:
     description: Reset the player's daily unranked limit to default.

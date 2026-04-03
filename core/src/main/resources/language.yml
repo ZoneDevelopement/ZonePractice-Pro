@@ -32,6 +32,7 @@ COMMAND:
   NICK:
     HELP: "<red>/%label% [player] <formatted name> <gray>or <red>/%label% reset [player]"
     TARGET-OFFLINE: "<red>%target% is not online."
+    SELF-NAME-LOCKED: "<red>You can only style your own name. The text must stay your real username."
     SET-SELF: "<green>Your display name has been set to %name%<green>."
     SET-OTHER: "<green>You set <yellow>%target%<green>'s display name to %name%<green>."
     SET-BY: "<yellow>%player% <green>set your display name to %name%<green>."
@@ -1019,7 +1020,7 @@ ARENA:
   ARENA-REGEN-FAILED-CHEST: "<red>Arena regen failed to save chest contents."
   SELECTOR:
     LADDER-NOT-AVAILABLE: "<red>This ladder is not available anymore."
-    LADDER-FROZEN: "<red>This ladder is frozen, so you cannot start a new game with it anymore."
+    LADDER-FROZEN: "<red>This ladder is frozen, so you cannot start a new game with it."
     DUEL:
       TARGET-LEFT: "<red>Player has left the server."
       ARENA-NOT-AVAILABLE: "<red>This arena is not available anymore."
