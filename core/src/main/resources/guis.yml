@@ -3475,3 +3475,58 @@ GUIS:
       PATTERN-PICKER:
         TITLE: "&8Pick Pattern"
         APPLIED-MESSAGE: "<green>Layer applied!"
+  MATCH-HISTORY:
+    # GUI title. %player% = the target player's name.
+    TITLE: "&8Match History &7- &6%player%"
+
+    # Total number of slots. Must be a multiple of 9, max 54.
+    SIZE: 27
+
+    # When true, match items are automatically centred inside the GUI.
+    # Set false to start them at slot 0 (or use START-SLOT).
+    CENTER-ITEMS: true
+
+    # Override the first item slot. Set to -1 to use CENTER-ITEMS logic.
+    START-SLOT: -1
+
+    # Filler item placed in every unused slot.
+    FILLER-ITEM:
+      MATERIAL: BLACK_STAINED_GLASS_PANE
+      NAME: " "
+
+    MATCH-ITEM:
+      # Set to true to show the opponent's player head as the item.
+      # Set to false to use MATERIAL instead.
+      USE-PLAYER-HEAD: true
+
+      # Fallback material used when USE-PLAYER-HEAD is false.
+      MATERIAL: PAPER
+
+      # Enchantment glow on the item when the viewer won this match.
+      GLOW-ON-WIN: true
+
+      # Item display name. Supports & colour codes.
+      # Placeholders: %opponent% %result% %score% %kit% %arena%
+      #               %player_health% %opponent_health% %duration% %date%
+      NAME: "&eMatch vs &f%opponent%"
+
+      # Item lore. Supports & colour codes and the same placeholders.
+      LORE:
+        - "&8&m--------------------"
+        - "&7Result: %result%"
+        - "&7Score: &f%score%"
+        - "&7Kit: &f%kit%"
+        - "&7Arena: &f%arena%"
+        - ""
+        - "&7Your Health: %player_health%"
+        - "&7Opp Health: %opponent_health%"
+        - ""
+        - "&7Duration: &f%duration%"
+        - "&7Played: &f%date%"
+        - "&8&m--------------------"
+
+    # Result label strings inserted into %result%.
+    MESSAGES:
+      WIN: "&aWin"
+      LOSS: "&cLoss"
+      DRAW: "&eDraw"

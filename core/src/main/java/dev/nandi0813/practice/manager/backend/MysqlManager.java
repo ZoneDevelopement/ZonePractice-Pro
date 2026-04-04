@@ -501,6 +501,146 @@ public enum MysqlManager {
         return columns.contains(column.toLowerCase()) ? resultSet.getInt(column) : defaultValue;
     }
 
+    // -------------------------------------------------------------------------
+    // Match History — MySQL methods
+    // All match-history DB logic lives here, following the existing pattern.
+    // -------------------------------------------------------------------------
+
+    private static final String MATCH_HISTORY_INSERT =
+            "INSERT INTO match_history " +
+            "(player_uuid, opponent_uuid, player_name, opponent_name, kit_name, arena_name, " +
+            " player_score, opponent_score, player_final_health, opponent_final_health, " +
+            " winner_uuid, match_duration, played_at) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    /**
+     * Saves a match history row to MySQL, then prunes old rows for both players.
+     * Fire-and-forget — errors are logged but never propagated.
+     */
+    public static void saveMatchHistoryAsync(UUID playerUuid, UUID opponentUuid,
+                                             String playerName, String opponentName,
+                                             String kitName, String arenaName,
+                                             int playerScore, int opponentScore,
+                                             double playerFinalHealth, double opponentFinalHealth,
+                                             UUID winnerUuid, int matchDuration, long playedAt) {
+        if (!isConnected(false)) return;
+
+        CompletableFuture.runAsync(() -> {
+            try (Connection conn = getConnection()) {
+                insertMatchHistoryRow(conn, playerUuid, opponentUuid, playerName, opponentName,
+                        kitName, arenaName, playerScore, opponentScore,
+                        playerFinalHealth, opponentFinalHealth, winnerUuid, matchDuration, playedAt);
+                pruneMatchHistory(conn, playerUuid);
+                pruneMatchHistory(conn, opponentUuid);
+            } catch (SQLException e) {
+                Common.sendConsoleMMMessage("<red>[MatchHistory] MySQL save error: " + e.getMessage());
+            }
+        }, getExecutor());
+    }
+
+    /**
+     * Synchronously fetches the last {@code limit} matches for a player.
+     * Returns an empty list on error. Call only from an async context.
+     */
+    public static List<dev.nandi0813.practice.manager.matchhistory.MatchHistoryEntry> loadMatchHistorySync(
+            UUID playerUuid, int limit) {
+        List<dev.nandi0813.practice.manager.matchhistory.MatchHistoryEntry> result = new java.util.ArrayList<>();
+        if (!isConnected(false)) return result;
+
+        String sql = "SELECT * FROM match_history " +
+                "WHERE player_uuid = ? OR opponent_uuid = ? " +
+                "ORDER BY match_id DESC LIMIT ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, playerUuid.toString());
+            stmt.setString(2, playerUuid.toString());
+            stmt.setInt(3, limit);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String winStr = rs.getString("winner_uuid");
+                    java.util.UUID winnerUuid = (winStr != null && !winStr.isEmpty())
+                            ? java.util.UUID.fromString(winStr) : null;
+
+                    result.add(new dev.nandi0813.practice.manager.matchhistory.MatchHistoryEntry(
+                            rs.getInt("match_id"),
+                            java.util.UUID.fromString(rs.getString("player_uuid")),
+                            java.util.UUID.fromString(rs.getString("opponent_uuid")),
+                            rs.getString("player_name"),
+                            rs.getString("opponent_name"),
+                            rs.getString("kit_name"),
+                            rs.getString("arena_name"),
+                            rs.getInt("player_score"),
+                            rs.getInt("opponent_score"),
+                            rs.getDouble("player_final_health"),
+                            rs.getDouble("opponent_final_health"),
+                            winnerUuid,
+                            rs.getInt("match_duration"),
+                            rs.getLong("played_at")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            Common.sendConsoleMMMessage("<red>[MatchHistory] MySQL load error: " + e.getMessage());
+        }
+        return result;
+    }
+
+    private static void insertMatchHistoryRow(Connection conn,
+                                              UUID playerUuid, UUID opponentUuid,
+                                              String playerName, String opponentName,
+                                              String kitName, String arenaName,
+                                              int playerScore, int opponentScore,
+                                              double playerFinalHealth, double opponentFinalHealth,
+                                              UUID winnerUuid, int matchDuration, long playedAt)
+            throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(MATCH_HISTORY_INSERT)) {
+            stmt.setString(1, playerUuid.toString());
+            stmt.setString(2, opponentUuid.toString());
+            stmt.setString(3, playerName);
+            stmt.setString(4, opponentName);
+            stmt.setString(5, kitName);
+            stmt.setString(6, arenaName);
+            stmt.setInt(7, playerScore);
+            stmt.setInt(8, opponentScore);
+            stmt.setDouble(9, playerFinalHealth);
+            stmt.setDouble(10, opponentFinalHealth);
+            stmt.setString(11, winnerUuid != null ? winnerUuid.toString() : null);
+            stmt.setInt(12, matchDuration);
+            stmt.setLong(13, playedAt);
+            stmt.executeUpdate();
+        }
+    }
+
+    /**
+     * Deletes match_history rows for {@code uuid} beyond the last 5.
+     */
+    private static void pruneMatchHistory(Connection conn, UUID uuid) throws SQLException {
+        String selectSql = "SELECT match_id FROM match_history " +
+                "WHERE player_uuid = ? OR opponent_uuid = ? ORDER BY match_id DESC";
+        List<Integer> ids = new java.util.ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(selectSql)) {
+            stmt.setString(1, uuid.toString());
+            stmt.setString(2, uuid.toString());
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) ids.add(rs.getInt("match_id"));
+            }
+        }
+
+        if (ids.size() <= 5) return;
+
+        List<Integer> toDelete = ids.subList(5, ids.size());
+        StringBuilder sb = new StringBuilder("DELETE FROM match_history WHERE match_id IN (");
+        for (int i = 0; i < toDelete.size(); i++) sb.append(i == 0 ? "?" : ",?");
+        sb.append(")");
+
+        try (PreparedStatement stmt = conn.prepareStatement(sb.toString())) {
+            for (int i = 0; i < toDelete.size(); i++) stmt.setInt(i + 1, toDelete.get(i));
+            stmt.executeUpdate();
+        }
+    }
+
     private static ExecutorService getExecutor() {
         if (executor == null || executor.isShutdown()) {
             executor = Executors.newFixedThreadPool(2, createThreadFactory());

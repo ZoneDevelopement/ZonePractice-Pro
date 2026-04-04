@@ -681,4 +681,4 @@ CHAT:
   STAFF-CHAT:
     ENABLED: true
     SHORTCUT: true # If true, you can use send message like #hello world instead of enabling staff chat each time.
-  PRIVATE-CHAT-ENABLED: true # Private message system /message (/m) and /reply (/re, /r)
+  PRIVATE-CHAT-ENABLED: true # Private message system /message (/m) and /reply (/re, /r).

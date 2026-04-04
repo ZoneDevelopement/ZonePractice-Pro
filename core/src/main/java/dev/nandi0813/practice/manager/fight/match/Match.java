@@ -338,6 +338,10 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
 
         Bukkit.getPluginManager().callEvent(new MatchEndEvent(this));
 
+        // Hook for subclasses to record match history before players are removed.
+        // Health data is still accessible at this point.
+        onMatchEnd();
+
         for (Player player : new ArrayList<>(players))
             removePlayer(player, false);
 
@@ -357,6 +361,13 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
 
         // Availability is flipped in the reset callback above.
     }
+
+    /**
+     * Called during {@link #endMatch()} before players are removed, while health
+     * data is still available. Subclasses override this to record match history.
+     * The base implementation is intentionally empty.
+     */
+    protected void onMatchEnd() {}
 
     /*
      * Statistics methods

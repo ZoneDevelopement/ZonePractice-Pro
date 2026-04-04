@@ -120,4 +120,7 @@ public enum GUIType {
 
     Cosmetics_DeathEffects,
 
+    // Match History
+    MatchHistory_Gui,
+
 }

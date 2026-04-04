@@ -22,6 +22,7 @@ import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.*;
 import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
+import dev.nandi0813.practice.manager.matchhistory.MatchHistoryManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAListener;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.listener.BuildListener;
@@ -147,6 +148,7 @@ public final class ZonePractice extends JavaPlugin {
         LanguageManager.createFile(this);
         GUIFile.createFile(this);
         MysqlManager.openConnection();
+        MatchHistoryManager.getInstance(); // eagerly initialise singleton
         DivisionManager.getInstance().getData();
         ArenaWorldUtil.createArenaWorld();
         BackendManager.createFile(this);
@@ -296,6 +298,12 @@ public final class ZonePractice extends JavaPlugin {
         MatchStatsCommand matchStatsCommand = new MatchStatsCommand();
         if (server.getPluginCommand("matchinv") != null) {
             server.getPluginCommand("matchinv").setExecutor(matchStatsCommand);
+        }
+
+        MatchHistoryCommand matchHistoryCommand = new MatchHistoryCommand();
+        if (server.getPluginCommand("matchhistory") != null) {
+            server.getPluginCommand("matchhistory").setExecutor(matchHistoryCommand);
+            server.getPluginCommand("matchhistory").setTabCompleter(matchHistoryCommand);
         }
 
         PartyCommand partyCommand = new PartyCommand();
