@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAFightPlayer;
+import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.util.KitUtil;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
@@ -145,7 +146,8 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         this.sendMessage(LanguageManager.getString("FFA.GAME.PLAYER-JOIN").replace("%player%", player.getName()), true);
 
         PlayerUtil.setFightPlayer(player);
-        
+        this.addPlayerToBelowName(player);
+
         // Show kit chooser or apply default kit
         ffaFightPlayer.showKitChooserOrApplyKit();
         
@@ -208,6 +210,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         players.remove(player);
         fightPlayers.remove(player);
         statistics.remove(player);
+        this.removePlayerFromBelowName(player);
         dev.nandi0813.practice.manager.fight.util.PlayerUtil.resetAttackSpeed(player);
 
         InventoryManager.getInstance().setLobbyInventory(player, true);
@@ -244,7 +247,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             playDeathEffect(killer, player);
 
             if (arena.isReKitAfterKill()) {
-                KitUtil.loadDefaultLadderKit(killer, TeamEnum.FFA, players.get(killer));
+                applySelectedOrDefaultKit(killer);
             }
 
             if (arena.isHealthResetOnKill()) {
@@ -256,11 +259,24 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             this.removePlayer(player);
         } else {
             PlayerUtil.setFightPlayer(player);
-            KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, players.get(player));
+            applySelectedOrDefaultKit(player);
             dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, players.get(player).getAttackCooldownModifier());
 
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                     teleportPlayer(player), 1L);
+        }
+    }
+
+    private void applySelectedOrDefaultKit(Player player) {
+        FFAFightPlayer ffaFightPlayer = fightPlayers.get(player);
+        if (ffaFightPlayer != null) {
+            ffaFightPlayer.showKitChooserOrApplyKit();
+            return;
+        }
+
+        NormalLadder ladder = players.get(player);
+        if (ladder != null) {
+            KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, ladder);
         }
     }
 
@@ -398,6 +414,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         this.spectators.add(player);
         SpectatorManager.getInstance().getSpectators().put(player, this);
         profile.setStatus(ProfileStatus.SPECTATE);
+        this.addPlayerToBelowName(player);
 
         // Hide spectator from players.
         for (Player eventPlayer : this.players.keySet()) {
@@ -444,6 +461,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
         this.spectators.remove(player);
         SpectatorManager.getInstance().getSpectators().remove(player);
+        this.removePlayerFromBelowName(player);
 
         if (ZonePractice.getInstance().isEnabled() && player.isOnline()) {
             InventoryManager.getInstance().setLobbyInventory(player, true);
@@ -487,6 +505,22 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     @Override
     public Cuboid getCuboid() {
         return arena.getCuboid();
+    }
+
+    private void addPlayerToBelowName(Player player) {
+        if (!this.arena.isHealthBelowName()) {
+            return;
+        }
+
+        MatchManager.getInstance().getBelowNameManager().initForUser(player);
+    }
+
+    private void removePlayerFromBelowName(Player player) {
+        if (!this.arena.isHealthBelowName()) {
+            return;
+        }
+
+        MatchManager.getInstance().getBelowNameManager().cleanUpForUser(player);
     }
 
 }

@@ -8,14 +8,12 @@ import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.Round;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
-import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.util.MatchPlayerUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
-import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
@@ -33,9 +31,6 @@ public class PartyFFA extends Match {
     public PartyFFA(Ladder ladder, Arena arena, Party party, int winsNeeded) {
         super(ladder, arena, new ArrayList<>(party.getMembers()), winsNeeded);
         this.type = MatchType.PARTY_FFA;
-
-        for (Player player : this.players)
-            NametagManager.getInstance().setNametag(player, TeamEnum.TEAM1.getPrefix(), TeamEnum.TEAM1.getNameColor(), TeamEnum.TEAM1.getSuffix(), 20);
     }
 
     @Override

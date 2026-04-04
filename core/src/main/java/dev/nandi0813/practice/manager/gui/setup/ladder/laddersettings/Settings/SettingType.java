@@ -32,5 +32,6 @@ public enum SettingType {
     ROUND_END_DELAY,
     ROUND_STATUS_TITLES,
     COUNTDOWN_TITLES,
+    WIND_CHARGE_COOLDOWN,
 
 }

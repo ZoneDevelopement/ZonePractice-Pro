@@ -28,9 +28,11 @@ public class CustomSettingGUI extends GUI {
     private static final int BUILD_SLOT = 22;
     private static final int ROUNDS_SLOT = 23;
     private static final int KNOCKBACK_SLOT = 24;
+    private static final int HEALTH_BELOW_NAME_SLOT = 29;
     private static final int HITDELAY_SLOT = 30;
     private static final int ENDERPEARL_SLOT = 31;
     private static final int GOLDENAPPLE_SLOT = 32;
+    private static final int WIND_CHARGE_SLOT = 33;
 
     private final CustomLadder ladder;
     private final GUI backTo;
@@ -62,9 +64,11 @@ public class CustomSettingGUI extends GUI {
         inventory.setItem(BUILD_SLOT, ladder.isBuild() ? StaticItems.BUILD_ITEM.getFirst() : StaticItems.BUILD_ITEM.getSecond());
         inventory.setItem(ROUNDS_SLOT, StaticItems.ROUNDS_ITEM.cloneItem().replace("%rounds%", String.valueOf(ladder.getRounds())).get());
         inventory.setItem(KNOCKBACK_SLOT, getKnockbackItem(ladder));
+        inventory.setItem(HEALTH_BELOW_NAME_SLOT, ladder.isHealthBelowName() ? StaticItems.HEALTH_BELOW_NAME_ITEM.getFirst() : StaticItems.HEALTH_BELOW_NAME_ITEM.getSecond());
         inventory.setItem(HITDELAY_SLOT, StaticItems.HITDELAY_ITEM.cloneItem().replace("%hitdelay%", String.format("%.1f", ladder.getAttackCooldownModifier())).get());
         inventory.setItem(ENDERPEARL_SLOT, StaticItems.ENDERPEARL_ITEM.cloneItem().replace("%epCooldown%", String.valueOf(ladder.getEnderPearlCooldown())).get());
         inventory.setItem(GOLDENAPPLE_SLOT, StaticItems.GAPPLE_ITEM.cloneItem().replace("%gaCooldown%", String.valueOf(ladder.getGoldenAppleCooldown())).get());
+        inventory.setItem(WIND_CHARGE_SLOT, StaticItems.WIND_CHARGE_ITEM.cloneItem().replace("%windChargeCooldown%", String.valueOf(ladder.getWindChargeCooldown())).get());
 
         this.updatePlayers();
     }
@@ -99,6 +103,9 @@ public class CustomSettingGUI extends GUI {
                 case KNOCKBACK_SLOT:
                     setKnockback(ladder);
                     break;
+                case HEALTH_BELOW_NAME_SLOT:
+                    ladder.setHealthBelowName(!ladder.isHealthBelowName());
+                    break;
                 case HITDELAY_SLOT:
                     double hitDelay = ladder.getAttackCooldownModifier();
                     if (e.isLeftClick() && hitDelay > 0)
@@ -117,6 +124,12 @@ public class CustomSettingGUI extends GUI {
                         ladder.setGoldenAppleCooldown(ladder.getGoldenAppleCooldown() - 1);
                     else if (e.isRightClick() && ladder.getGoldenAppleCooldown() < 30)
                         ladder.setGoldenAppleCooldown(ladder.getGoldenAppleCooldown() + 1);
+                    break;
+                case WIND_CHARGE_SLOT:
+                    if (e.isLeftClick() && ladder.getWindChargeCooldown() > 0)
+                        ladder.setWindChargeCooldown(ladder.getWindChargeCooldown() - 1);
+                    else if (e.isRightClick() && ladder.getWindChargeCooldown() < 30)
+                        ladder.setWindChargeCooldown(ladder.getWindChargeCooldown() + 1);
                     break;
                 default:
                     return;

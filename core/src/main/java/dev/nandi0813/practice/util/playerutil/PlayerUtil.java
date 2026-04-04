@@ -49,8 +49,6 @@ public enum PlayerUtil {
 
         for (PotionEffect potionEffect : player.getActivePotionEffects())
             player.removePotionEffect(potionEffect.getType());
-
-        player.setNoDamageTicks(20);
     }
 
     public static void setFightPlayer(Player player) {
@@ -78,7 +76,6 @@ public enum PlayerUtil {
             // Players can be marked non-collidable while temporarily spectating; restore combat hitboxes.
             dev.nandi0813.practice.manager.fight.util.PlayerUtil.setCollidesWithEntities(player, true);
             // Clear stale invulnerability frames so shield-stun / rapid follow-up hits work consistently.
-            player.setNoDamageTicks(0);
         });
     }
 

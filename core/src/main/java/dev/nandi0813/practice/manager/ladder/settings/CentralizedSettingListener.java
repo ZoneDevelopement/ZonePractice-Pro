@@ -14,6 +14,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
@@ -53,7 +54,7 @@ public class CentralizedSettingListener implements Listener {
         Match match = (Match) e.getMatch();
 
         // Trigger onMatchStart for all active settings
-        for (SettingType settingType : match.getLadder().getType().getSettingTypes()) {
+        for (SettingType settingType : SettingHandlerRegistry.getEffectiveSettingTypes(match)) {
             SettingHandler<?> handler = SettingHandlerRegistry.getHandler(settingType);
             if (handler != null) {
                 try {
@@ -73,7 +74,7 @@ public class CentralizedSettingListener implements Listener {
         Match match = (Match) e.getMatch();
 
         // Trigger onMatchEnd for all active settings
-        for (SettingType settingType : match.getLadder().getType().getSettingTypes()) {
+        for (SettingType settingType : SettingHandlerRegistry.getEffectiveSettingTypes(match)) {
             SettingHandler<?> handler = SettingHandlerRegistry.getHandler(settingType);
             if (handler != null) {
                 try {
@@ -105,6 +106,12 @@ public class CentralizedSettingListener implements Listener {
     @EventHandler ( priority = EventPriority.LOW )
     public void onPlayerMove(PlayerMoveEvent e) {
         processEvent(e, e.getPlayer());
+    }
+
+    @EventHandler ( priority = EventPriority.LOW, ignoreCancelled = true )
+    public void onProjectileLaunch(ProjectileLaunchEvent e) {
+        if (!(e.getEntity().getShooter() instanceof Player player)) return;
+        processEvent(e, player);
     }
 
 }

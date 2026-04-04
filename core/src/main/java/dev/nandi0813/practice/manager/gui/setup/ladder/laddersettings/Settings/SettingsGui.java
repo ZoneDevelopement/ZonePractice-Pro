@@ -229,6 +229,9 @@ public class SettingsGui extends GUI {
 
         if (settingTypes.contains(SettingType.COUNTDOWN_TITLES))
             settingItems.add(new CountdownTitlesItem(this, ladder));
+
+        if (settingTypes.contains(SettingType.WIND_CHARGE_COOLDOWN))
+            settingItems.add(new WindChargeCooldownItem(this, ladder));
     }
 
 }

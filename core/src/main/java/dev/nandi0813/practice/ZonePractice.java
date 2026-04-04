@@ -400,6 +400,12 @@ public final class ZonePractice extends JavaPlugin {
             server.getPluginCommand("customqueue").setTabCompleter(customQueueCommand);
         }
 
+        NickCommand nickCommand = new NickCommand();
+        if (server.getPluginCommand("nick") != null) {
+            server.getPluginCommand("nick").setExecutor(nickCommand);
+            server.getPluginCommand("nick").setTabCompleter(nickCommand);
+        }
+
         if (ConfigManager.getBoolean("CHAT.PRIVATE-CHAT-ENABLED")) {
             new MessageCommand();
             new ReplyCommand();

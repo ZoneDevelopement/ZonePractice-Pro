@@ -1,4 +1,4 @@
-VERSION: 31
+VERSION: 33
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1614,6 +1614,25 @@ GUIS:
                 - ""
                 - "&e&lClick here &7to &aenable &7the"
                 - "&2health reset on kill &7in the arena."
+          HEALTH-BELOW-NAME:
+            ENABLED:
+              NAME: "&7Health Below Name: &aEnabled"
+              MATERIAL: PLAYER_HEAD
+              LORE:
+                - ""
+                - "&eShows players' health under"
+                - "&etheir name tags in this FFA."
+                - ""
+                - "&e&lClick here &7to &cdisable &7this setting."
+            DISABLED:
+              NAME: "&7Health Below Name: &cDisabled"
+              MATERIAL: RED_STAINED_GLASS_PANE
+              LORE:
+                - ""
+                - "&eShows players' health under"
+                - "&etheir name tags in this FFA."
+                - ""
+                - "&e&lClick here &7to &aenable &7this setting."
           LOBBY-AFTER-DEATH:
             ENABLED:
               NAME: "&7Lobby After Death: &aEnabled"
@@ -2328,6 +2347,16 @@ GUIS:
               - ""
               - "&7This setting includes both enchanted"
               - "&7and non-enchanted golden apples."
+              - ""
+              - "&a&lLEFT-CLICK &ato reduce the cooldown."
+              - "&b&lRIGHT-CLICK &bto increase the cooldown."
+          WIND-CHARGE-COOLDOWN:
+            NAME: "&7Wind Charge Cooldown: &6%windChargeCooldown% sec"
+            MATERIAL: WIND_CHARGE
+            LORE:
+              - ""
+              - "&7Players must wait this long before"
+              - "&7they can launch the next wind charge."
               - ""
               - "&a&lLEFT-CLICK &ato reduce the cooldown."
               - "&b&lRIGHT-CLICK &bto increase the cooldown."

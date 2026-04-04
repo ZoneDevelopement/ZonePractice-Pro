@@ -158,7 +158,8 @@ public class LadderTypeConfig {
     public LadderTypeConfig withBuildSettings() {
         return withSettings(
                 SettingType.TNT_FUSE_TIME,
-                SettingType.BREAK_ALL_BLOCKS
+                SettingType.BREAK_ALL_BLOCKS,
+                SettingType.WIND_CHARGE_COOLDOWN
         );
     }
 

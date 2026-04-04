@@ -59,6 +59,9 @@ commands:
   matchhistory:
     aliases: [mh, matchhist]
     description: View match history for a player.
+  nick:
+    aliases: [nickname]
+    description: Change your formatted display name.
 
 permissions:
   zpp.admin:
@@ -131,6 +134,23 @@ permissions:
     description: Set player's nametag.
   zpp.practice.nametag.reset:
     description: Reset player's nametag.
+  zpp.practice.nametag.name.others:
+    description: Allow changing other players' name format through /practice nametag name.
+    default: op
+
+  zpp.nick.use:
+    description: Use /nick command.
+    default: true
+  zpp.nick.others:
+    description: Set another player's display name using /nick.
+    default: op
+    children:
+      zpp.nick.use: true
+  zpp.nick.reset.others:
+    description: Reset another player's display name using /nick reset.
+    default: op
+    children:
+      zpp.nick.use: true
 
   zpp.practice.unranked.default:
     description: Reset the player's daily unranked limit to default.

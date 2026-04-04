@@ -1,4 +1,4 @@
-VERSION: 48
+VERSION: 51
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -286,6 +286,8 @@ MATCH-SETTINGS:
   ENDERPEARL:
     COOLDOWN: 13 # This is the default cooldown. You can change it in the ladder settings.
     EXP-BAR: true # Countdown shows on exp bar.
+  WIND-CHARGE:
+    COOLDOWN: 0 # Default wind charge cooldown in seconds. You can change it in the ladder settings.
   FIREWORK-ROCKET:
     COOLDOWN: 1 # Cooldown in seconds for using firework rockets with elytra. Default is 1 second.
   FIREBALL-FIGHT: # These are multiplier values, so please test what is optimal for you and don't change them too much at once or the difference will multiply.
@@ -366,6 +368,7 @@ FFA:
   ROLLBACK:
     SECONDS: 300 # After the seconds, the arena will be reseted back to its original state (only on build arenas).
   HEALTH-RESET-ON-KILL: false # Default for newly created FFA arenas. If enabled, killers are fully healed on kill.
+  HEALTH-BELOW-NAME: false # Default for newly created FFA arenas. If enabled, players see heart indicators below names.
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
   ENDER-PEARL-EXP-BAR: true # If true, the ender pearl cooldown will be displayed on the exp bar.
   ALLOW-DESTROYABLE-BLOCK: true # If true, player can destroy the fixed blocks in the arena that their ladder has.
@@ -442,6 +445,16 @@ SOUNDS:
     SOUND: BLOCK_NOTE_BLOCK_PLING
     VOLUME: 1
     PITCH: 1
+  GUI_CLICK_ADVANCE:
+    ENABLED: true
+    SOUND: BLOCK_STONE_BUTTON_CLICK_ON
+    VOLUME: 0.15
+    PITCH: 0.8
+  GUI_CLICK_BACK:
+    ENABLED: true
+    SOUND: BLOCK_NOTE_BLOCK_BASS
+    VOLUME: 0.12
+    PITCH: 0.75
 #
 # Leaderboard settings
 LEADERBOARD:

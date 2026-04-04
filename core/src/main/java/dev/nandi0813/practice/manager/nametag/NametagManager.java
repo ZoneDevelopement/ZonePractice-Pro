@@ -248,6 +248,7 @@ public class NametagManager {
         } catch (Exception e) {
             // Silently fail - this is a best-effort preservation
         }
+        player.displayName();
     }
 
     /**
