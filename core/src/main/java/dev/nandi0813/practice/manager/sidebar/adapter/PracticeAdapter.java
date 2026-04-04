@@ -113,7 +113,7 @@ public class PracticeAdapter implements SidebarAdapter {
                             .replaceText(TextReplacementConfig.builder().match("%onlinePlayers%").replacement(String.valueOf(Bukkit.getOnlinePlayers().size())).build())
                             .replaceText(TextReplacementConfig.builder().match("%inFightPlayers%").replacement(String.valueOf(MatchManager.getInstance().getPlayerInMatchSize())).build())
                             .replaceText(TextReplacementConfig.builder().match("%inQueuePlayer%").replacement(String.valueOf(QueueManager.getInstance().getQueues().size())).build())
-                            .replaceText(TextReplacementConfig.builder().match("%partyLeader%").replacement(party.getLeader().getName()).build())
+                            .replaceText(TextReplacementConfig.builder().match("%partyLeader%").replacement(displayName(party.getLeader())).build())
                             .replaceText(TextReplacementConfig.builder().match("%maxMember%").replacement(String.valueOf(party.getMaxPlayerLimit())).build())
                             .replaceText(TextReplacementConfig.builder().match("%members%").replacement(String.valueOf(party.getMembers().size())).build())
                             .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
@@ -373,11 +373,13 @@ public class PracticeAdapter implements SidebarAdapter {
                     case OITC:
                         OITC oitc = (OITC) event;
                         Player highestPointPlayer = oitc.getHighestPointPlayer();
+                        Component topPlayerName = highestPointPlayer != null ? displayName(highestPointPlayer) : ZonePractice.getMiniMessage().deserialize("<red>N/A");
+                        String topPlayerScore = highestPointPlayer != null ? String.valueOf(oitc.getPlayerPoints().get(highestPointPlayer)) : "0";
 
                         for (String line : config.getStringList(path)) {
                             Component component = PAPIUtil.runThroughFormat(player, line)
-                                    .replaceText(TextReplacementConfig.builder().matchLiteral("%topPlayer%").replacement(highestPointPlayer.getName()).build())
-                                    .replaceText(TextReplacementConfig.builder().matchLiteral("%topScore%").replacement(String.valueOf(oitc.getPlayerPoints().get(highestPointPlayer))).build())
+                                    .replaceText(TextReplacementConfig.builder().matchLiteral("%topPlayer%").replacement(topPlayerName).build())
+                                    .replaceText(TextReplacementConfig.builder().matchLiteral("%topScore%").replacement(topPlayerScore).build())
                                     .replaceText(TextReplacementConfig.builder().matchLiteral("%players%").replacement(String.valueOf(oitc.getPlayerPoints().size())).build())
                                     .replaceText(TextReplacementConfig.builder().matchLiteral("%lives%").replacement(String.valueOf(oitc.getPlayerLives().get(player))).build())
                                     .replaceText(TextReplacementConfig.builder().matchLiteral("%alivePlayers%").replacement(String.valueOf(oitc.getPlayers().size())).build())
@@ -501,7 +503,7 @@ public class PracticeAdapter implements SidebarAdapter {
                                     Player player1 = MatchUtil.getBoxingTopPlayer(partyFFA, 1);
                                     if (player1 != null) {
                                         line = line
-                                                .replace("%player1boxing%", player1.getName())
+                                                .replace("%player1boxing%", ZonePractice.getMiniMessage().serialize(displayName(player1)))
                                                 .replace("%player1boxingHits%", String.valueOf(match.getCurrentStat(player1).getHit()));
                                     } else {
                                         line = line
@@ -512,7 +514,7 @@ public class PracticeAdapter implements SidebarAdapter {
                                     Player player2 = MatchUtil.getBoxingTopPlayer(partyFFA, 2);
                                     if (player2 != null) {
                                         line = line
-                                                .replace("%player2boxing%", player2.getName())
+                                                .replace("%player2boxing%", ZonePractice.getMiniMessage().serialize(displayName(player2)))
                                                 .replace("%player2boxingHits%", String.valueOf(match.getCurrentStat(player2).getHit()));
                                     } else {
                                         line = line
@@ -523,7 +525,7 @@ public class PracticeAdapter implements SidebarAdapter {
                                     Player player3 = MatchUtil.getBoxingTopPlayer(partyFFA, 3);
                                     if (player3 != null) {
                                         line = line
-                                                .replace("%player3boxing%", player3.getName())
+                                                .replace("%player3boxing%", ZonePractice.getMiniMessage().serialize(displayName(player3)))
                                                 .replace("%player3boxingHits%", String.valueOf(match.getCurrentStat(player3).getHit()));
                                     } else {
                                         line = line
@@ -615,11 +617,17 @@ public class PracticeAdapter implements SidebarAdapter {
                     case OITC:
                         OITC oitc = (OITC) event;
                         Player highestPointPlayer = oitc.getHighestPointPlayer();
+                        String topPlayerName = highestPointPlayer != null
+                                ? ZonePractice.getMiniMessage().serialize(displayName(highestPointPlayer))
+                                : "<red>N/A";
+                        String topPlayerScore = highestPointPlayer != null
+                                ? String.valueOf(oitc.getPlayerPoints().get(highestPointPlayer))
+                                : "0";
 
                         for (String line : config.getStringList(path)) {
                             line = line
-                                    .replace("%topPlayer%", highestPointPlayer.getName())
-                                    .replace("%topScore%", String.valueOf(oitc.getPlayerPoints().get(highestPointPlayer)))
+                                    .replace("%topPlayer%", topPlayerName)
+                                    .replace("%topScore%", topPlayerScore)
                                     .replace("%players%", String.valueOf(oitc.getPlayerPoints().size()))
                                     .replace("%alivePlayers%", String.valueOf(oitc.getPlayers().size()))
                                     .replace("%duration%", oitc.getDurationRunnable().getFormattedTime());

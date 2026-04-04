@@ -1,4 +1,4 @@
-VERSION: 35
+VERSION: 36
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -33,6 +33,7 @@ COMMAND:
     HELP: "<red>/%label% [player] <formatted name> <gray>or <red>/%label% reset [player]"
     TARGET-OFFLINE: "<red>%target% is not online."
     SELF-NAME-LOCKED: "<red>You can only style your own name. The text must stay your real username."
+    DIFFERENT-NAME-NO-PERM: "<red>You can only style the real username. You need extra permission to set a different name."
     SET-SELF: "<green>Your display name has been set to %name%<green>."
     SET-OTHER: "<green>You set <yellow>%target%<green>'s display name to %name%<green>."
     SET-BY: "<yellow>%player% <green>set your display name to %name%<green>."

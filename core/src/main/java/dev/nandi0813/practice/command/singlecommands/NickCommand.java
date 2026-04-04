@@ -23,6 +23,7 @@ import java.util.List;
 public class NickCommand implements CommandExecutor, TabCompleter {
 
     private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
+    private static final String DIFFERENT_NAME_PERMISSION = "zpp.nick.different-name";
 
     private static String joinArgs(String[] args, int start) {
         StringBuilder builder = new StringBuilder();
@@ -39,7 +40,7 @@ public class NickCommand implements CommandExecutor, TabCompleter {
         InventoryUtil.setLobbyNametag(target, targetProfile);
     }
 
-    private static boolean isSelfTemplateKeepingName(Player player, String rawTemplate) {
+    private static boolean isTemplateKeepingRealName(Player player, String rawTemplate) {
         String normalizedTemplate = NameFormatUtil.normalizePlayerNameTemplate(rawTemplate);
         String plainName = PLAIN_TEXT_SERIALIZER.serialize(
                 NameFormatUtil.applyPlayerPlaceholders(
@@ -121,8 +122,8 @@ public class NickCommand implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        if (target.equals(player) && !isSelfTemplateKeepingName(player, nameTemplate)) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.NICK.SELF-NAME-LOCKED"));
+        if (!player.hasPermission(DIFFERENT_NAME_PERMISSION) && !isTemplateKeepingRealName(target, nameTemplate)) {
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.NICK.DIFFERENT-NAME-NO-PERM"));
             return false;
         }
 

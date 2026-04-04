@@ -143,6 +143,11 @@ permissions:
     default: op
     children:
       zpp.nick.use: true
+  zpp.nick.different-name:
+    description: Allow /nick to use a different visible username instead of only styling the real one.
+    default: op
+    children:
+      zpp.nick.use: true
   zpp.nick.reset.others:
     description: Reset another player's display name using /nick reset.
     default: op
