@@ -1,10 +1,21 @@
 package dev.nandi0813.practice.manager.matchhistory;
 
+import dev.nandi0813.api.Event.Match.MatchEndEvent;
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.MysqlManager;
+import dev.nandi0813.practice.manager.fight.match.Round;
+import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
+import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.util.Common;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Central manager for match history.
@@ -15,7 +26,7 @@ import java.util.concurrent.*;
  *
  * Both reads and writes are async. An in-memory cache avoids repeated disk access.
  */
-public class MatchHistoryManager {
+public class MatchHistoryManager implements Listener {
 
     private static MatchHistoryManager instance;
 
@@ -29,7 +40,9 @@ public class MatchHistoryManager {
     /** In-memory cache: player UUID → last MAX_HISTORY entries, newest-first. */
     private final Map<UUID, List<MatchHistoryEntry>> cache = new ConcurrentHashMap<>();
 
-    private MatchHistoryManager() {}
+    private MatchHistoryManager() {
+        Bukkit.getPluginManager().registerEvents(this, ZonePractice.getInstance());
+    }
 
     // -----------------------------------------------------------------------
     // Public API
@@ -149,4 +162,45 @@ public class MatchHistoryManager {
         list.add(0, entry); // prepend = newest first
         if (list.size() > MAX_HISTORY) list.subList(MAX_HISTORY, list.size()).clear();
     }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onMatchEnd(MatchEndEvent e) {
+        if (!(e.getMatch() instanceof Duel duel)) {
+            return;
+        }
+
+        Player player1 = duel.getPlayer1();
+        Player player2 = duel.getPlayer2();
+        if (player1 == null || player2 == null) {
+            return;
+        }
+
+        Round lastRound = duel.getCurrentRound();
+        Map<UUID, Statistic> stats = lastRound.getStatistics();
+
+        Statistic stat1 = stats.get(player1.getUniqueId());
+        Statistic stat2 = stats.get(player2.getUniqueId());
+
+        double p1Health = (stat1 != null && stat1.isSet())
+                ? stat1.getEndHeart()
+                : (player1.isOnline() ? player1.getHealth() : 0.0);
+
+        double p2Health = (stat2 != null && stat2.isSet())
+                ? stat2.getEndHeart()
+                : (player2.isOnline() ? player2.getHealth() : 0.0);
+
+        UUID winnerUuid = duel.getMatchWinner() != null ? duel.getMatchWinner().getUniqueId() : null;
+
+        MatchHistoryManager.getInstance().saveMatchAsync(
+                player1.getUniqueId(), player2.getUniqueId(),
+                player1.getName(), player2.getName(),
+                duel.getLadder().getName(),
+                duel.getArena().getName(),
+                duel.getWonRounds(player1), duel.getWonRounds(player2),
+                p1Health, p2Health,
+                winnerUuid,
+                duel.getDuration()
+        );
+    }
+
 }
