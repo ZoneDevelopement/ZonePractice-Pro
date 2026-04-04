@@ -20,6 +20,8 @@ public enum TelemetryConfig {
     private static final String AI_MATCHES_PATH = "ai-training/matches/";
     private static final String STATS_ENABLED_PATH = "stats-enabled/";
     private static final String PRACTICE_STATS_UPLOAD_PATH = "practice-stats/upload/";
+    private static final String PRACTICE_STATS_SERVER_UPLOADED_PATH = "/api/v1/telemetry/practice-stats/server-uploaded/";
+    private static final String PRACTICE_STATS_SERVER_UPLOADED_FALLBACK_PATH = "practice-stats/server-uploaded/";
 
     public static boolean isRegularEnabled() {
         return ConfigManager.getBoolean(REGULAR_ENABLED_PATH);
@@ -54,6 +56,14 @@ public enum TelemetryConfig {
         return appendTelemetryPath(PRACTICE_STATS_UPLOAD_PATH);
     }
 
+    public static URI resolvePracticeStatsServerUploadedEndpoint() {
+        return appendAbsolutePath(PRACTICE_STATS_SERVER_UPLOADED_PATH);
+    }
+
+    public static URI resolvePracticeStatsServerUploadedFallbackEndpoint() {
+        return appendTelemetryPath(PRACTICE_STATS_SERVER_UPLOADED_FALLBACK_PATH);
+    }
+
     private static URI appendTelemetryPath(String suffix) {
         URI baseEndpoint = resolveConfiguredBaseEndpoint();
         if (baseEndpoint == null) {
@@ -71,6 +81,28 @@ public enum TelemetryConfig {
                     baseEndpoint.getHost(),
                     baseEndpoint.getPort(),
                     fullPath,
+                    null,
+                    null
+            );
+        } catch (Exception exception) {
+            TelemetryDebugLog.console("<red>Invalid telemetry endpoint path (" + exception.getMessage() + ")");
+            return null;
+        }
+    }
+
+    private static URI appendAbsolutePath(String absolutePath) {
+        URI baseEndpoint = resolveConfiguredBaseEndpoint();
+        if (baseEndpoint == null) {
+            return null;
+        }
+
+        try {
+            return new URI(
+                    baseEndpoint.getScheme(),
+                    baseEndpoint.getUserInfo(),
+                    baseEndpoint.getHost(),
+                    baseEndpoint.getPort(),
+                    absolutePath,
                     null,
                     null
             );
