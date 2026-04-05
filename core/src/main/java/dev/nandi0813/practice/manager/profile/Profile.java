@@ -236,6 +236,7 @@ public class Profile {
 
     public ProfileSettingsGui getSettingsGui() {
         if (settingsGui == null) {
+            // Build this GUI only when a player opens it to avoid holding one per stored profile.
             settingsGui = new ProfileSettingsGui(this);
         }
         return settingsGui;
@@ -246,6 +247,7 @@ public class Profile {
             if (group == null) {
                 throw new IllegalStateException("Cannot create custom kit selector without an assigned group.");
             }
+            // This selector references per-profile custom kit menus, so keep it lazy to reduce idle RAM use.
             playerCustomKitSelector = new PlayerCustomKitSelector(this);
         }
         return playerCustomKitSelector;

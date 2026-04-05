@@ -153,6 +153,7 @@ public class CustomLadder extends Ladder {
 
     public MainGUI getMainGUI() {
         if (mainGUI == null) {
+            // The custom kit editor holds inventories and item snapshots, so defer it until someone opens it.
             mainGUI = new MainGUI(this);
         }
         return mainGUI;

@@ -125,6 +125,7 @@ public class ProfileManager {
 
     public void loadProfileInfo(Profile profile) {
         profile.getStats().setDivision(DivisionManager.getInstance().getDivision(profile));
+        // Profile-specific GUIs are created on demand now, so startup only refreshes lightweight profile data.
     }
 
     public void saveProfiles() {
