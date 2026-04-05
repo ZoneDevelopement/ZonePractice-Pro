@@ -113,8 +113,7 @@ public final class ZonePractice extends JavaPlugin {
         faststats_metrics.ready();
 
         if (VersionChecker.getBukkitVersion() == null) {
-            Common.sendConsoleMMMessage("<red>Unsupported server version! Please use 1.20.6 or 1.21.X");
-            Bukkit.getPluginManager().disablePlugin(this);
+            Common.sendConsoleMMMessage("<red>Unsupported server version! Please use 1.21.1 or 26.1.1");            Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
