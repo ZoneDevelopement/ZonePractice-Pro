@@ -4,7 +4,6 @@ import dev.nandi0813.api.Event.NewPlayerJoin;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.MysqlManager;
 import dev.nandi0813.practice.manager.division.DivisionManager;
-import dev.nandi0813.practice.manager.gui.guis.profile.ProfileSettingsGui;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StartUpCallback;
 import lombok.Getter;
@@ -126,7 +125,6 @@ public class ProfileManager {
 
     public void loadProfileInfo(Profile profile) {
         profile.getStats().setDivision(DivisionManager.getInstance().getDivision(profile));
-        profile.setSettingsGui(new ProfileSettingsGui(profile));
     }
 
     public void saveProfiles() {

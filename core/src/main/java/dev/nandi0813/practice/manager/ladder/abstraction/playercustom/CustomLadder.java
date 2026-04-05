@@ -41,7 +41,7 @@ public class CustomLadder extends Ladder {
     private static final String HEALTH_BELOW_NAME_PATH = ".settings.health-below-name";
     private static final String KIT_DATA_PATH = ".kit-data";
 
-    private final MainGUI mainGUI;
+    private MainGUI mainGUI;
 
     private static final List<MatchType> MATCH_TYPES = new ArrayList<>();
     static {
@@ -71,7 +71,6 @@ public class CustomLadder extends Ladder {
         this.matchTypes = new ArrayList<>(MATCH_TYPES);
 
         this.getData();
-        this.mainGUI = new MainGUI(this);
     }
 
     public CustomLadder(final CustomLadder customLadder, final Profile profile, final String mapPath) {
@@ -79,8 +78,6 @@ public class CustomLadder extends Ladder {
 
         this.config = profile.getFile().getConfig();
         this.mapPath = mapPath;
-
-        this.mainGUI = new MainGUI(this);
     }
 
     @Override
@@ -152,6 +149,13 @@ public class CustomLadder extends Ladder {
     @Override
     public boolean isEnabled() {
         return isReadyToEnable();
+    }
+
+    public MainGUI getMainGUI() {
+        if (mainGUI == null) {
+            mainGUI = new MainGUI(this);
+        }
+        return mainGUI;
     }
 
     /**

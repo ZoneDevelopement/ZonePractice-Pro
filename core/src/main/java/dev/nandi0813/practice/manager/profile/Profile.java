@@ -219,7 +219,7 @@ public class Profile {
             this.customLadders.removeLast();
         }
 
-        this.playerCustomKitSelector = new PlayerCustomKitSelector(this);
+        this.playerCustomKitSelector = null;
     }
 
     public void setSelectedCustomLadder(CustomLadder customLadder) {
@@ -232,6 +232,23 @@ public class Profile {
         }
 
         this.selectedCustomLadder = customLadder;
+    }
+
+    public ProfileSettingsGui getSettingsGui() {
+        if (settingsGui == null) {
+            settingsGui = new ProfileSettingsGui(this);
+        }
+        return settingsGui;
+    }
+
+    public PlayerCustomKitSelector getPlayerCustomKitSelector() {
+        if (playerCustomKitSelector == null) {
+            if (group == null) {
+                throw new IllegalStateException("Cannot create custom kit selector without an assigned group.");
+            }
+            playerCustomKitSelector = new PlayerCustomKitSelector(this);
+        }
+        return playerCustomKitSelector;
     }
 
     public void setStatus(ProfileStatus status) {
