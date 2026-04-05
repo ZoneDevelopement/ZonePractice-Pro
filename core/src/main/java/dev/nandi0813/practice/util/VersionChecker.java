@@ -9,14 +9,14 @@ import java.util.regex.Pattern;
 
 /**
  * Utility for detecting the running Bukkit/MC version.
- * Replaces the previous empty-enum pattern with a normal utility class.
+ * Supports both legacy 1.x versions and the new YY.x year-based scheme (26+).
  */
 public enum VersionChecker {
     ;
 
     private static volatile BukkitVersion bukkitVersion;
 
-    // Matches strings like "(MC: 1.8.8)" or "(MC: 1.21)"
+    // Matches both legacy "1.21.11" and new year-based "26.1.1" version strings
     private static final Pattern MC_VERSION_PATTERN = Pattern.compile("\\(MC: ([0-9]+\\.[0-9]+(?:\\.[0-9]+)?)\\)");
 
     /**
@@ -32,14 +32,14 @@ public enum VersionChecker {
 
                     if (mcVersion == null) {
                         ZonePractice.getInstance().getLogger().warning("Could not extract MC version from: " + versionString);
-                        bukkitVersion = null;
                         return null;
                     }
 
-                    if (mcVersion.startsWith("1.21"))
+                    if (mcVersion.equals("1.21.11"))
                         bukkitVersion = BukkitVersion.v1_21_R3;
+                    else if (mcVersion.equals("26.1.1"))
+                        bukkitVersion = BukkitVersion.v26_R1;
                     else {
-                        // Unknown version - keep null but log for visibility
                         ZonePractice.getInstance().getLogger().warning("Unsupported MC version: " + mcVersion);
                         bukkitVersion = null;
                     }
@@ -58,7 +58,7 @@ public enum VersionChecker {
 
     @Getter
     public enum BukkitVersion {
-        v1_21_R3 // 1.21.X
+        v1_21_R3, // Legacy: 1.21.X
+        v26_R1    // New scheme: 26.X.X (Tiny Takeover and beyond)
     }
-
 }
