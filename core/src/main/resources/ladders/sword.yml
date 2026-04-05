@@ -3,7 +3,7 @@ enabled: true
 type: BASIC
 settings:
   regen: true
-  hunger: true
+  hunger: false
   weightClass: UNRANKED_AND_RANKED
   editable: true
   drop-inventory: false
@@ -19,6 +19,9 @@ settings:
   startmove: true
   matchtypes:
   - DUEL
+  - PARTY_FFA
+  - PARTY_SPLIT
+  - PARTY_VS_PARTY
   knockback: DEFAULT
   tntfusetime: 4
   healthbelowname: false
