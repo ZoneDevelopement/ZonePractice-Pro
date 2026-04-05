@@ -614,6 +614,11 @@ public abstract class QueueSelectorGui extends GUI {
             return;
         }
 
+        Inventory currentPageInventory = this.gui.get(page);
+        if (currentPageInventory == null || currentPageInventory != inventory) {
+            return;
+        }
+
         Map<Integer, NormalLadder> ladders = pageLadderSlots.get(page);
         if (ladders == null || ladders.isEmpty()) {
             return;
@@ -622,7 +627,12 @@ public abstract class QueueSelectorGui extends GUI {
         Queue queue = QueueManager.getInstance().getQueue(player);
 
         for (Map.Entry<Integer, NormalLadder> entry : ladders.entrySet()) {
-            ItemStack item = inventory.getItem(entry.getKey());
+            int slot = entry.getKey();
+            if (slot < 0 || slot >= inventory.getSize()) {
+                continue;
+            }
+
+            ItemStack item = inventory.getItem(slot);
             if (item == null || item.getType() == Material.AIR) {
                 continue;
             }
@@ -633,7 +643,7 @@ public abstract class QueueSelectorGui extends GUI {
                     && QueueManager.getInstance().isMultiQueueAllowed(player);
 
             setItemGlow(item, selected);
-            inventory.setItem(entry.getKey(), item);
+            inventory.setItem(slot, item);
         }
     }
 
