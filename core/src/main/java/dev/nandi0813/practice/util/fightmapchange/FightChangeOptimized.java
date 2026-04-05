@@ -240,8 +240,9 @@ public class FightChangeOptimized {
      * Removes a temp block and optionally returns items to player.
      */
     private void removeTempBlock(BlockChangeEntry entry) {
+        Block block = entry.changedBlock.getLocation().getBlock();
+
         if (entry.tempData.returnItem && entry.tempData.player.isOnline()) {
-            Block block = entry.changedBlock.getLocation().getBlock();
             ItemStack storedItem = getStoredTempBuildItem(block);
             if (storedItem != null) {
                 giveReturnedItem(entry.tempData.player, storedItem);
@@ -255,6 +256,8 @@ public class FightChangeOptimized {
         }
 
         entry.changedBlock.reset();
+        BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
+        BlockUtil.clearMetadata(block, TempBuild.TEMP_BUILD_BLOCK_ITEM);
     }
 
     private void giveReturnedItem(Player player, ItemStack drop) {
@@ -658,8 +661,9 @@ public class FightChangeOptimized {
          * Resets the temp block (removes it).
          */
         public void reset(FightChangeOptimized fightChange, ChangedBlock changedBlock, long position) {
+            Block block = changedBlock.getLocation().getBlock();
+
             if (returnItem && player.isOnline()) {
-                Block block = changedBlock.getLocation().getBlock();
                 ItemStack storedItem = fightChange.getStoredTempBuildItem(block);
                 if (storedItem != null) {
                     fightChange.giveReturnedItem(player, storedItem);
@@ -672,6 +676,8 @@ public class FightChangeOptimized {
                 }
             }
             changedBlock.reset();
+            BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
+            BlockUtil.clearMetadata(block, TempBuild.TEMP_BUILD_BLOCK_ITEM);
             fightChange.getBlocks().remove(position);
         }
     }

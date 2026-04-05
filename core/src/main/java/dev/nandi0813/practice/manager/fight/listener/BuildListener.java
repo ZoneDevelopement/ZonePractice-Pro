@@ -222,16 +222,21 @@ public class BuildListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlockPlaced();
         BlockState replacedState = event.getBlockReplacedState();
-        Spectatable spectatable;
-        boolean needsMetadata = false;
+        Spectatable spectatable = null;
+        Spectatable playerSpectatable = getByPlayer(event.getPlayer());
+        boolean needsMetadata = !BlockUtil.hasMetadata(block, PLACED_IN_FIGHT);
 
-        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
-            spectatable = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
-            if (ListenerUtil.checkMetaData(spectatable)) {
-                return;
+        if (!needsMetadata) {
+            Spectatable taggedSpectatable = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (!ListenerUtil.checkMetaData(taggedSpectatable) && taggedSpectatable.isBuild()) {
+                spectatable = taggedSpectatable;
             }
-        } else {
-            spectatable = getByPlayer(event.getPlayer());
+        }
+
+        // Prefer the placing player's active context so stale block tags cannot leak ownership
+        // from a previous fight and cause missed rollback in the current fight.
+        if (playerSpectatable != null && playerSpectatable.isBuild() && playerSpectatable != spectatable) {
+            spectatable = playerSpectatable;
             needsMetadata = true;
         }
 
