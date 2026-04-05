@@ -11,6 +11,7 @@ import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.spectator.SpectatorCrystalPlacementUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
@@ -90,6 +91,10 @@ public class FFAListener implements Listener {
 
         Block clickedBlock = e.getClickedBlock();
         if (action.equals(Action.RIGHT_CLICK_BLOCK) && clickedBlock != null) {
+            if (ffa.isBuild()) {
+                SpectatorCrystalPlacementUtil.clearSpectatorsBlockingCrystalPlacement(e, ffa.getArena().getCuboid());
+            }
+
             if (clickedBlock.getType().equals(Material.TNT)) {
                 if (!ffa.isBuild() || !ENABLE_TNT) {
                     e.setCancelled(true);

@@ -25,6 +25,7 @@ import dev.nandi0813.practice.manager.ladder.type.Bridges;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
+import dev.nandi0813.practice.manager.spectator.SpectatorCrystalPlacementUtil;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
@@ -292,6 +293,10 @@ public class LadderTypeListener implements Listener {
         }
 
         RoundStatus roundStatus = match.getCurrentRound().getRoundStatus();
+        if (roundStatus.equals(RoundStatus.LIVE) && match.getLadder().isBuild()) {
+            SpectatorCrystalPlacementUtil.clearSpectatorsBlockingCrystalPlacement(e, match.getArena().getCuboid());
+        }
+
         if (!roundStatus.equals(RoundStatus.LIVE)) {
             ItemStack item = e.getItem();
             if (roundStatus.equals(RoundStatus.START) && item != null &&
