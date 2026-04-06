@@ -6,6 +6,7 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -25,6 +26,7 @@ public class ActionBar {
     private static final int TICK_PERIOD = 2;
     private static final long INFINITE_EXPIRY = Long.MAX_VALUE;
     private static final long KEEPALIVE_INTERVAL_MILLIS = 1200L;
+    private static final long BURST_AFTER_CHANGE_MILLIS = 2500L;
     private static final int DEBUG_HISTORY_LIMIT = 40;
     private static final PlainTextComponentSerializer PLAIN_TEXT = PlainTextComponentSerializer.plainText();
 
@@ -40,6 +42,7 @@ public class ActionBar {
     private volatile String lastSentSignature = "";
     private volatile boolean lastSentWasEmpty = true;
     private volatile long lastSendAtMillis = 0L;
+    private volatile long burstUntilMillis = 0L;
 
     /**
      * Internal runnable to update the action bar periodically.
@@ -59,6 +62,11 @@ public class ActionBar {
      * @param priority Priority level (higher weight overrides lower weight)
      */
     public void setMessage(String id, String text, int duration, ActionBarPriority priority) {
+        if (!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> setMessage(id, text, duration, priority));
+            return;
+        }
+
         if (id == null || id.isEmpty() || priority == null) {
             return;
         }
@@ -91,6 +99,7 @@ public class ActionBar {
                 priority,
                 sequence.incrementAndGet()
         ));
+        burstUntilMillis = System.currentTimeMillis() + BURST_AFTER_CHANGE_MILLIS;
         debug("SET", "id=" + id + ", duration=" + duration + ", priority=" + priority + ", chars=" + plainText.length() + ", active=" + activeMessages.size());
 
         startRunnable();
@@ -103,6 +112,11 @@ public class ActionBar {
      * @param id Unique identifier of the message
      */
     public void removeMessage(String id) {
+        if (!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> removeMessage(id));
+            return;
+        }
+
         if (id == null || id.isEmpty()) {
             return;
         }
@@ -220,8 +234,9 @@ public class ActionBar {
             String signature = buildSignature(highestId, highest);
             boolean winnerChanged = !signature.equals(lastSentSignature);
             boolean keepAliveDue = (now - lastSendAtMillis) >= KEEPALIVE_INTERVAL_MILLIS;
+            boolean burstMode = now <= burstUntilMillis;
 
-            if (!force && !winnerChanged && !keepAliveDue) {
+            if (!force && !winnerChanged && !keepAliveDue && !burstMode) {
                 return;
             }
 
@@ -237,6 +252,7 @@ public class ActionBar {
                         + ", chars=" + highest.plainText.length()
                         + ", changed=" + winnerChanged
                         + ", keepAliveDue=" + keepAliveDue
+                        + ", burstMode=" + burstMode
                         + ", forced=" + force
                         + ", topInventory=" + getOpenTopInventoryType(player)
                         + ", active=" + activeMessages.size());
@@ -269,6 +285,7 @@ public class ActionBar {
         lastWinnerId = "-";
         lastWinnerPlainText = "";
         lastSendAtMillis = 0L;
+        burstUntilMillis = 0L;
     }
 
     public String getDebugStateSnapshot() {
@@ -278,6 +295,7 @@ public class ActionBar {
                 + ", lastWinnerText='" + lastWinnerPlainText + "'"
                 + ", lastSentSignature='" + lastSentSignature + "'"
                 + ", lastSentWasEmpty=" + lastSentWasEmpty
+                + ", burstUntil=" + burstUntilMillis
                 + ", lastSendAt=" + lastSendAtMillis;
     }
 
