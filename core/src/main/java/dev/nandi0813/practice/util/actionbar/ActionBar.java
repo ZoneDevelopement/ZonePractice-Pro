@@ -7,20 +7,23 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Getter
 public class ActionBar {
 
     private final Profile profile;
+    private static final int TICK_PERIOD = 2;
+    private static final long INFINITE_EXPIRY = Long.MAX_VALUE;
 
     /**
      * Stores active messages using an ID (e.g., "golden_head", "queue").
      */
     private final Map<String, ActionMessage> activeMessages = new ConcurrentHashMap<>();
+    private final AtomicLong sequence = new AtomicLong();
 
     /**
      * Internal runnable to update the action bar periodically.
@@ -40,13 +43,20 @@ public class ActionBar {
      * @param priority Priority level (higher weight overrides lower weight)
      */
     public void setMessage(String id, String text, int duration, ActionBarPriority priority) {
-        Component component = ZonePractice.getMiniMessage().deserialize(text);
+        if (id == null || id.isEmpty() || priority == null) {
+            return;
+        }
+
+        Component component = deserializeOrFallback(text);
+        long expiresAtMillis = duration < 0
+                ? INFINITE_EXPIRY
+                : (System.currentTimeMillis() + (Math.max(1, duration) * 1000L));
 
         activeMessages.put(id, new ActionMessage(
                 component,
-                duration * 20, // convert seconds → ticks
+                expiresAtMillis,
                 priority,
-                System.nanoTime()
+                sequence.incrementAndGet()
         ));
 
         startRunnable();
@@ -59,10 +69,22 @@ public class ActionBar {
      * @param id Unique identifier of the message
      */
     public void removeMessage(String id) {
+        if (id == null || id.isEmpty()) {
+            return;
+        }
+
         activeMessages.remove(id);
         Player player = profile.getPlayer().getPlayer();
         if (player != null && player.isOnline()) {
-            sendHighestPriority(player);
+            if (activeMessages.isEmpty()) {
+                player.sendActionBar(Component.empty());
+            } else {
+                sendHighestPriority(player);
+            }
+        }
+
+        if (activeMessages.isEmpty()) {
+            stopRunnable();
         }
     }
 
@@ -75,15 +97,17 @@ public class ActionBar {
         actionBarRunnable = new BukkitRunnable() {
             @Override
             public void run() {
-                tick();
-                if (activeMessages.isEmpty()) {
-                    cancel();
-                    actionBarRunnable = null;
+                try {
+                    tick();
+                } catch (Throwable throwable) {
+                    ZonePractice.getInstance().getLogger().warning("ActionBar tick failed for "
+                            + profile.getUuid() + ": " + throwable.getMessage());
+                    stopRunnable();
                 }
             }
         };
 
-        actionBarRunnable.runTaskTimer(ZonePractice.getInstance(), 0L, 2L); // every 2 ticks (~0.1 sec)
+        actionBarRunnable.runTaskTimer(ZonePractice.getInstance(), 0L, TICK_PERIOD); // every 2 ticks (~0.1 sec)
     }
 
     /**
@@ -102,29 +126,26 @@ public class ActionBar {
      */
     private void tick() {
         Player player = profile.getPlayer().getPlayer();
-        if (player == null || !player.isOnline()) return;
-
-        // ConcurrentHashMap iterators are weakly consistent and do not support remove().
-        List<String> expiredIds = new ArrayList<>();
-        for (Map.Entry<String, ActionMessage> entry : activeMessages.entrySet()) {
-            ActionMessage msg = entry.getValue();
-            if (msg.duration > 0) {
-                msg.duration -= 2; // because tick runs every 2 ticks
-                if (msg.duration <= 0) {
-                    expiredIds.add(entry.getKey());
-                }
-            }
+        if (player == null || !player.isOnline()) {
+            // Do not keep stale state/runnables around for offline players.
+            activeMessages.clear();
+            stopRunnable();
+            return;
         }
 
-        for (String expiredId : expiredIds) {
-            activeMessages.remove(expiredId);
-        }
+        pruneExpiredMessages();
 
         if (!activeMessages.isEmpty()) {
             sendHighestPriority(player);
         } else {
             player.sendActionBar(Component.empty());
+            stopRunnable();
         }
+    }
+
+    private void pruneExpiredMessages() {
+        long now = System.currentTimeMillis();
+        activeMessages.entrySet().removeIf(entry -> entry.getValue().isExpired(now));
     }
 
     /**
@@ -143,7 +164,7 @@ public class ActionBar {
 
             if (msg.priority.getWeight() > highest.priority.getWeight() ||
                     (msg.priority.getWeight() == highest.priority.getWeight() &&
-                            msg.updatedAt > highest.updatedAt)) {
+                            msg.updatedAtSequence > highest.updatedAtSequence)) {
                 highest = msg;
             }
         }
@@ -153,21 +174,34 @@ public class ActionBar {
         }
     }
 
+    private Component deserializeOrFallback(String text) {
+        String safeText = text == null ? "" : text;
+        try {
+            return ZonePractice.getMiniMessage().deserialize(safeText);
+        } catch (Exception ignored) {
+            return Component.text(Objects.toString(text, ""));
+        }
+    }
+
     /**
      * Represents a single action bar message.
      */
     private static class ActionMessage {
 
         private final Component component;
-        private int duration; // in ticks
+        private final long expiresAtMillis;
         private final ActionBarPriority priority;
-        private final long updatedAt;
+        private final long updatedAtSequence;
 
-        public ActionMessage(Component component, int duration, ActionBarPriority priority, long updatedAt) {
+        public ActionMessage(Component component, long expiresAtMillis, ActionBarPriority priority, long updatedAtSequence) {
             this.component = component;
-            this.duration = duration;
+            this.expiresAtMillis = expiresAtMillis;
             this.priority = priority;
-            this.updatedAt = updatedAt;
+            this.updatedAtSequence = updatedAtSequence;
+        }
+
+        private boolean isExpired(long now) {
+            return expiresAtMillis != INFINITE_EXPIRY && now >= expiresAtMillis;
         }
     }
 }
