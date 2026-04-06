@@ -1,4 +1,4 @@
-VERSION: 51
+VERSION: 52
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -682,3 +682,8 @@ CHAT:
     ENABLED: true
     SHORTCUT: true # If true, you can use send message like #hello world instead of enabling staff chat each time.
   PRIVATE-CHAT-ENABLED: true # Private message system /message (/m) and /reply (/re, /r).
+
+DEBUG:
+  ACTIONBAR:
+    ENABLED: false # Enables detailed action-bar lifecycle logs and in-memory history.
+    TARGETS: [] # Optional player-name list. Empty = all players.

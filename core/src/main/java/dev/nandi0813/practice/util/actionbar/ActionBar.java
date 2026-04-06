@@ -1,15 +1,19 @@
 package dev.nandi0813.practice.util.actionbar;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Getter
@@ -18,12 +22,17 @@ public class ActionBar {
     private final Profile profile;
     private static final int TICK_PERIOD = 2;
     private static final long INFINITE_EXPIRY = Long.MAX_VALUE;
+    private static final int DEBUG_HISTORY_LIMIT = 40;
 
     /**
      * Stores active messages using an ID (e.g., "golden_head", "queue").
      */
     private final Map<String, ActionMessage> activeMessages = new ConcurrentHashMap<>();
     private final AtomicLong sequence = new AtomicLong();
+    private final ConcurrentLinkedDeque<String> debugHistory = new ConcurrentLinkedDeque<>();
+
+    private volatile String lastWinnerId = "-";
+    private volatile long lastSendAtMillis = 0L;
 
     /**
      * Internal runnable to update the action bar periodically.
@@ -58,6 +67,7 @@ public class ActionBar {
                 priority,
                 sequence.incrementAndGet()
         ));
+        debug("SET", "id=" + id + ", duration=" + duration + ", priority=" + priority + ", active=" + activeMessages.size());
 
         startRunnable();
         sendHighestPriority(profile.getPlayer().getPlayer()); // immediate update
@@ -74,10 +84,12 @@ public class ActionBar {
         }
 
         activeMessages.remove(id);
+        debug("REMOVE", "id=" + id + ", active=" + activeMessages.size());
         Player player = profile.getPlayer().getPlayer();
         if (player != null && player.isOnline()) {
             if (activeMessages.isEmpty()) {
                 player.sendActionBar(Component.empty());
+                debug("CLEAR", "removeMessage emptied actionbar");
             } else {
                 sendHighestPriority(player);
             }
@@ -94,6 +106,8 @@ public class ActionBar {
     private void startRunnable() {
         if (actionBarRunnable != null) return;
 
+        debug("RUNNABLE_START", "period=" + TICK_PERIOD + "t");
+
         actionBarRunnable = new BukkitRunnable() {
             @Override
             public void run() {
@@ -102,6 +116,7 @@ public class ActionBar {
                 } catch (Throwable throwable) {
                     ZonePractice.getInstance().getLogger().warning("ActionBar tick failed for "
                             + profile.getUuid() + ": " + throwable.getMessage());
+                    debug("ERROR", "tick exception=" + throwable.getClass().getSimpleName() + ":" + throwable.getMessage());
                     stopRunnable();
                 }
             }
@@ -117,6 +132,7 @@ public class ActionBar {
         if (actionBarRunnable != null) {
             actionBarRunnable.cancel();
             actionBarRunnable = null;
+            debug("RUNNABLE_STOP", "active=" + activeMessages.size());
         }
     }
 
@@ -129,6 +145,7 @@ public class ActionBar {
         if (player == null || !player.isOnline()) {
             // Do not keep stale state/runnables around for offline players.
             activeMessages.clear();
+            debug("OFFLINE_CLEAR", "player offline while actionbar active");
             stopRunnable();
             return;
         }
@@ -139,6 +156,7 @@ public class ActionBar {
             sendHighestPriority(player);
         } else {
             player.sendActionBar(Component.empty());
+            debug("CLEAR", "tick emptied actionbar");
             stopRunnable();
         }
     }
@@ -155,10 +173,13 @@ public class ActionBar {
     private void sendHighestPriority(Player player) {
         if (player == null || !player.isOnline()) return;
 
+        String highestId = null;
         ActionMessage highest = null;
-        for (ActionMessage msg : activeMessages.values()) {
+        for (Map.Entry<String, ActionMessage> entry : activeMessages.entrySet()) {
+            ActionMessage msg = entry.getValue();
             if (highest == null) {
                 highest = msg;
+                highestId = entry.getKey();
                 continue;
             }
 
@@ -166,12 +187,88 @@ public class ActionBar {
                     (msg.priority.getWeight() == highest.priority.getWeight() &&
                             msg.updatedAtSequence > highest.updatedAtSequence)) {
                 highest = msg;
+                highestId = entry.getKey();
             }
         }
 
         if (highest != null) {
-            player.sendActionBar(highest.component);
+            try {
+                player.sendActionBar(highest.component);
+                lastWinnerId = highestId == null ? "-" : highestId;
+                lastSendAtMillis = System.currentTimeMillis();
+                debug("SEND", "winner=" + lastWinnerId + ", priority=" + highest.priority + ", active=" + activeMessages.size());
+            } catch (Throwable throwable) {
+                debug("ERROR", "send exception=" + throwable.getClass().getSimpleName() + ":" + throwable.getMessage());
+                ZonePractice.getInstance().getLogger().warning("ActionBar send failed for " + profile.getUuid() + ": " + throwable.getMessage());
+            }
+        } else if (!activeMessages.isEmpty()) {
+            debug("ANOMALY", "active messages present but no winner selected");
         }
+    }
+
+    public String getDebugStateSnapshot() {
+        return "active=" + activeMessages.size()
+                + ", runnable=" + (actionBarRunnable != null)
+                + ", lastWinner=" + lastWinnerId
+                + ", lastSendAt=" + lastSendAtMillis;
+    }
+
+    public List<String> getDebugHistorySnapshot() {
+        return new ArrayList<>(debugHistory);
+    }
+
+    public void debugDumpToConsole(String reason) {
+        if (!isDebugEnabledForCurrentPlayer()) {
+            return;
+        }
+
+        ZonePractice.getInstance().getLogger().warning("[ActionBarDebug] dump reason=" + reason + " uuid=" + profile.getUuid() + " " + getDebugStateSnapshot());
+        for (String line : getDebugHistorySnapshot()) {
+            ZonePractice.getInstance().getLogger().warning("[ActionBarDebug] " + line);
+        }
+    }
+
+    private void debug(String type, String details) {
+        if (!isDebugEnabledForCurrentPlayer()) {
+            return;
+        }
+
+        String line = System.currentTimeMillis() + " | " + type + " | " + details;
+        debugHistory.addLast(line);
+        while (debugHistory.size() > DEBUG_HISTORY_LIMIT) {
+            debugHistory.pollFirst();
+        }
+
+        ZonePractice.getInstance().getLogger().warning("[ActionBarDebug] uuid=" + profile.getUuid() + " " + line);
+    }
+
+    private boolean isDebugEnabledForCurrentPlayer() {
+        if (ConfigManager.getConfig() == null) {
+            return false;
+        }
+
+        if (!ConfigManager.getConfig().getBoolean("DEBUG.ACTIONBAR.ENABLED", false)) {
+            return false;
+        }
+
+        List<String> targets = ConfigManager.getConfig().getStringList("DEBUG.ACTIONBAR.TARGETS");
+        if (targets == null || targets.isEmpty()) {
+            return true;
+        }
+
+        Player player = profile.getPlayer().getPlayer();
+        if (player == null) {
+            return false;
+        }
+
+        String playerName = player.getName();
+        for (String target : targets) {
+            if (target != null && target.equalsIgnoreCase(playerName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Component deserializeOrFallback(String text) {
