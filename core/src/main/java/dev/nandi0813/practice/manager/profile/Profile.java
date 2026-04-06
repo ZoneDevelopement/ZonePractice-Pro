@@ -89,7 +89,10 @@ public class Profile {
 
     public Profile(UUID uuid, OfflinePlayer player) {
         this.uuid = uuid;
-        this.player = player;
+        // Never pin a live Player instance here; always resolve online player from UUID.
+        this.player = (player instanceof Player)
+                ? Bukkit.getOfflinePlayer(uuid)
+                : Objects.requireNonNullElseGet(player, () -> Bukkit.getOfflinePlayer(uuid));
         this.status = ProfileStatus.OFFLINE;
         this.file = new ProfileFile(this);
         this.stats = new ProfileStat(this);
@@ -101,6 +104,14 @@ public class Profile {
         this.status = ProfileStatus.OFFLINE;
         this.file = new ProfileFile(this);
         this.stats = new ProfileStat(this);
+    }
+
+    /**
+     * Resolves the currently connected player for this profile by UUID.
+     * Returns null when the player is offline.
+     */
+    public Player getOnlinePlayer() {
+        return Bukkit.getPlayer(uuid);
     }
 
     public void saveData() {
@@ -157,7 +168,7 @@ public class Profile {
     }
 
     public void checkGroup() {
-        Player online = Bukkit.getPlayer(uuid);
+        Player online = getOnlinePlayer();
         if (online == null || !online.isOnline()) return;
 
         Group newGroup = GroupManager.getInstance().getGroup(online);
@@ -179,7 +190,7 @@ public class Profile {
     }
 
     public int getCustomKitPerm() {
-        Player onlinePlayer = player.getPlayer();
+        Player onlinePlayer = getOnlinePlayer();
 
         if (onlinePlayer == null) {
             return 0;
@@ -203,7 +214,7 @@ public class Profile {
         this.eventStartLeft = group.getEventStartLimit();
         this.partyBroadcastLeft = group.getPartyBroadcastLimit();
 
-        Player onlinePlayer = this.player.getPlayer();
+        Player onlinePlayer = this.getOnlinePlayer();
         if (onlinePlayer != null) {
             Party partyObj = PartyManager.getInstance().getParty(onlinePlayer);
             if (partyObj != null && onlinePlayer.equals(partyObj.getLeader())) {
@@ -257,7 +268,7 @@ public class Profile {
                 && status != ProfileStatus.LOBBY
                 && status != ProfileStatus.SPECTATE
                 && status != ProfileStatus.OFFLINE) {
-            Player online = player.getPlayer();
+            Player online = getOnlinePlayer();
             if (online != null && online.isOnline()) {
                 MatchManager.getInstance().invalidateRematchByPlayer(online);
             }

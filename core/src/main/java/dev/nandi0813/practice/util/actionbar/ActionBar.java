@@ -1,22 +1,20 @@
 package dev.nandi0813.practice.util.actionbar;
 
 import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Getter
@@ -26,8 +24,7 @@ public class ActionBar {
     private static final int TICK_PERIOD = 2;
     private static final long INFINITE_EXPIRY = Long.MAX_VALUE;
     private static final long KEEPALIVE_INTERVAL_MILLIS = 1200L;
-    private static final long BURST_AFTER_CHANGE_MILLIS = 2500L;
-    private static final int DEBUG_HISTORY_LIMIT = 40;
+    private static final long MESSAGE_FALLBACK_WINDOW_MILLIS = 6000L;
     private static final PlainTextComponentSerializer PLAIN_TEXT = PlainTextComponentSerializer.plainText();
 
     /**
@@ -35,14 +32,13 @@ public class ActionBar {
      */
     private final Map<String, ActionMessage> activeMessages = new ConcurrentHashMap<>();
     private final AtomicLong sequence = new AtomicLong();
-    private final ConcurrentLinkedDeque<String> debugHistory = new ConcurrentLinkedDeque<>();
 
     private volatile String lastWinnerId = "-";
     private volatile String lastWinnerPlainText = "";
     private volatile String lastSentSignature = "";
     private volatile boolean lastSentWasEmpty = true;
     private volatile long lastSendAtMillis = 0L;
-    private volatile long burstUntilMillis = 0L;
+    private volatile long fallbackUntilMillis = 0L;
 
     /**
      * Internal runnable to update the action bar periodically.
@@ -74,7 +70,6 @@ public class ActionBar {
         Component component = deserializeOrFallback(text);
         String plainText = PLAIN_TEXT.serialize(component);
         if (plainText.trim().isEmpty()) {
-            debug("SET_SKIPPED", "id=" + id + ", reason=blank_text");
             return;
         }
 
@@ -84,7 +79,6 @@ public class ActionBar {
                 && previous.priority == priority
                 && previous.plainText.equals(plainText)
                 && previous.isInfinite() == infiniteDuration) {
-            debug("SET_SKIPPED", "id=" + id + ", reason=unchanged");
             return;
         }
 
@@ -99,11 +93,21 @@ public class ActionBar {
                 priority,
                 sequence.incrementAndGet()
         ));
-        burstUntilMillis = System.currentTimeMillis() + BURST_AFTER_CHANGE_MILLIS;
-        debug("SET", "id=" + id + ", duration=" + duration + ", priority=" + priority + ", chars=" + plainText.length() + ", active=" + activeMessages.size());
+        fallbackUntilMillis = System.currentTimeMillis() + MESSAGE_FALLBACK_WINDOW_MILLIS;
 
         startRunnable();
-        sendHighestPriority(profile.getPlayer().getPlayer(), true); // immediate update without runnable overlap
+        sendHighestPriority(resolveLivePlayer(), true); // immediate update without runnable overlap
+    }
+
+    public void resetForReconnect() {
+        if (!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), this::resetForReconnect);
+            return;
+        }
+
+        activeMessages.clear();
+        stopRunnable();
+        resetLastSentState();
     }
 
     /**
@@ -122,11 +126,10 @@ public class ActionBar {
         }
 
         activeMessages.remove(id);
-        debug("REMOVE", "id=" + id + ", active=" + activeMessages.size());
-        Player player = profile.getPlayer().getPlayer();
+        Player player = resolveLivePlayer();
         if (player != null && player.isOnline()) {
             if (activeMessages.isEmpty()) {
-                clearActionBarIfNeeded(player, "removeMessage emptied actionbar");
+                clearActionBarIfNeeded(player);
             } else {
                 sendHighestPriority(player, true);
             }
@@ -143,8 +146,6 @@ public class ActionBar {
     private void startRunnable() {
         if (actionBarRunnable != null) return;
 
-        debug("RUNNABLE_START", "period=" + TICK_PERIOD + "t");
-
         actionBarRunnable = new BukkitRunnable() {
             @Override
             public void run() {
@@ -153,7 +154,6 @@ public class ActionBar {
                 } catch (Throwable throwable) {
                     ZonePractice.getInstance().getLogger().warning("ActionBar tick failed for "
                             + profile.getUuid() + ": " + throwable.getMessage());
-                    debug("ERROR", "tick exception=" + throwable.getClass().getSimpleName() + ":" + throwable.getMessage());
                     stopRunnable();
                 }
             }
@@ -170,7 +170,6 @@ public class ActionBar {
         if (actionBarRunnable != null) {
             actionBarRunnable.cancel();
             actionBarRunnable = null;
-            debug("RUNNABLE_STOP", "active=" + activeMessages.size());
         }
     }
 
@@ -179,12 +178,11 @@ public class ActionBar {
      * Handles duration updates, message expiration, and sending the highest priority message.
      */
     private void tick() {
-        Player player = profile.getPlayer().getPlayer();
+        Player player = resolveLivePlayer();
         if (player == null || !player.isOnline()) {
             // Do not keep stale state/runnables around for offline players.
             activeMessages.clear();
             resetLastSentState();
-            debug("OFFLINE_CLEAR", "player offline while actionbar active");
             stopRunnable();
             return;
         }
@@ -194,7 +192,7 @@ public class ActionBar {
         if (!activeMessages.isEmpty()) {
             sendHighestPriority(player, false);
         } else {
-            clearActionBarIfNeeded(player, "tick emptied actionbar");
+            clearActionBarIfNeeded(player);
             stopRunnable();
         }
     }
@@ -234,34 +232,27 @@ public class ActionBar {
             String signature = buildSignature(highestId, highest);
             boolean winnerChanged = !signature.equals(lastSentSignature);
             boolean keepAliveDue = (now - lastSendAtMillis) >= KEEPALIVE_INTERVAL_MILLIS;
-            boolean burstMode = now <= burstUntilMillis;
 
-            if (!force && !winnerChanged && !keepAliveDue && !burstMode) {
+            if (!force && !winnerChanged && !keepAliveDue) {
                 return;
             }
 
             try {
-                player.sendActionBar(highest.component);
+                Component outbound = highest.component;
+                if (!winnerChanged) {
+                    outbound = withResendNonce(outbound, now);
+                }
+
+                player.sendActionBar(outbound);
+                maybeSendRejoinFallback(player, outbound, now);
                 lastWinnerId = highestId == null ? "-" : highestId;
                 lastWinnerPlainText = highest.plainText;
                 lastSentSignature = signature;
                 lastSentWasEmpty = false;
                 lastSendAtMillis = now;
-                debug("SEND", "winner=" + lastWinnerId
-                        + ", priority=" + highest.priority
-                        + ", chars=" + highest.plainText.length()
-                        + ", changed=" + winnerChanged
-                        + ", keepAliveDue=" + keepAliveDue
-                        + ", burstMode=" + burstMode
-                        + ", forced=" + force
-                        + ", topInventory=" + getOpenTopInventoryType(player)
-                        + ", active=" + activeMessages.size());
             } catch (Throwable throwable) {
-                debug("ERROR", "send exception=" + throwable.getClass().getSimpleName() + ":" + throwable.getMessage());
                 ZonePractice.getInstance().getLogger().warning("ActionBar send failed for " + profile.getUuid() + ": " + throwable.getMessage());
             }
-        } else if (!activeMessages.isEmpty()) {
-            debug("ANOMALY", "active messages present but no winner selected");
         }
     }
 
@@ -269,14 +260,37 @@ public class ActionBar {
         return Objects.toString(id, "-") + "|" + message.priority + "|" + message.plainText;
     }
 
-    private void clearActionBarIfNeeded(Player player, String reason) {
+    private Player resolveLivePlayer() {
+        return profile.getOnlinePlayer();
+    }
+
+    private Component withResendNonce(Component source, long now) {
+        // Keep visual content identical while producing a non-identical payload for resend packets.
+        String nonce = (now & 1L) == 0L ? "a" : "b";
+        return source.append(Component.text("").insertion(nonce));
+    }
+
+    private void maybeSendRejoinFallback(Player player, Component outbound, long now) {
+        if (now > fallbackUntilMillis) {
+            return;
+        }
+
+        try {
+            // Fallback transport for the first seconds after join where some clients/proxies can drop action-bar packets.
+            String legacy = Common.serializeComponentToLegacyString(outbound).replace('&', '\u00A7');
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(legacy));
+        } catch (Throwable ignored) {
+            // Keep action-bar pipeline resilient: primary send already succeeded.
+        }
+    }
+
+    private void clearActionBarIfNeeded(Player player) {
         if (lastSentWasEmpty) {
             return;
         }
 
         player.sendActionBar(Component.empty());
         resetLastSentState();
-        debug("CLEAR", reason);
     }
 
     private void resetLastSentState() {
@@ -285,82 +299,9 @@ public class ActionBar {
         lastWinnerId = "-";
         lastWinnerPlainText = "";
         lastSendAtMillis = 0L;
-        burstUntilMillis = 0L;
+        fallbackUntilMillis = 0L;
     }
 
-    public String getDebugStateSnapshot() {
-        return "active=" + activeMessages.size()
-                + ", runnable=" + (actionBarRunnable != null)
-                + ", lastWinner=" + lastWinnerId
-                + ", lastWinnerText='" + lastWinnerPlainText + "'"
-                + ", lastSentSignature='" + lastSentSignature + "'"
-                + ", lastSentWasEmpty=" + lastSentWasEmpty
-                + ", burstUntil=" + burstUntilMillis
-                + ", lastSendAt=" + lastSendAtMillis;
-    }
-
-    private String getOpenTopInventoryType(Player player) {
-        InventoryType inventoryType = player.getOpenInventory().getTopInventory().getType();
-        return inventoryType.name();
-    }
-
-    public List<String> getDebugHistorySnapshot() {
-        return new ArrayList<>(debugHistory);
-    }
-
-    public void debugDumpToConsole(String reason) {
-        if (!isDebugEnabledForCurrentPlayer()) {
-            return;
-        }
-
-        ZonePractice.getInstance().getLogger().warning("[ActionBarDebug] dump reason=" + reason + " uuid=" + profile.getUuid() + " " + getDebugStateSnapshot());
-        for (String line : getDebugHistorySnapshot()) {
-            ZonePractice.getInstance().getLogger().warning("[ActionBarDebug] " + line);
-        }
-    }
-
-    private void debug(String type, String details) {
-        if (!isDebugEnabledForCurrentPlayer()) {
-            return;
-        }
-
-        String line = System.currentTimeMillis() + " | " + type + " | " + details;
-        debugHistory.addLast(line);
-        while (debugHistory.size() > DEBUG_HISTORY_LIMIT) {
-            debugHistory.pollFirst();
-        }
-
-        ZonePractice.getInstance().getLogger().warning("[ActionBarDebug] uuid=" + profile.getUuid() + " " + line);
-    }
-
-    private boolean isDebugEnabledForCurrentPlayer() {
-        if (ConfigManager.getConfig() == null) {
-            return false;
-        }
-
-        if (!ConfigManager.getConfig().getBoolean("DEBUG.ACTIONBAR.ENABLED", false)) {
-            return false;
-        }
-
-        List<String> targets = ConfigManager.getConfig().getStringList("DEBUG.ACTIONBAR.TARGETS");
-        if (targets.isEmpty()) {
-            return true;
-        }
-
-        Player player = profile.getPlayer().getPlayer();
-        if (player == null) {
-            return false;
-        }
-
-        String playerName = player.getName();
-        for (String target : targets) {
-            if (target != null && target.equalsIgnoreCase(playerName)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     private Component deserializeOrFallback(String text) {
         String safeText = text == null ? "" : text;

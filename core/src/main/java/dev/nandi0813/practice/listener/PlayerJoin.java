@@ -33,6 +33,9 @@ public class PlayerJoin implements Listener {
         if (profile == null)
             profile = ProfileManager.getInstance().newProfile(player, uuid);
 
+        // Ensure action-bar state from any previous session is fully reset before new queue/status flows start.
+        profile.getActionBar().resetForReconnect();
+
         profile.checkGroup();
 
         // Send nametag teams

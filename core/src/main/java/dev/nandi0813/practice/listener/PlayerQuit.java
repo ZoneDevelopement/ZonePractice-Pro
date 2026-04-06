@@ -46,6 +46,8 @@ public class PlayerQuit implements Listener {
         MatchManager.getInstance().invalidateRematchByPlayer(player);
 
         if (profile != null) {
+            profile.getActionBar().resetForReconnect();
+
             profile.setLastJoin(System.currentTimeMillis());
             PracticeStatsTelemetryLogger.markDirty(profile);
 
@@ -77,6 +79,11 @@ public class PlayerQuit implements Listener {
         MessageCommand.latestMessage.values().removeIf(target -> target.equals(player));
 
         MatchManager.getInstance().invalidateRematchByPlayer(player);
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile != null) {
+            profile.getActionBar().resetForReconnect();
+        }
     }
 
 }
