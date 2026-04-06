@@ -7,7 +7,8 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -103,16 +104,20 @@ public class ActionBar {
         Player player = profile.getPlayer().getPlayer();
         if (player == null || !player.isOnline()) return;
 
-        // Update durations and remove expired messages
-        Iterator<Map.Entry<String, ActionMessage>> it = activeMessages.entrySet().iterator();
-        while (it.hasNext()) {
-            ActionMessage msg = it.next().getValue();
+        // ConcurrentHashMap iterators are weakly consistent and do not support remove().
+        List<String> expiredIds = new ArrayList<>();
+        for (Map.Entry<String, ActionMessage> entry : activeMessages.entrySet()) {
+            ActionMessage msg = entry.getValue();
             if (msg.duration > 0) {
                 msg.duration -= 2; // because tick runs every 2 ticks
                 if (msg.duration <= 0) {
-                    it.remove();
+                    expiredIds.add(entry.getKey());
                 }
             }
+        }
+
+        for (String expiredId : expiredIds) {
+            activeMessages.remove(expiredId);
         }
 
         if (!activeMessages.isEmpty()) {
