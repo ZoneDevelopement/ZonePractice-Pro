@@ -20,10 +20,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -90,9 +87,14 @@ public class GUIManager implements Listener {
         GUI gui = openGUI.get(player);
         if (gui == null) return;
 
-        if (e.getClick().equals(ClickType.DOUBLE_CLICK)) {
+        if (shouldHardCancelClick(e, gui)) {
             e.setCancelled(true);
             return;
+        }
+
+        if (!allowsInventoryMutation(gui)) {
+            // Safe default for all normal GUIs: no item movement, only GUI button handling.
+            e.setCancelled(true);
         }
 
         GUIClickSoundIntent soundIntent = resolveClickSoundIntent(e, gui, player);
@@ -104,6 +106,40 @@ public class GUIManager implements Listener {
         }
 
         playGuiClickSound(player, soundIntent);
+    }
+
+    private boolean shouldHardCancelClick(InventoryClickEvent e, GUI gui) {
+        int topSize = e.getView().getTopInventory().getSize();
+        int rawSlot = e.getRawSlot();
+
+        if (rawSlot < 0) {
+            return true;
+        }
+
+        boolean clickedBottomInventory = rawSlot >= topSize;
+        if (clickedBottomInventory && !allowsInventoryMutation(gui)) {
+            return true;
+        }
+
+        ClickType clickType = e.getClick();
+        if (clickType == ClickType.DOUBLE_CLICK
+                || clickType == ClickType.NUMBER_KEY
+                || clickType == ClickType.SWAP_OFFHAND
+                || clickType == ClickType.DROP
+                || clickType == ClickType.CONTROL_DROP
+                || clickType == ClickType.CREATIVE
+                || clickType == ClickType.MIDDLE) {
+            return true;
+        }
+
+        InventoryAction action = e.getAction();
+        return action == InventoryAction.COLLECT_TO_CURSOR
+                || action == InventoryAction.MOVE_TO_OTHER_INVENTORY
+                || action == InventoryAction.HOTBAR_SWAP;
+    }
+
+    private boolean allowsInventoryMutation(GUI gui) {
+        return gui instanceof CustomLadderEditorGui;
     }
 
     private GUIClickSoundIntent resolveClickSoundIntent(InventoryClickEvent e, GUI gui, Player player) {
@@ -204,6 +240,11 @@ public class GUIManager implements Listener {
 
         GUI gui = openGUI.get(player);
         if (gui == null) return;
+
+        if (!allowsInventoryMutation(gui)) {
+            e.setCancelled(true);
+            return;
+        }
 
         gui.handleDragEvent(e);
     }

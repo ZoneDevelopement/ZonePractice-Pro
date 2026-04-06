@@ -5,7 +5,9 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class ActionBar {
     private static final int TICK_PERIOD = 2;
     private static final long INFINITE_EXPIRY = Long.MAX_VALUE;
     private static final int DEBUG_HISTORY_LIMIT = 40;
+    private static final PlainTextComponentSerializer PLAIN_TEXT = PlainTextComponentSerializer.plainText();
 
     /**
      * Stores active messages using an ID (e.g., "golden_head", "queue").
@@ -32,6 +35,7 @@ public class ActionBar {
     private final ConcurrentLinkedDeque<String> debugHistory = new ConcurrentLinkedDeque<>();
 
     private volatile String lastWinnerId = "-";
+    private volatile String lastWinnerPlainText = "";
     private volatile long lastSendAtMillis = 0L;
 
     /**
@@ -57,17 +61,24 @@ public class ActionBar {
         }
 
         Component component = deserializeOrFallback(text);
+        String plainText = PLAIN_TEXT.serialize(component);
+        if (plainText.trim().isEmpty()) {
+            debug("SET_SKIPPED", "id=" + id + ", reason=blank_text");
+            return;
+        }
+
         long expiresAtMillis = duration < 0
                 ? INFINITE_EXPIRY
                 : (System.currentTimeMillis() + (Math.max(1, duration) * 1000L));
 
         activeMessages.put(id, new ActionMessage(
                 component,
+                plainText,
                 expiresAtMillis,
                 priority,
                 sequence.incrementAndGet()
         ));
-        debug("SET", "id=" + id + ", duration=" + duration + ", priority=" + priority + ", active=" + activeMessages.size());
+        debug("SET", "id=" + id + ", duration=" + duration + ", priority=" + priority + ", chars=" + plainText.length() + ", active=" + activeMessages.size());
 
         startRunnable();
         sendHighestPriority(profile.getPlayer().getPlayer()); // immediate update
@@ -195,8 +206,13 @@ public class ActionBar {
             try {
                 player.sendActionBar(highest.component);
                 lastWinnerId = highestId == null ? "-" : highestId;
+                lastWinnerPlainText = highest.plainText;
                 lastSendAtMillis = System.currentTimeMillis();
-                debug("SEND", "winner=" + lastWinnerId + ", priority=" + highest.priority + ", active=" + activeMessages.size());
+                debug("SEND", "winner=" + lastWinnerId
+                        + ", priority=" + highest.priority
+                        + ", chars=" + highest.plainText.length()
+                        + ", topInventory=" + getOpenTopInventoryType(player)
+                        + ", active=" + activeMessages.size());
             } catch (Throwable throwable) {
                 debug("ERROR", "send exception=" + throwable.getClass().getSimpleName() + ":" + throwable.getMessage());
                 ZonePractice.getInstance().getLogger().warning("ActionBar send failed for " + profile.getUuid() + ": " + throwable.getMessage());
@@ -210,7 +226,13 @@ public class ActionBar {
         return "active=" + activeMessages.size()
                 + ", runnable=" + (actionBarRunnable != null)
                 + ", lastWinner=" + lastWinnerId
+                + ", lastWinnerText='" + lastWinnerPlainText + "'"
                 + ", lastSendAt=" + lastSendAtMillis;
+    }
+
+    private String getOpenTopInventoryType(Player player) {
+        InventoryType inventoryType = player.getOpenInventory().getTopInventory().getType();
+        return inventoryType.name();
     }
 
     public List<String> getDebugHistorySnapshot() {
@@ -252,7 +274,7 @@ public class ActionBar {
         }
 
         List<String> targets = ConfigManager.getConfig().getStringList("DEBUG.ACTIONBAR.TARGETS");
-        if (targets == null || targets.isEmpty()) {
+        if (targets.isEmpty()) {
             return true;
         }
 
@@ -286,12 +308,14 @@ public class ActionBar {
     private static class ActionMessage {
 
         private final Component component;
+        private final String plainText;
         private final long expiresAtMillis;
         private final ActionBarPriority priority;
         private final long updatedAtSequence;
 
-        public ActionMessage(Component component, long expiresAtMillis, ActionBarPriority priority, long updatedAtSequence) {
+        public ActionMessage(Component component, String plainText, long expiresAtMillis, ActionBarPriority priority, long updatedAtSequence) {
             this.component = component;
+            this.plainText = plainText;
             this.expiresAtMillis = expiresAtMillis;
             this.priority = priority;
             this.updatedAtSequence = updatedAtSequence;

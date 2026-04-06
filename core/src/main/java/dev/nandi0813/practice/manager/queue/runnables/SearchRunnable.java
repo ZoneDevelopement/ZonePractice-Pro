@@ -44,8 +44,14 @@ public abstract class SearchRunnable extends Runnable {
     }
 
     protected void updateQueueActionBar(String message) {
-        // Sets an infinite action bar with NORMAL priority
-        this.actionBar.setMessage(ACTION_BAR_ID, message, -1, ActionBarPriority.NORMAL);
+        String safeMessage = message;
+        if (safeMessage == null || safeMessage.trim().isEmpty()) {
+            // Keep queue feedback visible even when a language key is missing/misconfigured.
+            safeMessage = "<yellow>Searching for a match... <gray>" + queue.getFormattedDuration();
+        }
+
+        // Sets an infinite action bar with NORMAL priority.
+        this.actionBar.setMessage(ACTION_BAR_ID, safeMessage, -1, ActionBarPriority.NORMAL);
     }
 
     protected List<dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder> getShuffledQueuedLadders() {
