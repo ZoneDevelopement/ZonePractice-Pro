@@ -50,6 +50,27 @@ public enum AdapterUtil {
         return player.isOnline() ? String.valueOf(PlayerUtil.getPing(player)) : "N/A";
     }
 
+    private static String capitalize(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        return Character.toUpperCase(text.charAt(0)) + text.substring(1);
+    }
+
+    private static Component replacePrefixed(Component line, String prefix, String suffix, String value) {
+        String capitalizedSuffix = capitalize(suffix);
+        return line
+                .replaceText(replace("%" + prefix + suffix + "%", value))
+                .replaceText(replace("%" + prefix + capitalizedSuffix + "%", value));
+    }
+
+    private static Component replacePrefixed(Component line, String prefix, String suffix, Component value) {
+        String capitalizedSuffix = capitalize(suffix);
+        return line
+                .replaceText(replace("%" + prefix + suffix + "%", value))
+                .replaceText(replace("%" + prefix + capitalizedSuffix + "%", value));
+    }
+
     /**
      * Uses current round time when available, otherwise falls back to "0" during round transitions.
      */
@@ -78,13 +99,20 @@ public enum AdapterUtil {
      */
     private static Component replaceTeamPlaceholders(Component line, String prefix, TeamEnum team,
                                                      dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.PlayersVsPlayers match, int winsNeeded) {
-        return line
-                .replaceText(replace("%" + prefix + "name%", team.getNameComponent()))
-                .replaceText(replace("%" + prefix + "color%", team.getColor()))
-                .replaceText(replace("%" + prefix + "players%", String.valueOf(match.getTeamPlayers(team).size())))
-                .replaceText(replace("%" + prefix + "alivePlayers%", String.valueOf(match.getTeamAlivePlayers(team).size())))
-                .replaceText(replace("%" + prefix + "rounds%", getRoundString(winsNeeded, match.getWonRounds(team))))
-                .replaceText(replace("%" + prefix + "roundsNumber%", String.valueOf(match.getWonRounds(team))));
+        String wonRounds = String.valueOf(match.getWonRounds(team));
+        return replacePrefixed(
+                replacePrefixed(
+                        replacePrefixed(
+                                replacePrefixed(
+                                        replacePrefixed(
+                                                replacePrefixed(line, prefix, "name", team.getNameComponent()),
+                                                prefix, "color", team.getColor()),
+                                        prefix, "players", String.valueOf(match.getTeamPlayers(team).size())),
+                                prefix, "alivePlayers", String.valueOf(match.getTeamAlivePlayers(team).size())),
+                        prefix, "rounds", getRoundString(winsNeeded, match.getWonRounds(team))),
+                prefix, "roundsNumber", wonRounds)
+                .replaceText(replace("%" + prefix + "score%", wonRounds))
+                .replaceText(replace("%" + prefix + "Score%", wonRounds));
     }
 
     /**
@@ -95,10 +123,12 @@ public enum AdapterUtil {
         if (player == null) return line;
 
         String prefix = "player" + rank;
+        String score = String.valueOf(partyFFA.getWonRounds(player));
         return line
                 .replaceText(replace("%" + prefix + "%", getSidebarName(player)))
                 .replaceText(replace("%" + prefix + "rounds%", getRoundString(match.getWinsNeeded(), partyFFA.getWonRounds(player))))
-                .replaceText(replace("%" + prefix + "roundsNumber%", String.valueOf(partyFFA.getWonRounds(player))));
+                .replaceText(replace("%" + prefix + "roundsNumber%", score))
+                .replaceText(replace("%" + prefix + "score%", score));
     }
 
     /**
@@ -179,7 +209,10 @@ public enum AdapterUtil {
                 .replaceText(replace("%playerTeamColor%", team.getColor()))
                 .replaceText(replace("%rounds%", getRoundString(duel.getWinsNeeded(), duel.getWonRounds(player))))
                 .replaceText(replace("%roundsNumber%", String.valueOf(duel.getWonRounds(player))))
+                .replaceText(replace("%score%", String.valueOf(duel.getWonRounds(player))))
+                .replaceText(replace("%playerScore%", String.valueOf(duel.getWonRounds(player))))
                 .replaceText(replace("%enemyRoundsNumber%", enemy == null ? "" : String.valueOf(duel.getWonRounds(enemy))))
+                .replaceText(replace("%enemyScore%", enemy == null ? "" : String.valueOf(duel.getWonRounds(enemy))))
                 .replaceText(replace("%enemyPing%", enemy == null ? "" : getPingString(enemy)))
                 .replaceText(replace("%enemyTeamName%", enemy == null ? Component.empty() : enemyTeam.getNameComponent()))
                 .replaceText(replace("%enemyTeamColor%", enemyTeam.getColor()))
@@ -197,7 +230,8 @@ public enum AdapterUtil {
                 .replaceText(replace("%players%", String.valueOf(partyFFA.getPlayers().size())))
                 .replaceText(replace("%alivePlayers%", String.valueOf(partyFFA.getAlivePlayers().size())))
                 .replaceText(replace("%rounds%", getRoundString(partyFFA.getWinsNeeded(), partyFFA.getWonRounds(player))))
-                .replaceText(replace("%roundsNumber%", String.valueOf(partyFFA.getWonRounds(player))));
+                .replaceText(replace("%roundsNumber%", String.valueOf(partyFFA.getWonRounds(player))))
+                .replaceText(replace("%score%", String.valueOf(partyFFA.getWonRounds(player))));
     }
 
     private static Component handlePartySplitPlaceholders(Component line, PartySplit partySplit) {
@@ -280,10 +314,12 @@ public enum AdapterUtil {
                 .replaceText(replace("%player1ping%", getPingString(player1)))
                 .replaceText(replace("%player1rounds%", getRoundString(duel.getWinsNeeded(), duel.getWonRounds(player1))))
                 .replaceText(replace("%player1roundsNumber%", String.valueOf(duel.getWonRounds(player1))))
+                .replaceText(replace("%player1score%", String.valueOf(duel.getWonRounds(player1))))
                 .replaceText(replace("%player2%", getSidebarName(player2)))
                 .replaceText(replace("%player2ping%", getPingString(player2)))
                 .replaceText(replace("%player2rounds%", getRoundString(duel.getWinsNeeded(), duel.getWonRounds(player2))))
-                .replaceText(replace("%player2roundsNumber%", String.valueOf(duel.getWonRounds(player2))));
+                .replaceText(replace("%player2roundsNumber%", String.valueOf(duel.getWonRounds(player2))))
+                .replaceText(replace("%player2score%", String.valueOf(duel.getWonRounds(player2))));
     }
 
     private static Component handleSpectatorPartyFFAPlaceholders(Component line, PartyFFA partyFFA) {

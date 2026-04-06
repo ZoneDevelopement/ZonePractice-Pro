@@ -98,6 +98,12 @@ LOBBY:
 # Available variables in every case:
 # %arena% - Display name of the arena
 # %ladder% - Display name of the ladder
+# Match score placeholders:
+# DUEL: %score%, %enemyScore%
+# PARTY_FFA: %score%, %player1score%, %player2score%, %player3score%
+# PARTY_SPLIT: %team1score%, %team2score%
+# PARTY_VS_PARTY: %partyTeamScore%, %enemyTeamScore%
+# Spectate duel: %player1score%, %player2score%
 ########################################################################
 MATCH:
   ROUND-SYMBOL: "⬤"
@@ -111,6 +117,7 @@ MATCH:
     - "  <white>Fighting: <yellow>%enemyName%"
     - "  <white>Duration: <yellow>%roundDuration%"
     - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
+    - "  <white>Score: <green>%score%<gray> - <red>%enemyScore%"
     - ""
     - "<gold>play.zonepractice.com"
     - "<gray><st>---------------------"
@@ -120,6 +127,7 @@ MATCH:
     - "  <white>Players: <gold>%players%<gray>/<yellow>%alivePlayers%"
     - "  <white>Duration: <yellow>%roundDuration%"
     - "  <white>Ping: <green>%ping% ms"
+    - "  <white>Score: <yellow>%score%"
     - ""
     - "<gold>play.zonepractice.com"
     - "<gray><st>---------------------"
@@ -129,6 +137,7 @@ MATCH:
     - "  <white>Duration: <yellow>%roundDuration%"
     - "  <white>Ping: <green>%ping% ms"
     - ""
+    - "  <white>Score: %team1color%%team1score%<gray> - %team2color%%team2score%"
     - " %team1name%<gray>: %team1color%%team1players%<gray>/<green>%team1alivePlayers%"
     - " %team2name%<gray>: %team2color%%team2players%<gray>/<green>%team2alivePlayers%"
     - ""
@@ -140,6 +149,7 @@ MATCH:
     - "  <white>Duration: <yellow>%roundDuration%"
     - "  <white>Ping: <green>%ping% ms"
     - ""
+    - "  <white>Score: %partyTeamColor%%partyTeamScore%<gray> - %enemyTeamColor%%enemyTeamScore%"
     - " %partyTeamName%<gray>: %partyTeamColor%%partyTeamPlayers%<gray>/<green>%partyTeamAlivePlayers%"
     - " %enemyTeamName%<gray>: %enemyTeamColor%%enemyTeamPlayers%<gray>/<green>%enemyTeamAlivePlayers%"
     - ""
@@ -562,6 +572,7 @@ SPECTATE:
       - "  <white>Kit: <yellow>%ladder%"
       - "  <white>Arena: <yellow>%arena%"
       - "  <white>Duration: <yellow>%roundDuration%"
+      - "  <white>Score: %team1color%%player1score%<gray> - %team2color%%player2score%"
       - ""
       - "<gold>play.zonepractice.com"
       - "<gray><st>---------------------"
@@ -583,6 +594,7 @@ SPECTATE:
       - "  <white>Arena: <yellow>%arena%"
       - "  <white>Duration: <yellow>%roundDuration%"
       - ""
+      - "  <white>Score: %team1color%%team1score%<gray> - %team2color%%team2score%"
       - " %team1name%<gray>: %team1color%%team1players%<gray>/<green>%team1alivePlayers%"
       - " %team2name%<gray>: %team2color%%team2players%<gray>/<green>%team2alivePlayers%"
       - ""
@@ -595,6 +607,7 @@ SPECTATE:
       - "  <white>Arena: <yellow>%arena%"
       - "  <white>Duration: <yellow>%roundDuration%"
       - ""
+      - "  <white>Score: %team1color%%team1score%<gray> - %team2color%%team2score%"
       - " %team1name%<gray>: %team1color%%team1players%<gray>/<green>%team1alivePlayers%"
       - " %team2name%<gray>: %team2color%%team2players%<gray>/<green>%team2alivePlayers%"
       - ""
