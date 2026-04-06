@@ -91,6 +91,7 @@ public class GUIManager implements Listener {
         if (gui == null) return;
 
         if (e.getClick().equals(ClickType.DOUBLE_CLICK)) {
+            e.setCancelled(true);
             return;
         }
 
