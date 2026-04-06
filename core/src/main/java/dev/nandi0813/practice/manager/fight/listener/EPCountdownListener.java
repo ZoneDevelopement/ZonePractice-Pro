@@ -71,11 +71,11 @@ public class EPCountdownListener implements Listener {
             return;
         }
 
-        int duration = match.getLadder().getWindChargeCooldown();
+        double duration = match.getLadder().getWindChargeCooldown();
         if (duration <= 0) {
             e.setCancelled(true);
         } else {
-            e.setCooldown(duration * 20);
+            e.setCooldown((int) Math.round(duration * 20));
         }
     }
 
@@ -131,7 +131,7 @@ public class EPCountdownListener implements Listener {
             return;
         }
 
-        int duration = windMatch.getLadder().getWindChargeCooldown();
+        double duration = windMatch.getLadder().getWindChargeCooldown();
         if (duration <= 0) {
             return;
         }

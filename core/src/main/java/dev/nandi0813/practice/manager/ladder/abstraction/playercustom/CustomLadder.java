@@ -25,7 +25,7 @@ public class CustomLadder extends Ladder {
     private static final double DEFAULT_HITDELAY = convertHitDelayToMultiplier(PlayerKitManager.getInstance().getInt("DEFAULT-SETTINGS.HITDELAY"));
     private static final int DEFAULT_EP_COOLDOWN = PlayerKitManager.getInstance().getInt("DEFAULT-SETTINGS.EP_COOLDOWN");
     private static final int DEFAULT_GA_COOLDOWN = PlayerKitManager.getInstance().getInt("DEFAULT-SETTINGS.GA_COOLDOWN");
-    private static final int DEFAULT_WIND_CHARGE_COOLDOWN = PlayerKitManager.getInstance().getInt("DEFAULT-SETTINGS.WIND_CHARGE_COOLDOWN");
+    private static final double DEFAULT_WIND_CHARGE_COOLDOWN = PlayerKitManager.getInstance().getDouble("DEFAULT-SETTINGS.WIND_CHARGE_COOLDOWN");
     private static final boolean DEFAULT_HEALTH_BELOW_NAME = PlayerKitManager.getInstance().getBoolean("DEFAULT-SETTINGS.HEALTH_BELOW_NAME");
 
     private static final String NAME_PATH = ".settings.name";
@@ -104,7 +104,11 @@ public class CustomLadder extends Ladder {
         if (config.isString(mapPath + KNOCKBACK_PATH)) ladderKnockback.get(config.getString(mapPath + KNOCKBACK_PATH));
         if (config.isInt(mapPath + EP_COOLDOWN_PATH)) enderPearlCooldown = config.getInt(mapPath + EP_COOLDOWN_PATH);
         if (config.isInt(mapPath + GA_COOLDOWN_PATH)) goldenAppleCooldown = config.getInt(mapPath + GA_COOLDOWN_PATH);
-        if (config.isInt(mapPath + WIND_CHARGE_COOLDOWN_PATH)) windChargeCooldown = Math.clamp(config.getInt(mapPath + WIND_CHARGE_COOLDOWN_PATH), 0, 30);
+        if (config.isDouble(mapPath + WIND_CHARGE_COOLDOWN_PATH)) {
+            windChargeCooldown = Math.clamp(config.getDouble(mapPath + WIND_CHARGE_COOLDOWN_PATH), 0, 30);
+        } else if (config.isInt(mapPath + WIND_CHARGE_COOLDOWN_PATH)) {
+            windChargeCooldown = Math.clamp(config.getInt(mapPath + WIND_CHARGE_COOLDOWN_PATH), 0, 30);
+        }
         if (config.isBoolean(mapPath + HEALTH_BELOW_NAME_PATH)) healthBelowName = config.getBoolean(mapPath + HEALTH_BELOW_NAME_PATH);
 
         kitData.getData(config, mapPath + KIT_DATA_PATH);
