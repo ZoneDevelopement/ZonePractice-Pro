@@ -7,6 +7,8 @@ import dev.nandi0813.practice.manager.gui.setup.ladder.laddersettings.Settings.S
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
+import java.util.Locale;
+
 public class WindChargeCooldownItem extends SettingItem {
 
     public WindChargeCooldownItem(SettingsGui settingsGui, NormalLadder ladder) {
@@ -16,17 +18,17 @@ public class WindChargeCooldownItem extends SettingItem {
     @Override
     public void updateItemStack() {
         guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.WIND-CHARGE-COOLDOWN")
-                .replace("%windChargeCooldown%", String.valueOf(ladder.getWindChargeCooldown()));
+                .replace("%windChargeCooldown%", String.format(Locale.US, "%.1f", ladder.getWindChargeCooldown()));
     }
 
     @Override
     public void clickEvent(InventoryClickEvent e) {
-        int windChargeCooldown = ladder.getWindChargeCooldown();
+        double windChargeCooldown = ladder.getWindChargeCooldown();
 
         if (e.getClick().isLeftClick() && windChargeCooldown > 0)
-            ladder.setWindChargeCooldown(windChargeCooldown - 1);
+            ladder.setWindChargeCooldown(Math.max(0, Math.round((windChargeCooldown - 0.5) * 10.0) / 10.0));
         else if (e.getClick().isRightClick() && windChargeCooldown < 30)
-            ladder.setWindChargeCooldown(windChargeCooldown + 1);
+            ladder.setWindChargeCooldown(Math.min(30, Math.round((windChargeCooldown + 0.5) * 10.0) / 10.0));
 
         build(true);
     }

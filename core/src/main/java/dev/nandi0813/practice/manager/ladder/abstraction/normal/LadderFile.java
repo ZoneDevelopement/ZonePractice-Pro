@@ -218,7 +218,11 @@ public class LadderFile extends ConfigFile {
             ladder.setFireworkRocketCooldown(fireworkCooldown);
         }
 
-        if (config.isInt("settings.windchargecooldown")) {
+        if (config.isDouble("settings.windchargecooldown")) {
+            double windChargeCooldown = config.getDouble("settings.windchargecooldown");
+            if (windChargeCooldown < 0 || windChargeCooldown > 30) windChargeCooldown = 0;
+            ladder.setWindChargeCooldown(windChargeCooldown);
+        } else if (config.isInt("settings.windchargecooldown")) {
             int windChargeCooldown = config.getInt("settings.windchargecooldown");
             if (windChargeCooldown < 0 || windChargeCooldown > 30) windChargeCooldown = 0;
             ladder.setWindChargeCooldown(windChargeCooldown);

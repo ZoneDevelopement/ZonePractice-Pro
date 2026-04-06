@@ -49,7 +49,7 @@ public abstract class Ladder {
     @Setter
     protected int fireworkRocketCooldown = ConfigManager.getInt("MATCH-SETTINGS.FIREWORK-ROCKET.COOLDOWN");
     @Setter
-    protected int windChargeCooldown = ConfigManager.getInt("MATCH-SETTINGS.WIND-CHARGE.COOLDOWN");
+    protected double windChargeCooldown = ConfigManager.getDouble("MATCH-SETTINGS.WIND-CHARGE.COOLDOWN");
 
     protected List<MatchType> matchTypes = new ArrayList<>();
 

@@ -49,13 +49,13 @@ public class ModernItemCooldownHandler {
         }
     }
 
-    public static void handleWindCharge(Player player, int duration, Cancellable event) {
+    public static void handleWindCharge(Player player, double duration, Cancellable event) {
         if (player.hasCooldown(Material.WIND_CHARGE)) {
             if (event != null) {
                 event.setCancelled(true);
             }
         } else {
-            player.setCooldown(Material.WIND_CHARGE, duration * 20);
+            player.setCooldown(Material.WIND_CHARGE, (int) Math.round(duration * 20));
         }
     }
 }

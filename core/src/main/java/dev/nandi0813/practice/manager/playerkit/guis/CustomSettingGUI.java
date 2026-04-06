@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class CustomSettingGUI extends GUI {
 
@@ -68,7 +69,7 @@ public class CustomSettingGUI extends GUI {
         inventory.setItem(HITDELAY_SLOT, StaticItems.HITDELAY_ITEM.cloneItem().replace("%hitdelay%", String.format("%.1f", ladder.getAttackCooldownModifier())).get());
         inventory.setItem(ENDERPEARL_SLOT, StaticItems.ENDERPEARL_ITEM.cloneItem().replace("%epCooldown%", String.valueOf(ladder.getEnderPearlCooldown())).get());
         inventory.setItem(GOLDENAPPLE_SLOT, StaticItems.GAPPLE_ITEM.cloneItem().replace("%gaCooldown%", String.valueOf(ladder.getGoldenAppleCooldown())).get());
-        inventory.setItem(WIND_CHARGE_SLOT, StaticItems.WIND_CHARGE_ITEM.cloneItem().replace("%windChargeCooldown%", String.valueOf(ladder.getWindChargeCooldown())).get());
+        inventory.setItem(WIND_CHARGE_SLOT, StaticItems.WIND_CHARGE_ITEM.cloneItem().replace("%windChargeCooldown%", String.format(Locale.US, "%.1f", ladder.getWindChargeCooldown())).get());
 
         this.updatePlayers();
     }
@@ -127,9 +128,9 @@ public class CustomSettingGUI extends GUI {
                     break;
                 case WIND_CHARGE_SLOT:
                     if (e.isLeftClick() && ladder.getWindChargeCooldown() > 0)
-                        ladder.setWindChargeCooldown(ladder.getWindChargeCooldown() - 1);
+                        ladder.setWindChargeCooldown(Math.max(0, Math.round((ladder.getWindChargeCooldown() - 0.5) * 10.0) / 10.0));
                     else if (e.isRightClick() && ladder.getWindChargeCooldown() < 30)
-                        ladder.setWindChargeCooldown(ladder.getWindChargeCooldown() + 1);
+                        ladder.setWindChargeCooldown(Math.min(30, Math.round((ladder.getWindChargeCooldown() + 0.5) * 10.0) / 10.0));
                     break;
                 default:
                     return;
