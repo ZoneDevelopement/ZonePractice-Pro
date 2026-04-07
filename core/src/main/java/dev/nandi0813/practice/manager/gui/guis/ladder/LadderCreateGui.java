@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class LadderCreateGui extends GUI {
 
-    private static final int[] CONTENT_SLOTS = {10, 11, 12, 13, 14, 15, 16, 20, 21, 22, 23, 24, 25};
+    private static final int[] CONTENT_SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24};
 
     private final String ladderName;
     @Getter
