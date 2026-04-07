@@ -78,10 +78,10 @@ public class Statistic {
             endPotionEffects.addAll(player.getActivePotionEffects());
             endArmor = player.getInventory().getArmorContents();
             endInventory = player.getInventory().getContents();
-        }
 
-        StatisticListener.getCURRENT_CPS().remove(player);
-        StatisticListener.getCURRENT_COMBO().remove(player);
+            StatisticListener.getCURRENT_CPS().remove(player);
+            StatisticListener.getCURRENT_COMBO().remove(player);
+        }
     }
 
 }

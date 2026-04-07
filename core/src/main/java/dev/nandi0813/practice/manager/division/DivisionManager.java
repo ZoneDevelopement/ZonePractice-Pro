@@ -18,6 +18,7 @@ import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public class DivisionManager extends ConfigFile implements Listener {
@@ -204,6 +205,10 @@ public class DivisionManager extends ConfigFile implements Listener {
 
         for (Player player : match.getPlayers()) {
             Profile profile = ProfileManager.getInstance().getProfile(player);
+            if (profile == null || profile.getStats() == null) {
+                continue;
+            }
+
             profile.getStats().setExperience(profile.getStats().getExperience() + expReceived);
 
             Common.sendMMMessage(player, LanguageManager.getString("MATCH.EXP-RECEIVED").replace("%exp%", String.valueOf(expReceived)));
@@ -211,10 +216,10 @@ public class DivisionManager extends ConfigFile implements Listener {
             Division oldDivision = profile.getStats().getDivision();
             Division newDivision = this.getDivision(profile);
 
-            if (oldDivision != newDivision) {
+            if (!Objects.equals(oldDivision, newDivision)) {
                 profile.getStats().setDivision(newDivision);
 
-                if (this.newDivisionMessageEnabled) {
+                if (this.newDivisionMessageEnabled && oldDivision != null && newDivision != null) {
                     Common.sendMMMessage(player, LanguageManager.getString("MATCH.REACHED-NEW-DIVISION")
                             .replace("%newDivision_fullName%", newDivision.getFullName())
                             .replace("%newDivision_shortName%", newDivision.getShortName())

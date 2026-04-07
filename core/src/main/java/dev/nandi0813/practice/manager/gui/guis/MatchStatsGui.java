@@ -56,13 +56,18 @@ public class MatchStatsGui extends GUI {
 
         Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
         {
+            String playerName = player.getName();
+            if (playerName == null || playerName.isBlank()) {
+                playerName = uuid.toString();
+            }
+
             int round = 1;
             while (stats.containsKey(round)) {
                 String title;
                 if (match.getLadder().getRounds() == 1)
-                    title = GUIFile.getString("GUIS.MATCH-STATISTICS.TITLE.SINGLE-ROUND").replace("%player%", Objects.requireNonNull(player.getName()));
+                    title = GUIFile.getString("GUIS.MATCH-STATISTICS.TITLE.SINGLE-ROUND").replace("%player%", playerName);
                 else
-                    title = GUIFile.getString("GUIS.MATCH-STATISTICS.TITLE.MULTIPLE-ROUND").replace("%player%", Objects.requireNonNull(player.getName())).replace("%round%", String.valueOf(round));
+                    title = GUIFile.getString("GUIS.MATCH-STATISTICS.TITLE.MULTIPLE-ROUND").replace("%player%", playerName).replace("%round%", String.valueOf(round));
                 gui.put(round, InventoryUtil.createInventory(title, 6));
 
                 Statistic roundStatistic = stats.get(round);

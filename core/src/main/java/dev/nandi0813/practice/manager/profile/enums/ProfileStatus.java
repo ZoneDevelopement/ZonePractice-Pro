@@ -7,6 +7,7 @@ public enum ProfileStatus {
     EDITOR, // Player is in the kit editor GUI.
     CUSTOM_EDITOR, // Player is in the custom kit editor GUI.
     QUEUE, // Player is waiting in queue.
+    STARTING, // Player is in the match countdown.
     MATCH, // Player is in a match.
     FFA,
     EVENT, // Player is in an event.

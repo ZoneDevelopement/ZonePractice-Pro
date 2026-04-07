@@ -4,6 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.duel.bot.PvPBotManager;
+import dev.nandi0813.practice.manager.duel.bot.PvPBotTrait;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -28,6 +29,7 @@ public class DuelManager {
     private final Map<Player, Player> pendingRequestTarget = new HashMap<>();
     private final Set<Player> pendingBotRequests = new HashSet<>();
     private final Map<Player, List<DuelRequest>> requests = new HashMap<>();
+    private final Map<Player, PvPBotTrait.BotDifficulty> pendingBotDifficulty = new HashMap<>();
 
     public boolean isRequested(Player sender, Player target) {
         if (requests.containsKey(target))
@@ -97,6 +99,15 @@ public class DuelManager {
     public void clearPendingTarget(Player sender) {
         pendingRequestTarget.remove(sender);
         pendingBotRequests.remove(sender);
+        pendingBotDifficulty.remove(sender);
+    }
+
+    public void setBotDifficulty(Player player, PvPBotTrait.BotDifficulty difficulty) {
+        pendingBotDifficulty.put(player, difficulty);
+    }
+
+    public PvPBotTrait.BotDifficulty getBotDifficulty(Player player) {
+        return pendingBotDifficulty.getOrDefault(player, PvPBotTrait.BotDifficulty.NORMAL);
     }
 
     public boolean requestBotDuel(Player player, Ladder ladder, Arena arena, int rounds) {

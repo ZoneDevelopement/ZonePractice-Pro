@@ -1,7 +1,9 @@
 package dev.nandi0813.practice.command.singlecommands;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.duel.DuelManager;
+import dev.nandi0813.practice.manager.duel.guis.BotDifficultyGUI;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
 import dev.nandi0813.practice.manager.gui.guis.selectors.LadderSelectorGui;
 import dev.nandi0813.practice.manager.profile.Profile;
@@ -48,7 +50,18 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
 
         if (args[0].equalsIgnoreCase("bot")) {
             DuelManager.getInstance().setPendingBotTarget(player);
-            new LadderSelectorGui(profile, MatchType.DUEL).open(player);
+            // Open bot difficulty selector first, then ladder selector
+            BotDifficultyGUI difficultyGUI = new BotDifficultyGUI((botPlayer, difficulty) -> {
+                DuelManager.getInstance().setBotDifficulty(botPlayer, difficulty);
+                // Schedule opening ladder GUI on next tick to ensure proper timing
+                Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+                    Profile currentProfile = ProfileManager.getInstance().getProfile(botPlayer);
+                    if (currentProfile != null) {
+                        new LadderSelectorGui(currentProfile, MatchType.DUEL).open(botPlayer);
+                    }
+                });
+            });
+            difficultyGUI.open(player);
             return true;
         }
 

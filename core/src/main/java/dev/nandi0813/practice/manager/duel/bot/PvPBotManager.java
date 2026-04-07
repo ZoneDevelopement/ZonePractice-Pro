@@ -1,9 +1,12 @@
 package dev.nandi0813.practice.manager.duel.bot;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.NormalArena;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.duel.DuelManager;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
+import dev.nandi0813.practice.manager.fight.match.listener.BotDeathListener;
 import dev.nandi0813.practice.manager.fight.match.type.duel.BotDuel;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
@@ -52,6 +55,7 @@ public class PvPBotManager {
         }
 
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(PvPBotTrait.class).withName(PvPBotTrait.TRAIT_NAME));
+        Bukkit.getPluginManager().registerEvents(new BotDeathListener(), ZonePractice.getInstance());
     }
 
     public void shutdown() {
@@ -137,10 +141,14 @@ public class PvPBotManager {
 
         equipNpcFromKit(npc, normalLadder);
 
-        PvPBotTrait trait = npc.getOrAddTrait(PvPBotTrait.class);
-        trait.setControllerPlayerId(player.getUniqueId());
-        trait.setTargetPlayerId(player.getUniqueId());
-        trait.setArenaBounds(activeArena.getCuboid());
+         PvPBotTrait trait = npc.getOrAddTrait(PvPBotTrait.class);
+         trait.setControllerPlayerId(player.getUniqueId());
+         trait.setTargetPlayerId(player.getUniqueId());
+         trait.setArenaBounds(activeArena.getCuboid());
+
+         // Apply the selected bot difficulty from DuelManager
+         PvPBotTrait.BotDifficulty difficulty = DuelManager.getInstance().getBotDifficulty(player);
+         trait.setDifficulty(difficulty);
 
         BotDuel duel = new BotDuel(ladder, selectedArena, player, botPlayer, npc, rounds);
         duel.startMatch();

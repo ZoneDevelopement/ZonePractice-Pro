@@ -123,4 +123,7 @@ public enum GUIType {
     // Match History
     MatchHistory_Gui,
 
+    // Bot Configuration
+    Bot_DifficultySelector,
+
 }

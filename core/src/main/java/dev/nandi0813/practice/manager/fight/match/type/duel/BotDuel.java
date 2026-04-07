@@ -48,7 +48,18 @@ public class BotDuel extends Duel {
             return;
         }
 
-        super.removePlayer(player, quit);
+        // When human player leaves, also cleanup the bot
+        try {
+            super.removePlayer(player, quit);
+        } finally {
+            // Ensure bot is cleaned up when match ends
+            if (players.contains(botPlayer)) {
+                players.remove(botPlayer);
+                MatchManager.getInstance().getPlayerMatches().remove(botPlayer);
+                removePlayerFromBelowName(botPlayer);
+                PvPBotManager.getInstance().cleanupBot(this);
+            }
+        }
     }
 
     private static final class BotRound extends DuelRound {
