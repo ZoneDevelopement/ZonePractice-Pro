@@ -92,11 +92,16 @@ public class ProfileManager {
                     if (profileFile.isFile() && profileFile.getName().endsWith(".yml")) {
                         YamlConfiguration config = YamlConfiguration.loadConfiguration(profileFile);
                         String uuidString = config.getString("uuid");
+                        UUID uuid = parseUuid(uuidString);
 
-                        UUID uuid = UUID.fromString(uuidString);
+                        if (uuid == null) {
+                            Common.sendConsoleMMMessage("<yellow>Warning: Skipping corrupted profile file <white>" + profileFile.getName() + "<yellow> (invalid or missing uuid: <white>" + uuidString + "<yellow>)");
+                            continue;
+                        }
+
                         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
 
-                        if (offlinePlayer != null && offlinePlayer.getName() != null) {
+                        if (offlinePlayer.getName() != null) {
                             Profile profile = new Profile(uuid, offlinePlayer);
                             profile.getData();
                             profiles.put(uuid, profile);
@@ -114,6 +119,16 @@ public class ProfileManager {
                 Bukkit.getScheduler().runTask(ZonePractice.getInstance(), startUpCallback::onLoadingDone);
             });
         });
+    }
+
+    private UUID parseUuid(String uuidString) {
+        if (uuidString == null || uuidString.isBlank()) return null;
+
+        try {
+            return UUID.fromString(uuidString.trim());
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
     }
 
     public void loadAllProfileInformations() {
