@@ -39,6 +39,7 @@ public class PvPBotTrait extends Trait {
     private final AtomicLong requestCounter = new AtomicLong(0L);
     private final AtomicLong lastAppliedRequest = new AtomicLong(0L);
     private final AtomicLong lastRmbUseMillis = new AtomicLong(0L);
+    private int itemUseTickCounter = 0;
 
     public PvPBotTrait() {
         super("neural_bot");
@@ -179,43 +180,44 @@ public class PvPBotTrait extends Trait {
             return;
         }
 
-        float newYaw = botPlayer.getYaw() + (pred.getDeltaYaw() * 180f);
-        float newPitch = clamp(botPlayer.getPitch() + (pred.getDeltaPitch() * 90f), -90f, 90f);
-        botPlayer.setRotation(newYaw, newPitch);
+        if (!npc.getNavigator().isNavigating()) {
+            float newYaw = botPlayer.getYaw() + (pred.getDeltaYaw() * 180f);
+            float newPitch = clamp(botPlayer.getPitch() + (pred.getDeltaPitch() * 90f), -90f, 90f);
+            botPlayer.setRotation(newYaw, newPitch);
 
-        Vector forward = botPlayer.getLocation().getDirection().setY(0).normalize();
-        Vector right = forward.clone().crossProduct(new Vector(0, 1, 0));
+            Vector forward = botPlayer.getLocation().getDirection().setY(0).normalize();
+            Vector right = forward.clone().crossProduct(new Vector(0, 1, 0));
 
-        Vector movement = new Vector();
-        if (pred.getInputForward() > 0.5f) {
-            movement.add(forward);
-        }
-        if (pred.getInputBackward() > 0.5f) {
-            movement.subtract(forward);
-        }
-        if (pred.getInputRight() > 0.5f) {
-            movement.add(right);
-        }
-        if (pred.getInputLeft() > 0.5f) {
-            movement.subtract(right);
-        }
+            Vector movement = new Vector();
+            if (pred.getInputForward() > 0.5f) {
+                movement.add(forward);
+            }
+            if (pred.getInputBackward() > 0.5f) {
+                movement.subtract(forward);
+            }
+            if (pred.getInputRight() > 0.5f) {
+                movement.add(right);
+            }
+            if (pred.getInputLeft() > 0.5f) {
+                movement.subtract(right);
+            }
 
-        Vector currentVelocity = botPlayer.getVelocity();
-        if (movement.lengthSquared() > 0) {
-            movement.normalize().multiply(pred.getInputSprint() > 0.5f ? 0.28 : 0.22);
-            movement.setY(currentVelocity.getY());
-        } else {
-            // Keep horizontal momentum so knockback and friction remain server-driven.
-            movement.setX(currentVelocity.getX());
-            movement.setY(currentVelocity.getY());
-            movement.setZ(currentVelocity.getZ());
-        }
+            Vector currentVelocity = botPlayer.getVelocity();
+            if (movement.lengthSquared() > 0) {
+                movement.normalize().multiply(pred.getInputSprint() > 0.5f ? 0.28 : 0.22);
+                movement.setY(currentVelocity.getY());
+            } else {
+                movement.setX(currentVelocity.getX());
+                movement.setY(currentVelocity.getY());
+                movement.setZ(currentVelocity.getZ());
+            }
 
-        if (pred.getInputJump() > 0.5f && botPlayer.isOnGround()) {
-            movement.setY(0.42);
-        }
+            if (pred.getInputJump() > 0.5f && botPlayer.isOnGround()) {
+                movement.setY(0.42);
+            }
 
-        botPlayer.setVelocity(movement);
+            botPlayer.setVelocity(movement);
+        }
 
         botPlayer.setSneaking(pred.getInputSneak() > 0.5f);
         botPlayer.setSprinting(pred.getInputSprint() > 0.5f);
@@ -248,12 +250,21 @@ public class PvPBotTrait extends Trait {
                 ThrownPotion potion = botPlayer.launchProjectile(ThrownPotion.class);
                 potion.setItem(singleItemCopy(inMainHand));
                 decrementMainHand(botPlayer);
-            }
-
-            if (heldType == Material.ENDER_PEARL && shouldUseRmbNow(950L)) {
+                itemUseTickCounter = 0;
+            } else if (heldType == Material.ENDER_PEARL && shouldUseRmbNow(950L)) {
                 botPlayer.launchProjectile(EnderPearl.class);
                 decrementMainHand(botPlayer);
+                itemUseTickCounter = 0;
+            } else if (heldType == Material.GOLDEN_APPLE || heldType == Material.POTION || heldType.isEdible()) {
+                itemUseTickCounter++;
+                if (itemUseTickCounter >= 32) {
+                    botPlayer.setFoodLevel(Math.min(botPlayer.getFoodLevel() + 4, 20));
+                    decrementMainHand(botPlayer);
+                    itemUseTickCounter = 0;
+                }
             }
+        } else {
+            itemUseTickCounter = 0;
         }
     }
 
@@ -268,12 +279,13 @@ public class PvPBotTrait extends Trait {
     }
 
     private void ensureAggressivePursuit(Player botPlayer) {
-        if (target == null || !target.isOnline()) {
-            return;
-        }
+        if (target == null || !target.isOnline()) return;
 
         double distanceSquared = botPlayer.getLocation().distanceSquared(target.getLocation());
         if (distanceSquared <= 6.25D) {
+            if (npc.getNavigator().isNavigating()) {
+                npc.getNavigator().cancelNavigation();
+            }
             return;
         }
 
@@ -294,7 +306,7 @@ public class PvPBotTrait extends Trait {
         }
 
         item.setAmount(item.getAmount() - 1);
-        player.getInventory().setItemInMainHand(item);
+            player.getInventory().setItemInMainHand(item);
     }
 
     private static ItemStack singleItemCopy(ItemStack source) {
@@ -304,7 +316,6 @@ public class PvPBotTrait extends Trait {
     }
 
     private static float clamp(float value, float min, float max) {
-        return Math.clamp(value, min, max);
+        return Math.max(min, Math.min(max, value));
     }
 }
-
