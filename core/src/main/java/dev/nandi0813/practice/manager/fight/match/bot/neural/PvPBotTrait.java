@@ -66,6 +66,8 @@ public class PvPBotTrait extends Trait {
             return;
         }
 
+        ensureAggressivePursuit(botPlayer);
+
         GameState state = buildGameState(botPlayer, target);
         JavaPlugin resolvedPlugin = resolvePlugin();
         long requestId = requestCounter.incrementAndGet();
@@ -263,6 +265,21 @@ public class PvPBotTrait extends Trait {
         }
         lastRmbUseMillis.set(now);
         return true;
+    }
+
+    private void ensureAggressivePursuit(Player botPlayer) {
+        if (target == null || !target.isOnline()) {
+            return;
+        }
+
+        double distanceSquared = botPlayer.getLocation().distanceSquared(target.getLocation());
+        if (distanceSquared <= 6.25D) {
+            return;
+        }
+
+        if (!npc.getNavigator().isNavigating()) {
+            npc.getNavigator().setTarget(target, true);
+        }
     }
 
     private static void decrementMainHand(Player player) {

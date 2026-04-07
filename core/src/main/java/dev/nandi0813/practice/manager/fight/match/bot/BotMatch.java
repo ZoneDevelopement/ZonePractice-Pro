@@ -22,6 +22,7 @@ import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.trait.trait.Equipment;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -35,6 +36,7 @@ public class BotMatch extends Match implements Team {
     public static final String BOT_DISPLAY_NAME = "PvP Bot";
 
     private NPC botNpc;
+    private int spawnedRoundNumber = -1;
 
     private final Player player;
     private Object matchWinner;
@@ -68,7 +70,7 @@ public class BotMatch extends Match implements Team {
         }
 
         round.startRound();
-        spawnBot(arena.getPosition2() != null ? arena.getPosition2() : arena.getPosition1());
+        spawnBot(arena.getPosition2() != null ? arena.getPosition2() : arena.getPosition1(), round.getRoundNumber());
     }
 
     @Override
@@ -123,6 +125,10 @@ public class BotMatch extends Match implements Team {
         players.remove(player);
         MatchManager.getInstance().getPlayerMatches().remove(player);
 
+        if (players.isEmpty()) {
+            despawnBot();
+        }
+
         if (quit && !this.status.equals(MatchStatus.END) && !this.status.equals(MatchStatus.OVER)) {
             this.getCurrentStat(player).end(true);
             this.sendMessage(
@@ -163,35 +169,27 @@ public class BotMatch extends Match implements Team {
 
     @Override
     public void endMatch() {
-        despawnBot();
-        super.endMatch();
+        try {
+            super.endMatch();
+        } finally {
+            despawnBot();
+        }
     }
 
     @Override
     public TeamEnum getTeam(Player player) { return TeamEnum.TEAM1; }
 
-    private void spawnBot(Location spawnLoc) {
+    private void spawnBot(Location spawnLoc, int roundNumber) {
+        if (spawnedRoundNumber == roundNumber && botNpc != null && botNpc.isSpawned()) {
+            return;
+        }
+
+        despawnBot();
         NPC npc = BotSpawnerUtil.spawnNeuralBot(ZonePractice.getInstance(), spawnLoc, player, this);
+        spawnedRoundNumber = roundNumber;
         this.botNpc = npc;
 
-        if (npc.getEntity() instanceof Player botPlayer) {
-            ItemStack[] storage = ladder.getKitData().getStorage();
-            if (storage != null) {
-                for (int i = 0; i < Math.min(storage.length, 36); i++) {
-                    ItemStack item = storage[i];
-                    botPlayer.getInventory().setItem(i, item == null ? null : item.clone());
-                }
-            }
-
-            ItemStack[] armor = ladder.getKitData().getArmor();
-            if (armor != null) {
-                ItemStack[] clonedArmor = new ItemStack[4];
-                for (int i = 0; i < Math.min(armor.length, 4); i++) {
-                    clonedArmor[i] = armor[i] == null ? null : armor[i].clone();
-                }
-                botPlayer.getInventory().setArmorContents(clonedArmor);
-            }
-        }
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> applyLoadoutAfterSpawn(npc));
 
         if (npc.getEntity() != null) {
             for (org.bukkit.entity.Player online : Bukkit.getOnlinePlayers()) {
@@ -202,14 +200,68 @@ public class BotMatch extends Match implements Team {
         }
     }
 
+    private void applyLoadoutAfterSpawn(NPC npc) {
+        if (botNpc == null || botNpc != npc || !npc.isSpawned()) {
+            return;
+        }
+        if (!(npc.getEntity() instanceof Player botPlayer)) {
+            return;
+        }
+
+        ItemStack[] storage = ladder.getKitData().getStorage();
+        if (storage != null) {
+            for (int i = 0; i < Math.min(storage.length, 36); i++) {
+                botPlayer.getInventory().setItem(i, cloneItem(storage[i]));
+            }
+        }
+
+        ItemStack[] armor = ladder.getKitData().getArmor();
+        if (armor != null) {
+            Equipment equipment = npc.getOrAddTrait(Equipment.class);
+            equipment.set(Equipment.EquipmentSlot.BOOTS, cloneArmorSlot(armor, 0));
+            equipment.set(Equipment.EquipmentSlot.LEGGINGS, cloneArmorSlot(armor, 1));
+            equipment.set(Equipment.EquipmentSlot.CHESTPLATE, cloneArmorSlot(armor, 2));
+            equipment.set(Equipment.EquipmentSlot.HELMET, cloneArmorSlot(armor, 3));
+
+            // Keep Bukkit inventory in sync for combat state export.
+            ItemStack[] clonedArmor = new ItemStack[4];
+            for (int i = 0; i < Math.min(armor.length, 4); i++) {
+                clonedArmor[i] = cloneItem(armor[i]);
+            }
+            botPlayer.getInventory().setArmorContents(clonedArmor);
+        }
+    }
+
     private void despawnBot() {
         if (botNpc == null) return;
         final NPC npc = botNpc;
-        botNpc      = null;
-        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
-            if (npc.isSpawned()) npc.despawn();
+        botNpc = null;
+        spawnedRoundNumber = -1;
+
+        Runnable cleanup = () -> {
+            if (npc.isSpawned()) {
+                npc.despawn();
+            }
             npc.destroy();
-        });
+            net.citizensnpcs.api.CitizensAPI.getNPCRegistry().deregister(npc);
+        };
+
+        if (Bukkit.isPrimaryThread()) {
+            cleanup.run();
+        } else {
+            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), cleanup);
+        }
+    }
+
+    private static ItemStack cloneArmorSlot(ItemStack[] armor, int index) {
+        if (armor == null || index < 0 || index >= armor.length) {
+            return null;
+        }
+        return cloneItem(armor[index]);
+    }
+
+    private static ItemStack cloneItem(ItemStack itemStack) {
+        return itemStack == null ? null : itemStack.clone();
     }
 
     public void onBotDied(Player humanWinner) {

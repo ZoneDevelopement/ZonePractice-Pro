@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.fight.match.bot.neural;
 
 import dev.nandi0813.practice.manager.fight.match.bot.BotMatch;
 import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.ai.NavigatorParameters;
 import net.citizensnpcs.api.ai.PathfinderType;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.TraitInfo;
@@ -23,9 +24,16 @@ public final class BotSpawnerUtil {
         registerTrait();
 
         NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "PvP Bot");
+        npc.setProtected(false);
 
-        npc.getNavigator().getDefaultParameters().avoidWater(false);
-        npc.getNavigator().getDefaultParameters().pathfinderType(PathfinderType.PLUGIN);
+        NavigatorParameters navigator = npc.getNavigator().getDefaultParameters();
+        navigator.avoidWater(false);
+        navigator.pathfinderType(PathfinderType.MINECRAFT);
+        navigator.distanceMargin(1.15D);
+        navigator.attackRange(3.2D);
+        navigator.attackDelayTicks(8);
+        navigator.speedModifier(1.2F);
+        navigator.stationaryTicks(0);
         npc.getDefaultBehaviorController().clear();
         npc.getNavigator().cancelNavigation();
 
@@ -37,6 +45,9 @@ public final class BotSpawnerUtil {
         skinTrait.setSkinName(target != null ? target.getName() : "Dream");
 
         npc.spawn(spawnLocation);
+        if (target != null && target.isOnline()) {
+            npc.getNavigator().setTarget(target, true);
+        }
         return npc;
     }
 
