@@ -21,6 +21,7 @@ import dev.nandi0813.practice.manager.arena.setup.SpawnMarkerManager;
 import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.*;
 import dev.nandi0813.practice.manager.division.DivisionManager;
+import dev.nandi0813.practice.manager.duel.bot.PvPBotManager;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAListener;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
@@ -159,6 +160,7 @@ public final class ZonePractice extends JavaPlugin {
 
         this.registerCommands(Bukkit.getServer());
         this.registerListeners(Bukkit.getPluginManager());
+        PvPBotManager.getInstance().initialize();
 
         ServerManager.getInstance().loadLobby();
         InventoryManager.getInstance().loadInventories();
@@ -237,6 +239,7 @@ public final class ZonePractice extends JavaPlugin {
         // Clear all event spawn markers
         dev.nandi0813.practice.manager.fight.event.setup.EventSpawnMarkerManager.getInstance().clearAllMarkers();
 
+        PvPBotManager.getInstance().shutdown();
         MatchManager.getInstance().endMatches();
         FFAManager.getInstance().endFFAs();
         HologramManager.getInstance().saveAndDespawnHolograms(); // Use saveAndDespawn for shutdown to clean up armor stands

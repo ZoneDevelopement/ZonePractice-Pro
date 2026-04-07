@@ -158,15 +158,24 @@ public class LadderSelectorGui extends GUI {
             } else if (player.hasPermission("zpp.duel.selectrounds") && ladder instanceof NormalLadder) {
                 new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
             } else {
-                Player target = DuelManager.getInstance().getPendingRequestTarget().get(player);
-                DuelRequest request = new DuelRequest(player, target, ladder, null, ladder.getRounds());
+                if (DuelManager.getInstance().isPendingBotRequest(player)) {
+                    boolean started = DuelManager.getInstance().requestBotDuel(player, ladder, null, ladder.getRounds());
+                    if (!started) {
+                        Common.sendMMMessage(player, LanguageManager.getString("LADDER.SELECTOR.LADDER-NOT-AVAILABLE"));
+                    }
+                    player.closeInventory();
+                    return;
+                }
 
-                if (target.isOnline())
-                    DuelManager.getInstance().sendRequest(request);
-                else {
+                Player target = DuelManager.getInstance().getPendingPlayerTarget(player);
+                if (target == null || !target.isOnline()) {
                     Common.sendMMMessage(player, LanguageManager.getString("LADDER.SELECTOR.DUEL.TARGET-LEFT"));
                     player.closeInventory();
+                    return;
                 }
+
+                DuelRequest request = new DuelRequest(player, target, ladder, null, ladder.getRounds());
+                DuelManager.getInstance().sendRequest(request);
             }
         }
         /*

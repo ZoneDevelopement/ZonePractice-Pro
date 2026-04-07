@@ -155,9 +155,11 @@ public class StatisticListener implements Listener {
 
         if (!(e.getDamager() instanceof Player attacker)) return;
         Profile attackerProfile = ProfileManager.getInstance().getProfile(attacker);
+        if (attackerProfile == null) return;
 
         if (!(e.getEntity() instanceof Player defender)) return;
         Profile defenderProfile = ProfileManager.getInstance().getProfile(defender);
+        if (defenderProfile == null) return;
 
         Statistic attackerStats = null;
         Statistic defenderStats = null;

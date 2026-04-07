@@ -46,6 +46,12 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
             return false;
         }
 
+        if (args[0].equalsIgnoreCase("bot")) {
+            DuelManager.getInstance().setPendingBotTarget(player);
+            new LadderSelectorGui(profile, MatchType.DUEL).open(player);
+            return true;
+        }
+
         Player target = Bukkit.getPlayer(args[0]);
         Profile targetProfile = ProfileManager.getInstance().getProfile(target);
         if (target == null || targetProfile == null) {
@@ -78,7 +84,7 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        DuelManager.getInstance().getPendingRequestTarget().put(player, target);
+        DuelManager.getInstance().setPendingPlayerTarget(player, target);
         new LadderSelectorGui(profile, MatchType.DUEL).open(player);
 
         return true;
@@ -95,6 +101,8 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
         if (!profile.getStatus().equals(ProfileStatus.LOBBY) || profile.isParty()) return arguments;
 
         if (args.length == 1) {
+            arguments.add("bot");
+
             for (Player target : Bukkit.getOnlinePlayers()) {
                 if (player.equals(target)) {
                     continue;

@@ -7,6 +7,7 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchType;
+import dev.nandi0813.practice.manager.fight.match.type.duel.BotDuel;
 import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
 import dev.nandi0813.practice.manager.fight.match.util.DeleteRunnable;
 import dev.nandi0813.practice.manager.fight.match.util.RematchRequest;
@@ -73,6 +74,7 @@ public class MatchLifecycleListener implements Listener {
         // Set rematch request items
         if (ZonePractice.getInstance().isEnabled() &&
                 match.getType().equals(MatchType.DUEL) &&
+                !(match instanceof BotDuel) &&
                 ConfigManager.getBoolean("MATCH-SETTINGS.REMATCH.ENABLED")) {
 
             boolean sendRematchRequest = true;

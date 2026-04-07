@@ -150,6 +150,9 @@ public class InventoryListener implements Listener {
         if (!(e.getDamager() instanceof Player player)) return;
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) {
+            return;
+        }
 
         if (isNpcEntity(e.getEntity())) {
             return;

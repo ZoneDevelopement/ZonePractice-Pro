@@ -113,9 +113,10 @@ public class ArenaSelectorGui extends MatchStarterGui {
          * Duel games arena selector
          */
         if (party == null) {
-            Player target = DuelManager.getInstance().getPendingRequestTarget().get(player);
+            boolean botTarget = DuelManager.getInstance().isPendingBotRequest(player);
+            Player target = botTarget ? null : DuelManager.getInstance().getPendingPlayerTarget(player);
 
-            if (!target.isOnline()) {
+            if (!botTarget && (target == null || !target.isOnline())) {
                 Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.DUEL.TARGET-LEFT"));
                 player.closeInventory();
                 return;
@@ -124,8 +125,10 @@ public class ArenaSelectorGui extends MatchStarterGui {
             if (slot == 49) {
                 if (player.hasPermission("zpp.duel.selectrounds") && ladder instanceof NormalLadder) {
                     new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
+                } else if (botTarget) {
+                    DuelManager.getInstance().requestBotDuel(player, ladder, null, ladder.getRounds());
+                    player.closeInventory();
                 } else {
-                    // Send the duel request
                     DuelManager.getInstance().sendRequest(new DuelRequest(player, target, ladder, null, ladder.getRounds()));
                     player.closeInventory();
                 }
@@ -141,8 +144,10 @@ public class ArenaSelectorGui extends MatchStarterGui {
 
                 if (player.hasPermission("zpp.duel.selectrounds") && ladder instanceof NormalLadder) {
                     new DuelRoundSelectorGui(matchType, ladder, arena, this).open(player);
+                } else if (botTarget) {
+                    DuelManager.getInstance().requestBotDuel(player, ladder, arena, ladder.getRounds());
+                    player.closeInventory();
                 } else {
-                    // Send the duel request
                     DuelManager.getInstance().sendRequest(new DuelRequest(player, target, ladder, arena, ladder.getRounds()));
                 }
             }

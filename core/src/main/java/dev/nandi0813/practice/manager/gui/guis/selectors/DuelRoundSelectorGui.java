@@ -153,9 +153,15 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
              * Duel games arena selector
              */
             if (party == null) {
-                Player target = DuelManager.getInstance().getPendingRequestTarget().get(player);
+                if (DuelManager.getInstance().isPendingBotRequest(player)) {
+                    DuelManager.getInstance().requestBotDuel(player, ladder, arena, rounds);
+                    player.closeInventory();
+                    return;
+                }
 
-                if (!target.isOnline()) {
+                Player target = DuelManager.getInstance().getPendingPlayerTarget(player);
+
+                if (target == null || !target.isOnline()) {
                     Common.sendMMMessage(player, LanguageManager.getString("DUEL-ROUND-SELECTOR.ENEMY-OFFLINE"));
                     player.closeInventory();
                     return;
