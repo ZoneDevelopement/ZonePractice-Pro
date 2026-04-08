@@ -108,7 +108,7 @@ public class DeathEffectsGui extends GUI {
     private void handleEffectClick(Player player, DeathEffect deathEffect) {
         // Permission check
         if (deathEffect != DeathEffect.NONE && !player.isOp()
-                && !player.hasPermission("zpp.cosmetics.killeffect.*")
+                && !player.hasPermission("zpp.cosmetics.deatheffect.*")
                 && !CosmeticsPermissionManager.hasDeathEffectPermission(player, deathEffect)) {
             String msg = GUIFile.getConfig().getString(
                     "GUIS.COSMETICS.DEATH-EFFECTS.NO-PERMISSION-MESSAGE",
@@ -138,7 +138,7 @@ public class DeathEffectsGui extends GUI {
 
         boolean isActive = (deathEffect == active);
         boolean hasPerms = player == null || player.isOp()
-                || player.hasPermission("zpp.cosmetics.killeffect.*")
+                || player.hasPermission("zpp.cosmetics.deatheffect.*")
                 || CosmeticsPermissionManager.hasDeathEffectPermission(player, deathEffect)
                 || deathEffect == DeathEffect.NONE;
 
