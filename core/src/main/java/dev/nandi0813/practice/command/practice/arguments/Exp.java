@@ -17,14 +17,24 @@ public enum Exp {
     ;
 
     public static void run(Player player, String label, String[] args) {
-        Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
+        if (args.length < 2) {
+            sendHelp(player, label);
+            return;
+        }
 
-        if (args.length == 3 && args[1].equalsIgnoreCase("reset")) // /prac exp reset <player>
+        if (args[1].equalsIgnoreCase("reset")) // /prac exp reset <player>
         {
+            if (args.length != 3) {
+                sendHelp(player, label);
+                return;
+            }
+
             if (!player.hasPermission("zpp.practice.exp.reset")) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
                 return;
             }
+
+            Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
 
             if (get(player, args, target)) return;
 
@@ -34,16 +44,30 @@ public enum Exp {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-RESET")
                     .replace("%target%", target.getPlayer().getName())
             );
-        } else if (args.length == 4 && args[1].equalsIgnoreCase("add")) // /prac exp add <player> <number>
+        } else if (args[1].equalsIgnoreCase("add")) // /prac exp add <player> <number>
         {
+            if (args.length != 4) {
+                sendHelp(player, label);
+                return;
+            }
+
             if (!player.hasPermission("zpp.practice.exp.add")) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
                 return;
             }
 
+            Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
+
             if (get(player, args, target)) return;
 
-            final int extraExp = Integer.parseInt(args[3]);
+            final int extraExp;
+            try {
+                extraExp = Integer.parseInt(args[3]);
+            } catch (NumberFormatException exception) {
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.INVALID-NUMBER"));
+                return;
+            }
+
             if (extraExp <= 0) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.INVALID-NUMBER"));
                 return;
@@ -59,14 +83,28 @@ public enum Exp {
             );
         } else if (args[1].equalsIgnoreCase("set")) // /prac exp set <player> <number>
         {
+            if (args.length != 4) {
+                sendHelp(player, label);
+                return;
+            }
+
             if (!player.hasPermission("zpp.practice.exp.set")) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
                 return;
             }
 
+            Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
+
             if (get(player, args, target)) return;
 
-            final int setExp = Integer.parseInt(args[3]);
+            final int setExp;
+            try {
+                setExp = Integer.parseInt(args[3]);
+            } catch (NumberFormatException exception) {
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.INVALID-NUMBER"));
+                return;
+            }
+
             if (setExp <= 0) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.INVALID-NUMBER"));
                 return;
@@ -80,10 +118,7 @@ public enum Exp {
                     .replace("%target%", target.getPlayer().getName())
             );
         } else {
-            if (player.hasPermission("zpp.practice.exp.reset") || player.hasPermission("zpp.practice.exp.set") || player.hasPermission("zpp.practice.exp.add")) {
-                for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.COMMAND-HELP"))
-                    Common.sendMMMessage(player, line.replace("%label%", label));
-            }
+            sendHelp(player, label);
         }
     }
 
@@ -102,10 +137,20 @@ public enum Exp {
     }
 
     public static void run(String label, String[] args) {
-        Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
+        if (args.length < 2) {
+            sendHelp(label);
+            return;
+        }
 
-        if (args.length == 3 && args[1].equalsIgnoreCase("reset")) // /prac exp reset <player>
+        if (args[1].equalsIgnoreCase("reset")) // /prac exp reset <player>
         {
+            if (args.length != 3) {
+                sendHelp(label);
+                return;
+            }
+
+            Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
+
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
@@ -117,14 +162,28 @@ public enum Exp {
             Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-RESET")
                     .replace("%target%", target.getPlayer().getName())
             );
-        } else if (args.length == 4 && args[1].equalsIgnoreCase("add")) // /prac exp add <player> <number>
+        } else if (args[1].equalsIgnoreCase("add")) // /prac exp add <player> <number>
         {
+            if (args.length != 4) {
+                sendHelp(label);
+                return;
+            }
+
+            Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
+
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
-            final int extraExp = Integer.parseInt(args[3]);
+            final int extraExp;
+            try {
+                extraExp = Integer.parseInt(args[3]);
+            } catch (NumberFormatException exception) {
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.INVALID-NUMBER"));
+                return;
+            }
+
             if (extraExp <= 0) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.INVALID-NUMBER"));
                 return;
@@ -140,12 +199,26 @@ public enum Exp {
             );
         } else if (args[1].equalsIgnoreCase("set")) // /prac exp set <player> <number>
         {
+            if (args.length != 4) {
+                sendHelp(label);
+                return;
+            }
+
+            Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
+
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.TARGET-NOT-FOUND").replace("%target%", args[2]));
                 return;
             }
 
-            final int setExp = Integer.parseInt(args[3]);
+            final int setExp;
+            try {
+                setExp = Integer.parseInt(args[3]);
+            } catch (NumberFormatException exception) {
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.INVALID-NUMBER"));
+                return;
+            }
+
             if (setExp <= 0) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.INVALID-NUMBER"));
                 return;
@@ -159,9 +232,20 @@ public enum Exp {
                     .replace("%target%", target.getPlayer().getName())
             );
         } else {
-            for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.COMMAND-HELP"))
-                Common.sendConsoleMMMessage(line.replace("%label%", label));
+            sendHelp(label);
         }
+    }
+
+    private static void sendHelp(Player player, String label) {
+        if (player.hasPermission("zpp.practice.exp.reset") || player.hasPermission("zpp.practice.exp.set") || player.hasPermission("zpp.practice.exp.add")) {
+            for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.COMMAND-HELP"))
+                Common.sendMMMessage(player, line.replace("%label%", label));
+        }
+    }
+
+    private static void sendHelp(String label) {
+        for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.EXPERIENCE.COMMAND-HELP"))
+            Common.sendConsoleMMMessage(line.replace("%label%", label));
     }
 
     public static List<String> tabComplete(Player player, String[] args) {
