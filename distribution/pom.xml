@@ -160,6 +160,10 @@
                                         <copy file="${project.build.directory}/${project.build.finalName}.jar"
                                               tofile="${repo.root}/test_servers/1.21.11_base/plugins/ZonePracticePro.jar"
                                               overwrite="true" failonerror="false" />
+
+                                        <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                              tofile="${repo.root}/test_servers/26.1/plugins/ZonePracticePro.jar"
+                                              overwrite="true" failonerror="false" />
                                     </target>
                                 </configuration>
                             </execution>
