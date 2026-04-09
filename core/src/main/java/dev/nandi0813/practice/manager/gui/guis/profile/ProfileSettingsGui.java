@@ -110,11 +110,6 @@ public class ProfileSettingsGui extends GUI {
                     break;
                 case 11:
                     if (player.hasPermission("zpp.settings.scoreboard")) {
-                        if (!SidebarManager.getInstance().isSidebarGloballyEnabled()) {
-                            Common.sendMMMessage(player, LanguageManager.getString("PROFILE.SIDEBAR-GLOBALLY-DISABLED"));
-                            return;
-                        }
-
                         if (profile.isSidebar())
                             SidebarManager.getInstance().unLoadSidebar(player);
                         else

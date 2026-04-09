@@ -1,4 +1,4 @@
-VERSION: 40
+VERSION: 39
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1341,7 +1341,6 @@ LEADERBOARD:
 PROFILE:
   NO-PERMISSION: "<red>You don't have permission."
   CANT-CHANGE-TARGET-SETTINGS: "<red>You can't change %target%'s settings."
-  SIDEBAR-GLOBALLY-DISABLED: "<red>Sidebar is disabled globally by the server configuration."
   PRIVATE-MSG-OFF: "<red>Private message system is disabled, you cannot toggle it."
   TOGGLE-COOLDOWN: "<red>You have to wait another <yellow>%seconds% <red>%secondName%."
   PLAYER-REMOVED-MATCH: "<yellow>You removed <red>%target% <yellow>from the match."

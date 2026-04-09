@@ -45,9 +45,11 @@ public class GroupManager extends ConfigFile {
                 chatFormat = this.getString("GROUPS." + groupName + ".CHAT-FORMAT");
 
             List<Component> sidebarExtension = new ArrayList<>();
+            List<String> sidebarExtensionRaw = new ArrayList<>();
             if (SidebarManager.getInstance().isList("GROUP-EXTENSIONS." + groupName)) {
                 for (String line : SidebarManager.getInstance().getList("GROUP-EXTENSIONS." + groupName)) {
                     sidebarExtension.add(ZonePractice.getMiniMessage().deserialize(line));
+                    sidebarExtensionRaw.add(line);
                 }
             }
 
@@ -82,7 +84,8 @@ public class GroupManager extends ConfigFile {
                     NameFormatUtil.parseConfiguredComponent(suffixTemplate),
                     this.getInt("GROUPS." + groupName + ".LOBBY-NAMETAG.SORT-PRIORITY"),
                     chatFormat,
-                    sidebarExtension);
+                    sidebarExtension,
+                    sidebarExtensionRaw);
 
             groups.add(group);
         }

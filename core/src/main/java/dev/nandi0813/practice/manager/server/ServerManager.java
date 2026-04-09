@@ -190,7 +190,7 @@ public class ServerManager implements Listener {
         if (lobby != null && to.equals(lobby.getWorld())) {
             if (from != null && from.equals(WorldEnum.OTHER)) {
                 InventoryManager.getInstance().setLobbyInventory(player, true);
-                if (profile.isSidebar()) {
+                if (!profile.isSidebar()) {
                     SidebarManager.getInstance().loadSidebar(player);
                 }
 

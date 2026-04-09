@@ -362,7 +362,7 @@ public class NametagManager {
     private Component buildNametagComponent(Player player) {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         InventoryUtil.LobbyNametag listing = profile != null
-                ? InventoryUtil.getLobbyNametag(profile, player.getName())
+                ? InventoryUtil.getLobbyNametag(profile, player.getName(), player)
                 : null;
 
         Component basePrefix = listing != null ? listing.getPrefix() : Component.empty();
@@ -563,7 +563,7 @@ public class NametagManager {
                 return;
             }
 
-            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName());
+            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName(), player);
             Component tabListName = lobbyNametag.getPrefix()
                     .append(lobbyNametag.getName())
                     .append(lobbyNametag.getSuffix());
@@ -641,4 +641,3 @@ public class NametagManager {
     private record NametagOverride(Component prefix, NamedTextColor nameColor, Component suffix) {
     }
 }
-

@@ -216,7 +216,7 @@ public class TabIntegration {
                     dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
             if (profile == null) return;
 
-            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName());
+            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName(), player);
 
             // Convert components to legacy strings for TAB API
             String prefixStr = componentToLegacy(lobbyNametag.getPrefix());
@@ -424,7 +424,7 @@ public class TabIntegration {
                     dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
             if (profile == null) return;
 
-            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName());
+            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName(), player);
             Component tabListName = lobbyNametag.getPrefix()
                     .append(lobbyNametag.getName())
                     .append(lobbyNametag.getSuffix());
