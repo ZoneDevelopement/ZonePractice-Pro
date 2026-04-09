@@ -1,4 +1,4 @@
-VERSION: 54
+VERSION: 55
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -560,6 +560,7 @@ LEADERBOARD:
 #
 # Sidebar settings
 SIDEBAR:
+  ENABLED: true # If false, the sidebar is fully disabled for all players regardless of profile setting.
   UPDATE-TIME: 20 # In ticks. 20 ticks = 1 second
 #
 # Arena settings
