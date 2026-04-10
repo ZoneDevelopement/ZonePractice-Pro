@@ -39,7 +39,7 @@ public enum VersionChecker {
                     if (mcVersion.startsWith("1.21")) {
                         bukkitVersion = BukkitVersion.v1_21_R3;
                     }
-                    else if (mcVersion.startsWith("26.1")) {
+                    else if (mcVersion.startsWith("26")) {
                         bukkitVersion = BukkitVersion.v_26_1_R1;
                     }
                     else {
