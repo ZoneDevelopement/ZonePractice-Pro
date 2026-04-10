@@ -105,6 +105,7 @@ public class PlayerUtil {
         PlayerInventory inventory = player.getInventory();
         ItemStack[] storage = inventory.getStorageContents();
         inventory.setStorageContents(new ItemStack[storage.length]);
+        inventory.setExtraContents(new ItemStack[inventory.getExtraContents().length]);
 
         if (hasPersonalCraftingGridOpen(player)) {
             for (int i = 1; i <= 4; i++) {
