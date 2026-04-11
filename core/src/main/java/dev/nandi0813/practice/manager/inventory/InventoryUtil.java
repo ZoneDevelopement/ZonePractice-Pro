@@ -11,6 +11,7 @@ import dev.nandi0813.practice.util.NameFormatUtil;
 import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
 
 public enum InventoryUtil {
@@ -21,69 +22,50 @@ public enum InventoryUtil {
             if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
                 NametagManager.getInstance().reset(player.getName());
             }
-        } else {
-            // Use the player-aware overload so PAPI placeholders (e.g. %luckperms_prefix%)
-            // are resolved for both the tab list and the above-head nametag.
-            LobbyNametag playerNametag = getLobbyNametag(profile, player.getName(), player);
-
-            Component prefix = playerNametag.getPrefix();
-            Component name = playerNametag.getName();
-            NamedTextColor nameColor = playerNametag.getScoreboardNameColor();
-            Component suffix = playerNametag.getSuffix();
-            int sortPriority = playerNametag.getSortPriority();
-
-            if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
-                // ── Tab-list formatting ──────────────────────────────────────
-                Component listName = prefix.append(name).append(suffix);
-
-                TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
-                if (tabIntegration != null && tabIntegration.isAvailable()) {
-                    tabIntegration.setTabListName(player, listName);
-                } else {
-                    PlayerUtil.setPlayerListName(player, listName);
-                }
-
-                // ── Nametag management (above-head prefix / suffix / color) ──
-                NametagManager.getInstance().setNametag(player, prefix, nameColor, suffix, sortPriority);
-            }
+            return;
         }
-    }
 
-    public static LobbyNametag getLobbyNametag(Profile profile, String playerName) {
-        Component prefix = NameFormatUtil.resolvePrefix(profile);
-        // Extract the trailing color of the prefix so the name can inherit it when
-        // the name template has no explicit color (e.g. NAME: '%player%').
-        net.kyori.adventure.text.format.TextColor prefixTrailingColor = NameFormatUtil.extractTrailingColor(prefix);
-        Component name = NameFormatUtil.resolveName(profile, playerName, prefixTrailingColor);
-        Component suffix = NameFormatUtil.resolveSuffix(profile);
+        LobbyNametag nametag = getLobbyNametag(profile, player.getName(), player);
 
-        NamedTextColor scoreboardNameColor = NameFormatUtil.resolveScoreboardColor(profile, playerName, NamedTextColor.GRAY);
-        int sortPriority = profile.getGroup() != null ? profile.getGroup().getSortPriority() : 10;
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) return;
 
-        return new LobbyNametag(prefix, name, scoreboardNameColor, suffix, sortPriority);
+        Component prefix = nametag.getPrefix();
+        Component name   = nametag.getName();
+        Component suffix = nametag.getSuffix();
+
+        // Tab-list
+        Component listName = prefix.append(name).append(suffix);
+        TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
+        if (tabIntegration != null && tabIntegration.isAvailable()) {
+            tabIntegration.setTabListName(player, listName);
+        } else {
+            PlayerUtil.setPlayerListName(player, listName);
+        }
+
+        // Above-head nametag
+        NametagManager.getInstance().setNametag(player, prefix, nametag.getScoreboardNameColor(), suffix, nametag.getSortPriority());
     }
 
     /**
-     * Resolves the lobby nametag with PlaceholderAPI support.
-     * PAPI placeholders such as %luckperms_prefix% in the prefix/suffix templates
-     * are resolved against the given {@code player} before the components are returned.
-     *
-     * @param profile    The player's profile
-     * @param playerName The player's name (used for %player% placeholder)
-     * @param player     The online player used as the PAPI context (may be null to skip PAPI)
-     * @return Resolved LobbyNametag with all placeholders applied
+     * Resolves the lobby nametag without PlaceholderAPI support.
+     * Use {@link #getLobbyNametag(Profile, String, Player)} when an online player is available.
+     */
+    public static LobbyNametag getLobbyNametag(Profile profile, String playerName) {
+        return getLobbyNametag(profile, playerName, null);
+    }
+
+    /**
+     * Resolves the lobby nametag with full PlaceholderAPI support.
+     * When {@code player} is non-null, PAPI expansions such as {@code %luckperms_prefix%}
+     * are resolved on the raw template strings before MiniMessage parsing, ensuring that
+     * hex and legacy color codes injected by those expansions render correctly.
+     * The name component inherits the trailing prefix color when it carries no explicit color.
      */
     public static LobbyNametag getLobbyNametag(Profile profile, String playerName, Player player) {
-        Component prefix = (player != null)
-                ? NameFormatUtil.resolvePrefix(profile, player)
-                : NameFormatUtil.resolvePrefix(profile);
-        // Extract the trailing color of the resolved prefix so the name inherits it
-        // when the name template has no explicit color (e.g. NAME: '%player%').
-        net.kyori.adventure.text.format.TextColor prefixTrailingColor = NameFormatUtil.extractTrailingColor(prefix);
-        Component name = NameFormatUtil.resolveName(profile, playerName, prefixTrailingColor);
-        Component suffix = (player != null)
-                ? NameFormatUtil.resolveSuffix(profile, player)
-                : NameFormatUtil.resolveSuffix(profile);
+        Component prefix         = NameFormatUtil.resolvePrefix(profile, player);
+        TextColor prefixEndColor = NameFormatUtil.extractTrailingColor(prefix);
+        Component name           = NameFormatUtil.resolveName(profile, playerName, prefixEndColor);
+        Component suffix         = NameFormatUtil.resolveSuffix(profile, player);
 
         NamedTextColor scoreboardNameColor = NameFormatUtil.resolveScoreboardColor(profile, playerName, NamedTextColor.GRAY);
         int sortPriority = profile.getGroup() != null ? profile.getGroup().getSortPriority() : 10;
@@ -93,13 +75,8 @@ public enum InventoryUtil {
 
     public static PlayerNametag getLobbyNametag(Profile profile) {
         String playerName = profile.getPlayer() != null ? profile.getPlayer().getName() : "";
-        LobbyNametag lobbyNametag = getLobbyNametag(profile, playerName);
-        return new PlayerNametag(
-                lobbyNametag.getPrefix(),
-                lobbyNametag.getScoreboardNameColor(),
-                lobbyNametag.getSuffix(),
-                lobbyNametag.getSortPriority()
-        );
+        LobbyNametag nametag = getLobbyNametag(profile, playerName);
+        return new PlayerNametag(nametag.getPrefix(), nametag.getScoreboardNameColor(), nametag.getSuffix(), nametag.getSortPriority());
     }
 
     public static final class LobbyNametag {
@@ -117,25 +94,10 @@ public enum InventoryUtil {
             this.sortPriority = sortPriority;
         }
 
-        public Component getPrefix() {
-            return prefix;
-        }
-
-        public Component getName() {
-            return name;
-        }
-
-        public NamedTextColor getScoreboardNameColor() {
-            return scoreboardNameColor;
-        }
-
-        public Component getSuffix() {
-            return suffix;
-        }
-
-        public int getSortPriority() {
-            return sortPriority;
-        }
+        public Component getPrefix() { return prefix; }
+        public Component getName() { return name; }
+        public NamedTextColor getScoreboardNameColor() { return scoreboardNameColor; }
+        public Component getSuffix() { return suffix; }
+        public int getSortPriority() { return sortPriority; }
     }
-
 }

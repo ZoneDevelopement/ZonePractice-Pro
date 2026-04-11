@@ -138,9 +138,6 @@ public class NametagManager {
         display.setText(buildNametagComponent(player));
 
         for (Player viewer : Bukkit.getOnlinePlayers()) {
-            if (viewer.equals(player)) {
-                continue;
-            }
             refreshForViewer(viewer, player, true);
         }
     }
@@ -208,9 +205,7 @@ public class NametagManager {
         }
 
         for (Player viewer : Bukkit.getOnlinePlayers()) {
-            if (!viewer.equals(player)) {
-                refreshForViewer(viewer, player, false);
-            }
+            refreshForViewer(viewer, player, false);
         }
         refreshViewer(player);
     }
@@ -223,9 +218,7 @@ public class NametagManager {
         hideVanillaNametag(player);
         refreshViewer(player);
         for (Player viewer : Bukkit.getOnlinePlayers()) {
-            if (!viewer.equals(player)) {
-                refreshForViewer(viewer, player, true);
-            }
+            refreshForViewer(viewer, player, true);
         }
     }
 
@@ -236,18 +229,14 @@ public class NametagManager {
 
         for (Player viewer : Bukkit.getOnlinePlayers()) {
             for (Player target : Bukkit.getOnlinePlayers()) {
-                if (!viewer.equals(target)) {
-                    refreshForViewer(viewer, target, true);
-                }
+                refreshForViewer(viewer, target, true);
             }
         }
     }
 
     private void refreshViewer(Player viewer) {
         for (Player target : Bukkit.getOnlinePlayers()) {
-            if (!target.equals(viewer)) {
-                refreshForViewer(viewer, target, false);
-            }
+            refreshForViewer(viewer, target, false);
         }
     }
 
@@ -301,8 +290,12 @@ public class NametagManager {
             return false;
         }
 
+        // Allow a player to receive their own text display entity so that mods which
+        // render your own nametag show the server-formatted tag instead of nothing
+        // (the vanilla nametag is hidden by the scoreboard team for everyone, including
+        // the player themselves, so without this the mod sees no tag at all).
         if (viewer.equals(target)) {
-            return false;
+            return isTargetVisible(target);
         }
 
         if (viewer.getWorld() != target.getWorld()) {

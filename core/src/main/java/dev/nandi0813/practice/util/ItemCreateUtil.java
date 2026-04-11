@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.util;
 
+import dev.nandi0813.practice.ZonePractice;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -16,17 +17,27 @@ import java.util.stream.Collectors;
 
 public class ItemCreateUtil {
 
+    /**
+     * Parses a raw config string into a {@link Component}, supporting all color formats:
+     * legacy {@code &c} / {@code §c} codes, shorthand hex {@code &#RRGGBB}, Bungeecord hex
+     * {@code &x&R&R&G&G&B&B}, bare {@code #RRGGBB}, and MiniMessage tags {@code <red>}.
+     */
+    private static Component parseColor(String raw) {
+        if (raw == null || raw.isEmpty()) return Component.empty();
+        return ZonePractice.getMiniMessage().deserialize(StringUtil.translateColorsToMiniMessage(raw));
+    }
+
+    private static List<Component> parseColorLore(List<String> lore) {
+        return lore.stream().map(ItemCreateUtil::parseColor).collect(Collectors.toList());
+    }
+
     public static ItemStack createItem(String displayname, Material material, Short damage, int amount, List<String> lore) {
         ItemStack itemStack = new ItemStack(material, amount);
-
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.displayName(Component.text(StringUtil.CC(displayname)));
-            itemMeta.lore(StringUtil.CC(lore).stream().map(Component::text).collect(Collectors.toList()));
-
-            if (itemMeta instanceof Damageable)
-                ((Damageable) itemMeta).setDamage(damage);
-
+            itemMeta.displayName(parseColor(displayname));
+            itemMeta.lore(parseColorLore(lore));
+            if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
         }
@@ -35,11 +46,9 @@ public class ItemCreateUtil {
 
     public static ItemStack createItem(String displayname, Material material) {
         ItemStack itemStack = new ItemStack(material);
-
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.displayName(Component.text(StringUtil.CC(displayname)));
-
+            itemMeta.displayName(parseColor(displayname));
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
         }
@@ -48,12 +57,9 @@ public class ItemCreateUtil {
 
     public static ItemStack createItem(Material material, Short damage) {
         ItemStack itemStack = new ItemStack(material);
-
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            if (itemMeta instanceof Damageable)
-                ((Damageable) itemMeta).setDamage(damage);
-
+            if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
         }
@@ -62,14 +68,10 @@ public class ItemCreateUtil {
 
     public static ItemStack createItem(String displayname, Material material, Short damage) {
         ItemStack itemStack = new ItemStack(material);
-
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.displayName(Component.text(StringUtil.CC(displayname)));
-
-            if (itemMeta instanceof Damageable)
-                ((Damageable) itemMeta).setDamage(damage);
-
+            itemMeta.displayName(parseColor(displayname));
+            if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
         }
@@ -78,12 +80,10 @@ public class ItemCreateUtil {
 
     public static ItemStack createItem(String displayname, Material material, List<String> lore) {
         ItemStack itemStack = new ItemStack(material);
-
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.displayName(Component.text(StringUtil.CC(displayname)));
-            itemMeta.lore(StringUtil.CC(lore).stream().map(Component::text).collect(Collectors.toList()));
-
+            itemMeta.displayName(parseColor(displayname));
+            itemMeta.lore(parseColorLore(lore));
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
         }
@@ -92,15 +92,11 @@ public class ItemCreateUtil {
 
     public static ItemStack createItem(String displayname, Material material, Short damage, List<String> lore) {
         ItemStack itemStack = new ItemStack(material);
-
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.displayName(Component.text(StringUtil.CC(displayname)));
-            itemMeta.lore(StringUtil.CC(lore).stream().map(Component::text).collect(Collectors.toList()));
-
-            if (itemMeta instanceof Damageable)
-                ((Damageable) itemMeta).setDamage(damage);
-
+            itemMeta.displayName(parseColor(displayname));
+            itemMeta.lore(parseColorLore(lore));
+            if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
         }
@@ -109,11 +105,9 @@ public class ItemCreateUtil {
 
     public static ItemStack createItem(ItemStack item, List<String> lore) {
         ItemStack itemStack = new ItemStack(item);
-
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.lore(StringUtil.CC(lore).stream().map(Component::text).collect(Collectors.toList()));
-
+            itemMeta.lore(parseColorLore(lore));
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
         }
@@ -122,12 +116,10 @@ public class ItemCreateUtil {
 
     public static ItemStack createItem(ItemStack item, String name, List<String> lore) {
         ItemStack itemStack = new ItemStack(item);
-
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.displayName(Component.text(StringUtil.CC(name)));
-            itemMeta.lore(StringUtil.CC(lore).stream().map(Component::text).collect(Collectors.toList()));
-
+            itemMeta.displayName(parseColor(name));
+            itemMeta.lore(parseColorLore(lore));
             hideItemFlags(itemMeta);
             itemStack.setItemMeta(itemMeta);
         }
@@ -154,10 +146,8 @@ public class ItemCreateUtil {
     public static ItemStack getPlayerHead(OfflinePlayer player) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
-        if (meta != null)
-            meta.setOwningPlayer(player);
+        if (meta != null) meta.setOwningPlayer(player);
         item.setItemMeta(meta);
-
         return item;
     }
 
@@ -170,5 +160,4 @@ public class ItemCreateUtil {
         }
         return boots;
     }
-
 }
