@@ -119,7 +119,9 @@ public enum AdapterUtil {
         }
 
         // Sidebar placeholders follow the player's own prefix/suffix visibility setting.
-        return NameFormatUtil.resolveFullName(profile, player.getName());
+        // Pass the Player instance so PlaceholderAPI expansions (e.g. %luckperms_prefix%)
+        // are resolved at render time rather than left as raw placeholder text.
+        return NameFormatUtil.resolveFullName(profile, player, player.getName());
     }
 
     // ==================== Public Methods ====================

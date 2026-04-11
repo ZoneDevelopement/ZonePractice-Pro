@@ -11,6 +11,7 @@ import dev.nandi0813.practice.util.NameFormatUtil;
 import dev.nandi0813.practice.util.PermanentConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
 
 public enum InventoryUtil {
@@ -21,36 +22,50 @@ public enum InventoryUtil {
             if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
                 NametagManager.getInstance().reset(player.getName());
             }
-        } else {
-            LobbyNametag playerNametag = getLobbyNametag(profile, player.getName());
-
-            Component prefix = playerNametag.getPrefix();
-            Component name = playerNametag.getName();
-            NamedTextColor nameColor = playerNametag.getScoreboardNameColor();
-            Component suffix = playerNametag.getSuffix();
-            int sortPriority = playerNametag.getSortPriority();
-
-            if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
-                // ── Tab-list formatting ──────────────────────────────────────
-                Component listName = prefix.append(name).append(suffix);
-
-                TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
-                if (tabIntegration != null && tabIntegration.isAvailable()) {
-                    tabIntegration.setTabListName(player, listName);
-                } else {
-                    PlayerUtil.setPlayerListName(player, listName);
-                }
-
-                // ── Nametag management (above-head prefix / suffix / color) ──
-                NametagManager.getInstance().setNametag(player, prefix, nameColor, suffix, sortPriority);
-            }
+            return;
         }
+
+        LobbyNametag nametag = getLobbyNametag(profile, player.getName(), player);
+
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) return;
+
+        Component prefix = nametag.getPrefix();
+        Component name   = nametag.getName();
+        Component suffix = nametag.getSuffix();
+
+        // Tab-list
+        Component listName = prefix.append(name).append(suffix);
+        TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
+        if (tabIntegration != null && tabIntegration.isAvailable()) {
+            tabIntegration.setTabListName(player, listName);
+        } else {
+            PlayerUtil.setPlayerListName(player, listName);
+        }
+
+        // Above-head nametag
+        NametagManager.getInstance().setNametag(player, prefix, nametag.getScoreboardNameColor(), suffix, nametag.getSortPriority());
     }
 
+    /**
+     * Resolves the lobby nametag without PlaceholderAPI support.
+     * Use {@link #getLobbyNametag(Profile, String, Player)} when an online player is available.
+     */
     public static LobbyNametag getLobbyNametag(Profile profile, String playerName) {
-        Component prefix = NameFormatUtil.resolvePrefix(profile);
-        Component name = NameFormatUtil.resolveName(profile, playerName);
-        Component suffix = NameFormatUtil.resolveSuffix(profile);
+        return getLobbyNametag(profile, playerName, null);
+    }
+
+    /**
+     * Resolves the lobby nametag with full PlaceholderAPI support.
+     * When {@code player} is non-null, PAPI expansions such as {@code %luckperms_prefix%}
+     * are resolved on the raw template strings before MiniMessage parsing, ensuring that
+     * hex and legacy color codes injected by those expansions render correctly.
+     * The name component inherits the trailing prefix color when it carries no explicit color.
+     */
+    public static LobbyNametag getLobbyNametag(Profile profile, String playerName, Player player) {
+        Component prefix         = NameFormatUtil.resolvePrefix(profile, player);
+        TextColor prefixEndColor = NameFormatUtil.extractTrailingColor(prefix);
+        Component name           = NameFormatUtil.resolveName(profile, playerName, prefixEndColor);
+        Component suffix         = NameFormatUtil.resolveSuffix(profile, player);
 
         NamedTextColor scoreboardNameColor = NameFormatUtil.resolveScoreboardColor(profile, playerName, NamedTextColor.GRAY);
         int sortPriority = profile.getGroup() != null ? profile.getGroup().getSortPriority() : 10;
@@ -60,13 +75,8 @@ public enum InventoryUtil {
 
     public static PlayerNametag getLobbyNametag(Profile profile) {
         String playerName = profile.getPlayer() != null ? profile.getPlayer().getName() : "";
-        LobbyNametag lobbyNametag = getLobbyNametag(profile, playerName);
-        return new PlayerNametag(
-                lobbyNametag.getPrefix(),
-                lobbyNametag.getScoreboardNameColor(),
-                lobbyNametag.getSuffix(),
-                lobbyNametag.getSortPriority()
-        );
+        LobbyNametag nametag = getLobbyNametag(profile, playerName);
+        return new PlayerNametag(nametag.getPrefix(), nametag.getScoreboardNameColor(), nametag.getSuffix(), nametag.getSortPriority());
     }
 
     public static final class LobbyNametag {
@@ -84,25 +94,10 @@ public enum InventoryUtil {
             this.sortPriority = sortPriority;
         }
 
-        public Component getPrefix() {
-            return prefix;
-        }
-
-        public Component getName() {
-            return name;
-        }
-
-        public NamedTextColor getScoreboardNameColor() {
-            return scoreboardNameColor;
-        }
-
-        public Component getSuffix() {
-            return suffix;
-        }
-
-        public int getSortPriority() {
-            return sortPriority;
-        }
+        public Component getPrefix() { return prefix; }
+        public Component getName() { return name; }
+        public NamedTextColor getScoreboardNameColor() { return scoreboardNameColor; }
+        public Component getSuffix() { return suffix; }
+        public int getSortPriority() { return sortPriority; }
     }
-
 }

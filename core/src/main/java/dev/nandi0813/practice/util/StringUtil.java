@@ -72,6 +72,43 @@ public enum StringUtil {
     }
 
 
+    /**
+     * Converts a string that may contain legacy color codes (both & and § prefix)
+     * as well as hex color codes in the formats &#RRGGBB, &x&R&R&G&G&B&B,
+     * §x§R§R§G§G§B§B, and #RRGGBB into their MiniMessage equivalents.
+     *
+     * This is the correct entry-point for strings returned by PlaceholderAPI,
+     * since PAPI expansions (e.g. LuckPerms) typically produce legacy-coded strings.
+     */
+    public static String translateColorsToMiniMessage(String string) {
+        if (string == null || string.isEmpty()) return string;
+
+        // ── 1. §x§R§R§G§G§B§B  (Bungeecord/vanilla hex, section-prefixed) ──
+        // Pattern: §x followed by six §<char> pairs
+        string = string.replaceAll(
+                "§x§([0-9A-Fa-f])§([0-9A-Fa-f])§([0-9A-Fa-f])§([0-9A-Fa-f])§([0-9A-Fa-f])§([0-9A-Fa-f])",
+                "<#$1$2$3$4$5$6>"
+        );
+
+        // ── 2. &x&R&R&G&G&B&B  (same but ampersand-prefixed) ──
+        string = string.replaceAll(
+                "&x&([0-9A-Fa-f])&([0-9A-Fa-f])&([0-9A-Fa-f])&([0-9A-Fa-f])&([0-9A-Fa-f])&([0-9A-Fa-f])",
+                "<#$1$2$3$4$5$6>"
+        );
+
+        // ── 3. &#RRGGBB  (common shorthand used by many plugins) ──
+        string = string.replaceAll("&#([0-9A-Fa-f]{6})", "<#$1>");
+
+        // ── 4. §#RRGGBB  (section variant of the shorthand) ──
+        string = string.replaceAll("§#([0-9A-Fa-f]{6})", "<#$1>");
+
+        // ── 5. Standalone #RRGGBB at word boundary (bare hex, used by some expansions) ──
+        string = string.replaceAll("(?<![&§<])#([0-9A-Fa-f]{6})(?![0-9A-Fa-f>])", "<#$1>");
+
+        // ── 6. Standard legacy & and § codes ──
+        return legacyColorToMiniMessage(string);
+    }
+
     public static String legacyColorToMiniMessage(String string) {
         return string
                 .replace("&0", "<black>")

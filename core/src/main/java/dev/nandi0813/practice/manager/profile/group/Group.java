@@ -39,8 +39,9 @@ public class Group {
 
     // Set up in the sidebar.yml file
     private final List<Component> sidebarExtension;
+    private final List<String> sidebarExtensionRaw;
 
-    public Group(String name, String displayName, int weight, int unrankedLimit, int rankedLimit, int eventStartLimit, int partyBroadcastLimit, int partyMemberLimit, int customKitLimit, int modifiableKitLimit, String prefixTemplate, Component prefix, String nameTemplate, Component nameFormat, String suffixTemplate, Component suffix, int sortPriority, String chatFormat, List<Component> sidebarExtension) {
+    public Group(String name, String displayName, int weight, int unrankedLimit, int rankedLimit, int eventStartLimit, int partyBroadcastLimit, int partyMemberLimit, int customKitLimit, int modifiableKitLimit, String prefixTemplate, Component prefix, String nameTemplate, Component nameFormat, String suffixTemplate, Component suffix, int sortPriority, String chatFormat, List<Component> sidebarExtension, List<String> sidebarExtensionRaw) {
         this.name = name;
         this.displayName = displayName;
 
@@ -77,6 +78,7 @@ public class Group {
         this.chatFormat = chatFormat;
 
         this.sidebarExtension = sidebarExtension;
+        this.sidebarExtensionRaw = sidebarExtensionRaw;
     }
 
     public void registerPermission() {
