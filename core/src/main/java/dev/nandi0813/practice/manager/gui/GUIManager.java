@@ -4,6 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.gui.guis.customladder.premadecustom.CustomLadderEditorGui;
 import dev.nandi0813.practice.manager.gui.setup.SetupHubGui;
+import dev.nandi0813.practice.manager.gui.setup.ladder.laddersettings.DestroyableBlocksGui;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
@@ -139,7 +140,7 @@ public class GUIManager implements Listener {
     }
 
     private boolean allowsInventoryMutation(GUI gui) {
-        return gui instanceof CustomLadderEditorGui;
+        return gui instanceof CustomLadderEditorGui || gui instanceof DestroyableBlocksGui;
     }
 
     private GUIClickSoundIntent resolveClickSoundIntent(InventoryClickEvent e, GUI gui, Player player) {
