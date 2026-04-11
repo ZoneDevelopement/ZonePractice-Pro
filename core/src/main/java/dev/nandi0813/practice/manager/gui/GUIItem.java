@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.manager.gui;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.ItemCreateUtil;
@@ -121,6 +122,18 @@ public class GUIItem {
     }
 
 
+    /**
+     * Parses a raw name/lore string into a {@link net.kyori.adventure.text.Component},
+     * supporting all color formats: legacy {@code &c}, hex {@code &#RRGGBB},
+     * Bungeecord hex {@code &x&R&R&G&G&B&B}, and MiniMessage tags {@code <red>}.
+     */
+    private static net.kyori.adventure.text.Component parseColor(String raw) {
+        if (raw == null || raw.isEmpty()) return net.kyori.adventure.text.Component.empty();
+        return ZonePractice.getMiniMessage().deserialize(StringUtil.translateColorsToMiniMessage(raw))
+                .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false);
+
+    }
+
     public ItemStack get() {
         ItemStack itemStack;
 
@@ -153,12 +166,12 @@ public class GUIItem {
             }
 
             if (name != null) {
-                itemMeta.displayName(Common.legacyToComponent(StringUtil.CC(name)));
+                itemMeta.displayName(parseColor(name));
             }
 
             if (lore != null) {
-                itemMeta.lore(StringUtil.CC(lore).stream()
-                        .map(Common::legacyToComponent)
+                itemMeta.lore(lore.stream()
+                        .map(GUIItem::parseColor)
                         .collect(Collectors.toList()));
             }
 
@@ -207,15 +220,15 @@ public class GUIItem {
             }
 
             if (name != null) {
-                itemMeta.displayName(Common.legacyToComponent(StringUtil.CC(name)));
+                itemMeta.displayName(parseColor(name));
             }
 
             if (lore != null) {
-                itemMeta.lore(StringUtil.CC(lore).stream()
-                        .map(Common::legacyToComponent)
+                itemMeta.lore(lore.stream()
+                        .map(GUIItem::parseColor)
                         .collect(Collectors.toList()));
             }
-            
+
             itemStack.setItemMeta(itemMeta);
         }
 
