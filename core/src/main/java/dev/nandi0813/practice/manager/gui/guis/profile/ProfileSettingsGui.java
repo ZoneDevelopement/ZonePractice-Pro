@@ -115,12 +115,12 @@ public class ProfileSettingsGui extends GUI {
                             return;
                         }
 
-                        if (profile.isSidebar())
-                            SidebarManager.getInstance().unLoadSidebar(player);
-                        else
-                            SidebarManager.getInstance().loadSidebar(player);
-
                         profile.setSidebar(!profile.isSidebar());
+
+                        if (profile.isSidebar())
+                            SidebarManager.getInstance().loadSidebar(player);
+                        else
+                            SidebarManager.getInstance().unLoadSidebar(player);
 
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
