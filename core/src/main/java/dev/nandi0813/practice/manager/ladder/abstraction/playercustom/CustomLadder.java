@@ -102,9 +102,14 @@ public class CustomLadder extends Ladder {
             attackCooldownModifier = convertHitDelayToMultiplier(config.getInt(mapPath + HITDELAY_PATH));
         }
         if (config.isString(mapPath + KNOCKBACK_PATH)) ladderKnockback.get(config.getString(mapPath + KNOCKBACK_PATH));
-        if (config.isInt(mapPath + EP_COOLDOWN_PATH)) enderPearlCooldown = config.getInt(mapPath + EP_COOLDOWN_PATH);
-        if (config.isInt(mapPath + GA_COOLDOWN_PATH)) goldenAppleCooldown = config.getInt(mapPath + GA_COOLDOWN_PATH);
-        if (config.isInt(mapPath + WIND_CHARGE_COOLDOWN_PATH)) windChargeCooldown = Math.clamp(config.getInt(mapPath + WIND_CHARGE_COOLDOWN_PATH), 0, 30);
+        Number epCooldown = getNumeric(mapPath + EP_COOLDOWN_PATH);
+        if (epCooldown != null) enderPearlCooldown = Math.clamp(epCooldown.doubleValue(), 0.0, 60.0);
+
+        Number gaCooldown = getNumeric(mapPath + GA_COOLDOWN_PATH);
+        if (gaCooldown != null) goldenAppleCooldown = Math.clamp(gaCooldown.doubleValue(), 0.0, 30.0);
+
+        Number windCooldown = getNumeric(mapPath + WIND_CHARGE_COOLDOWN_PATH);
+        if (windCooldown != null) windChargeCooldown = Math.clamp(windCooldown.doubleValue(), 0.0, 30.0);
         if (config.isBoolean(mapPath + HEALTH_BELOW_NAME_PATH)) healthBelowName = config.getBoolean(mapPath + HEALTH_BELOW_NAME_PATH);
 
         kitData.getData(config, mapPath + KIT_DATA_PATH);
@@ -161,6 +166,11 @@ public class CustomLadder extends Ladder {
     private static double convertHitDelayToMultiplier(int ticks) {
         if (ticks <= 0) return 0;
         return Math.clamp(ticks / 20.0, 0, 3.0);
+    }
+
+    private Number getNumeric(String path) {
+        Object value = config.get(path);
+        return value instanceof Number ? (Number) value : null;
     }
 
 }
