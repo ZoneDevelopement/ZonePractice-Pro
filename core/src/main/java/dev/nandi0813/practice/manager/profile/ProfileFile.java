@@ -121,6 +121,7 @@ public class ProfileFile extends ConfigFile {
                         CustomKit customKit = profile.getUnrankedCustomKits().get(ladder).get(i);
                         if (customKit != null) {
                             config.set("customkit." + name + ".kit" + i + ".unranked.inventory", ItemSerializationUtil.itemStackArrayToBase64(customKit.getInventory()));
+                            config.set("customkit." + name + ".kit" + i + ".unranked.armor", ItemSerializationUtil.itemStackArrayToBase64(customKit.getArmor()));
                             config.set("customkit." + name + ".kit" + i + ".unranked.extra", ItemSerializationUtil.itemStackArrayToBase64(customKit.getExtra()));
                         }
                     }
@@ -134,6 +135,7 @@ public class ProfileFile extends ConfigFile {
                             CustomKit customKit = profile.getRankedCustomKits().get(ladder).get(i);
                             if (customKit != null) {
                                 config.set("customkit." + name + ".kit" + i + ".ranked.inventory", ItemSerializationUtil.itemStackArrayToBase64(customKit.getInventory()));
+                                config.set("customkit." + name + ".kit" + i + ".ranked.armor", ItemSerializationUtil.itemStackArrayToBase64(customKit.getArmor()));
                                 config.set("customkit." + name + ".kit" + i + ".ranked.extra", ItemSerializationUtil.itemStackArrayToBase64(customKit.getExtra()));
                             }
                         }
@@ -296,12 +298,30 @@ public class ProfileFile extends ConfigFile {
             Map<Integer, CustomKit> unrankedInventory = new HashMap<>();
             for (int i = 1; i <= 4; i++) {
                 ItemStack[] inventory;
+                ItemStack[] armor;
                 ItemStack[] extra;
 
                 if (config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.inventory")) {
                     inventory = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.inventory"));
+                    armor = config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.armor")
+                            ? ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.armor"))
+                            : null;
                     extra = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.extra"));
-                    unrankedInventory.put(i, new CustomKit(null, inventory, extra));
+
+                    // Legacy migration: old format stored armor in inventory[36..39]
+                    if (armor == null && inventory != null && inventory.length > 36) {
+                        ItemStack[] splitInventory = new ItemStack[36];
+                        System.arraycopy(inventory, 0, splitInventory, 0, 36);
+                        armor = new ItemStack[]{
+                                inventory.length > 36 ? inventory[36] : null,
+                                inventory.length > 37 ? inventory[37] : null,
+                                inventory.length > 38 ? inventory[38] : null,
+                                inventory.length > 39 ? inventory[39] : null
+                        };
+                        inventory = splitInventory;
+                    }
+
+                    unrankedInventory.put(i, new CustomKit(null, inventory, armor, extra));
                 }
             }
             profile.getUnrankedCustomKits().put(ladder, unrankedInventory);
@@ -311,12 +331,30 @@ public class ProfileFile extends ConfigFile {
                 Map<Integer, CustomKit> rankedInventory = new HashMap<>();
                 for (int i = 1; i <= 4; i++) {
                     ItemStack[] inventory;
+                    ItemStack[] armor;
                     ItemStack[] extra;
 
                     if (config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.inventory")) {
                         inventory = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.inventory"));
+                        armor = config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.armor")
+                                ? ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.armor"))
+                                : null;
                         extra = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.extra"));
-                        rankedInventory.put(i, new CustomKit(null, inventory, extra));
+
+                        // Legacy migration: old format stored armor in inventory[36..39]
+                        if (armor == null && inventory != null && inventory.length > 36) {
+                            ItemStack[] splitInventory = new ItemStack[36];
+                            System.arraycopy(inventory, 0, splitInventory, 0, 36);
+                            armor = new ItemStack[]{
+                                    inventory.length > 36 ? inventory[36] : null,
+                                    inventory.length > 37 ? inventory[37] : null,
+                                    inventory.length > 38 ? inventory[38] : null,
+                                    inventory.length > 39 ? inventory[39] : null
+                            };
+                            inventory = splitInventory;
+                        }
+
+                        rankedInventory.put(i, new CustomKit(null, inventory, armor, extra));
                     }
                 }
                 profile.getRankedCustomKits().put(ladder, rankedInventory);

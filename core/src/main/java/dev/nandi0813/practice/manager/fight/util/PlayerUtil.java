@@ -87,6 +87,8 @@ public class PlayerUtil {
 
     public static void clearInventory(Player player) {
         player.getInventory().clear();
+        // Clear off-hand slot
+        player.getInventory().setItemInOffHand(null);
         // Clear crafting-grid slots only for personal inventory views (avoid wiping chest GUI slots).
         if (hasPersonalCraftingGridOpen(player)) {
             for (int i = 1; i <= 4; i++) {
