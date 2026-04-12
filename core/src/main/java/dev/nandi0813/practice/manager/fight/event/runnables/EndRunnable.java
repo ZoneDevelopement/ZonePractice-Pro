@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.fight.event.runnables;
 
 import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.event.interfaces.Event;
+import dev.nandi0813.practice.util.PermanentConfig;
 import dev.nandi0813.practice.util.interfaces.Runnable;
 
 public class EndRunnable extends Runnable {
@@ -28,7 +29,7 @@ public class EndRunnable extends Runnable {
         this.cancel();
 
         this.event.removeAll();
-        this.event.getFightChange().rollback(100, 50);
+        this.event.getFightChange().rollback(PermanentConfig.EVENT_ROLLBACK_MAX_CHECKS, PermanentConfig.EVENT_ROLLBACK_MAX_CHANGES);
 
         EventManager.getInstance().getEvents().remove(event);
     }

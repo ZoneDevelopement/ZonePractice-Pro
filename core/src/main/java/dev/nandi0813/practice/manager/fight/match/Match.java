@@ -34,6 +34,7 @@ import dev.nandi0813.practice.manager.spectator.SpectatorManager;
 import dev.nandi0813.practice.telemetry.transport.stats.PracticeStatsTelemetryLogger;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
+import dev.nandi0813.practice.util.PermanentConfig;
 import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
@@ -568,9 +569,9 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
 
         if (ZonePractice.getInstance().isEnabled()) {
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                    fightChange.rollback(300, 100, onRollbackComplete), 2L);
+                    fightChange.rollback(PermanentConfig.MATCH_ROLLBACK_MAX_CHECKS, PermanentConfig.MATCH_ROLLBACK_MAX_CHANGES, onRollbackComplete), 2L);
         } else {
-            fightChange.rollback(300, 100, onRollbackComplete);
+            fightChange.rollback(PermanentConfig.MATCH_ROLLBACK_MAX_CHECKS, PermanentConfig.MATCH_ROLLBACK_MAX_CHANGES, onRollbackComplete);
         }
     }
 

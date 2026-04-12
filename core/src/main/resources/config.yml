@@ -1,4 +1,4 @@
-VERSION: 55
+VERSION: 56
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -255,6 +255,8 @@ MATCH-SETTINGS:
     SCALE: 20 # The scale setting defines the health display range between 10 and 100 with a default value of 20.
   BUILD-LIMIT-DEFAULT: 4 # Counts from the first players positions Y level. You can set a unique number for this for every arena, then it will consider where you are standing.
   AFTER-COUNTDOWN: 3 # After the match is over this countdown start, and when it's over, the players teleport back to the lobby.
+  ROLLBACK:
+    MULTIPLIER: 1 # Multiplies rollback speed/work per tick for match/event/ffa rollback. Increase carefully.
   GOLDEN-HEAD: # Golden head settings.
     TEXTURE: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGUzNGM1MGZkY2E4ZTM2YzFlMDUwYjk2M2YyZTZlMWY3MGU0NjVlNTVjNDQzZjY4OTQ3NDQzNDA5Y2M2YTMzOCJ9fX0=" # Optional: direct skin URL or Base64 texture value. If set, item renders as a custom player head.
     COOLDOWN: 10 # Cooldown in seconds between Golden Head uses.
