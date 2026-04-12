@@ -195,25 +195,18 @@ public abstract class QueueSelectorGui extends GUI {
                 ItemMeta meta = updated.getItemMeta();
                 if (meta == null) continue;
 
-                // Replace dynamic placeholders in display name
+                // Replace dynamic placeholders in display name — use Adventure text replacement
+                // so hex colors and italic=false decoration are preserved across ticks.
                 if (meta.hasDisplayName()) {
-                    String replaced = Common.serializeComponentToLegacyString(meta.displayName())
-                            .replace("%in_queue%", String.valueOf(inQueue))
-                            .replace("%in_fight%", String.valueOf(inFight));
-                    meta.displayName(Common.legacyToComponent(replaced));
+                    meta.displayName(replacePlaceholders(meta.displayName(), inQueue, inFight));
                 }
 
                 // Replace dynamic placeholders in lore
                 List<net.kyori.adventure.text.Component> lore = meta.lore();
                 if (lore != null) {
-                    List<String> newLore = new ArrayList<>();
-                    for (net.kyori.adventure.text.Component lineComponent : lore) {
-                        String line = Common.serializeComponentToLegacyString(lineComponent);
-                        newLore.add(line
-                                .replace("%in_queue%", String.valueOf(inQueue))
-                                .replace("%in_fight%", String.valueOf(inFight)));
-                    }
-                    meta.lore(newLore.stream().map(Common::legacyToComponent).toList());
+                    meta.lore(lore.stream()
+                            .map(line -> replacePlaceholders(line, inQueue, inFight))
+                            .toList());
                 }
 
                 updated.setItemMeta(meta);
@@ -778,6 +771,19 @@ public abstract class QueueSelectorGui extends GUI {
                                   String iconMaterial, String selectedIconMaterial,
                                   List<String> ladderNames, List<Integer> ladderSlots) {
     }
+    /**
+     * Replaces %in_queue% and %in_fight% in a Component using Adventure's
+     * text replacement API so colors and decorations (italic=false) are preserved.
+     */
+    private static net.kyori.adventure.text.Component replacePlaceholders(
+            net.kyori.adventure.text.Component component, int inQueue, int inFight) {
+        return component
+                .replaceText(b -> b.matchLiteral("%in_queue%")
+                        .replacement(net.kyori.adventure.text.Component.text(inQueue)))
+                .replaceText(b -> b.matchLiteral("%in_fight%")
+                        .replacement(net.kyori.adventure.text.Component.text(inFight)));
+    }
+
 }
 
 
