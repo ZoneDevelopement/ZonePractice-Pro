@@ -56,6 +56,8 @@ public class CustomLadderEditorGui extends GUI {
 
     private final CustomKit customKit;
 
+    private static final List<Integer> NULL_SLOTS = Arrays.asList(14, 18, 27, 36, 45);
+
     public CustomLadderEditorGui(Profile profile, NormalLadder ladder, int kit, boolean ranked, GUI backTo) {
         super(GUIType.CustomLadder_Editor);
         this.profile = profile;
@@ -72,9 +74,17 @@ public class CustomLadderEditorGui extends GUI {
                 , 6));
 
         if (ranked) {
-            customKit = profile.getRankedCustomKits().get(ladder).computeIfAbsent(kit, k -> new CustomKit(null, ladder.getKitData().getStorage(), ladder.getKitData().getExtra()));
+            customKit = profile.getRankedCustomKits().get(ladder).computeIfAbsent(kit, k -> new CustomKit(
+                    null,
+                    ladder.getKitData().getStorage(),
+                    ladder.getKitData().getArmor(),
+                    ladder.getKitData().getExtra()));
         } else {
-            customKit = profile.getUnrankedCustomKits().get(ladder).computeIfAbsent(kit, k -> new CustomKit(null, ladder.getKitData().getStorage(), ladder.getKitData().getExtra()));
+            customKit = profile.getUnrankedCustomKits().get(ladder).computeIfAbsent(kit, k -> new CustomKit(
+                    null,
+                    ladder.getKitData().getStorage(),
+                    ladder.getKitData().getArmor(),
+                    ladder.getKitData().getExtra()));
         }
 
         this.build();
@@ -89,14 +99,6 @@ public class CustomLadderEditorGui extends GUI {
     public void update() {
         Inventory inventory = gui.get(1);
         inventory.clear();
-
-        List<ItemStack> armorContent = new ArrayList<>(Arrays.asList(ladder.getKitData().getArmor()));
-        for (int i : new int[]{18, 27, 36, 45}) {
-            if (armorContent.get(Math.abs(i / 9 - 5)) != null)
-                inventory.setItem(i, armorContent.get(Math.abs(i / 9 - 5)));
-            else
-                inventory.setItem(i, GUIManager.getDUMMY_ITEM());
-        }
 
         ItemStack infoItem = GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.INFO")
                 .replace("%kit%", String.valueOf(this.kit))
@@ -118,6 +120,12 @@ public class CustomLadderEditorGui extends GUI {
         inventory.setItem(2, getRankedItem());
         inventory.setItem(4, getEffectItem());
 
+        // Fill armor slots with dummy items first to prevent extra items from going there
+        int[] armorSlots = {18, 27, 36, 45};
+        for (int slot : armorSlots) {
+            inventory.setItem(slot, GUIManager.getDUMMY_ITEM());
+        }
+
         if (ladder.getCustomKitExtraItems().get(ranked) != null) {
             for (ItemStack item : ladder.getCustomKitExtraItems().get(ranked)) {
                 inventory.setItem(inventory.firstEmpty(), Objects.requireNonNullElseGet(item, GUIManager::getDUMMY_ITEM));
@@ -126,18 +134,49 @@ public class CustomLadderEditorGui extends GUI {
 
         inventory.remove(GUIManager.getDUMMY_ITEM());
 
-        for (int i = 0; i < inventory.getSize(); i++)
-            if (inventory.getItem(i) == null)
-                inventory.setItem(i, fillerItem);
-
-        if (customKit.getExtra() != null) {
-            if (customKit.getExtra().length > 0) {
-                inventory.setItem(14, customKit.getExtra()[0]);
-            } else {
-                inventory.setItem(14, null);
+        // Load armor BEFORE filler logic to prevent filler items from overwriting armor slots
+        ItemStack[] customKitArmor = customKit.getArmor();
+        if (customKitArmor == null) {
+            // Legacy fallback for old kits where armor was appended to inventory[36..39]
+            ItemStack[] customKitInventory = customKit.getInventory();
+            if (customKitInventory != null && customKitInventory.length > 39) {
+                customKitArmor = new ItemStack[]{
+                        customKitInventory[36],
+                        customKitInventory[37],
+                        customKitInventory[38],
+                        customKitInventory[39]
+                };
             }
+        }
+
+        if (customKitArmor == null) {
+            customKitArmor = ladder.getKitData().getArmor();
+        }
+
+        if (customKitArmor != null) {
+            if (customKitArmor.length > 0 && customKitArmor[0] != null && !customKitArmor[0].getType().equals(Material.AIR)) inventory.setItem(45, customKitArmor[0]);
+            else inventory.setItem(45, null);
+
+            if (customKitArmor.length > 1 && customKitArmor[1] != null && !customKitArmor[1].getType().equals(Material.AIR)) inventory.setItem(36, customKitArmor[1]);
+            else inventory.setItem(36, null);
+
+            if (customKitArmor.length > 2 && customKitArmor[2] != null && !customKitArmor[2].getType().equals(Material.AIR)) inventory.setItem(27, customKitArmor[2]);
+            else inventory.setItem(27, null);
+
+            if (customKitArmor.length > 3 && customKitArmor[3] != null && !customKitArmor[3].getType().equals(Material.AIR)) inventory.setItem(18, customKitArmor[3]);
+            else inventory.setItem(18, null);
+        }
+
+        for (int i = 0; i < inventory.getSize(); i++) {
+            if (inventory.getItem(i) == null && !NULL_SLOTS.contains(i)) {
+                inventory.setItem(i, fillerItem);
+            }
+        }
+
+        if (customKit.getExtra() != null && customKit.getExtra().length > 0) {
+            inventory.setItem(14, customKit.getExtra()[0]);
         } else {
-            inventory.setItem(14, GUIManager.getDUMMY_ITEM());
+            inventory.setItem(14, null);
         }
 
         updatePlayers();
@@ -165,6 +204,25 @@ public class CustomLadderEditorGui extends GUI {
         if (slot == 14) {
             e.setCancelled(false);
             // Second hand item
+        } else if (slot == 18 || slot == 27 || slot == 36 || slot == 45) {
+            // Armor slots - allow editing based on armor type
+            ItemStack cursorItem = e.getCursor();
+
+            // If cursor is empty, allow picking up the armor
+            if (cursorItem == null || cursorItem.getType().equals(Material.AIR)) {
+                e.setCancelled(false);
+                return;
+            }
+
+            // If cursor has an item, check if it's valid for this slot
+            boolean isValidArmor = false;
+            String materialName = cursorItem.getType().name();
+            if (slot == 45 && materialName.endsWith("_BOOTS")) isValidArmor = true;
+            else if (slot == 36 && materialName.endsWith("_LEGGINGS")) isValidArmor = true;
+            else if (slot == 27 && materialName.endsWith("_CHESTPLATE")) isValidArmor = true;
+            else if (slot == 18 && materialName.endsWith("_HELMET")) isValidArmor = true;
+
+            e.setCancelled(!isValidArmor);
         } else if (slot == 6 || slot == 8) {
             player.setItemOnCursor(null);
 
@@ -199,9 +257,30 @@ public class CustomLadderEditorGui extends GUI {
         NormalLadder ladder = customLadderEditorGui.getLadder();
 
         if (ladder.isEnabled() && ladder.isEditable() && !ladder.isFrozen()) {
-            ItemStack[] inventoryStorageContent = PlayerUtil.getInventoryStorageContent(player);
-            customKit.setInventory(inventoryStorageContent);
-            customKit.setExtra(new ItemStack[]{this.gui.get(1).getItem(14)});
+            Inventory guiInventory = this.gui.get(1);
+
+            // Save storage directly from player's inventory (must stay <= 36 for setStorageContents)
+            customKit.setInventory(player.getInventory().getStorageContents().clone());
+
+            // Save armor from GUI armor slots
+            ItemStack boots = guiInventory.getItem(45);
+            ItemStack leggings = guiInventory.getItem(36);
+            ItemStack chestplate = guiInventory.getItem(27);
+            ItemStack helmet = guiInventory.getItem(18);
+
+            if (boots != null && (boots.getType().equals(Material.AIR) || boots.equals(GUIManager.getDUMMY_ITEM()) || boots.equals(fillerItem))) boots = null;
+            if (leggings != null && (leggings.getType().equals(Material.AIR) || leggings.equals(GUIManager.getDUMMY_ITEM()) || leggings.equals(fillerItem))) leggings = null;
+            if (chestplate != null && (chestplate.getType().equals(Material.AIR) || chestplate.equals(GUIManager.getDUMMY_ITEM()) || chestplate.equals(fillerItem))) chestplate = null;
+            if (helmet != null && (helmet.getType().equals(Material.AIR) || helmet.equals(GUIManager.getDUMMY_ITEM()) || helmet.equals(fillerItem))) helmet = null;
+
+            customKit.setArmor(new ItemStack[]{boots, leggings, chestplate, helmet});
+
+            // Save offhand/extra item from GUI slot 14
+            ItemStack extraItem = guiInventory.getItem(14);
+            if (extraItem != null && (extraItem.getType().equals(Material.AIR) || extraItem.equals(GUIManager.getDUMMY_ITEM()) || extraItem.equals(fillerItem))) {
+                extraItem = null;
+            }
+            customKit.setExtra(new ItemStack[]{extraItem});
         }
 
         PlayerUtil.clearInventory(player);

@@ -141,8 +141,15 @@ public class SidebarManager extends ConfigFile implements Listener {
         if (profile == null || !profile.isSidebar())
             return;
 
-        if (boards.containsKey(player))
-            return;
+        // If sidebar already exists, ensure it's still open before returning
+        if (boards.containsKey(player)) {
+            PracticeSidebar sidebar = boards.get(player);
+            if (sidebar != null && sidebar.getSidebar() != null && !sidebar.getSidebar().closed()) {
+                return;
+            }
+            // If the sidebar was closed, remove it so we can recreate it
+            boards.remove(player);
+        }
 
         ensureScoreboardLibrary();
 

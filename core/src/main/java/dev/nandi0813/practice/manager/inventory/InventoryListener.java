@@ -281,7 +281,7 @@ public class InventoryListener implements Listener {
                 e.setCancelled(!player.hasPermission("zpp.admin"));
                 break;
             case CUSTOM_EDITOR:
-            case EDITOR:
+                e.setCancelled(true);
                 e.getItemDrop().remove();
                 break;
         }
