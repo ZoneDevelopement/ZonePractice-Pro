@@ -103,7 +103,10 @@ public enum StringUtil {
         string = string.replaceAll("§#([0-9A-Fa-f]{6})", "<#$1>");
 
         // ── 5. Standalone #RRGGBB at word boundary (bare hex, used by some expansions) ──
-        string = string.replaceAll("(?<![&§<])#([0-9A-Fa-f]{6})(?![0-9A-Fa-f>])", "<#$1>");
+        // ':' is excluded from the lookbehind so that MiniMessage gradient/transition tags
+        // such as <gradient:#FF0000:#00FF00> are preserved — the '#' tokens there are always
+        // preceded by ':' and must NOT be re-wrapped in <#…>.
+        string = string.replaceAll("(?<![&§<:])#([0-9A-Fa-f]{6})(?![0-9A-Fa-f>])", "<#$1>");
 
         // ── 6. Standard legacy & and § codes ──
         return legacyColorToMiniMessage(string);
