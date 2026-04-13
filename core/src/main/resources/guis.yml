@@ -326,7 +326,7 @@ GUIS:
           NAME: "&eBack to hub"
           MATERIAL: ARROW
         GLOBAL-LEADERBOARD:
-          NAME: "&eGlobal Elo Leaderboard &7- &fTop %number%"
+          NAME: "&eGlobal Win Leaderboard &7- &fTop %number%"
           MATERIAL: "NETHER_STAR"
           LORE:
             FORMAT: "&6%number%. %division% | %player%&8: &e%global_win%"
