@@ -378,6 +378,11 @@ public class FFAListener implements Listener {
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
 
+        // FFA deaths are custom-managed; avoid vanilla duplicate drops/exp.
+        e.getDrops().clear();
+        e.setDroppedExp(0);
+        e.setKeepInventory(true);
+        e.setKeepLevel(true);
         e.setCancelled(true);
 
         DamageSource damageSource = e.getDamageSource();

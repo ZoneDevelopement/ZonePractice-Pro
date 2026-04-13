@@ -684,6 +684,10 @@ public class LadderTypeListener implements Listener {
         Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
         if (match == null) return;
 
+        e.getDrops().clear();
+        e.setDroppedExp(0);
+        e.setKeepInventory(true);
+        e.setKeepLevel(true);
         e.setCancelled(true);
 
         DamageSource damageSource = e.getDamageSource();
