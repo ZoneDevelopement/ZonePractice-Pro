@@ -145,10 +145,6 @@ public class PlayerUtil {
         return player.getPing();
     }
 
-    public static ItemStack[] getInventoryStorageContent(Player player) {
-        return player.getInventory().getStorageContents();
-    }
-
     public static double getPlayerHealth(Player player) {
         return player.getHealth() + player.getAbsorptionAmount();
     }

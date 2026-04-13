@@ -82,7 +82,21 @@ public class TabIntegration {
                 return;
             }
 
-            eventBus.register(PlayerLoadEvent.class, event -> hideNametag(event.getPlayer()));
+            eventBus.register(PlayerLoadEvent.class, event -> {
+                hideNametag(event.getPlayer());
+
+                // hideNameTag() wipes any prefix/suffix TAB has for this player.
+                // Re-apply the lobby nametag immediately so it isn't lost on first join.
+                try {
+                    Object playerObj = event.getPlayer().getPlayer();
+                    if (!(playerObj instanceof Player player) || !player.isOnline()) return;
+                    dev.nandi0813.practice.manager.profile.Profile profile =
+                            dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
+                    if (profile == null) return;
+                    dev.nandi0813.practice.manager.inventory.InventoryUtil.setLobbyNametag(player, profile);
+                } catch (Exception ignored) {
+                }
+            });
         } catch (Exception ignored) {
         }
     }
@@ -437,4 +451,4 @@ public class TabIntegration {
         }
     }
 
-}
+                }

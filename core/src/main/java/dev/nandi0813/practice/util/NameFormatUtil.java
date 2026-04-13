@@ -214,11 +214,11 @@ public enum NameFormatUtil {
     }
 
     public static Component resolveName(Profile profile, String playerName) {
-        return resolveName(profile, playerName, null);
+        return resolveName(profile, playerName, null, null);
     }
 
     /**
-     * Resolves the display name component for {@code profile}.
+     * Resolves the display name component for {@code profile} without PlaceholderAPI support.
      *
      * @param prefixColor When non-null, applied as the name color if the resolved name
      *                    has no explicit color.  This lets a plain {@code %player%} name
@@ -226,13 +226,28 @@ public enum NameFormatUtil {
      *                    "FOUNDER " makes the name red too).
      */
     public static Component resolveName(Profile profile, String playerName, TextColor prefixColor) {
+        return resolveName(profile, playerName, null, prefixColor);
+    }
+
+    /**
+     * Resolves the display name component for {@code profile} with full PlaceholderAPI support.
+     * When {@code player} is non-null, PAPI expansions present in the name template (e.g.
+     * {@code %luckperms_prefix%}) are resolved on the raw string before MiniMessage parsing,
+     * matching the behaviour of {@link #resolvePrefix(Profile, Player)} and
+     * {@link #resolveSuffix(Profile, Player)}.
+     *
+     * @param player      Online player used for PAPI resolution; may be {@code null}.
+     * @param prefixColor When non-null, applied as the name color if the resolved name has no
+     *                    explicit color, letting the name inherit the trailing prefix colour.
+     */
+    public static Component resolveName(Profile profile, String playerName, Player player, TextColor prefixColor) {
         Group group = profile.getGroup();
 
         Component nameComponent;
         if (profile.getNameTemplate() != null && !profile.getNameTemplate().isEmpty()) {
-            nameComponent = renderTemplate(profile.getNameTemplate(), profile, playerName);
+            nameComponent = renderTemplate(profile.getNameTemplate(), profile, playerName, player);
         } else if (group != null && group.getNameTemplate() != null) {
-            nameComponent = renderTemplate(group.getNameTemplate(), profile, playerName);
+            nameComponent = renderTemplate(group.getNameTemplate(), profile, playerName, player);
         } else if (group != null && group.getNameFormat() != null) {
             nameComponent = applyPlayerPlaceholders(applyDivisionPlaceholders(group.getNameFormat(), profile), playerName);
         } else {
@@ -254,11 +269,12 @@ public enum NameFormatUtil {
 
     /**
      * Resolves the full display name with PlaceholderAPI support.
+     * PAPI is applied to prefix, name, and suffix templates when {@code player} is non-null.
      * The name component inherits the trailing prefix color when it has no explicit color.
      */
     public static Component resolveFullName(Profile profile, Player player, String playerName) {
         Component prefix = resolvePrefix(profile, player);
-        Component name   = resolveName(profile, playerName, extractTrailingColor(prefix));
+        Component name   = resolveName(profile, playerName, player, extractTrailingColor(prefix));
         Component suffix = resolveSuffix(profile, player);
         return prefix.append(name).append(suffix);
     }
