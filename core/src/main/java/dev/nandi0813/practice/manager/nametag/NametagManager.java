@@ -290,12 +290,8 @@ public class NametagManager {
             return false;
         }
 
-        // Allow a player to receive their own text display entity so that mods which
-        // render your own nametag show the server-formatted tag instead of nothing
-        // (the vanilla nametag is hidden by the scoreboard team for everyone, including
-        // the player themselves, so without this the mod sees no tag at all).
         if (viewer.equals(target)) {
-            return isTargetVisible(target);
+            return false;
         }
 
         if (viewer.getWorld() != target.getWorld()) {
@@ -318,9 +314,6 @@ public class NametagManager {
             return false;
         }
 
-        if (target.isSneaking()) {
-            return false;
-        }
 
         if (target.getGameMode() == GameMode.SPECTATOR) {
             return false;

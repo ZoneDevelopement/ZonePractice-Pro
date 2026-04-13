@@ -12,8 +12,15 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class NametagDisplayListener implements Listener {
+
+    private final Map<UUID, BukkitTask> pendingSneakRefresh = new ConcurrentHashMap<>();
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onClientLoad(PlayerClientLoadedWorldEvent event) {
@@ -54,7 +61,27 @@ public final class NametagDisplayListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onSneak(PlayerToggleSneakEvent event) {
-        NametagManager.getInstance().onVisibilityStateChange(event.getPlayer());
+        Player player = event.getPlayer();
+        BukkitTask oldTask = pendingSneakRefresh.remove(player.getUniqueId());
+        if (oldTask != null) {
+            oldTask.cancel();
+        }
+
+        BukkitTask task = Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+            pendingSneakRefresh.remove(player.getUniqueId());
+            if (player.isOnline()) {
+                NametagManager.getInstance().onVisibilityStateChange(player);
+            }
+        });
+        pendingSneakRefresh.put(player.getUniqueId(), task);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onQuit(PlayerQuitEvent event) {
+        BukkitTask task = pendingSneakRefresh.remove(event.getPlayer().getUniqueId());
+        if (task != null) {
+            task.cancel();
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
