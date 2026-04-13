@@ -11,6 +11,7 @@ import dev.nandi0813.practice.manager.fight.util.FightUtil;
 import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
+import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,6 +31,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -152,6 +154,25 @@ public class BuildListener implements Listener {
         return !replacedType.isSolid();
     }
 
+    private static boolean isFireMaterial(Material material) {
+        return material == Material.FIRE || material == Material.SOUL_FIRE;
+    }
+
+    private static boolean isLavaMaterial(Material material) {
+        return material == Material.LAVA;
+    }
+
+    private static void trackFireIfInsideArena(Spectatable spectatable, Block block) {
+        if (spectatable == null || !spectatable.isBuild() || spectatable.getFightChange() == null || spectatable.getCuboid() == null) {
+            return;
+        }
+        if (!spectatable.getCuboid().contains(block.getLocation())) {
+            return;
+        }
+
+        spectatable.getFightChange().trackFirePosition(block);
+    }
+
     /**
      * Resolves the {@link Ladder} from a {@link Spectatable}.
      * Returns {@code null} when the Spectatable is not a {@link Match} (e.g. FFA).
@@ -255,6 +276,64 @@ public class BuildListener implements Listener {
         }
 
         trackUnderBlockIfDirt(block, spectatable);
+
+        Material placedType = block.getType();
+        FightChangeOptimized fightChange = spectatable.getFightChange();
+        if (fightChange != null) {
+            if (isFireMaterial(placedType)) {
+                trackFireIfInsideArena(spectatable, block);
+            } else if (isLavaMaterial(placedType) && spectatable.getCuboid().contains(block.getLocation())) {
+                fightChange.trackFireAround(block);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockIgnite(BlockIgniteEvent event) {
+        Block ignitedBlock = event.getBlock();
+        Spectatable spectatable = getByBlock(ignitedBlock);
+
+        if (spectatable == null && event.getIgnitingBlock() != null) {
+            spectatable = getByBlock(event.getIgnitingBlock());
+        }
+
+        if (spectatable == null && event.getPlayer() != null) {
+            spectatable = getByPlayer(event.getPlayer());
+        }
+
+        if (spectatable == null || !spectatable.isBuild()) {
+            return;
+        }
+
+        trackFireIfInsideArena(spectatable, ignitedBlock);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND) {
+            return;
+        }
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+        if (event.getItem() == null || event.getItem().getType() != Material.FLINT_AND_STEEL) {
+            return;
+        }
+        if (event.getClickedBlock() == null) {
+            return;
+        }
+
+        Spectatable spectatable = getByPlayer(event.getPlayer());
+        if (spectatable == null || !spectatable.isBuild() || spectatable.getCuboid() == null || spectatable.getFightChange() == null) {
+            return;
+        }
+
+        Block target = event.getClickedBlock().getRelative(event.getBlockFace());
+        if (!spectatable.getCuboid().contains(target.getLocation())) {
+            return;
+        }
+
+        spectatable.getFightChange().trackFirePosition(target);
     }
 
     // =========================================================================
@@ -763,6 +842,9 @@ public class BuildListener implements Listener {
             if (BlockUtil.hasMetadata(adj, PLACED_IN_FIGHT)) continue;
 
             tagAndTrack(adj, spectatable);
+            if (spectatable.getFightChange() != null) {
+                spectatable.getFightChange().trackFirePosition(adj);
+            }
         }
     }
 

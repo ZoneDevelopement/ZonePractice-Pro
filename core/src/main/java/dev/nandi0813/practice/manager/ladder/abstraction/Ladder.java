@@ -63,9 +63,9 @@ public abstract class Ladder {
     @Setter
     protected int maxDuration = 600;
     @Setter
-    protected boolean multiRoundStartCountdown = true; // Ha azt irja nincs hasznalva buggos
+    protected boolean multiRoundStartCountdown = true;
     @Setter
-    protected boolean dropInventoryPartyGames = false; // Ha azt irja nincs hasznalva buggos
+    protected boolean dropInventoryPartyGames = false;
     @Setter
     protected boolean startMove = true;
     @Setter
