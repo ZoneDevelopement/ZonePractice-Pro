@@ -31,8 +31,10 @@ public enum FaweUtil {
     }
 
     public static boolean copyFAWEWithResult(final Cuboid copyFrom, final Location reference, final Location newLocation) {
-        Location newLoc = copyFrom.getLowerNE().clone();
-        newLoc.setWorld(ArenaWorldUtil.getArenasCopyWorld());
+        int targetX = copyFrom.getLowerX() - reference.getBlockX() + newLocation.getBlockX();
+        int targetY = copyFrom.getLowerY() - reference.getBlockY() + newLocation.getBlockY();
+        int targetZ = copyFrom.getLowerZ() - reference.getBlockZ() + newLocation.getBlockZ();
+        Location destination = new Location(ArenaWorldUtil.getArenasCopyWorld(), targetX, targetY, targetZ);
 
         try {
             ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
@@ -41,7 +43,7 @@ public enum FaweUtil {
                             BukkitAdapter.adapt(copyFrom.getLowerNE()).toBlockPoint(),
                             BukkitAdapter.adapt(copyFrom.getUpperSW()).toBlockPoint()),
                     BukkitAdapter.adapt(ArenaWorldUtil.getArenasCopyWorld()),
-                    BukkitAdapter.adapt(newLoc.subtract(reference).add(newLocation)).toBlockPoint()
+                    BukkitAdapter.adapt(destination).toBlockPoint()
             );
 
             forwardExtentCopy.setCopyingEntities(true);

@@ -82,45 +82,39 @@ public class ArenaCopyUtilListener implements Listener {
 
     public Location createCopy(Profile profile, Arena arena) {
         final World copyWorld = ArenaWorldUtil.getArenasCopyWorld();
-        final Location newLocation = getAvailableLocation();
+        final Cuboid sourceCuboid = arena.getCuboid();
+        final Location newLocation = getAvailableLocation(sourceCuboid);
 
-        Cuboid cuboid = arena.getCuboid();
-        Location reference = arena.getCuboid().getLowerNE();
-        reference.setWorld(copyWorld);
+        Location reference = sourceCuboid.getLowerNE();
 
         for (Player player : Bukkit.getOnlinePlayers())
             if (player.hasPermission("zpp.setup"))
                 Common.sendMMMessage(player, LanguageManager.getString("ARENA.GENERATE-COPY").replace("%arena%", Common.serializeNormalToMMString(arena.getDisplayName())));
 
         if (newLocation != null) {
-            Location corner1 = arena.getCorner1().clone();
-            Location corner2 = arena.getCorner2().clone();
             Location position1 = arena.getPosition1().clone();
             Location position2 = arena.getPosition2().clone();
-
-            corner1.setWorld(copyWorld);
-            corner2.setWorld(copyWorld);
             position1.setWorld(copyWorld);
             position2.setWorld(copyWorld);
 
             ArenaCopy arenaCopy = new ArenaCopy(arena.getName() + "_" + (arena.getCopies().size() + 1), arena);
-            arenaCopy.setCorner1(corner1.clone().subtract(reference).add(newLocation));
-            arenaCopy.setCorner2(corner2.clone().subtract(reference).add(newLocation));
+            arenaCopy.setCorner1(newLocation.clone());
+            arenaCopy.setCorner2(newLocation.clone().add(sourceCuboid.getSizeX() - 1, sourceCuboid.getSizeY() - 1, sourceCuboid.getSizeZ() - 1));
             arenaCopy.createCuboid();
 
             arenaCopy.getMainArena().setCopying(true);
             copyingCuboids.add(arenaCopy.getCuboid());
             addCopyingChunks(arenaCopy.getCuboid());  // Register chunks for O(1) physics blocking
 
-            this.copyArena(profile, arenaCopy, cuboid, reference, newLocation);
+            this.copyArena(profile, arenaCopy, sourceCuboid, reference, newLocation);
 
-            arenaCopy.setPosition1(position1.clone().subtract(reference).add(newLocation));
-            arenaCopy.setPosition2(position2.clone().subtract(reference).add(newLocation));
+            arenaCopy.setPosition1(translateLocation(position1, reference, newLocation));
+            arenaCopy.setPosition2(translateLocation(position2, reference, newLocation));
 
             for (Location ffaPos : arena.getFfaPositions()) {
                 Location ffaPosCopy = ffaPos.clone();
                 ffaPosCopy.setWorld(copyWorld);
-                arenaCopy.getFfaPositions().add(ffaPosCopy.clone().subtract(reference).add(newLocation));
+                arenaCopy.getFfaPositions().add(translateLocation(ffaPosCopy, reference, newLocation));
             }
 
             if (arena.isBuildMax()) {
@@ -138,21 +132,21 @@ public class ArenaCopyUtilListener implements Listener {
             if (arena.getBedLoc1() != null) {
                 Location bedLoc1 = arena.getBedLoc1().clone();
                 bedLoc1.setWorld(copyWorld);
-                bedLoc1 = bedLoc1.subtract(reference).add(newLocation);
+                bedLoc1 = translateLocation(bedLoc1, reference, newLocation);
                 arenaCopy.setBedLoc1(new BedLocation(bedLoc1.getWorld(), bedLoc1.getX(), bedLoc1.getY(), bedLoc1.getZ(), arena.getBedLoc1().getFacing()));
             }
 
             if (arena.getBedLoc2() != null) {
                 Location bedLoc2 = arena.getBedLoc2().clone();
                 bedLoc2.setWorld(copyWorld);
-                bedLoc2 = bedLoc2.subtract(reference).add(newLocation);
+                bedLoc2 = translateLocation(bedLoc2, reference, newLocation);
                 arenaCopy.setBedLoc2(new BedLocation(bedLoc2.getWorld(), bedLoc2.getX(), bedLoc2.getY(), bedLoc2.getZ(), arena.getBedLoc2().getFacing()));
             }
 
             if (arena.getPortalLoc1() != null) {
                 Location portalLoc1Center = arena.getPortalLoc1().getCenter().clone();
                 portalLoc1Center.setWorld(copyWorld);
-                portalLoc1Center = portalLoc1Center.subtract(reference).add(newLocation);
+                portalLoc1Center = translateLocation(portalLoc1Center, reference, newLocation);
                 arenaCopy.setPortalLoc1(new PortalLocation(portalLoc1Center));
                 arenaCopy.getPortalLoc1().setPortal();
             }
@@ -160,7 +154,7 @@ public class ArenaCopyUtilListener implements Listener {
             if (arena.getPortalLoc2() != null) {
                 Location portalLoc2Center = arena.getPortalLoc2().getCenter().clone();
                 portalLoc2Center.setWorld(copyWorld);
-                portalLoc2Center = portalLoc2Center.subtract(reference).add(newLocation);
+                portalLoc2Center = translateLocation(portalLoc2Center, reference, newLocation);
                 arenaCopy.setPortalLoc2(new PortalLocation(portalLoc2Center));
                 arenaCopy.getPortalLoc2().setPortal();
             }
@@ -169,20 +163,57 @@ public class ArenaCopyUtilListener implements Listener {
         return newLocation;
     }
 
-    protected static Location getAvailableLocation() {
+    private static Location translateLocation(Location original, Location reference, Location newLocation) {
+        return new Location(
+                newLocation.getWorld(),
+                original.getX() - reference.getBlockX() + newLocation.getBlockX(),
+                original.getY() - reference.getBlockY() + newLocation.getBlockY(),
+                original.getZ() - reference.getBlockZ() + newLocation.getBlockZ(),
+                original.getYaw(),
+                original.getPitch()
+        );
+    }
+
+    protected static Location getAvailableLocation(Cuboid sourceCuboid) {
         final World copyWorld = ArenaWorldUtil.getArenasCopyWorld();
+        final int maxX = sourceCuboid.getSizeX() - 1;
+        final int maxY = sourceCuboid.getSizeY() - 1;
+        final int maxZ = sourceCuboid.getSizeZ() - 1;
 
         // Four thousand arenas fit in that line
         for (int x = -1000000; x <= 1000000; x = x + 1000) {
             Location location = copyWorld.getBlockAt(x, 60, 0).getLocation();
-            if (!isCuboidContainsLocation(location)) return location;
+            Cuboid candidate = new Cuboid(
+                    copyWorld,
+                    location.getBlockX(),
+                    location.getBlockY(),
+                    location.getBlockZ(),
+                    location.getBlockX() + maxX,
+                    location.getBlockY() + maxY,
+                    location.getBlockZ() + maxZ
+            );
+            if (!isCuboidContainsLocation(candidate)) {
+                return location;
+            }
         }
         return null;
     }
 
-    protected static boolean isCuboidContainsLocation(Location location) {
-        for (Cuboid cuboid : ArenaManager.getInstance().getArenaCuboids().keySet())
-            if (cuboid.contains(location)) return true;
+    private static boolean overlaps(Cuboid a, Cuboid b) {
+        if (!a.getWorld().equals(b.getWorld())) {
+            return false;
+        }
+        return a.getLowerX() <= b.getUpperX() && a.getUpperX() >= b.getLowerX()
+                && a.getLowerY() <= b.getUpperY() && a.getUpperY() >= b.getLowerY()
+                && a.getLowerZ() <= b.getUpperZ() && a.getUpperZ() >= b.getLowerZ();
+    }
+
+    protected static boolean isCuboidContainsLocation(Cuboid candidate) {
+        for (Cuboid cuboid : ArenaManager.getInstance().getArenaCuboids().keySet()) {
+            if (overlaps(cuboid, candidate)) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -216,9 +247,10 @@ public class ArenaCopyUtilListener implements Listener {
                         currentSize[0]++;
                         checkCounter++;
 
-                        Location newLoc = new Location(copyWorld, originLoc.getX(), originLoc.getY(), originLoc.getZ()).clone().subtract(reference).add(newLocation);
-
-                        Block newBlock = newLoc.getBlock();
+                        int dx = originLoc.getBlockX() - reference.getBlockX();
+                        int dy = originLoc.getBlockY() - reference.getBlockY();
+                        int dz = originLoc.getBlockZ() - reference.getBlockZ();
+                        Block newBlock = copyWorld.getBlockAt(newLocation.getBlockX() + dx, newLocation.getBlockY() + dy, newLocation.getBlockZ() + dz);
                         copyBlock(block, newBlock);
 
                         changeCounter++;
