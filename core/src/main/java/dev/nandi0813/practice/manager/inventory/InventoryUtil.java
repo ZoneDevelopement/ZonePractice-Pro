@@ -64,7 +64,8 @@ public enum InventoryUtil {
     public static LobbyNametag getLobbyNametag(Profile profile, String playerName, Player player) {
         Component prefix         = NameFormatUtil.resolvePrefix(profile, player);
         TextColor prefixEndColor = NameFormatUtil.extractTrailingColor(prefix);
-        Component name           = NameFormatUtil.resolveName(profile, playerName, prefixEndColor);
+        // Pass player so PAPI placeholders in the name template are resolved:
+        Component name           = NameFormatUtil.resolveName(profile, playerName, player, prefixEndColor);
         Component suffix         = NameFormatUtil.resolveSuffix(profile, player);
 
         NamedTextColor scoreboardNameColor = NameFormatUtil.resolveScoreboardColor(profile, playerName, NamedTextColor.GRAY);
