@@ -100,7 +100,7 @@ public abstract class PlayersVsPlayers extends Match implements Team {
 
                     PlayerUtil.setFightPlayer(player);
 
-                    if (ladder.isDropInventoryPartyGames())
+                    if (ladder.isDropInventory())
                         addEntityChange(dev.nandi0813.practice.manager.fight.util.PlayerUtil.dropPlayerInventory(player));
                     else
                         dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);

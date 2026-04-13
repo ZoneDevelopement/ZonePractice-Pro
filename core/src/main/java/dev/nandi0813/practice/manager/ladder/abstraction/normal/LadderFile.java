@@ -37,7 +37,7 @@ public class LadderFile extends ConfigFile {
         config.set("settings.hunger", ladder.isHunger());
         config.set("settings.weightClass", ladder.getWeightClass().toString());
         config.set("settings.editable", ladder.isEditable());
-        config.set("settings.drop-inventory", ladder.isDropInventoryPartyGames());
+        config.set("settings.drop-inventory", ladder.isDropInventory());
         config.set("settings.multiRoundStartCountdown", ladder.isMultiRoundStartCountdown());
         config.set("settings.hitdelay", ladder.getAttackCooldownModifier());
         config.set("settings.rounds", ladder.getRounds());
@@ -136,7 +136,7 @@ public class LadderFile extends ConfigFile {
         }
 
         if (config.isBoolean("settings.drop-inventory")) {
-            ladder.setDropInventoryPartyGames(config.getBoolean("settings.drop-inventory"));
+            ladder.setDropInventory(config.getBoolean("settings.drop-inventory"));
         }
 
         if (config.isBoolean("settings.multiRoundStartCountdown")) {

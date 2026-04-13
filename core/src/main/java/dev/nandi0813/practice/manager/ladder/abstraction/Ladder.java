@@ -65,7 +65,7 @@ public abstract class Ladder {
     @Setter
     protected boolean multiRoundStartCountdown = true;
     @Setter
-    protected boolean dropInventoryPartyGames = false;
+    protected boolean dropInventory = false;
     @Setter
     protected boolean startMove = true;
     @Setter
@@ -113,7 +113,7 @@ public abstract class Ladder {
         this.tntFuseTime = ladder.getTntFuseTime();
         this.maxDuration = ladder.getMaxDuration();
         this.multiRoundStartCountdown = ladder.isMultiRoundStartCountdown();
-        this.dropInventoryPartyGames = ladder.isDropInventoryPartyGames();
+        this.dropInventory = ladder.isDropInventory();
         this.startMove = ladder.isStartMove();
         this.healthBelowName = ladder.isHealthBelowName();
         this.resetBuildAfterRound = ladder.isResetBuildAfterRound();
