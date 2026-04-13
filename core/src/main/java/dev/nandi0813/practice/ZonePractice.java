@@ -416,8 +416,8 @@ public final class ZonePractice extends JavaPlugin {
 
     private void loadPlaceholderAPI() {
         if (SoftDependUtil.isPAPI_ENABLED) {
-            PlayerExpansion playerExpansion = new PlayerExpansion();
-            playerExpansion.register();
+            new PlayerExpansion("zppro").register();
+            new PlayerExpansion("zpp").register();
         }
     }
 
