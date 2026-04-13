@@ -80,7 +80,7 @@ public class PlayerChatListener implements Listener {
     private void setViewers(AsyncChatEvent e, Collection<? extends Audience> targets) {
         Set<Audience> viewers = e.viewers();
         viewers.clear();
-        viewers.add(Bukkit.getServer());
+        viewers.add(Bukkit.getConsoleSender());
         viewers.addAll(targets);
     }
 
