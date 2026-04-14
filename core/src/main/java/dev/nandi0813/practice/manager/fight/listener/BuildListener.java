@@ -18,6 +18,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.Openable;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
@@ -173,6 +175,35 @@ public class BuildListener implements Listener {
         spectatable.getFightChange().trackFirePosition(block);
     }
 
+    private static boolean isDoorMaterial(Material material) {
+        return material != null && material.name().endsWith("_DOOR");
+    }
+
+    private static void trackOpenableInteraction(Spectatable spectatable, Block clickedBlock) {
+        if (spectatable == null || !spectatable.isBuild() || spectatable.getFightChange() == null || spectatable.getCuboid() == null) {
+            return;
+        }
+        if (clickedBlock == null || !spectatable.getCuboid().contains(clickedBlock.getLocation())) {
+            return;
+        }
+        if (!(clickedBlock.getBlockData() instanceof Openable)) {
+            return;
+        }
+
+        spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(clickedBlock));
+
+        // Doors are bisected, so capture the paired half too.
+        if (isDoorMaterial(clickedBlock.getType()) && clickedBlock.getBlockData() instanceof Bisected bisected) {
+            Block otherHalf = bisected.getHalf() == Bisected.Half.TOP
+                    ? clickedBlock.getRelative(0, -1, 0)
+                    : clickedBlock.getRelative(0, 1, 0);
+
+            if (spectatable.getCuboid().contains(otherHalf.getLocation())) {
+                spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(otherHalf));
+            }
+        }
+    }
+
     /**
      * Resolves the {@link Ladder} from a {@link Spectatable}.
      * Returns {@code null} when the Spectatable is not a {@link Match} (e.g. FFA).
@@ -316,14 +347,16 @@ public class BuildListener implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
-        if (event.getItem() == null || event.getItem().getType() != Material.FLINT_AND_STEEL) {
-            return;
-        }
         if (event.getClickedBlock() == null) {
             return;
         }
 
         Spectatable spectatable = getByPlayer(event.getPlayer());
+        trackOpenableInteraction(spectatable, event.getClickedBlock());
+
+        if (event.getItem() == null || event.getItem().getType() != Material.FLINT_AND_STEEL) {
+            return;
+        }
         if (spectatable == null || !spectatable.isBuild() || spectatable.getCuboid() == null || spectatable.getFightChange() == null) {
             return;
         }
