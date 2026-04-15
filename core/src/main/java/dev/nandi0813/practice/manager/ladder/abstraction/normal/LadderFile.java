@@ -37,7 +37,7 @@ public class LadderFile extends ConfigFile {
         config.set("settings.hunger", ladder.isHunger());
         config.set("settings.weightClass", ladder.getWeightClass().toString());
         config.set("settings.editable", ladder.isEditable());
-        config.set("settings.drop-inventory", ladder.isDropInventoryPartyGames());
+        config.set("settings.drop-inventory", ladder.isDropInventory());
         config.set("settings.multiRoundStartCountdown", ladder.isMultiRoundStartCountdown());
         config.set("settings.hitdelay", ladder.getAttackCooldownModifier());
         config.set("settings.rounds", ladder.getRounds());
@@ -136,7 +136,7 @@ public class LadderFile extends ConfigFile {
         }
 
         if (config.isBoolean("settings.drop-inventory")) {
-            ladder.setDropInventoryPartyGames(config.getBoolean("settings.drop-inventory"));
+            ladder.setDropInventory(config.getBoolean("settings.drop-inventory"));
         }
 
         if (config.isBoolean("settings.multiRoundStartCountdown")) {
@@ -200,16 +200,14 @@ public class LadderFile extends ConfigFile {
         } else
             ladder.setMaxDuration(600);
 
-        if (config.isInt("settings.epcooldown")) {
-            int epCooldown = config.getInt("settings.epcooldown");
-            if (epCooldown < 0 || epCooldown > 60) epCooldown = 0;
-            ladder.setEnderPearlCooldown(epCooldown);
+        Number epCooldown = getNumeric("settings.epcooldown");
+        if (epCooldown != null) {
+            ladder.setEnderPearlCooldown(Math.clamp(epCooldown.doubleValue(), 0.0, 60.0));
         }
 
-        if (config.isInt("settings.gacooldown")) {
-            int gaCooldown = config.getInt("settings.gacooldown");
-            if (gaCooldown < 0 || gaCooldown > 30) gaCooldown = 0;
-            ladder.setGoldenAppleCooldown(gaCooldown);
+        Number gaCooldown = getNumeric("settings.gacooldown");
+        if (gaCooldown != null) {
+            ladder.setGoldenAppleCooldown(Math.clamp(gaCooldown.doubleValue(), 0.0, 30.0));
         }
 
         if (config.isInt("settings.fireworkcooldown")) {
@@ -218,10 +216,9 @@ public class LadderFile extends ConfigFile {
             ladder.setFireworkRocketCooldown(fireworkCooldown);
         }
 
-        if (config.isInt("settings.windchargecooldown")) {
-            int windChargeCooldown = config.getInt("settings.windchargecooldown");
-            if (windChargeCooldown < 0 || windChargeCooldown > 30) windChargeCooldown = 0;
-            ladder.setWindChargeCooldown(windChargeCooldown);
+        Number windChargeCooldown = getNumeric("settings.windchargecooldown");
+        if (windChargeCooldown != null) {
+            ladder.setWindChargeCooldown(Math.clamp(windChargeCooldown.doubleValue(), 0.0, 30.0));
         } else {
             ladder.setWindChargeCooldown(0);
         }
@@ -324,6 +321,11 @@ public class LadderFile extends ConfigFile {
 
         if (ladder.isEnabled() && !ladder.isReadyToEnable())
             ladder.setEnabled(false);
+    }
+
+    private Number getNumeric(String path) {
+        Object value = config.get(path);
+        return value instanceof Number ? (Number) value : null;
     }
 
 }

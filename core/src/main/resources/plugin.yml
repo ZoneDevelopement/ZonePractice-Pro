@@ -26,8 +26,6 @@ commands:
     aliases: spec
   party:
     aliases: p
-  hologram:
-    aliases: holo
   matchinv:
     description: Match inventory command.
   event:
@@ -106,6 +104,7 @@ permissions:
       zpp.practice.unranked: true
       zpp.practice.exp: true
       zpp.practice.rename: true
+      zpp.practice.reload: true
       zpp.practice.stop: true
   zpp.practice.lobby:
     description: Teleport to and set the lobby.
@@ -129,6 +128,8 @@ permissions:
     description: Usage for the /prac rename command.
   zpp.practice.reset:
     description: Reset a player fully.
+  zpp.practice.reload:
+    description: Reload practice config files.
 
   zpp.practice.nametag.set:
     description: Set player's nametag.
@@ -192,6 +193,7 @@ permissions:
       zpp.settings.playerhide: true
       zpp.settings.allowspectate: true
       zpp.settings.worldtime: true
+      zpp.settings.prefixvisibility: true
   zpp.settings.open:
     description: Open the settings gui.
     default: true
@@ -209,6 +211,8 @@ permissions:
     description: Toggle spectators in their matches.
   zpp.settings.worldtime:
     description: Change world time.
+  zpp.settings.prefixvisibility:
+    description: Change prefix/suffix visibility mode in chat/tab/sidebar/nametag.
   zpp.settings.fly:
     description: Toggle fly in the lobby.
 

@@ -39,6 +39,10 @@ public enum PlayerCooldown {
             cooldowns.get(player).remove(object);
     }
 
+    public static void clearPlayer(Player player) {
+        cooldowns.remove(player);
+    }
+
     public static boolean isActive(Player player, CooldownObject object) {
         if (cooldowns.containsKey(player))
             return cooldowns.get(player).containsKey(object) && System.currentTimeMillis() < cooldowns.get(player).get(object);

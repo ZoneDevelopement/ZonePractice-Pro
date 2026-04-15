@@ -72,4 +72,12 @@ public enum BlockUtil {
         PersistentTagUtil.clearBlockTag(block, tag);
     }
 
+    public static void clearMetadata(Entity entity, String tag) {
+        PersistentTagUtil.clearEntityTag(entity, tag);
+    }
+
+    public static void clearAllMetadata(Entity entity) {
+        PersistentTagUtil.clearAllEntityTags(entity);
+    }
+
 }

@@ -173,7 +173,7 @@ public class SettingsGui extends GUI {
         if (settingTypes.contains(SettingType.MULTI_ROUND_START_COUNTDOWN))
             settingItems.add(new MultiRoundStartCountdownItem(this, ladder));
 
-        if (settingTypes.contains(SettingType.DROP_INVENTORY_TEAM))
+        if (settingTypes.contains(SettingType.DROP_INVENTORY))
             settingItems.add(new DropInventoryItem(this, ladder));
 
         if (settingTypes.contains(SettingType.WEIGHT_CLASS))

@@ -118,24 +118,26 @@ public class ChangedBlock {
         Block currentBlock = location.getBlock();
 
         try {
-            currentBlock.setBlockData(material.createBlockData());
-            currentBlock.setBlockData(blockData);
-            currentBlock.getState().setType(material);
-            currentBlock.getState().setBlockData(blockData);
-            currentBlock.getState().update();
+            // Set the block data directly - this is the primary method
+            currentBlock.setBlockData(blockData, false);
 
+            // Handle chest inventory if present
             if (chestInventory != null) {
-                if (currentBlock.getState() instanceof Chest chest) {
+                BlockState state = currentBlock.getState();
+                if (state instanceof Chest chest) {
                     chest.getInventory().setContents(chestInventory);
-                    chest.update();
+                    chest.update(true, false);
                 }
             }
         } catch (Exception e) {
             // Handle BlockData compatibility issues
             // Just set the block type without the problematic block data
-            currentBlock.setBlockData(material.createBlockData());
-            currentBlock.getState().setType(material);
-            currentBlock.getState().update();
+            try {
+                currentBlock.setBlockData(material.createBlockData(), false);
+            } catch (Exception ex) {
+                // Ultimate fallback - just set material
+                currentBlock.setType(material, false);
+            }
         }
     }
 

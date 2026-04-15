@@ -9,26 +9,13 @@ import dev.nandi0813.practice.manager.inventory.inventories.spectate.SpecEventIn
 import dev.nandi0813.practice.manager.inventory.inventories.spectate.SpecFfaInventory;
 import dev.nandi0813.practice.manager.inventory.inventories.spectate.SpecMatchInventory;
 import dev.nandi0813.practice.manager.inventory.inventories.spectate.SpecModeLobbyInventory;
-import dev.nandi0813.practice.manager.profile.Profile;
-import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsData;
-import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
-import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
-import dev.nandi0813.practice.manager.server.ServerManager;
-import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.manager.inventory.service.InventoryCosmeticService;
+import dev.nandi0813.practice.manager.inventory.service.InventoryTransitionService;
 import dev.nandi0813.practice.util.ItemSerializationUtil;
-import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 
@@ -51,7 +38,8 @@ public class InventoryManager extends ConfigFile {
     private final List<Player> setupModePlayers = new ArrayList<>();
     private final NamespacedKey lobbyCosmeticItemKey = new NamespacedKey(ZonePractice.getInstance(), "zpp-cosmetic-item");
     private final NamespacedKey lobbyCosmeticTypeKey = new NamespacedKey(ZonePractice.getInstance(), "zpp-cosmetic-type");
-    private final Map<UUID, ItemStack> storedOffhandItems = new HashMap<>();
+    private final InventoryCosmeticService cosmeticService = new InventoryCosmeticService();
+    private final InventoryTransitionService transitionService = new InventoryTransitionService(this);
 
     private InventoryManager() {
         super("", "inventories");
@@ -99,42 +87,7 @@ public class InventoryManager extends ConfigFile {
     }
 
     public void setLobbyInventory(Player player, boolean teleport) {
-        Profile profile = ProfileManager.getInstance().getProfile(player);
-        profile.setStatus(ProfileStatus.LOBBY);
-        dev.nandi0813.practice.manager.fight.util.PlayerUtil.resetAttackSpeed(player);
-
-        PlayerUtil.clearPlayer(
-                player,
-                false,
-                profile.isFlying(),
-                true);
-
-        if (ZonePractice.getInstance().isEnabled()) {
-            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
-                    InventoryUtil.setLobbyNametag(player, profile));
-        } else {
-            InventoryUtil.setLobbyNametag(player, profile);
-        }
-
-        if (teleport) {
-            player.closeInventory();
-        }
-
-        if (profile.isStaffMode()) {
-            this.setStaffModeInventory(player);
-        } else if (profile.isSpectatorMode()) {
-            this.setInventory(player, Inventory.InventoryType.SPEC_MODE_LOBBY);
-        } else if (profile.isParty()) {
-            this.setInventory(player, Inventory.InventoryType.PARTY);
-        } else {
-            this.setInventory(player, Inventory.InventoryType.LOBBY);
-        }
-
-        if (teleport && ServerManager.getLobby() != null)
-            player.teleport(ServerManager.getLobby());
-
-        player.updateInventory();
-        applyLobbyCosmetics(player);
+        transitionService.setLobbyInventory(player, teleport);
     }
 
     public void setMatchQueueInventory(Player player) {
@@ -142,226 +95,33 @@ public class InventoryManager extends ConfigFile {
     }
 
     public void setMatchQueueInventory(Player player, boolean closeInventory) {
-        ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.QUEUE);
-
-        if (closeInventory) {
-            player.closeInventory();
-        }
-
-        this.setInventory(player, Inventory.InventoryType.MATCH_QUEUE);
+        transitionService.setMatchQueueInventory(player, closeInventory);
     }
+
 
     public void applyLobbyCosmetics(Player player) {
-        if (player == null || !player.isOnline()) {
-            return;
-        }
-
-        Profile profile = ProfileManager.getInstance().getProfile(player);
-        if (profile == null || profile.getCosmeticsData() == null) {
-            clearLobbyCosmeticItems(player);
-            return;
-        }
-
-        if (!isLobbyCosmeticsState(profile)) {
-            clearLobbyCosmeticItems(player);
-            return;
-        }
-
-        CosmeticsData.LobbyItemType type = profile.getCosmeticsData().getLobbyItemType();
-        if (type == null || type == CosmeticsData.LobbyItemType.NONE || !CosmeticsPermissionManager.hasLobbyItemPermission(player, type)) {
-            clearLobbyCosmeticItems(player);
-            return;
-        }
-
-        clearLobbyCosmeticItems(player);
-
-        if (type == CosmeticsData.LobbyItemType.WIND_CHARGE) {
-            player.getInventory().setChestplate(createLobbyElytra());
-            ItemStack windChargeItem = createLobbyMovementItem(type);
-            player.getInventory().setItemInOffHand(windChargeItem);
-        } else {
-            ItemStack movementItem = createLobbyMovementItem(type);
-            setMovementItemDynamic(player, movementItem);
-        }
+        cosmeticService.applyLobbyCosmetics(player);
     }
 
-    private void setMovementItemDynamic(Player player, ItemStack movementItem) {
-        if (movementItem == null || movementItem.getType().isAir()) {
-            return;
-        }
-
-        PlayerInventory inv = player.getInventory();
-        int firstEmpty = inv.firstEmpty();
-
-        if (firstEmpty != -1) {
-            inv.setItem(firstEmpty, movementItem);
-            return;
-        }
-
-        int middleSlot = 4;
-        ItemStack itemInMiddle = inv.getItem(middleSlot);
-
-        ItemStack currentOffHand = inv.getItemInOffHand();
-        if (!currentOffHand.getType().isAir()) {
-            storedOffhandItems.put(player.getUniqueId(), currentOffHand);
-        }
-
-        inv.setItemInOffHand(itemInMiddle);
-        inv.setItem(middleSlot, movementItem);
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean shouldRenderLobbyCosmetics(dev.nandi0813.practice.manager.profile.Profile profile) {
+        return cosmeticService.shouldRenderLobbyCosmetics(profile);
     }
 
-    public void restoreStoredItem(Player player) {
-        if (player == null) {
-            return;
-        }
-
-        ItemStack stored = storedOffhandItems.remove(player.getUniqueId());
-        if (stored == null || stored.getType().isAir()) {
-            return;
-        }
-
-        PlayerInventory inv = player.getInventory();
-        ItemStack offHand = inv.getItemInOffHand();
-
-        if (offHand.getType().isAir() || isLobbyCosmeticItem(offHand)) {
-            inv.setItemInOffHand(stored);
-            return;
-        }
-
-        int firstEmpty = inv.firstEmpty();
-        if (firstEmpty != -1) {
-            inv.setItem(firstEmpty, stored);
-        }
+    public boolean isLobbyCosmeticItem(org.bukkit.inventory.ItemStack itemStack) {
+        return cosmeticService.isLobbyCosmeticItem(itemStack);
     }
 
-    public boolean isLobbyCosmeticsState(Profile profile) {
-        if (profile == null) {
-            return false;
-        }
-
-        ProfileStatus status = profile.getStatus();
-        return status == ProfileStatus.LOBBY || status == ProfileStatus.QUEUE;
-    }
-
-    public boolean isLobbyCosmeticItem(ItemStack itemStack) {
-        if (itemStack == null || itemStack.getType().isAir() || !itemStack.hasItemMeta()) {
-            return false;
-        }
-
-        ItemMeta meta = itemStack.getItemMeta();
-        return meta.getPersistentDataContainer().has(lobbyCosmeticItemKey, PersistentDataType.BYTE);
-    }
-
-    public CosmeticsData.LobbyItemType getLobbyCosmeticType(ItemStack itemStack) {
-        if (!isLobbyCosmeticItem(itemStack)) {
-            return CosmeticsData.LobbyItemType.NONE;
-        }
-
-        ItemMeta meta = itemStack.getItemMeta();
-        String typeName = meta.getPersistentDataContainer().get(lobbyCosmeticTypeKey, PersistentDataType.STRING);
-        if (typeName == null || typeName.isBlank()) {
-            return CosmeticsData.LobbyItemType.NONE;
-        }
-
-        try {
-            return CosmeticsData.LobbyItemType.valueOf(typeName.toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException ignored) {
-            return CosmeticsData.LobbyItemType.NONE;
-        }
-    }
-
-    private ItemStack createLobbyElytra() {
-        ItemStack elytra = new ItemStack(Material.ELYTRA);
-        ItemMeta meta = elytra.getItemMeta();
-        if (meta != null) {
-            meta.displayName(Common.legacyToComponent("&bLobby Elytra"));
-            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS);
-            meta.setUnbreakable(true);
-            tagAsLobbyCosmetic(meta, CosmeticsData.LobbyItemType.NONE);
-            elytra.setItemMeta(meta);
-        }
-
-        return elytra;
-    }
-
-    private ItemStack createLobbyMovementItem(CosmeticsData.LobbyItemType type) {
-        ItemStack itemStack = switch (type) {
-            case WIND_CHARGE -> new ItemStack(Material.WIND_CHARGE, 64);
-            case TRIDENT -> new ItemStack(Material.TRIDENT, 1);
-            case SPEAR -> new ItemStack(Material.NETHERITE_SPEAR, 1);
-            case NONE -> new ItemStack(Material.AIR);
-        };
-
-        if (type.equals(CosmeticsData.LobbyItemType.NONE)) {
-            return itemStack;
-        }
-
-        ItemMeta meta = itemStack.getItemMeta();
-        if (meta != null) {
-            String displayName = switch (type) {
-                case WIND_CHARGE -> "&bWind Charge";
-                case TRIDENT -> "&3Riptide Trident";
-                case SPEAR -> "&5Lunge Spear";
-                default -> throw new IllegalStateException("Unexpected value: " + type);
-            };
-
-            meta.displayName(Common.legacyToComponent(displayName));
-            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
-            meta.setUnbreakable(true);
-
-            if (type == CosmeticsData.LobbyItemType.TRIDENT) {
-                meta.addEnchant(Enchantment.RIPTIDE, 3, true);
-            } else if (type == CosmeticsData.LobbyItemType.SPEAR) {
-                meta.addEnchant(Enchantment.LUNGE, 6, true);
-            }
-
-            tagAsLobbyCosmetic(meta, type);
-            itemStack.setItemMeta(meta);
-        }
-
-        return itemStack;
-    }
-
-    private void tagAsLobbyCosmetic(ItemMeta meta, CosmeticsData.LobbyItemType type) {
-        meta.getPersistentDataContainer().set(lobbyCosmeticItemKey, PersistentDataType.BYTE, (byte) 1);
-        meta.getPersistentDataContainer().set(lobbyCosmeticTypeKey, PersistentDataType.STRING, type.name());
-    }
-
-    private void clearLobbyCosmeticItems(Player player) {
-        PlayerInventory inventory = player.getInventory();
-
-        if (isLobbyCosmeticItem(inventory.getChestplate())) {
-            inventory.setChestplate(null);
-        }
-
-        if (isLobbyCosmeticItem(inventory.getItemInOffHand())) {
-            inventory.setItemInOffHand(null);
-        }
-
-        for (int i = 0; i < inventory.getSize(); i++) {
-            ItemStack content = inventory.getItem(i);
-            if (isLobbyCosmeticItem(content)) {
-                inventory.setItem(i, null);
-            }
-        }
-
-        restoreStoredItem(player);
+    public dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsData.LobbyItemType getLobbyCosmeticType(org.bukkit.inventory.ItemStack itemStack) {
+        return cosmeticService.getLobbyCosmeticType(itemStack);
     }
 
     public void setEventQueueInventory(Player player) {
-        player.closeInventory();
-
-        this.setInventory(player, Inventory.InventoryType.EVENT_QUEUE);
+        transitionService.setEventQueueInventory(player);
     }
 
     public void setStaffModeInventory(Player player) {
-        Profile profile = ProfileManager.getInstance().getProfile(player);
-        profile.setStatus(ProfileStatus.STAFF_MODE);
-        profile.setStaffMode(true);
-
-        PlayerUtil.clearPlayer(player, false, player.hasPermission("zpp.staffmode.fly"), false);
-
-        this.setInventory(player, Inventory.InventoryType.STAFF_MODE);
+        transitionService.setStaffModeInventory(player);
     }
 
     @Override

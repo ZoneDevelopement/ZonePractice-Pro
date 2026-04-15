@@ -13,7 +13,7 @@ public enum BackendUtil {
     ;
 
     public static GUIItem getGuiItem(YamlConfiguration config, String loc) {
-                GUIItem guiItem = new GUIItem();
+        GUIItem guiItem = new GUIItem();
 
         if (config.isString(loc + ".NAME")) {
             guiItem.setName(config.getString(loc + ".NAME"));

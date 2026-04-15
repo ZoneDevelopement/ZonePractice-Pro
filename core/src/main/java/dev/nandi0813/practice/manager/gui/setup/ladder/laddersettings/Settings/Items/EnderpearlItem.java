@@ -21,12 +21,12 @@ public class EnderpearlItem extends SettingItem {
 
     @Override
     public void clickEvent(InventoryClickEvent e) {
-        int epCooldown = ladder.getEnderPearlCooldown();
+        double epCooldown = ladder.getEnderPearlCooldown();
 
         if (e.getClick().isLeftClick() && epCooldown > 0)
-            ladder.setEnderPearlCooldown(epCooldown - 1);
+            ladder.setEnderPearlCooldown(epCooldown - 0.5);
         else if (e.getClick().isRightClick() && epCooldown < 60)
-            ladder.setEnderPearlCooldown(epCooldown + 1);
+            ladder.setEnderPearlCooldown(epCooldown + 0.5);
 
         build(true);
     }

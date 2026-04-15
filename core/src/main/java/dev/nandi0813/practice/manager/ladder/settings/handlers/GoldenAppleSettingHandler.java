@@ -15,10 +15,10 @@ import org.bukkit.inventory.ItemStack;
  * <p>
  * IMPLEMENTATION LOCATION: This replaces the logic in LadderSettingListener.onGoldenHeadConsume()
  */
-public class GoldenAppleSettingHandler implements SettingHandler<Integer> {
+public class GoldenAppleSettingHandler implements SettingHandler<Double> {
 
     @Override
-    public Integer getValue(Match match) {
+    public Double getValue(Match match) {
         return match.getLadder().getGoldenAppleCooldown();
     }
 
@@ -29,11 +29,11 @@ public class GoldenAppleSettingHandler implements SettingHandler<Integer> {
         }
 
         ItemStack item = e.getItem();
-        if (item == null || !item.getType().equals(Material.GOLDEN_APPLE)) {
+        if (!item.getType().equals(Material.GOLDEN_APPLE)) {
             return false;
         }
 
-        int cooldown = getValue(match);
+        double cooldown = getValue(match);
         if (cooldown < 1) {
             return false; // No cooldown
         }

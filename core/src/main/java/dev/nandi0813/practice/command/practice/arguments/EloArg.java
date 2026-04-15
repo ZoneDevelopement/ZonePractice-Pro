@@ -20,13 +20,23 @@ public enum EloArg {
     ;
 
     public static void run(Player player, String label, String[] args) {
-        Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
+        if (args.length < 2) {
+            sendHelp(player, label);
+            return;
+        }
 
-        if (args.length == 4 && args[1].equalsIgnoreCase("reset")) {
+        if (args[1].equalsIgnoreCase("reset")) {
+            if (args.length != 4) {
+                sendHelp(player, label);
+                return;
+            }
+
             if (!player.hasPermission("zpp.practice.elo.default")) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
                 return;
             }
+
+            Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
 
             if (target == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replace("%target%", args[2]));
@@ -62,11 +72,18 @@ public enum EloArg {
                         .replace("%defaultElo%", String.valueOf(defaultElo))
                 );
             }
-        } else if (args.length == 5 && args[1].equalsIgnoreCase("set")) {
+        } else if (args[1].equalsIgnoreCase("set")) {
+            if (args.length != 5) {
+                sendHelp(player, label);
+                return;
+            }
+
             if (!player.hasPermission("zpp.practice.elo.specific")) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
                 return;
             }
+
+            Profile target = ProfileManager.getInstance().getProfile(Bukkit.getPlayer(args[2]));
 
             if (target == null) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replace("%target%", args[2]));
@@ -78,7 +95,14 @@ public enum EloArg {
                 return;
             }
 
-            int newElo = Integer.parseInt(args[4]);
+            int newElo;
+            try {
+                newElo = Integer.parseInt(args[4]);
+            } catch (NumberFormatException exception) {
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.INVALID-NUMBER"));
+                return;
+            }
+
             if (newElo < 0) {
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.INVALID-NUMBER"));
                 return;
@@ -108,13 +132,22 @@ public enum EloArg {
                 );
             }
         } else {
-            for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.ELO.COMMAND-HELP"))
-                Common.sendMMMessage(player, line.replace("%label%", label));
+            sendHelp(player, label);
         }
     }
 
     public static void run(String label, String[] args) {
-        if (args.length == 4 && args[1].equalsIgnoreCase("reset")) {
+        if (args.length < 2) {
+            sendHelp(label);
+            return;
+        }
+
+        if (args[1].equalsIgnoreCase("reset")) {
+            if (args.length != 4) {
+                sendHelp(label);
+                return;
+            }
+
             Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replace("%target%", args[2]));
@@ -144,14 +177,26 @@ public enum EloArg {
                         .replace("%target%", target.getPlayer().getName())
                         .replace("%defaultElo%", String.valueOf(defaultElo)));
             }
-        } else if (args.length == 5 && args[1].equalsIgnoreCase("set")) {
+        } else if (args[1].equalsIgnoreCase("set")) {
+            if (args.length != 5) {
+                sendHelp(label);
+                return;
+            }
+
             Profile target = ProfileManager.getInstance().getProfile(ServerManager.getInstance().resolvePlayer(args[2]));
             if (target == null) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.TARGET-OFFLINE").replace("%target%", args[2]));
                 return;
             }
 
-            int newElo = Integer.parseInt(args[4]);
+            int newElo;
+            try {
+                newElo = Integer.parseInt(args[4]);
+            } catch (NumberFormatException exception) {
+                Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.INVALID-NUMBER"));
+                return;
+            }
+
             if (newElo < 0) {
                 Common.sendConsoleMMMessage(LanguageManager.getString("COMMAND.PRACTICE.ARGUMENTS.ELO.INVALID-NUMBER"));
                 return;
@@ -179,9 +224,18 @@ public enum EloArg {
                         .replace("%newElo%", String.valueOf(newElo)));
             }
         } else {
-            for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.ELO.COMMAND-HELP"))
-                Common.sendConsoleMMMessage(line.replace("%label%", label));
+            sendHelp(label);
         }
+    }
+
+    private static void sendHelp(Player player, String label) {
+        for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.ELO.COMMAND-HELP"))
+            Common.sendMMMessage(player, line.replace("%label%", label));
+    }
+
+    private static void sendHelp(String label) {
+        for (String line : LanguageManager.getList("COMMAND.PRACTICE.ARGUMENTS.ELO.COMMAND-HELP"))
+            Common.sendConsoleMMMessage(line.replace("%label%", label));
     }
 
     public static List<String> tabComplete(Player player, String[] args) {

@@ -22,7 +22,6 @@ import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.*;
 import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
-import dev.nandi0813.practice.manager.matchhistory.MatchHistoryManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAListener;
 import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.listener.BuildListener;
@@ -37,6 +36,7 @@ import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.leaderboard.LeaderboardManager;
 import dev.nandi0813.practice.manager.leaderboard.hologram.HologramManager;
+import dev.nandi0813.practice.manager.matchhistory.MatchHistoryManager;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -121,6 +121,7 @@ public final class ZonePractice extends JavaPlugin {
         new SaveResource().saveResources(this);
 
         ConfigManager.createFile();
+        BackendManager.createFile(this);
         TelemetryBootstrap.initializeAsync()
                 .thenApply(regularEnabled -> regularEnabled
                         || TelemetryBootstrap.isAiCollectionActive()
@@ -151,7 +152,6 @@ public final class ZonePractice extends JavaPlugin {
         MatchHistoryManager.getInstance(); // eagerly initialise singleton
         DivisionManager.getInstance().getData();
         ArenaWorldUtil.createArenaWorld();
-        BackendManager.createFile(this);
         CosmeticsPermissionManager.registerAllPermissions();
 
         ZonePracticeApiImpl.setup();
@@ -186,6 +186,10 @@ public final class ZonePractice extends JavaPlugin {
             {
                 ProfileManager.getInstance().loadAllProfileInformations();
                 startUpProgress.replace(StartUpTypes.PROFILE_LOADING, true);
+
+                if (TelemetryBootstrap.isPracticeStatsActive()) {
+                    PracticeStatsTelemetryLogger.onProfilesLoaded();
+                }
 
                 LeaderboardManager.getInstance().createAllLB(() ->
                 {
@@ -281,12 +285,6 @@ public final class ZonePractice extends JavaPlugin {
         if (server.getPluginCommand("event") != null) {
             server.getPluginCommand("event").setExecutor(eventCommand);
             server.getPluginCommand("event").setTabCompleter(eventCommand);
-        }
-
-        HologramCommand hologramCommand = new HologramCommand();
-        if (server.getPluginCommand("hologram") != null) {
-            server.getPluginCommand("hologram").setExecutor(hologramCommand);
-            server.getPluginCommand("hologram").setTabCompleter(hologramCommand);
         }
 
         LadderCommand ladderCommand = new LadderCommand();
@@ -418,8 +416,8 @@ public final class ZonePractice extends JavaPlugin {
 
     private void loadPlaceholderAPI() {
         if (SoftDependUtil.isPAPI_ENABLED) {
-            PlayerExpansion playerExpansion = new PlayerExpansion();
-            playerExpansion.register();
+            new PlayerExpansion("zppro").register();
+            new PlayerExpansion("zpp").register();
         }
     }
 

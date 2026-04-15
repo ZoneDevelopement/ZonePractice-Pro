@@ -21,12 +21,12 @@ public class GoldenAppleItem extends SettingItem {
 
     @Override
     public void clickEvent(InventoryClickEvent e) {
-        int goldenAppleCooldown = ladder.getGoldenAppleCooldown();
+        double goldenAppleCooldown = ladder.getGoldenAppleCooldown();
 
         if (e.getClick().isLeftClick() && goldenAppleCooldown > 0)
-            ladder.setGoldenAppleCooldown(goldenAppleCooldown - 1);
+            ladder.setGoldenAppleCooldown(goldenAppleCooldown - 0.5);
         else if (e.getClick().isRightClick() && goldenAppleCooldown < 30)
-            ladder.setGoldenAppleCooldown(goldenAppleCooldown + 1);
+            ladder.setGoldenAppleCooldown(goldenAppleCooldown + 0.5);
 
         build(true);
     }

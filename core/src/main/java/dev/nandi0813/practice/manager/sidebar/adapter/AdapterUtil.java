@@ -25,7 +25,10 @@ import org.intellij.lang.annotations.RegExp;
 public enum AdapterUtil {
     ;
 
-    private static final String ROUND_SYMBOL = SidebarManager.getInstance().getConfig().getString("MATCH.ROUND-SYMBOL");
+    private static String getRoundSymbol() {
+        String symbol = SidebarManager.getInstance().getConfig().getString("MATCH.ROUND-SYMBOL");
+        return symbol == null || symbol.isBlank() ? "|" : symbol;
+    }
 
     // ==================== Helper Methods ====================
 
@@ -115,8 +118,10 @@ public enum AdapterUtil {
             return Component.text(player.getName());
         }
 
-        // Sidebar placeholders should render player names only (no external prefix/suffix).
-        return NameFormatUtil.resolveName(profile, player.getName());
+        // Sidebar placeholders follow the player's own prefix/suffix visibility setting.
+        // Pass the Player instance so PlaceholderAPI expansions (e.g. %luckperms_prefix%)
+        // are resolved at render time rather than left as raw placeholder text.
+        return NameFormatUtil.resolveFullName(profile, player, player.getName());
     }
 
     // ==================== Public Methods ====================
@@ -127,13 +132,13 @@ public enum AdapterUtil {
 
         for (int i = 1; i <= rounds; i++) {
             if (i <= wonRounds) {
-                string.append(ROUND_SYMBOL);
+                string.append(getRoundSymbol());
             } else {
                 if (firstNotWon) {
-                    string.append("<gray>").append(ROUND_SYMBOL);
+                    string.append("<gray>").append(getRoundSymbol());
                     firstNotWon = false;
                 } else {
-                    string.append(ROUND_SYMBOL);
+                    string.append(getRoundSymbol());
                 }
             }
         }

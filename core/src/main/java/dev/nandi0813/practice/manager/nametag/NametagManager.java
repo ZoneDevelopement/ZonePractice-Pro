@@ -1,19 +1,43 @@
 package dev.nandi0813.practice.manager.nametag;
 
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.inventory.InventoryUtil;
+import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.PermanentConfig;
+import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.GameMode;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NametagManager {
+
+    private static final boolean SATURATED_HEART_INDICATOR = dev.nandi0813.practice.manager.backend.ConfigManager.getBoolean("MATCH-SETTINGS.HEALTH-BELOW-NAME.SATURATED-HEART-INDICATOR");
+    private static final boolean DECIMAL_ALWAYS_SHOW = dev.nandi0813.practice.manager.backend.ConfigManager.getBoolean("MATCH-SETTINGS.HEALTH-BELOW-NAME.DECIMAL-HEART-INDICATOR.ALWAYS-SHOW");
+    private static final boolean LOW_HEALTH_RATIO = dev.nandi0813.practice.manager.backend.ConfigManager.getBoolean("MATCH-SETTINGS.HEALTH-BELOW-NAME.DECIMAL-HEART-INDICATOR.LOW-HEALTH-DECIMAL-RATIO");
+    private static final double LOW_HEALTH_THRESHOLD = dev.nandi0813.practice.manager.backend.ConfigManager.getDouble("MATCH-SETTINGS.HEALTH-BELOW-NAME.LOW-HEALTH-THRESHOLD") * 2.0;
+    private static final double CONFIG_SCALE = dev.nandi0813.practice.manager.backend.ConfigManager.getDouble("MATCH-SETTINGS.HEALTH-BELOW-NAME.SCALE");
+
+    private static final String BELOW_NAME_OBJECTIVE = "ZPP_BELOW";
+
+    private static final String HIDE_TEAM_NAME = "zpp_hidden_nametag";
+    private static final double VIEW_DISTANCE_SQUARED = 96.0D * 96.0D;
+    private static final long REFRESH_INTERVAL_TICKS = 20L;
+    private static final long BELOW_NAME_REFRESH_INTERVAL_TICKS = 5L;
 
     private static NametagManager instance;
 
@@ -23,288 +47,583 @@ public class NametagManager {
         return instance;
     }
 
-    private final Map<String, FakeTeam> TEAMS = new ConcurrentHashMap<>();
-    private final Map<String, FakeTeam> CACHED_FAKE_TEAMS = new ConcurrentHashMap<>();
+    private final Map<UUID, ClientTextDisplay> displays = new ConcurrentHashMap<>();
+    private final Map<UUID, NametagOverride> customNametags = new ConcurrentHashMap<>();
+    private final Map<UUID, Component> belowNameLines = new ConcurrentHashMap<>();
+    private final java.util.Set<UUID> belowNameUsers = ConcurrentHashMap.newKeySet();
 
-    /**
-     * Initialize the NametagManager and detect TAB plugin conflicts.
-     * Should be called on plugin enable.
-     */
+    private Team hideVanillaTeam;
+    private NametagDisplayListener listener;
+    private BukkitTask refreshTask;
+    private BukkitTask belowNameRefreshTask;
+
     public void initialize() {
-        // Detect TAB plugin and manage conflict resolution
         TeamPacketBlocker.getInstance().register();
+
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            hideVanillaNametag(online);
+            displays.computeIfAbsent(online.getUniqueId(), ignored -> createDisplay(online));
+        }
+
+        if (listener == null) {
+            listener = new NametagDisplayListener();
+            Bukkit.getPluginManager().registerEvents(listener, ZonePractice.getInstance());
+        }
+
+        startRefreshTask();
+        startBelowNameRefreshTask();
+
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            updateNametag(online);
+            refreshViewer(online);
+        }
     }
 
-    /**
-     * Shutdown the NametagManager.
-     * Should be called on plugin disable.
-     */
     public void shutdown() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            onPlayerQuit(player);
+        }
+
+        if (listener != null) {
+            HandlerList.unregisterAll(listener);
+            listener = null;
+        }
+
+        stopRefreshTask();
+        stopBelowNameRefreshTask();
+
+        displays.clear();
+        customNametags.clear();
+        belowNameLines.clear();
+        belowNameUsers.clear();
+
         TeamPacketBlocker.getInstance().unregister();
     }
 
-    // ==============================================================
-    // TAB Integration Helper Methods
-    // ==============================================================
-
-    /**
-     * Checks if TAB plugin is managing teams instead of our internal system.
-     *
-     * @return true if TAB is active and managing teams
-     */
-    private boolean isUsingTabSystem() {
-        return TeamPacketBlocker.getInstance().isNametagSystemDisabled();
-    }
-
-    /**
-     * Gets the TAB integration instance if available.
-     *
-     * @return TabIntegration instance or null
-     */
-    private TabIntegration getTabIntegration() {
-        if (!isUsingTabSystem()) return null;
-
-        TabIntegration integration = TeamPacketBlocker.getInstance().getTabIntegration();
-        return (integration != null && integration.isAvailable()) ? integration : null;
-    }
-
-    /**
-     * Attempts to set a nametag via TAB API.
-     *
-     * @return true if handled by TAB, false if should use internal system
-     */
-    private boolean trySetViaTab(Player player, Component prefix, NamedTextColor nameColor, Component suffix, int sortPriority) {
-        TabIntegration tab = getTabIntegration();
-        if (tab != null) {
-            tab.setNametag(player, prefix, nameColor, suffix, sortPriority);
-            return true;
-        }
-        return isUsingTabSystem(); // Return true if TAB is active but API unavailable (skip internal system)
-    }
-
-    /**
-     * Attempts to reset a nametag via TAB API.
-     *
-     * @return true if handled by TAB, false if should use internal system
-     */
-    private boolean tryResetViaTab(String playerName) {
-        TabIntegration tab = getTabIntegration();
-        if (tab != null) {
-            Player player = Bukkit.getPlayerExact(playerName);
-            if (player != null) {
-                tab.resetNametag(player);
-                return true;
-            }
-        }
-        return isUsingTabSystem(); // Return true if TAB is active but API unavailable (skip internal system)
-    }
-
-    // ==============================================================
-    // Team Management (Internal System)
-    // ==============================================================
-
-    /**
-     * Gets the current team given a prefix and suffix
-     * If there is no team similar to this, then a new
-     * team is created.
-     */
-    private FakeTeam getFakeTeam(Component prefix, NamedTextColor nameColor, Component suffix) {
-        return TEAMS.values().stream().filter(fakeTeam -> fakeTeam.isSimilar(prefix, nameColor, suffix)).findFirst().orElse(null);
-    }
-
-    /**
-     * Adds a player to a FakeTeam. If they are already on this team,
-     * we do NOT change that.
-     */
-    private void addPlayerToTeam(String player, Component prefix, NamedTextColor namedTextColor, Component suffix, int sortPriority) {
-        FakeTeam previous = getFakeTeam(player);
-
-        if (previous != null && previous.isSimilar(prefix, namedTextColor, suffix))
-            return;
-
-        reset(player);
-
-        FakeTeam joining = getFakeTeam(prefix, namedTextColor, suffix);
-        if (joining != null) {
-            joining.addMember(player);
-        } else {
-            joining = new FakeTeam(prefix, namedTextColor, suffix, sortPriority);
-            joining.addMember(player);
-            TEAMS.put(joining.getName(), joining);
-
-            // Register this team with the packet blocker so our packets aren't blocked
-            TeamPacketBlocker.getInstance().registerOurTeam(joining.getName());
-
-            addTeamPackets(joining);
-        }
-
-        Player adding = Bukkit.getPlayerExact(player);
-        if (adding != null) {
-            addPlayerToTeamPackets(joining, adding.getName());
-            cache(adding.getName(), joining);
-        } else {
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player);
-            addPlayerToTeamPackets(joining, offlinePlayer.getName());
-            cache(offlinePlayer.getName(), joining);
-        }
-    }
-
-    /**
-     * Resets a player's nametag to default.
-     * Automatically uses TAB API if available, otherwise uses internal system.
-     */
-    public FakeTeam reset(String player) {
-        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) return null;
-
-        if (tryResetViaTab(player)) {
-            return null; // Handled by TAB or TAB is active (skip internal)
-        }
-
-        return resetInternal(player, decache(player));
-    }
-
-    /**
-     * Internal method to reset nametag using our packet system.
-     * Only called when TAB is not managing teams.
-     */
-    private FakeTeam resetInternal(String player, FakeTeam fakeTeam) {
-        if (fakeTeam != null && fakeTeam.getMembers().remove(player)) {
-            boolean delete;
-            Player removing = Bukkit.getPlayerExact(player);
-            if (removing != null) {
-                delete = removePlayerFromTeamPackets(fakeTeam, removing.getName());
-            } else {
-                OfflinePlayer toRemoveOffline = Bukkit.getOfflinePlayer(player);
-                delete = removePlayerFromTeamPackets(fakeTeam, toRemoveOffline.getName());
-            }
-
-            if (delete) {
-                removeTeamPackets(fakeTeam);
-                TEAMS.remove(fakeTeam.getName());
-
-                // Unregister this team from the packet blocker
-                TeamPacketBlocker.getInstance().unregisterOurTeam(fakeTeam.getName());
+    public void reset(String player) {
+        Player online = Bukkit.getPlayerExact(player);
+        if (online == null) {
+            for (Map.Entry<UUID, NametagOverride> entry : customNametags.entrySet()) {
+                if (player.equalsIgnoreCase(Bukkit.getOfflinePlayer(entry.getKey()).getName())) {
+                    customNametags.remove(entry.getKey());
+                    break;
+                }
             }
         }
 
-        return fakeTeam;
+        customNametags.remove(online.getUniqueId());
+        belowNameLines.remove(online.getUniqueId());
+        belowNameUsers.remove(online.getUniqueId());
+        updateNametag(online);
     }
 
-    // ==============================================================
-    // Below are public methods to modify the cache
-    // ==============================================================
-    private FakeTeam decache(String player) {
-        return CACHED_FAKE_TEAMS.remove(player);
-    }
-
-    public FakeTeam getFakeTeam(String player) {
-        return CACHED_FAKE_TEAMS.get(player);
-    }
-
-    private void cache(String player, FakeTeam fakeTeam) {
-        CACHED_FAKE_TEAMS.put(player, fakeTeam);
-    }
-
-    // ==============================================================
-    // Public API Methods
-    // ==============================================================
-
-    /**
-     * Sets a player's nametag with prefix, color, and suffix.
-     * Automatically uses TAB API if available, otherwise uses internal system.
-     */
     public void setNametag(Player player, Component prefix, NamedTextColor namedTextColor, Component suffix, int sortPriority) {
-        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) return;
-
-        if (trySetViaTab(player, prefix, namedTextColor, suffix, sortPriority)) {
-            return; // Handled by TAB or TAB is active (skip internal)
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
+            return;
         }
 
-        setNametagInternal(player.getName(), prefix, namedTextColor, suffix, sortPriority);
-
-        // In Minecraft 1.21+, scoreboard team colors can affect the tab list.
-        // Preserve the lobby tab list name to prevent match nametag colors from bleeding into it.
+        customNametags.put(player.getUniqueId(), new NametagOverride(prefix, namedTextColor, suffix));
+        updateNametag(player);
         preserveTabListName(player);
     }
 
-    /**
-     * Preserves the player's tab list name based on their lobby settings.
-     * This prevents match nametag colors from affecting the tab list in modern Minecraft versions.
-     * Only called when TAB is not managing the tab list.
-     */
+    public void updateNametag(Player player) {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED || player == null || !player.isOnline()) {
+            return;
+        }
+
+        hideVanillaNametag(player);
+
+        ClientTextDisplay display = displays.computeIfAbsent(player.getUniqueId(), ignored -> new ClientTextDisplay(player));
+        display.setText(buildNametagComponent(player));
+
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            refreshForViewer(viewer, player, true);
+        }
+    }
+
+    public void sendTeams(Player player) {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED || player == null || !player.isOnline()) {
+            return;
+        }
+
+        onPlayerJoin(player);
+    }
+
+    public void onPlayerJoin(Player player) {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED || player == null) {
+            return;
+        }
+
+        hideVanillaNametag(player);
+        displays.computeIfAbsent(player.getUniqueId(), ignored -> createDisplay(player));
+
+        updateNametag(player);
+        refreshViewer(player);
+    }
+
+    public void onPlayerQuit(Player player) {
+        if (player == null) {
+            return;
+        }
+
+        if (hideVanillaTeam != null) {
+            hideVanillaTeam.removeEntry(player.getName());
+        }
+
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            Scoreboard scoreboard = viewer.getScoreboard();
+            Team team = scoreboard.getTeam(HIDE_TEAM_NAME);
+            if (team != null) {
+                team.removeEntry(player.getName());
+            }
+        }
+
+        customNametags.remove(player.getUniqueId());
+        belowNameLines.remove(player.getUniqueId());
+        belowNameUsers.remove(player.getUniqueId());
+
+        ClientTextDisplay removed = displays.remove(player.getUniqueId());
+        if (removed != null) {
+            for (UUID viewerUuid : removed.getViewers()) {
+                Player viewer = Bukkit.getPlayer(viewerUuid);
+                if (viewer != null && viewer.isOnline()) {
+                    Packet.sendSetPassengers(viewer, player.getEntityId(), getLivePassengerIds(player));
+                    Packet.sendDestroyTextDisplay(viewer, removed.getEntityId());
+                }
+            }
+        }
+
+        for (ClientTextDisplay display : displays.values()) {
+            display.removeViewer(player.getUniqueId());
+        }
+    }
+
+    public void onPlayerMove(Player player) {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED || player == null || !player.isOnline()) {
+            return;
+        }
+
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            refreshForViewer(viewer, player, false);
+        }
+        refreshViewer(player);
+    }
+
+    public void onVisibilityStateChange(Player player) {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED || player == null || !player.isOnline()) {
+            return;
+        }
+
+        hideVanillaNametag(player);
+        refreshViewer(player);
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            refreshForViewer(viewer, player, true);
+        }
+    }
+
+    public void refreshAllNametags() {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
+            return;
+        }
+
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            for (Player target : Bukkit.getOnlinePlayers()) {
+                refreshForViewer(viewer, target, true);
+            }
+        }
+    }
+
+    private void refreshViewer(Player viewer) {
+        for (Player target : Bukkit.getOnlinePlayers()) {
+            refreshForViewer(viewer, target, false);
+        }
+    }
+
+    private void refreshForViewer(Player viewer, Player target, boolean pushMetadata) {
+        ClientTextDisplay display = displays.computeIfAbsent(target.getUniqueId(), ignored -> createDisplay(target));
+        boolean shouldDisplay = shouldDisplayTo(viewer, target);
+
+        if (!shouldDisplay) {
+            if (display.isViewing(viewer.getUniqueId())) {
+                Packet.sendSetPassengers(viewer, target.getEntityId(), getLivePassengerIds(target));
+                Packet.sendDestroyTextDisplay(viewer, display.getEntityId());
+                display.removeViewer(viewer.getUniqueId());
+            }
+            return;
+        }
+
+        boolean newlyVisible = !display.isViewing(viewer.getUniqueId());
+        if (newlyVisible) {
+            display.addViewer(viewer.getUniqueId());
+            Packet.sendSpawnTextDisplay(viewer, display.getEntityId(), display.getEntityUuid(), display.getSpawnLocation(target));
+            Packet.sendMetadataTextDisplay(viewer, display);
+            Packet.sendSetPassengers(viewer, target.getEntityId(), getLivePassengerIdsWithDisplay(target, display.getEntityId()));
+            return;
+        }
+
+        if (pushMetadata) {
+            Packet.sendMetadataTextDisplay(viewer, display);
+            Packet.sendSetPassengers(viewer, target.getEntityId(), getLivePassengerIdsWithDisplay(target, display.getEntityId()));
+        }
+    }
+
+    private int[] getLivePassengerIds(Player target) {
+        List<Integer> passengerIds = new ArrayList<>();
+        target.getPassengers().forEach(entity -> passengerIds.add(entity.getEntityId()));
+        return passengerIds.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private int[] getLivePassengerIdsWithDisplay(Player target, int displayEntityId) {
+        List<Integer> passengerIds = new ArrayList<>();
+        target.getPassengers().forEach(entity -> passengerIds.add(entity.getEntityId()));
+        passengerIds.add(displayEntityId);
+        return passengerIds.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private boolean shouldDisplayTo(Player viewer, Player target) {
+        if (viewer == null || target == null || !viewer.isOnline() || !target.isOnline()) {
+            return false;
+        }
+
+        if (viewer.isDead()) {
+            return false;
+        }
+
+        if (viewer.equals(target)) {
+            return false;
+        }
+
+        if (viewer.getWorld() != target.getWorld()) {
+            return false;
+        }
+
+        if (!viewer.canSee(target)) {
+            return false;
+        }
+
+        if (viewer.getLocation().distanceSquared(target.getLocation()) > VIEW_DISTANCE_SQUARED) {
+            return false;
+        }
+
+        return isTargetVisible(target);
+    }
+
+    private boolean isTargetVisible(Player target) {
+        if (target.isDead()) {
+            return false;
+        }
+
+
+        if (target.getGameMode() == GameMode.SPECTATOR) {
+            return false;
+        }
+
+        return !target.isInvisible();
+    }
+
+    public void setBelowNameLine(Player player, Component line) {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED || player == null || !player.isOnline()) {
+            return;
+        }
+
+        if (line == null || line.equals(Component.empty())) {
+            belowNameLines.remove(player.getUniqueId());
+        } else {
+            belowNameLines.put(player.getUniqueId(), line);
+        }
+
+        updateNametag(player);
+    }
+
+    public void clearBelowNameLine(Player player) {
+        if (player == null) {
+            return;
+        }
+
+        belowNameLines.remove(player.getUniqueId());
+        updateNametag(player);
+    }
+
+    private Component buildNametagComponent(Player player) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        InventoryUtil.LobbyNametag listing = profile != null
+                ? InventoryUtil.getLobbyNametag(profile, player.getName(), player)
+                : null;
+
+        Component basePrefix = listing != null ? listing.getPrefix() : Component.empty();
+        Component baseName = listing != null
+                ? listing.getName()
+                : Component.text(player.getName(), NamedTextColor.GRAY);
+        Component baseSuffix = listing != null ? listing.getSuffix() : Component.empty();
+
+        NametagOverride override = customNametags.get(player.getUniqueId());
+
+        Component composed;
+        if (override == null) {
+            composed = basePrefix.append(baseName).append(baseSuffix);
+        } else {
+            Component prefix = override.prefix() != null ? override.prefix() : basePrefix;
+            Component suffix = override.suffix() != null ? override.suffix() : baseSuffix;
+
+            Component name = baseName;
+            if (override.nameColor() != null) {
+                // Keep template/placeholder output, only provide a fallback tint for the name segment.
+                name = name.colorIfAbsent(override.nameColor());
+            }
+
+            composed = prefix.append(name).append(suffix);
+        }
+
+        Component belowLine = belowNameLines.get(player.getUniqueId());
+        if (belowLine == null || belowLine.equals(Component.empty())) {
+            return composed;
+        }
+
+        return composed.append(Component.newline()).append(belowLine);
+    }
+
+    public void initForUser(Player player) {
+        if (player == null) {
+            return;
+        }
+
+        if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
+            belowNameUsers.add(player.getUniqueId());
+            if (player.isOnline()) {
+                setBelowNameLine(player, formatHealth(player, PlayerUtil.getPlayerHealth(player)));
+            }
+            return;
+        }
+
+        Scoreboard scoreboard = player.getScoreboard();
+        if (scoreboard == Bukkit.getScoreboardManager().getMainScoreboard()) {
+            scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+            player.setScoreboard(scoreboard);
+        }
+
+        Objective objective = scoreboard.getObjective(BELOW_NAME_OBJECTIVE);
+        if (objective == null) {
+            objective = scoreboard.registerNewObjective(BELOW_NAME_OBJECTIVE, Criteria.DUMMY, Component.empty(), RenderType.INTEGER);
+            objective.setDisplaySlot(DisplaySlot.BELOW_NAME);
+        }
+    }
+
+    public void cleanUpForUser(Player player) {
+        if (player == null) {
+            return;
+        }
+
+        if (PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
+            belowNameUsers.remove(player.getUniqueId());
+            clearBelowNameLine(player);
+            return;
+        }
+
+        Scoreboard scoreboard = player.getScoreboard();
+        Objective objective = scoreboard.getObjective(BELOW_NAME_OBJECTIVE);
+        if (objective != null) {
+            objective.unregister();
+        }
+    }
+
+    private void updateBelowNameHealthLines() {
+        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Scoreboard scoreboard = player.getScoreboard();
+                Objective objective = scoreboard.getObjective(BELOW_NAME_OBJECTIVE);
+
+                if (objective == null) {
+                    continue;
+                }
+
+                for (Player otherPlayer : player.getWorld().getPlayers()) {
+                    double health = PlayerUtil.getPlayerHealth(otherPlayer);
+                    int hp = (int) Math.ceil(health);
+
+                    Score score = objective.getScore(otherPlayer.getName());
+                    score.setScore(hp);
+                    score.customName(null);
+                    score.numberFormat(NumberFormat.fixed(formatHealth(otherPlayer, health)));
+                }
+            }
+            return;
+        }
+
+        for (UUID uuid : belowNameUsers) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null || !player.isOnline()) {
+                belowNameUsers.remove(uuid);
+                continue;
+            }
+
+            setBelowNameLine(player, formatHealth(player, PlayerUtil.getPlayerHealth(player)));
+        }
+    }
+
+    private Component formatHealth(Player player, double health) {
+        NamedTextColor heartColor = NamedTextColor.RED;
+        if (SATURATED_HEART_INDICATOR && isSaturated(player)) {
+            heartColor = NamedTextColor.YELLOW;
+        }
+
+        double scale = Math.clamp(CONFIG_SCALE == 0 ? 20.0 : CONFIG_SCALE, 10.0, 100.0);
+        double maxHealth = java.util.Objects.requireNonNull(player.getAttribute(Attribute.MAX_HEALTH)).getValue();
+        double displayHealth = (health / maxHealth) * scale;
+
+        if (DECIMAL_ALWAYS_SHOW || (LOW_HEALTH_RATIO && health < LOW_HEALTH_THRESHOLD)) {
+            return Component.text(String.format(java.util.Locale.US, "%.1f", displayHealth), NamedTextColor.WHITE)
+                    .append(Component.text("♥", heartColor));
+        }
+
+        return Component.text((int) Math.ceil(displayHealth) + " ", NamedTextColor.WHITE)
+                .append(Component.text("♥", heartColor));
+    }
+
+    private boolean isSaturated(Player player) {
+        return player.hasPotionEffect(PotionEffectType.SATURATION) || (player.getFoodLevel() >= 20 && player.getSaturation() > 0);
+    }
+
+    private ClientTextDisplay createDisplay(Player owner) {
+        ClientTextDisplay display = new ClientTextDisplay(owner);
+        display.setTextAlignmentCenter();
+        display.setTextShadow(false);
+        display.setSeeThrough(false);
+        display.setBackground(0);
+        return display;
+    }
+
+    private void ensureHideTeam() {
+        if (Bukkit.getScoreboardManager() == null) {
+            return;
+        }
+
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            Scoreboard scoreboard = viewer.getScoreboard();
+            Team team = scoreboard.getTeam(HIDE_TEAM_NAME);
+            if (team == null) {
+                team = scoreboard.registerNewTeam(HIDE_TEAM_NAME);
+            }
+
+            team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+            team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
+            team.setCanSeeFriendlyInvisibles(false);
+            team.addEntry(viewer.getName());
+        }
+
+        hideVanillaTeam = Bukkit.getScoreboardManager().getMainScoreboard().getTeam(HIDE_TEAM_NAME);
+        if (hideVanillaTeam == null) {
+            hideVanillaTeam = Bukkit.getScoreboardManager().getMainScoreboard().registerNewTeam(HIDE_TEAM_NAME);
+        }
+        hideVanillaTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+        hideVanillaTeam.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
+        hideVanillaTeam.setCanSeeFriendlyInvisibles(false);
+    }
+
+    private void addToHideTeam(Player player) {
+        if (Bukkit.getScoreboardManager() == null || player == null) {
+            return;
+        }
+
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            Scoreboard scoreboard = viewer.getScoreboard();
+            Team team = scoreboard.getTeam(HIDE_TEAM_NAME);
+            if (team == null) {
+                team = scoreboard.registerNewTeam(HIDE_TEAM_NAME);
+                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+                team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
+                team.setCanSeeFriendlyInvisibles(false);
+            }
+            team.addEntry(player.getName());
+        }
+
+        if (hideVanillaTeam != null) {
+            hideVanillaTeam.addEntry(player.getName());
+        }
+    }
+
     private void preserveTabListName(Player player) {
         try {
-            dev.nandi0813.practice.manager.profile.Profile profile =
-                dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
-            if (profile == null) return;
+            Profile profile = ProfileManager.getInstance().getProfile(player);
+            if (profile == null) {
+                return;
+            }
 
-            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName());
+            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName(), player);
             Component tabListName = lobbyNametag.getPrefix()
                     .append(lobbyNametag.getName())
                     .append(lobbyNametag.getSuffix());
 
-            // Set the tab list name to maintain lobby formatting
             PlayerUtil.setPlayerListName(player, tabListName);
-        } catch (Exception e) {
-            // Silently fail - this is a best-effort preservation
+        } catch (Exception ignored) {
         }
-        player.displayName();
-    }
-
-    /**
-     * Internal method to set nametag using our packet system.
-     * Only called when TAB is not managing teams.
-     */
-    private void setNametagInternal(String player, Component prefix, NamedTextColor namedTextColor, Component suffix, int sortPriority) {
-        Component finalPrefix = prefix != null ? prefix : Component.empty();
-        Component finalSuffix = suffix != null ? suffix : Component.empty();
-        addPlayerToTeam(player, finalPrefix, namedTextColor, finalSuffix, sortPriority);
-    }
-
-    /**
-     * Sends all current teams to a player (for when they join).
-     * Skips if TAB is managing teams or nametag management is disabled.
-     */
-    public void sendTeams(Player player) {
-        if (!PermanentConfig.NAMETAG_MANAGEMENT_ENABLED) return;
-
-        if (isUsingTabSystem()) {
-            return; // TAB handles this
-        }
-
-        for (FakeTeam fakeTeam : TEAMS.values()) {
-            new Packet(fakeTeam.getName(), fakeTeam.getPrefix(), fakeTeam.getNameColor(), fakeTeam.getSuffix(), fakeTeam.getMembers()).send(player);
-        }
-    }
-
-
-    // ==============================================================
-    // Below are private methods to construct a new Scoreboard packet
-    // ==============================================================
-    private void removeTeamPackets(FakeTeam fakeTeam) {
-        new Packet(fakeTeam.getName()).send();
-    }
-
-    private boolean removePlayerFromTeamPackets(FakeTeam fakeTeam, String... players) {
-        return removePlayerFromTeamPackets(fakeTeam, Arrays.asList(players));
-    }
-
-    private boolean removePlayerFromTeamPackets(FakeTeam fakeTeam, List<String> players) {
-        new Packet(fakeTeam.getName(), players, WrapperPlayServerTeams.TeamMode.REMOVE_ENTITIES).send();
-        fakeTeam.getMembers().removeAll(players);
-        return fakeTeam.getMembers().isEmpty();
-    }
-
-    private void addTeamPackets(FakeTeam fakeTeam) {
-        new Packet(fakeTeam.getName(), fakeTeam.getPrefix(), fakeTeam.getNameColor(), fakeTeam.getSuffix(), fakeTeam.getMembers()).send();
-    }
-
-    private void addPlayerToTeamPackets(FakeTeam fakeTeam, String player) {
-        new Packet(fakeTeam.getName(), Collections.singletonList(player), WrapperPlayServerTeams.TeamMode.ADD_ENTITIES).send();
     }
 
     public static String generateUUID() {
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
+    private void startRefreshTask() {
+        stopRefreshTask();
+        refreshTask = Bukkit.getScheduler().runTaskTimer(
+                ZonePractice.getInstance(),
+                this::refreshAllNametags,
+                REFRESH_INTERVAL_TICKS,
+                REFRESH_INTERVAL_TICKS
+        );
+    }
+
+    private void startBelowNameRefreshTask() {
+        stopBelowNameRefreshTask();
+        belowNameRefreshTask = Bukkit.getScheduler().runTaskTimer(
+                ZonePractice.getInstance(),
+                this::updateBelowNameHealthLines,
+                0L,
+                BELOW_NAME_REFRESH_INTERVAL_TICKS
+        );
+    }
+
+    private void stopRefreshTask() {
+        if (refreshTask != null) {
+            refreshTask.cancel();
+            refreshTask = null;
+        }
+    }
+
+    private void stopBelowNameRefreshTask() {
+        if (belowNameRefreshTask != null) {
+            belowNameRefreshTask.cancel();
+            belowNameRefreshTask = null;
+        }
+    }
+
+    private void reapplyHideTeamLater(Player player) {
+        if (player == null) {
+            return;
+        }
+
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            if (player.isOnline()) {
+                hideVanillaNametag(player);
+            }
+        }, 1L);
+    }
+
+    private void hideVanillaNametag(Player player) {
+        if (player == null) {
+            return;
+        }
+
+        TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
+        if (tabIntegration != null && tabIntegration.isAvailable()) {
+            tabIntegration.hideNametag(player);
+            return;
+        }
+
+        ensureHideTeam();
+        addToHideTeam(player);
+    }
+
+    private record NametagOverride(Component prefix, NamedTextColor nameColor, Component suffix) {
+    }
 }

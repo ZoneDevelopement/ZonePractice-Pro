@@ -42,14 +42,16 @@ public abstract class Ladder {
     protected double attackCooldownModifier = 1.0;
     @Setter
     protected int rounds = 1;
+
+    // Cooldowns
     @Setter
-    protected int enderPearlCooldown = ConfigManager.getInt("MATCH-SETTINGS.ENDERPEARL.COOLDOWN");
+    protected double enderPearlCooldown = ConfigManager.getDouble("MATCH-SETTINGS.COOLDOWN.ENDER-PEARL.SECONDS");
     @Setter
-    protected int goldenAppleCooldown = 0;
+    protected double goldenAppleCooldown = ConfigManager.getDouble("MATCH-SETTINGS.COOLDOWN.GOLDEN-APPLE.SECONDS");
     @Setter
-    protected int fireworkRocketCooldown = ConfigManager.getInt("MATCH-SETTINGS.FIREWORK-ROCKET.COOLDOWN");
+    protected double fireworkRocketCooldown = ConfigManager.getDouble("MATCH-SETTINGS.COOLDOWN.FIREWORK-ROCKET.SECONDS");
     @Setter
-    protected int windChargeCooldown = ConfigManager.getInt("MATCH-SETTINGS.WIND-CHARGE.COOLDOWN");
+    protected double windChargeCooldown = ConfigManager.getDouble("MATCH-SETTINGS.COOLDOWN.WIND-CHARGE.SECONDS");
 
     protected List<MatchType> matchTypes = new ArrayList<>();
 
@@ -61,9 +63,9 @@ public abstract class Ladder {
     @Setter
     protected int maxDuration = 600;
     @Setter
-    protected boolean multiRoundStartCountdown = true; // Ha azt irja nincs hasznalva buggos
+    protected boolean multiRoundStartCountdown = true;
     @Setter
-    protected boolean dropInventoryPartyGames = false; // Ha azt irja nincs hasznalva buggos
+    protected boolean dropInventory = false;
     @Setter
     protected boolean startMove = true;
     @Setter
@@ -111,7 +113,7 @@ public abstract class Ladder {
         this.tntFuseTime = ladder.getTntFuseTime();
         this.maxDuration = ladder.getMaxDuration();
         this.multiRoundStartCountdown = ladder.isMultiRoundStartCountdown();
-        this.dropInventoryPartyGames = ladder.isDropInventoryPartyGames();
+        this.dropInventory = ladder.isDropInventory();
         this.startMove = ladder.isStartMove();
         this.healthBelowName = ladder.isHealthBelowName();
         this.resetBuildAfterRound = ladder.isResetBuildAfterRound();

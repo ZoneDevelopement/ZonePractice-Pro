@@ -10,12 +10,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 public class DropInventoryItem extends SettingItem {
 
     public DropInventoryItem(SettingsGui settingsGui, NormalLadder ladder) {
-        super(settingsGui, SettingType.DROP_INVENTORY_TEAM, ladder);
+        super(settingsGui, SettingType.DROP_INVENTORY, ladder);
     }
 
     @Override
     public void updateItemStack() {
-        if (ladder.isDropInventoryPartyGames())
+        if (ladder.isDropInventory())
             guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.DROP-INVENTORY-PARTY-GAMES.ENABLED").setGlowing(true);
         else
             guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.DROP-INVENTORY-PARTY-GAMES.DISABLED");
@@ -23,7 +23,7 @@ public class DropInventoryItem extends SettingItem {
 
     @Override
     public void clickEvent(InventoryClickEvent e) {
-        ladder.setDropInventoryPartyGames(!ladder.isDropInventoryPartyGames());
+        ladder.setDropInventory(!ladder.isDropInventory());
 
         build(true);
     }

@@ -1,4 +1,4 @@
-VERSION: 51
+VERSION: 56
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -255,6 +255,8 @@ MATCH-SETTINGS:
     SCALE: 20 # The scale setting defines the health display range between 10 and 100 with a default value of 20.
   BUILD-LIMIT-DEFAULT: 4 # Counts from the first players positions Y level. You can set a unique number for this for every arena, then it will consider where you are standing.
   AFTER-COUNTDOWN: 3 # After the match is over this countdown start, and when it's over, the players teleport back to the lobby.
+  ROLLBACK:
+    MULTIPLIER: 1 # Multiplies rollback speed/work per tick for match/event/ffa rollback. Increase carefully.
   GOLDEN-HEAD: # Golden head settings.
     TEXTURE: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGUzNGM1MGZkY2E4ZTM2YzFlMDUwYjk2M2YyZTZlMWY3MGU0NjVlNTVjNDQzZjY4OTQ3NDQzNDA5Y2M2YTMzOCJ9fX0=" # Optional: direct skin URL or Base64 texture value. If set, item renders as a custom player head.
     COOLDOWN: 10 # Cooldown in seconds between Golden Head uses.
@@ -283,13 +285,16 @@ MATCH-SETTINGS:
     ROUND-SELECTOR:
       MAX: 10
       MIN: 1 # Can't be lower than 1.
-  ENDERPEARL:
-    COOLDOWN: 13 # This is the default cooldown. You can change it in the ladder settings.
-    EXP-BAR: true # Countdown shows on exp bar.
-  WIND-CHARGE:
-    COOLDOWN: 0 # Default wind charge cooldown in seconds. You can change it in the ladder settings.
-  FIREWORK-ROCKET:
-    COOLDOWN: 1 # Cooldown in seconds for using firework rockets with elytra. Default is 1 second.
+  COOLDOWN:
+    ENDER-PEARL:
+      SECONDS: 13.0 # This is the default cooldown. You can change it in the ladder settings.
+      EXP-BAR: true # Countdown shows on exp bar.
+    WIND-CHARGE:
+      SECONDS: 0.5 # Default wind charge cooldown in seconds. You can change it in the ladder settings.
+    FIREWORK-ROCKET:
+      SECONDS: 1.0 # Cooldown in seconds for using firework rockets with elytra. Default is 1 second.
+    GOLDEN-APPLE:
+      SECONDS: 0 # Cooldown in seconds for using golden apples. Default is 0 seconds (no cooldown).
   FIREBALL-FIGHT: # These are multiplier values, so please test what is optimal for you and don't change them too much at once or the difference will multiply.
     FIREBALL-SPEED: 1.0
     FIREBALL-YIELD: 1.8
@@ -370,7 +375,6 @@ FFA:
   HEALTH-RESET-ON-KILL: false # Default for newly created FFA arenas. If enabled, killers are fully healed on kill.
   HEALTH-BELOW-NAME: false # Default for newly created FFA arenas. If enabled, players see heart indicators below names.
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
-  ENDER-PEARL-EXP-BAR: true # If true, the ender pearl cooldown will be displayed on the exp bar.
   ALLOW-DESTROYABLE-BLOCK: true # If true, player can destroy the fixed blocks in the arena that their ladder has.
   ENABLE_TNT: true # If true, players can use TNT in the arena (ONLY IN BUILD MODE).
 #
@@ -558,6 +562,7 @@ LEADERBOARD:
 #
 # Sidebar settings
 SIDEBAR:
+  ENABLED: true # If false, the sidebar is fully disabled for all players regardless of profile setting.
   UPDATE-TIME: 20 # In ticks. 20 ticks = 1 second
 #
 # Arena settings
@@ -667,6 +672,7 @@ PLAYER:
     PRIVATEMESSAGE: true
     FLYING: false
     WORLD-TIME: DAY # Options: SUNRISE, DAY, SUNSET, NIGHT
+    PREFIX-VISIBILITY: PREFIX_AND_SUFFIX # Options: NONE, PREFIX, SUFFIX, PREFIX_AND_SUFFIX
 #
 # Division settings
 DIVISIONS:
@@ -682,3 +688,8 @@ CHAT:
     ENABLED: true
     SHORTCUT: true # If true, you can use send message like #hello world instead of enabling staff chat each time.
   PRIVATE-CHAT-ENABLED: true # Private message system /message (/m) and /reply (/re, /r).
+
+DEBUG:
+  ACTIONBAR:
+    ENABLED: false # Enables detailed action-bar lifecycle logs and in-memory history.
+    TARGETS: [] # Optional player-name list. Empty = all players.

@@ -48,6 +48,7 @@ public class LadderSelectorGui extends GUI {
 
     private static final ItemStack FILLER_ITEM = GUIFile.getGuiItem("GUIS.SELECTORS.LADDER-SELECTOR.ICONS.FILLER-ITEM").get();
     private static final GUIItem CUSTOM_PLAYER_KIT_ITEM = GUIFile.getGuiItem("GUIS.SELECTORS.LADDER-SELECTOR.ICONS.BASE-CUSTOM-PLAYER-KIT-ICON");
+    private static final int CUSTOM_KIT_SLOT = 53;
 
     public LadderSelectorGui(Profile profile, MatchType matchType) {
         super(GUIType.Ladder_Selector);
@@ -89,9 +90,10 @@ public class LadderSelectorGui extends GUI {
                 }
             }
 
-            if (profile.getSelectedCustomLadder() != null) {
+            if (profile.getSelectedCustomLadder() != null || isPartyCustomKitSelector()) {
                 GUIItem customPlayerKitItem = CUSTOM_PLAYER_KIT_ITEM.cloneItem();
-                ItemStack ladderIcon = profile.getSelectedCustomLadder().getIcon();
+                CustomLadder selectedCustomLadder = profile.getSelectedCustomLadder();
+                ItemStack ladderIcon = selectedCustomLadder != null ? selectedCustomLadder.getIcon() : null;
                 if (ladderIcon != null) {
                     // TODO: Custom ladder icon with name
                     if (customPlayerKitItem.getName() == null)
@@ -100,8 +102,11 @@ public class LadderSelectorGui extends GUI {
                     customPlayerKitItem.setBaseItem(ladderIcon);
                 }
 
-                inventory.setItem(53, customPlayerKitItem.get());
-                ladderSlots.put(53, profile.getSelectedCustomLadder());
+                inventory.setItem(CUSTOM_KIT_SLOT, customPlayerKitItem.get());
+
+                if (selectedCustomLadder != null) {
+                    ladderSlots.put(CUSTOM_KIT_SLOT, selectedCustomLadder);
+                }
             }
         });
     }
@@ -112,10 +117,15 @@ public class LadderSelectorGui extends GUI {
         Party party = PartyManager.getInstance().getParty(player);
         Inventory inventory = e.getView().getTopInventory();
         int slot = e.getRawSlot();
+        boolean customKitButtonClick = isPartyCustomKitButton(slot);
 
         e.setCancelled(true);
 
         if (inventory.getSize() <= slot) return;
+        if (customKitButtonClick && profile.getSelectedCustomLadder() == null) {
+            Common.sendMMMessage(player, LanguageManager.getString("LADDER.SELECTOR.PARTY.NO-CUSTOM-KIT-SELECTED"));
+            return;
+        }
         if (!ladderSlots.containsKey(slot)) return;
 
         Ladder ladder = ladderSlots.get(slot);
@@ -173,27 +183,17 @@ public class LadderSelectorGui extends GUI {
                     return;
                 }
 
+                if (customKitButtonClick && ladder instanceof CustomLadder) {
+                    startPartyMatch(player, party, ladder, ladder.getRounds());
+                    return;
+                }
+
                 if (player.hasPermission("zpp.party.selectarena")) {
                     new ArenaSelectorGui(ladder, matchType, this).open(player);
                 } else if (player.hasPermission("zpp.party.selectrounds") && ladder instanceof NormalLadder) {
                     new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
                 } else {
-                    Arena arena = LadderUtil.getAvailableArena(ladder);
-                    if (arena == null) {
-                        Common.sendMMMessage(player, LanguageManager.getString("LADDER.SELECTOR.PARTY.NO-AVAILABLE-ARENA"));
-                        return;
-                    }
-
-                    player.closeInventory();
-
-                    Match match = getMatch(party, ladder, arena, ladder.getRounds());
-                    if (match == null) {
-                        Common.sendMMMessage(player, LanguageManager.getString("LADDER.SELECTOR.PARTY.ERROR"));
-                        return;
-                    }
-
-                    party.setMatch(match);
-                    match.startMatch();
+                    startPartyMatch(player, party, ladder, ladder.getRounds());
                 }
             }
             /*
@@ -242,6 +242,33 @@ public class LadderSelectorGui extends GUI {
                 match = new PartySplit(ladder, arena, party, rounds);
         }
         return match;
+    }
+
+    private boolean isPartyCustomKitSelector() {
+        return matchType.equals(MatchType.PARTY_FFA) || matchType.equals(MatchType.PARTY_SPLIT);
+    }
+
+    private boolean isPartyCustomKitButton(int slot) {
+        return isPartyCustomKitSelector() && slot == CUSTOM_KIT_SLOT;
+    }
+
+    private void startPartyMatch(Player player, Party party, Ladder ladder, int rounds) {
+        Arena arena = LadderUtil.getAvailableArena(ladder);
+        if (arena == null) {
+            Common.sendMMMessage(player, LanguageManager.getString("LADDER.SELECTOR.PARTY.NO-AVAILABLE-ARENA"));
+            return;
+        }
+
+        player.closeInventory();
+
+        Match match = getMatch(party, ladder, arena, rounds);
+        if (match == null) {
+            Common.sendMMMessage(player, LanguageManager.getString("LADDER.SELECTOR.PARTY.ERROR"));
+            return;
+        }
+
+        party.setMatch(match);
+        match.startMatch();
     }
 
 }

@@ -59,6 +59,7 @@ public class KitSelectionHandler {
                 this.kits.put(customKit.getKey() - 1, new CustomKit(
                         createKitBook(customKit.getKey()),
                         customKit.getValue().getInventory(),
+                        customKit.getValue().getArmor(),
                         customKit.getValue().getExtra()));
             }
 
@@ -66,6 +67,7 @@ public class KitSelectionHandler {
             this.kits.put(8, new CustomKit(
                     createDefaultKitBook(),
                     ladder.getKitData().getStorage(),
+                    ladder.getKitData().getArmor(),
                     ladder.getKitData().getExtra()));
 
             this.hasChosenKit = false;
@@ -91,6 +93,7 @@ public class KitSelectionHandler {
                 this.kits.put(customKit.getKey() - 1, new CustomKit(
                         createKitBook(customKit.getKey()),
                         customKit.getValue().getInventory(),
+                        customKit.getValue().getArmor(),
                         customKit.getValue().getExtra()));
             }
 
@@ -98,6 +101,7 @@ public class KitSelectionHandler {
             this.kits.put(8, new CustomKit(
                     createDefaultKitBook(),
                     ladder.getKitData().getStorage(),
+                    ladder.getKitData().getArmor(),
                     ladder.getKitData().getExtra()));
 
             this.hasChosenKit = false;
@@ -121,7 +125,30 @@ public class KitSelectionHandler {
             } else if (this.kits.containsKey(this.chosenKit)) {
                 // Apply the chosen custom kit
                 CustomKit kit = this.kits.get(this.chosenKit);
-                KitUtil.loadKit(player, team, ladder.getKitData().getArmor(), kit.getInventory(), kit.getExtra());
+                ItemStack[] inventory = kit.getInventory();
+                ItemStack[] armor = kit.getArmor();
+
+                // Legacy safeguard: old kits may still have armor appended into inventory[36..39].
+                if (inventory != null && inventory.length > 36) {
+                    if (armor == null) {
+                        armor = new ItemStack[]{
+                                inventory[36],
+                                inventory.length > 37 ? inventory[37] : null,
+                                inventory.length > 38 ? inventory[38] : null,
+                                inventory.length > 39 ? inventory[39] : null
+                        };
+                    }
+
+                    ItemStack[] trimmed = new ItemStack[36];
+                    System.arraycopy(inventory, 0, trimmed, 0, 36);
+                    inventory = trimmed;
+                }
+
+                if (armor == null) {
+                    armor = ladder.getKitData().getArmor();
+                }
+
+                KitUtil.loadKit(player, team, armor, inventory, kit.getExtra());
             } else {
                 // Fallback to default ladder kit
                 KitUtil.loadDefaultLadderKit(player, team, ladder);

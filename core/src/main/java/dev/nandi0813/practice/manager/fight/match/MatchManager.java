@@ -2,7 +2,6 @@ package dev.nandi0813.practice.manager.fight.match;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.BasicArena;
-import dev.nandi0813.practice.manager.fight.belowname.BelowNameManager;
 import dev.nandi0813.practice.manager.fight.match.listener.LadderTypeListener;
 import dev.nandi0813.practice.manager.fight.match.listener.MatchEventListener;
 import dev.nandi0813.practice.manager.fight.match.listener.MatchLifecycleListener;
@@ -11,6 +10,7 @@ import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
 import dev.nandi0813.practice.manager.fight.match.util.RematchRequest;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.settings.CentralizedSettingListener;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import lombok.Getter;
@@ -32,7 +32,7 @@ public class MatchManager {
         return instance;
     }
 
-    private final BelowNameManager belowNameManager;
+    private final NametagManager belowNameManager;
 
     private final Map<String, Match> matches = new ConcurrentHashMap<>();
     private final List<Match> liveMatches = new CopyOnWriteArrayList<>();
@@ -57,7 +57,7 @@ public class MatchManager {
         Bukkit.getPluginManager().registerEvents(new LadderTypeListener(), practice);
 
 
-        this.belowNameManager = BelowNameManager.getInstance();
+        this.belowNameManager = NametagManager.getInstance();
         // PacketEvents.getAPI().getEventManager().registerListener(this.belowNameManager, PacketListenerPriority.NORMAL);
     }
 

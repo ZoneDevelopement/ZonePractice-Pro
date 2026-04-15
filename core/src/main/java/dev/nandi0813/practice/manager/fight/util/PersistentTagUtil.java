@@ -8,6 +8,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,9 +33,18 @@ public enum PersistentTagUtil {
         return token;
     }
 
+    private static void unregister(String token) {
+        if (token != null) {
+            OBJECT_REGISTRY.remove(token);
+        }
+    }
+
     public static void setTag(PersistentDataHolder holder, String tag, Object value) {
-        String token = register(value);
-        holder.getPersistentDataContainer().set(key(tag), PersistentDataType.STRING, token);
+        PersistentDataContainer container = holder.getPersistentDataContainer();
+        NamespacedKey namespacedKey = key(tag);
+
+        unregister(container.get(namespacedKey, PersistentDataType.STRING));
+        container.set(namespacedKey, PersistentDataType.STRING, register(value));
     }
 
     public static <T> T getTag(PersistentDataHolder holder, String tag, Class<T> type) {
@@ -55,9 +65,34 @@ public enum PersistentTagUtil {
         return holder.getPersistentDataContainer().has(key(tag), PersistentDataType.STRING);
     }
 
+    public static void clearTag(PersistentDataHolder holder, String tag) {
+        PersistentDataContainer container = holder.getPersistentDataContainer();
+        NamespacedKey namespacedKey = key(tag);
+
+        unregister(container.get(namespacedKey, PersistentDataType.STRING));
+        container.remove(namespacedKey);
+    }
+
+    public static void clearAllPluginTags(PersistentDataHolder holder) {
+        PersistentDataContainer container = holder.getPersistentDataContainer();
+        String namespace = key("cleanup").getNamespace();
+
+        for (NamespacedKey namespacedKey : new HashSet<>(container.getKeys())) {
+            if (!namespace.equals(namespacedKey.getNamespace())) {
+                continue;
+            }
+            if (!namespacedKey.getKey().startsWith("zpp_")) {
+                continue;
+            }
+
+            unregister(container.get(namespacedKey, PersistentDataType.STRING));
+            container.remove(namespacedKey);
+        }
+    }
+
     public static void setBlockTag(Block block, String tag, Object value) {
         String blockKey = blockKey(block, tag);
-        BLOCK_TAGS.put(blockKey, register(value));
+        unregister(BLOCK_TAGS.put(blockKey, register(value)));
     }
 
     public static <T> T getBlockTag(Block block, String tag, Class<T> type) {
@@ -78,7 +113,7 @@ public enum PersistentTagUtil {
     }
 
     public static void clearBlockTag(Block block, String tag) {
-        BLOCK_TAGS.remove(blockKey(block, tag));
+        unregister(BLOCK_TAGS.remove(blockKey(block, tag)));
     }
 
     public static void setEntityTag(Entity entity, String tag, Object value) {
@@ -91,6 +126,14 @@ public enum PersistentTagUtil {
 
     public static boolean hasEntityTag(Entity entity, String tag) {
         return hasTag(entity, tag);
+    }
+
+    public static void clearEntityTag(Entity entity, String tag) {
+        clearTag(entity, tag);
+    }
+
+    public static void clearAllEntityTags(Entity entity) {
+        clearAllPluginTags(entity);
     }
 
     private static String blockKey(Block block, String tag) {

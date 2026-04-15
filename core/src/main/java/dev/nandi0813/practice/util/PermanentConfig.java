@@ -9,6 +9,10 @@ public enum PermanentConfig {
     public static final boolean ARENA_COPY_FAWE_ENABLED = ConfigManager.getBoolean("ARENA.FAST-COPY.USE-FAWE");
     public static int ARENA_COPY_MAX_CHANGES = 50;
     public static int ARENA_COPY_MAX_CHECKS = 500;
+    public static int MATCH_ROLLBACK_MAX_CHANGES = 100;
+    public static int MATCH_ROLLBACK_MAX_CHECKS = 300;
+    public static int EVENT_ROLLBACK_MAX_CHANGES = 50;
+    public static int EVENT_ROLLBACK_MAX_CHECKS = 100;
     public static final boolean JOIN_TELEPORT_LOBBY = ConfigManager.getBoolean("PLAYER.JOIN-TELEPORT-LOBBY");
     public static final boolean NAMETAG_MANAGEMENT_ENABLED = ConfigManager.getBoolean("PLAYER.NAMETAG-MANAGEMENT.ENABLED");
 
@@ -31,6 +35,18 @@ public enum PermanentConfig {
             ARENA_COPY_MAX_CHANGES = ARENA_COPY_MAX_CHANGES * multiplier;
             ARENA_COPY_MAX_CHECKS = ARENA_COPY_MAX_CHECKS * multiplier;
         }
+
+        int rollbackMultiplier = ConfigManager.getInt("MATCH-SETTINGS.ROLLBACK.MULTIPLIER");
+        if (rollbackMultiplier < 1) {
+            rollbackMultiplier = 1;
+        } else if (rollbackMultiplier > 100) {
+            rollbackMultiplier = 100;
+        }
+
+        MATCH_ROLLBACK_MAX_CHANGES = MATCH_ROLLBACK_MAX_CHANGES * rollbackMultiplier;
+        MATCH_ROLLBACK_MAX_CHECKS = MATCH_ROLLBACK_MAX_CHECKS * rollbackMultiplier;
+        EVENT_ROLLBACK_MAX_CHANGES = EVENT_ROLLBACK_MAX_CHANGES * rollbackMultiplier;
+        EVENT_ROLLBACK_MAX_CHECKS = EVENT_ROLLBACK_MAX_CHECKS * rollbackMultiplier;
     }
 
 }

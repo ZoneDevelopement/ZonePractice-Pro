@@ -4,7 +4,11 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
+import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
+import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
+import dev.nandi0813.practice.manager.inventory.InventoryUtil;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.leaderboard.Leaderboard;
@@ -16,18 +20,27 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.manager.queue.QueueManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import me.clip.placeholderapi.expansion.Relational;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-public class PlayerExpansion extends PlaceholderExpansion {
+public class PlayerExpansion extends PlaceholderExpansion implements Relational {
+
+    private final String identifier;
+
+    public PlayerExpansion(String identifier) {
+        this.identifier = identifier;
+    }
 
 
     @Override
     public @NotNull String getIdentifier() {
-        return "zppro";
+        return identifier;
     }
 
     @Override
@@ -37,7 +50,7 @@ public class PlayerExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return "1.0.0";
+        return "1.0.1";
     }
 
     @Override
@@ -47,6 +60,10 @@ public class PlayerExpansion extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String params) {
+        if ("nametag_color".equalsIgnoreCase(params)) {
+            return resolveNametagColor(player);
+        }
+
         final Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile == null) return null;
 
@@ -318,6 +335,40 @@ public class PlayerExpansion extends PlaceholderExpansion {
         }
 
         return null;
+    }
+
+    @Override
+    public String onPlaceholderRequest(Player one, Player two, String params) {
+        if (!"nametag_color".equalsIgnoreCase(params) || two == null) {
+            return null;
+        }
+        return resolveNametagColor(two);
+    }
+
+    private String resolveNametagColor(OfflinePlayer offlinePlayer) {
+        if (offlinePlayer == null) {
+            return null;
+        }
+
+        Player onlinePlayer = offlinePlayer.getPlayer();
+        if (onlinePlayer != null) {
+            Match match = MatchManager.getInstance().getLiveMatchByPlayer(onlinePlayer);
+            if (match instanceof Team teamMatch) {
+                TeamEnum team = teamMatch.getTeam(onlinePlayer);
+                if (team != null && team != TeamEnum.FFA) {
+                    return team.getColorMM();
+                }
+            }
+        }
+
+        Profile profile = ProfileManager.getInstance().getProfile(offlinePlayer);
+        if (profile == null) {
+            return null;
+        }
+
+        String playerName = offlinePlayer.getName() == null ? "" : offlinePlayer.getName();
+        NamedTextColor lobbyColor = InventoryUtil.getLobbyNametag(profile, playerName, onlinePlayer).getScoreboardNameColor();
+        return "<" + lobbyColor.toString().toLowerCase() + ">";
     }
 
 }

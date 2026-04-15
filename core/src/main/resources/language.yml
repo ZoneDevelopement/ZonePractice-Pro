@@ -1,4 +1,4 @@
-VERSION: 36
+VERSION: 40
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -754,6 +754,7 @@ COMMAND:
           - " <red> » /%label% unranked <gray>- <white>Manage the unranked daily limit of the player." # Console
           - " <red> » /%label% exp <gray>- <white>Manage the experience of the player." # Console
           - " <red> » /%label% nametag <gray>- <white>Manage the nametag of the player." # Console
+          - " <red> » /%label% reload <gray>- <white>Reload practice config files."
           - "<red><st>------------------------------------------------"
       INFO:
         COMMAND-HELP: "<red>/%label% info <player>"
@@ -830,6 +831,10 @@ COMMAND:
         TARGET-OFFLINE: "<red>%target% is not online."
         TARGET-OP: "<red>You cannot reset %target%'s data."
         RESET-PLAYER: "<yellow>You have successfully reset <red>%target%'s <yellow>all data."
+      RELOAD:
+        COMMAND-HELP: "<red>/%label% reload"
+        RELOADED: "<green>Practice config files have been reloaded."
+        FAILED: "<red>Reload failed. Check console for details."
       NAMETAG:
         COMMAND-HELP:
           - "<red><st>------------------------------------------------"
@@ -1092,6 +1097,7 @@ LADDER:
       NO-AVAILABLE-ARENA: "<red>There is no available arena for your game."
       ERROR: "<red>Something went wrong."
       TARGET-PARTY-DISBANDED: "<red>The target party has been disbanded."
+      NO-CUSTOM-KIT-SELECTED: "<red>You need to select a custom kit first."
   LADDER-TYPES:
     BASIC:
       NAME: "Basic"
@@ -1335,6 +1341,7 @@ LEADERBOARD:
 PROFILE:
   NO-PERMISSION: "<red>You don't have permission."
   CANT-CHANGE-TARGET-SETTINGS: "<red>You can't change %target%'s settings."
+  SIDEBAR-GLOBALLY-DISABLED: "<red>Sidebar is disabled globally by the server configuration."
   PRIVATE-MSG-OFF: "<red>Private message system is disabled, you cannot toggle it."
   TOGGLE-COOLDOWN: "<red>You have to wait another <yellow>%seconds% <red>%secondName%."
   PLAYER-REMOVED-MATCH: "<yellow>You removed <red>%target% <yellow>from the match."
@@ -1347,6 +1354,11 @@ PROFILE:
     DAY: "Day"
     SUNSET: "Sunset"
     NIGHT: "Night"
+  PREFIX-VISIBILITY-NAMES:
+    NONE: "None"
+    PREFIX: "Prefix"
+    SUFFIX: "Suffix"
+    PREFIX-AND-SUFFIX: "Prefix and Suffix"
   GROUP-PERMISSION-NAME: "Permission for the %group% player group."
   INACTIVITY-REMOVED: "<red>%count% <yellow>profile got removed because of inactivity."
   NO-GROUP: "<red>You don't have a group."

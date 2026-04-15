@@ -117,6 +117,7 @@ public class LadderTypeConfig {
                 SettingType.ROUNDS,
                 SettingType.MAX_DURATION,
                 SettingType.START_COUNTDOWN,
+                SettingType.DROP_INVENTORY,
                 SettingType.ROUND_END_DELAY,
                 SettingType.ROUND_STATUS_TITLES,
                 SettingType.COUNTDOWN_TITLES
@@ -137,7 +138,6 @@ public class LadderTypeConfig {
      */
     public LadderTypeConfig withTeamSettings() {
         return withSettings(
-                SettingType.DROP_INVENTORY_TEAM,
                 SettingType.MULTI_ROUND_START_COUNTDOWN
         );
     }

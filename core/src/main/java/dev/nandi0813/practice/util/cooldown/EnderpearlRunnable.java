@@ -57,7 +57,7 @@ public class EnderpearlRunnable extends BukkitRunnable {
                 if (roundStatistic.isSet())
                     cancel();
                 else {
-                    if (ConfigManager.getBoolean("MATCH-SETTINGS.ENDERPEARL.EXP-BAR")) {
+                    if (ConfigManager.getBoolean("MATCH-SETTINGS.COOLDOWN.ENDER-PEARL.EXP-BAR")) {
                         int level = (int) (PlayerCooldown.getLeft(player, CooldownObject.ENDER_PEARL) / 1000);
                         player.setLevel(level);
 

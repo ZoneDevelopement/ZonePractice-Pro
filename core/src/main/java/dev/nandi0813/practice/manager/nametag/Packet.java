@@ -1,66 +1,53 @@
 package dev.nandi0813.practice.manager.nametag;
 
 import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
+import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
+import com.github.retrooper.packetevents.util.Vector3d;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetPassengers;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
 
-public class Packet {
+public final class Packet {
 
-    private final WrapperPlayServerTeams packet;
+    private Packet() {
+    }
 
-    public Packet(String name, Component prefix, NamedTextColor namedTextColor, Component suffix, Collection<String> players) {
-        WrapperPlayServerTeams.ScoreBoardTeamInfo scoreBoardTeamInfo = new WrapperPlayServerTeams.ScoreBoardTeamInfo(
-                serialize(name),
-                prefix,
-                suffix,
-                WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
-                WrapperPlayServerTeams.CollisionRule.ALWAYS,
-                namedTextColor,
-                WrapperPlayServerTeams.OptionData.ALL
+    public static void sendSpawnTextDisplay(Player viewer, int entityId, UUID entityUuid, Location location) {
+        Vector3d position = new Vector3d(location.getX(), location.getY(), location.getZ());
+        WrapperPlayServerSpawnEntity packet = new WrapperPlayServerSpawnEntity(
+                entityId,
+                Optional.of(entityUuid),
+                EntityTypes.TEXT_DISPLAY,
+                position,
+                location.getPitch(),
+                location.getYaw(),
+                location.getYaw(),
+                0,
+                Optional.empty()
         );
 
-        this.packet = new WrapperPlayServerTeams(
-                name,
-                WrapperPlayServerTeams.TeamMode.CREATE,
-                scoreBoardTeamInfo,
-                players);
+        PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet);
     }
 
-    public Packet(String name) {
-        this.packet = new WrapperPlayServerTeams(
-                name,
-                WrapperPlayServerTeams.TeamMode.REMOVE,
-                (WrapperPlayServerTeams.ScoreBoardTeamInfo) null
-        );
+    public static void sendMetadataTextDisplay(Player viewer, ClientTextDisplay display) {
+        WrapperPlayServerEntityMetadata packet = new WrapperPlayServerEntityMetadata(display.getEntityId(), display.createMetadata());
+        PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet);
     }
 
-    public Packet(String name, Collection<String> players, WrapperPlayServerTeams.TeamMode teamMode) {
-        this.packet = new WrapperPlayServerTeams(
-                name,
-                teamMode,
-                (WrapperPlayServerTeams.ScoreBoardTeamInfo) null,
-                players
-        );
+    public static void sendDestroyTextDisplay(Player viewer, int entityId) {
+        WrapperPlayServerDestroyEntities packet = new WrapperPlayServerDestroyEntities(entityId);
+        PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet);
     }
 
-    public void send(Player player) {
-        PacketEvents.getAPI().getPlayerManager().sendPacket(player, packet);
-    }
-
-    public void send() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            send(player);
-        }
-    }
-
-    private static Component serialize(String normalString) {
-        return LegacyComponentSerializer.legacyAmpersand().deserialize(normalString);
+    public static void sendSetPassengers(Player viewer, int vehicleEntityId, int[] passengerEntityIds) {
+        WrapperPlayServerSetPassengers packet = new WrapperPlayServerSetPassengers(vehicleEntityId, passengerEntityIds);
+        PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet);
     }
 
 }

@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class LadderCreateGui extends GUI {
 
-    private static final int[] CONTENT_SLOTS = {10, 11, 12, 13, 14, 15, 16, 20, 21, 22, 23, 24};
+    private static final int[] CONTENT_SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24};
 
     private final String ladderName;
     @Getter
@@ -53,7 +53,7 @@ public class LadderCreateGui extends GUI {
         Inventory inventory = gui.get(1);
         this.typeSlots.clear();
 
-        for (int i : new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 22, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35})
+        for (int i : new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35})
             inventory.setItem(i, GUIManager.getFILLER_ITEM());
 
         for (int slot : CONTENT_SLOTS)

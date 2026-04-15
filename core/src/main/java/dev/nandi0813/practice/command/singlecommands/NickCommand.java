@@ -1,5 +1,6 @@
 package dev.nandi0813.practice.command.singlecommands;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.inventory.InventoryUtil;
@@ -50,6 +51,16 @@ public class NickCommand implements CommandExecutor, TabCompleter {
         ).trim();
 
         return plainName.equals(player.getName());
+    }
+
+    private static String renderNamePreview(Player target, String rawTemplate) {
+        String normalizedTemplate = NameFormatUtil.normalizePlayerNameTemplate(rawTemplate);
+        return ZonePractice.getMiniMessage().serialize(
+                NameFormatUtil.applyPlayerPlaceholders(
+                        NameFormatUtil.parseConfiguredComponent(normalizedTemplate),
+                        target.getName()
+                )
+        );
     }
 
     @Override
@@ -128,17 +139,18 @@ public class NickCommand implements CommandExecutor, TabCompleter {
         }
 
         applyNameTemplate(target, nameTemplate);
+        String formattedNamePreview = renderNamePreview(target, nameTemplate);
 
         if (target.equals(player)) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.NICK.SET-SELF")
-                    .replace("%name%", Common.mmToNormal(nameTemplate)));
+                    .replace("%name%", formattedNamePreview));
         } else {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.NICK.SET-OTHER")
                     .replace("%target%", target.getName())
-                    .replace("%name%", Common.mmToNormal(nameTemplate)));
+                    .replace("%name%", formattedNamePreview));
             Common.sendMMMessage(target, LanguageManager.getString("COMMAND.NICK.SET-BY")
                     .replace("%player%", player.getName())
-                    .replace("%name%", Common.mmToNormal(nameTemplate)));
+                    .replace("%name%", formattedNamePreview));
         }
 
         return true;

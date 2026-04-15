@@ -1,4 +1,4 @@
-VERSION: 33
+VERSION: 35
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -326,7 +326,7 @@ GUIS:
           NAME: "&eBack to hub"
           MATERIAL: ARROW
         GLOBAL-LEADERBOARD:
-          NAME: "&eGlobal Elo Leaderboard &7- &fTop %number%"
+          NAME: "&eGlobal Win Leaderboard &7- &fTop %number%"
           MATERIAL: "NETHER_STAR"
           LORE:
             FORMAT: "&6%number%. %division% | %player%&8: &e%global_win%"
@@ -799,6 +799,16 @@ GUIS:
           LORE:
             - "&8&m--------------------------------"
             - "&7Click here to change time."
+            - "&8&m--------------------------------"
+        PREFIX-VISIBILITY:
+          NAME: "&dName Decorations: &f%prefixVisibility%"
+          MATERIAL: NAME_TAG
+          LORE:
+            - "&8&m--------------------------------"
+            - "&7Choose what to show from your"
+            - "&7chat/tab/sidebar/nametag decorations."
+            - ""
+            - "&aModes: NONE, PREFIX, SUFFIX, BOTH"
             - "&8&m--------------------------------"
   PLAYER-INFORMATION: # /prac info <name> command
     MAIN-PAGE:
@@ -3441,6 +3451,42 @@ GUIS:
           LORE:
             - ""
             - "&7Snowflake & ice particles on kill."
+            - "&7Status: %status%"
+            - ""
+        SUPERNOVA:
+          DISPLAY-NAME: "Supernova"
+          ICON: NETHER_STAR
+          LORE:
+            - ""
+            - "&7Massive cosmic blast with"
+            - "&7bright starburst visuals."
+            - "&7Status: %status%"
+            - ""
+        VOIDSTORM:
+          DISPLAY-NAME: "Voidstorm"
+          ICON: ENDER_EYE
+          LORE:
+            - ""
+            - "&7Dark void surge with portal"
+            - "&7and dragon-breath energy."
+            - "&7Status: %status%"
+            - ""
+        PHOENIX:
+          DISPLAY-NAME: "Phoenix"
+          ICON: TOTEM_OF_UNDYING
+          LORE:
+            - ""
+            - "&7Fiery rebirth burst with"
+            - "&7totem-like impact effects."
+            - "&7Status: %status%"
+            - ""
+        COMET:
+          DISPLAY-NAME: "Comet"
+          ICON: FIRE_CHARGE
+          LORE:
+            - ""
+            - "&7A high-energy comet strike"
+            - "&7with sparkling shockwaves."
             - "&7Status: %status%"
             - ""
     # ── Shield Cosmetics ──────────────────────────────────────────────────────

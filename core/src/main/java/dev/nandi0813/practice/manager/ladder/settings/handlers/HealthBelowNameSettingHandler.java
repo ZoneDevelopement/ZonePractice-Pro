@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
  * Handler for the HEALTH_BELOW_NAME setting.
  * Controls whether health is displayed below player names using PacketEvents.
  * <p>
- * IMPLEMENTATION: Delegates to BelowNameManager (PacketEvents-based)
+ * IMPLEMENTATION: Delegates to the merged NametagManager below-name path
  * The actual display is managed by Match.addPlayerToBelowName() and Match.removePlayerFromBelowName()
  */
 public class HealthBelowNameSettingHandler implements SettingHandler<Boolean> {
@@ -24,7 +24,7 @@ public class HealthBelowNameSettingHandler implements SettingHandler<Boolean> {
             return; // Setting disabled
         }
 
-        // Setup health display for all players using BelowNameManager
+        // Setup health display for all players using NametagManager's below-name path
         for (Player player : match.getPlayers()) {
             match.addPlayerToBelowName(player);
         }

@@ -53,6 +53,12 @@ public class PracticeCommand implements CommandExecutor, TabCompleter {
                     case "teleport":
                         TeleportArg.run(player, label, args);
                         break;
+                    case "hologram":
+                        HologramArg.run(player, label, args);
+                        break;
+                    case "reload":
+                        ReloadArg.run(player, label, args);
+                        break;
                     /*
                     case "test":
                         Profile profile = ProfileManager.getInstance().getProfile(player);
@@ -94,6 +100,9 @@ public class PracticeCommand implements CommandExecutor, TabCompleter {
                         break;
                     case "nametag":
                         NametagArg.run(label, args);
+                        break;
+                    case "reload":
+                        ReloadArg.run(label, args);
                         break;
                     default:
                         HelpArg.run(label);
@@ -137,6 +146,10 @@ public class PracticeCommand implements CommandExecutor, TabCompleter {
                 arguments.add("nametag");
             if (player.hasPermission("zpp.setup"))
                 arguments.add("teleport");
+            if (player.hasPermission("zpp.setup"))
+                arguments.add("hologram");
+            if (player.hasPermission("zpp.practice.reload"))
+                arguments.add("reload");
 
             StringUtil.copyPartialMatches(args[0], arguments, completion);
         } else {
@@ -150,6 +163,7 @@ public class PracticeCommand implements CommandExecutor, TabCompleter {
                 case "reset" -> ResetArg.tabComplete(player, args);
                 case "nametag" -> NametagArg.tabComplete(player, args);
                 case "teleport" -> TeleportArg.tabComplete(player, args);
+                case "hologram" -> HologramArg.tabComplete(player, args);
                 default -> completion;
             };
         }

@@ -166,3 +166,6 @@ jobs:
             bukkit
             spigot
           game-versions: '1.21.11'
+          game-version-filter: none
+          retry-attempts: 3
+          retry-delay: 15000

@@ -281,7 +281,7 @@ public class InventoryListener implements Listener {
                 e.setCancelled(!player.hasPermission("zpp.admin"));
                 break;
             case CUSTOM_EDITOR:
-            case EDITOR:
+                e.setCancelled(true);
                 e.getItemDrop().remove();
                 break;
         }
@@ -392,6 +392,7 @@ public class InventoryListener implements Listener {
         }
     }
 
+
     private boolean isLobbyStatus(ProfileStatus profileStatus) {
         return profileStatus == ProfileStatus.LOBBY;
     }
@@ -427,7 +428,7 @@ public class InventoryListener implements Listener {
         }
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
-        if (profile == null || !InventoryManager.getInstance().isLobbyCosmeticsState(profile)) {
+        if (profile == null || !InventoryManager.getInstance().shouldRenderLobbyCosmetics(profile)) {
             return;
         }
 
@@ -461,7 +462,7 @@ public class InventoryListener implements Listener {
 
         // 3. Profil és státusz ellenőrzése
         Profile profile = ProfileManager.getInstance().getProfile(player);
-        if (profile == null || !InventoryManager.getInstance().isLobbyCosmeticsState(profile)) {
+        if (profile == null || !InventoryManager.getInstance().shouldRenderLobbyCosmetics(profile)) {
             return;
         }
 

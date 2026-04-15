@@ -4,9 +4,9 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.gui.guis.customladder.premadecustom.CustomLadderEditorGui;
 import dev.nandi0813.practice.manager.gui.setup.SetupHubGui;
-import dev.nandi0813.practice.manager.profile.Profile;
-import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
+import dev.nandi0813.practice.manager.gui.setup.ladder.laddersettings.CustomKitGui;
+import dev.nandi0813.practice.manager.gui.setup.ladder.laddersettings.DestroyableBlocksGui;
+import dev.nandi0813.practice.manager.gui.setup.ladder.laddersettings.InventoryGui;
 import dev.nandi0813.practice.manager.server.sound.SoundEffect;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
@@ -19,11 +19,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -90,8 +88,19 @@ public class GUIManager implements Listener {
         GUI gui = openGUI.get(player);
         if (gui == null) return;
 
-        if (e.getClick().equals(ClickType.DOUBLE_CLICK)) {
+        if (gui instanceof CustomLadderEditorGui && e.getRawSlot() < 0) {
+            e.setCancelled(true);
+            player.setItemOnCursor(null);
             return;
+        }
+
+        if (shouldHardCancelClick(e, gui)) {
+            e.setCancelled(true);
+        }
+
+        if (!allowsInventoryMutation(gui)) {
+            // Safe default for all normal GUIs: no item movement, only GUI button handling.
+            e.setCancelled(true);
         }
 
         GUIClickSoundIntent soundIntent = resolveClickSoundIntent(e, gui, player);
@@ -103,6 +112,43 @@ public class GUIManager implements Listener {
         }
 
         playGuiClickSound(player, soundIntent);
+    }
+
+    private boolean shouldHardCancelClick(InventoryClickEvent e, GUI gui) {
+        int topSize = e.getView().getTopInventory().getSize();
+        int rawSlot = e.getRawSlot();
+
+        if (rawSlot < 0) {
+            return true;
+        }
+
+        boolean clickedBottomInventory = rawSlot >= topSize;
+        if (clickedBottomInventory && !allowsInventoryMutation(gui)) {
+            return true;
+        }
+
+        ClickType clickType = e.getClick();
+        if (clickType == ClickType.DOUBLE_CLICK
+                || clickType == ClickType.NUMBER_KEY
+                || clickType == ClickType.SWAP_OFFHAND
+                || clickType == ClickType.CONTROL_DROP
+                || clickType == ClickType.CREATIVE
+                || clickType == ClickType.MIDDLE) {
+            return true;
+        }
+
+        InventoryAction action = e.getAction();
+        return action == InventoryAction.COLLECT_TO_CURSOR
+                || action == InventoryAction.MOVE_TO_OTHER_INVENTORY
+                || action == InventoryAction.HOTBAR_SWAP;
+    }
+
+    private boolean allowsInventoryMutation(GUI gui) {
+        return
+                gui instanceof CustomLadderEditorGui ||
+                gui instanceof DestroyableBlocksGui ||
+                gui instanceof InventoryGui ||
+                gui instanceof CustomKitGui;
     }
 
     private GUIClickSoundIntent resolveClickSoundIntent(InventoryClickEvent e, GUI gui, Player player) {
@@ -204,19 +250,23 @@ public class GUIManager implements Listener {
         GUI gui = openGUI.get(player);
         if (gui == null) return;
 
+        if (!allowsInventoryMutation(gui)) {
+            e.setCancelled(true);
+            return;
+        }
+
         gui.handleDragEvent(e);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onLadderEditorItemDrop(PlayerDropItemEvent e) {
         Player player = e.getPlayer();
-        Profile profile = ProfileManager.getInstance().getProfile(player);
         GUI gui = openGUI.get(player);
 
-        if (gui == null) return;
-
-        if (profile.getStatus().equals(ProfileStatus.EDITOR) && gui instanceof CustomLadderEditorGui)
+        if (gui instanceof CustomLadderEditorGui) {
             e.getItemDrop().remove();
+            player.setItemOnCursor(null);
+        }
     }
 
 }

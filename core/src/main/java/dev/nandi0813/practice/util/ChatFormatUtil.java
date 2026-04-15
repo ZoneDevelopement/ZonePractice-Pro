@@ -30,7 +30,7 @@ public enum ChatFormatUtil {
     public static String buildPartyChatMessage(Player player, String rawMessage) {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         String playerName = profile != null
-                ? ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveName(profile, player.getName()))
+                ? ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveFullName(profile, player.getName()))
                 : player.getName();
 
         String template = LanguageManager.getString("GENERAL-CHAT.PARTY-CHAT")
@@ -47,7 +47,7 @@ public enum ChatFormatUtil {
     public static String buildStaffChatMessage(Player player, String rawMessage) {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         String playerName = profile != null
-                ? ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveName(profile, player.getName()))
+                ? ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveFullName(profile, player.getName()))
                 : player.getName();
 
         String template = LanguageManager.getString("GENERAL-CHAT.STAFF-CHAT")
@@ -88,17 +88,13 @@ public enum ChatFormatUtil {
             format = LanguageManager.getString("GENERAL-CHAT.SERVER-CHAT");
         }
 
-        String division      = profile.getStats().getDivision() != null ? profile.getStats().getDivision().getFullName()  : "";
-        String divisionShort = profile.getStats().getDivision() != null ? profile.getStats().getDivision().getShortName() : "";
+        String decoratedPlayer = ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveFullName(profile, player.getName()));
 
         String template = format
-                .replace("%%division%%",       division)
-                .replace("%%division_short%%", divisionShort)
-                .replace("%%player%%", ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveName(profile, player.getName())))
+                .replace("%%player%%", decoratedPlayer)
                 .replace("%%message%%", "%%message%%");
 
         return normalizeStaticSpacing(template)
                 .replace("%%message%%", message);
     }
 }
-

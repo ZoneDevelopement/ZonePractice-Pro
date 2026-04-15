@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ public class SidebarManager extends ConfigFile implements Listener {
     private final Map<Player, PracticeSidebar> boards = new HashMap<>();
     @Getter
     private final SidebarAdapter sidebarAdapter;
+    private BukkitTask updateTask;
 
     private SidebarManager() {
         super("", "sidebar");
@@ -49,6 +51,23 @@ public class SidebarManager extends ConfigFile implements Listener {
     }
 
     public void load() {
+        if (!isSidebarGloballyEnabled()) {
+            return;
+        }
+
+        ensureScoreboardLibrary();
+        startUpdateTask();
+    }
+
+    public boolean isSidebarGloballyEnabled() {
+        return ConfigManager.getBoolean("SIDEBAR.ENABLED");
+    }
+
+    private void ensureScoreboardLibrary() {
+        if (scoreboardLibrary != null) {
+            return;
+        }
+
         try {
             scoreboardLibrary = ScoreboardLibrary.loadScoreboardLibrary(ZonePractice.getInstance());
         } catch (NoPacketAdapterAvailableException e) {
@@ -56,7 +75,33 @@ public class SidebarManager extends ConfigFile implements Listener {
             scoreboardLibrary = new NoopScoreboardLibrary();
             Common.sendConsoleMMMessage("<red>No scoreboard packet adapter available!");
         }
-        update();
+    }
+
+    private void startUpdateTask() {
+        if (!isSidebarGloballyEnabled()) {
+            stopUpdateTask();
+            return;
+        }
+
+        if (updateTask != null) {
+            updateTask.cancel();
+        }
+
+        updateTask = Bukkit.getScheduler().runTaskTimerAsynchronously(ZonePractice.getInstance(), () -> {
+            for (PracticeSidebar practiceSidebar : new ArrayList<>(boards.values())) {
+                if (practiceSidebar == null || practiceSidebar.getSidebar() == null || practiceSidebar.getSidebar().closed()) {
+                    continue;
+                }
+                practiceSidebar.update();
+            }
+        }, 20L, ConfigManager.getInt("SIDEBAR.UPDATE-TIME"));
+    }
+
+    private void stopUpdateTask() {
+        if (updateTask != null) {
+            updateTask.cancel();
+            updateTask = null;
+        }
     }
 
     @EventHandler
@@ -65,6 +110,8 @@ public class SidebarManager extends ConfigFile implements Listener {
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
+            if (!isSidebarGloballyEnabled()) return;
+
             Profile profile = ProfileManager.getInstance().getProfile(player);
             if (!profile.isSidebar()) return;
 
@@ -87,8 +134,24 @@ public class SidebarManager extends ConfigFile implements Listener {
     }
 
     public void loadSidebar(Player player) {
-        if (boards.containsKey(player))
+        if (!isSidebarGloballyEnabled())
             return;
+
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null || !profile.isSidebar())
+            return;
+
+        // If sidebar already exists, ensure it's still open before returning
+        if (boards.containsKey(player)) {
+            PracticeSidebar sidebar = boards.get(player);
+            if (sidebar != null && sidebar.getSidebar() != null && !sidebar.getSidebar().closed()) {
+                return;
+            }
+            // If the sidebar was closed, remove it so we can recreate it
+            boards.remove(player);
+        }
+
+        ensureScoreboardLibrary();
 
         boards.put(player, new PracticeSidebar(this, scoreboardLibrary.createSidebar(), player));
     }
@@ -111,6 +174,9 @@ public class SidebarManager extends ConfigFile implements Listener {
      * @param player the player whose scoreboard should be updated
      */
     public void updatePlayerSidebar(Player player) {
+        if (!isSidebarGloballyEnabled())
+            return;
+
         if (!boards.containsKey(player))
             return;
 
@@ -132,16 +198,38 @@ public class SidebarManager extends ConfigFile implements Listener {
         }
     }
 
-    public void update() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(ZonePractice.getInstance(), () ->
-        {
-            for (PracticeSidebar practiceSidebar : new ArrayList<>(boards.values())) {
-                if (practiceSidebar == null || practiceSidebar.getSidebar() == null || practiceSidebar.getSidebar().closed()) {
+    public void reloadSidebarConfig() {
+        reloadFile();
+
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+            if (!isSidebarGloballyEnabled()) {
+                for (Player player : new ArrayList<>(boards.keySet())) {
+                    unLoadSidebar(player);
+                }
+                stopUpdateTask();
+                return;
+            }
+
+            ensureScoreboardLibrary();
+            startUpdateTask();
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Profile profile = ProfileManager.getInstance().getProfile(player);
+                if (profile == null) {
                     continue;
                 }
-                practiceSidebar.update();
+
+                if (profile.isSidebar()) {
+                    loadSidebar(player);
+                } else {
+                    unLoadSidebar(player);
+                }
             }
-        }, 20L, ConfigManager.getInt("SIDEBAR.UPDATE-TIME"));
+
+            for (Player player : new ArrayList<>(boards.keySet())) {
+                updatePlayerSidebar(player);
+            }
+        });
     }
 
     @Override
@@ -153,6 +241,12 @@ public class SidebarManager extends ConfigFile implements Listener {
     }
 
     public void close() {
+        stopUpdateTask();
+
+        for (Player player : new ArrayList<>(boards.keySet())) {
+            unLoadSidebar(player);
+        }
+
         try {
             if (scoreboardLibrary != null) {
                 scoreboardLibrary.close();

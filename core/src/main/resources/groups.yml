@@ -20,7 +20,7 @@ GROUPS:
       NAME: "<gradient:green:blue>%player%</gradient>"
       SUFFIX: ""
       SORT-PRIORITY: 4
-    CHAT-FORMAT: "%%division%% <dark_gray>| <gray>%%player%%: <white>%%message%%" # You can delete this line in groups, they just get the default server-chat format.
+    CHAT-FORMAT: "%%player%%: <white>%%message%%" # You can delete this line in groups, they just get the default server-chat format.
   PREMIUM:
     NAME: "<red>Premium"
     WEIGHT: 1
@@ -36,7 +36,7 @@ GROUPS:
       NAME: "<gradient:green:blue>%player%</gradient>"
       SUFFIX: " <dark_gray>[<red>Premium<dark_gray>]<gray>"
       SORT-PRIORITY: 3
-    CHAT-FORMAT: "%%division%% <dark_gray>| <dark_gray>[<red>Premium<dark_gray>] <gray>%%player%%: <white>%%message%%"
+    CHAT-FORMAT: "%%player%%: <white>%%message%%"
   SUPREME:
     NAME: "<gold>Supreme"
     WEIGHT: 2
@@ -52,7 +52,7 @@ GROUPS:
       NAME: "<gray>%player%"
       SUFFIX: " <dark_gray>[<gold>Supreme<dark_gray>]<gray>"
       SORT-PRIORITY: 2
-    CHAT-FORMAT: "%%division%% <dark_gray>| <dark_gray>[<gold>Supreme<dark_gray>] <gray>%%player%%: <white>%%message%%"
+    CHAT-FORMAT: "%%player%%: <white>%%message%%"
   STAFF:
     NAME: "<green>Staff"
     WEIGHT: 3
@@ -68,7 +68,7 @@ GROUPS:
       NAME: "<gray>%player%"
       SUFFIX: ""
       SORT-PRIORITY: 1
-    CHAT-FORMAT: "%%division%% <dark_gray>| <dark_gray>[<green>Staff<dark_gray>] <gray>%%player%%: <white>%%message%%"
+    CHAT-FORMAT: "%%player%%: <white>%%message%%"
   ADMIN:
     NAME: "<light_purple>Admin"
     WEIGHT: 4
@@ -84,4 +84,4 @@ GROUPS:
       NAME: "<gray>%player%"
       SUFFIX: ""
       SORT-PRIORITY: 0
-    CHAT-FORMAT: "%%division%% <dark_gray>| <dark_gray>[<light_purple>Admin<dark_gray>] <gray>%%player%%: <white>%%message%%"
+    CHAT-FORMAT: "%%player%%: <white>%%message%%"

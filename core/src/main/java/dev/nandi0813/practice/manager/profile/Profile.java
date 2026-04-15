@@ -10,6 +10,7 @@ import dev.nandi0813.practice.manager.ladder.abstraction.playercustom.CustomLadd
 import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsData;
+import dev.nandi0813.practice.manager.profile.enums.ProfilePrefixVisibility;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.profile.enums.ProfileWorldTime;
 import dev.nandi0813.practice.manager.profile.group.Group;
@@ -63,6 +64,7 @@ public class Profile {
     private boolean privateMessages;
     private ProfileWorldTime worldTime;
     private boolean flying;
+    private ProfilePrefixVisibility prefixVisibility = ProfilePrefixVisibility.PREFIX_AND_SUFFIX;
 
     private int allowedCustomKits;
     private final Map<NormalLadder, Map<Integer, CustomKit>> unrankedCustomKits = new HashMap<>();
@@ -89,7 +91,10 @@ public class Profile {
 
     public Profile(UUID uuid, OfflinePlayer player) {
         this.uuid = uuid;
-        this.player = player;
+        // Never pin a live Player instance here; always resolve online player from UUID.
+        this.player = (player instanceof Player)
+                ? Bukkit.getOfflinePlayer(uuid)
+                : Objects.requireNonNullElseGet(player, () -> Bukkit.getOfflinePlayer(uuid));
         this.status = ProfileStatus.OFFLINE;
         this.file = new ProfileFile(this);
         this.stats = new ProfileStat(this);
@@ -101,6 +106,14 @@ public class Profile {
         this.status = ProfileStatus.OFFLINE;
         this.file = new ProfileFile(this);
         this.stats = new ProfileStat(this);
+    }
+
+    /**
+     * Resolves the currently connected player for this profile by UUID.
+     * Returns null when the player is offline.
+     */
+    public Player getOnlinePlayer() {
+        return Bukkit.getPlayer(uuid);
     }
 
     public void saveData() {
@@ -157,7 +170,7 @@ public class Profile {
     }
 
     public void checkGroup() {
-        Player online = Bukkit.getPlayer(uuid);
+        Player online = getOnlinePlayer();
         if (online == null || !online.isOnline()) return;
 
         Group newGroup = GroupManager.getInstance().getGroup(online);
@@ -179,7 +192,7 @@ public class Profile {
     }
 
     public int getCustomKitPerm() {
-        Player onlinePlayer = player.getPlayer();
+        Player onlinePlayer = getOnlinePlayer();
 
         if (onlinePlayer == null) {
             return 0;
@@ -203,7 +216,7 @@ public class Profile {
         this.eventStartLeft = group.getEventStartLimit();
         this.partyBroadcastLeft = group.getPartyBroadcastLimit();
 
-        Player onlinePlayer = this.player.getPlayer();
+        Player onlinePlayer = this.getOnlinePlayer();
         if (onlinePlayer != null) {
             Party partyObj = PartyManager.getInstance().getParty(onlinePlayer);
             if (partyObj != null && onlinePlayer.equals(partyObj.getLeader())) {
@@ -219,7 +232,19 @@ public class Profile {
             this.customLadders.removeLast();
         }
 
-        this.playerCustomKitSelector = new PlayerCustomKitSelector(this);
+        // Invalidate the selector so it gets recreated on next access (lazy-loading)
+        this.playerCustomKitSelector = null;
+    }
+
+    /**
+     * Lazily loads and returns the PlayerCustomKitSelector.
+     * Creates it only when first accessed to save RAM for offline players.
+     */
+    public PlayerCustomKitSelector getPlayerCustomKitSelector() {
+        if (this.playerCustomKitSelector == null) {
+            this.playerCustomKitSelector = new PlayerCustomKitSelector(this);
+        }
+        return this.playerCustomKitSelector;
     }
 
     public void setSelectedCustomLadder(CustomLadder customLadder) {
@@ -245,7 +270,7 @@ public class Profile {
                 && status != ProfileStatus.LOBBY
                 && status != ProfileStatus.SPECTATE
                 && status != ProfileStatus.OFFLINE) {
-            Player online = player.getPlayer();
+            Player online = getOnlinePlayer();
             if (online != null && online.isOnline()) {
                 MatchManager.getInstance().invalidateRematchByPlayer(online);
             }

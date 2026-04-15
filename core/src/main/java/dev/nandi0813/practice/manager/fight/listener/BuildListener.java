@@ -11,12 +11,15 @@ import dev.nandi0813.practice.manager.fight.util.FightUtil;
 import dev.nandi0813.practice.manager.fight.util.ListenerUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.LadderHandle;
+import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.Openable;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
@@ -30,6 +33,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -152,6 +156,54 @@ public class BuildListener implements Listener {
         return !replacedType.isSolid();
     }
 
+    private static boolean isFireMaterial(Material material) {
+        return material == Material.FIRE || material == Material.SOUL_FIRE;
+    }
+
+    private static boolean isLavaMaterial(Material material) {
+        return material == Material.LAVA;
+    }
+
+    private static void trackFireIfInsideArena(Spectatable spectatable, Block block) {
+        if (spectatable == null || !spectatable.isBuild() || spectatable.getFightChange() == null || spectatable.getCuboid() == null) {
+            return;
+        }
+        if (!spectatable.getCuboid().contains(block.getLocation())) {
+            return;
+        }
+
+        spectatable.getFightChange().trackFirePosition(block);
+    }
+
+    private static boolean isDoorMaterial(Material material) {
+        return material != null && material.name().endsWith("_DOOR");
+    }
+
+    private static void trackOpenableInteraction(Spectatable spectatable, Block clickedBlock) {
+        if (spectatable == null || !spectatable.isBuild() || spectatable.getFightChange() == null || spectatable.getCuboid() == null) {
+            return;
+        }
+        if (clickedBlock == null || !spectatable.getCuboid().contains(clickedBlock.getLocation())) {
+            return;
+        }
+        if (!(clickedBlock.getBlockData() instanceof Openable)) {
+            return;
+        }
+
+        spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(clickedBlock));
+
+        // Doors are bisected, so capture the paired half too.
+        if (isDoorMaterial(clickedBlock.getType()) && clickedBlock.getBlockData() instanceof Bisected bisected) {
+            Block otherHalf = bisected.getHalf() == Bisected.Half.TOP
+                    ? clickedBlock.getRelative(0, -1, 0)
+                    : clickedBlock.getRelative(0, 1, 0);
+
+            if (spectatable.getCuboid().contains(otherHalf.getLocation())) {
+                spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(otherHalf));
+            }
+        }
+    }
+
     /**
      * Resolves the {@link Ladder} from a {@link Spectatable}.
      * Returns {@code null} when the Spectatable is not a {@link Match} (e.g. FFA).
@@ -222,16 +274,21 @@ public class BuildListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlockPlaced();
         BlockState replacedState = event.getBlockReplacedState();
-        Spectatable spectatable;
-        boolean needsMetadata = false;
+        Spectatable spectatable = null;
+        Spectatable playerSpectatable = getByPlayer(event.getPlayer());
+        boolean needsMetadata = !BlockUtil.hasMetadata(block, PLACED_IN_FIGHT);
 
-        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
-            spectatable = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
-            if (ListenerUtil.checkMetaData(spectatable)) {
-                return;
+        if (!needsMetadata) {
+            Spectatable taggedSpectatable = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Spectatable.class);
+            if (!ListenerUtil.checkMetaData(taggedSpectatable) && taggedSpectatable.isBuild()) {
+                spectatable = taggedSpectatable;
             }
-        } else {
-            spectatable = getByPlayer(event.getPlayer());
+        }
+
+        // Prefer the placing player's active context so stale block tags cannot leak ownership
+        // from a previous fight and cause missed rollback in the current fight.
+        if (playerSpectatable != null && playerSpectatable.isBuild() && playerSpectatable != spectatable) {
+            spectatable = playerSpectatable;
             needsMetadata = true;
         }
 
@@ -250,6 +307,66 @@ public class BuildListener implements Listener {
         }
 
         trackUnderBlockIfDirt(block, spectatable);
+
+        Material placedType = block.getType();
+        FightChangeOptimized fightChange = spectatable.getFightChange();
+        if (fightChange != null) {
+            if (isFireMaterial(placedType)) {
+                trackFireIfInsideArena(spectatable, block);
+            } else if (isLavaMaterial(placedType) && spectatable.getCuboid().contains(block.getLocation())) {
+                fightChange.trackFireAround(block);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockIgnite(BlockIgniteEvent event) {
+        Block ignitedBlock = event.getBlock();
+        Spectatable spectatable = getByBlock(ignitedBlock);
+
+        if (spectatable == null && event.getIgnitingBlock() != null) {
+            spectatable = getByBlock(event.getIgnitingBlock());
+        }
+
+        if (spectatable == null && event.getPlayer() != null) {
+            spectatable = getByPlayer(event.getPlayer());
+        }
+
+        if (spectatable == null || !spectatable.isBuild()) {
+            return;
+        }
+
+        trackFireIfInsideArena(spectatable, ignitedBlock);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND) {
+            return;
+        }
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+        if (event.getClickedBlock() == null) {
+            return;
+        }
+
+        Spectatable spectatable = getByPlayer(event.getPlayer());
+        trackOpenableInteraction(spectatable, event.getClickedBlock());
+
+        if (event.getItem() == null || event.getItem().getType() != Material.FLINT_AND_STEEL) {
+            return;
+        }
+        if (spectatable == null || !spectatable.isBuild() || spectatable.getCuboid() == null || spectatable.getFightChange() == null) {
+            return;
+        }
+
+        Block target = event.getClickedBlock().getRelative(event.getBlockFace());
+        if (!spectatable.getCuboid().contains(target.getLocation())) {
+            return;
+        }
+
+        spectatable.getFightChange().trackFirePosition(target);
     }
 
     // =========================================================================
@@ -758,6 +875,9 @@ public class BuildListener implements Listener {
             if (BlockUtil.hasMetadata(adj, PLACED_IN_FIGHT)) continue;
 
             tagAndTrack(adj, spectatable);
+            if (spectatable.getFightChange() != null) {
+                spectatable.getFightChange().trackFirePosition(adj);
+            }
         }
     }
 

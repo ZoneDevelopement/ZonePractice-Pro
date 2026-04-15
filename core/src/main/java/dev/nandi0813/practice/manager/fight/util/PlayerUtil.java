@@ -61,32 +61,41 @@ public class PlayerUtil {
     public static List<Entity> dropPlayerInventory(Player player) {
         List<Entity> entities = new ArrayList<>();
 
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item == null) continue;
-            if (item.getType().equals(Material.AIR)) continue;
+        PlayerInventory inventory = player.getInventory();
 
-            entities.add(player.getWorld().dropItemNaturally(player.getLocation(), item));
+        for (ItemStack item : inventory.getStorageContents()) {
+            dropIfPresent(player, item, entities);
         }
-        // Only player inventory views expose the personal 2x2 crafting grid at these slots.
-        if (hasPersonalCraftingGridOpen(player)) {
-            for (int i = 1; i <= 4; i++) {
-                ItemStack item = player.getOpenInventory().getItem(i);
-                if (item == null || item.getType().equals(Material.AIR)) continue;
-                entities.add(player.getWorld().dropItemNaturally(player.getLocation(), item));
-            }
+        for (ItemStack item : inventory.getArmorContents()) {
+            dropIfPresent(player, item, entities);
         }
-        // Drop cursor item if any
-        ItemStack cursor = player.getItemOnCursor();
-        if (!cursor.getType().equals(Material.AIR))
-            entities.add(player.getWorld().dropItemNaturally(player.getLocation(), cursor));
+
+        dropIfPresent(player, inventory.getItemInOffHand(), entities);
+
+        // Includes personal crafting slots/result in player inventory implementations.
+        for (ItemStack item : inventory.getExtraContents()) {
+            dropIfPresent(player, item, entities);
+        }
+
+        // Cursor item is not part of inventory arrays.
+        dropIfPresent(player, player.getItemOnCursor(), entities);
 
         clearInventory(player);
 
         return entities;
     }
 
+    private static void dropIfPresent(Player player, ItemStack item, List<Entity> entities) {
+        if (item == null || item.getType().isAir()) {
+            return;
+        }
+        entities.add(player.getWorld().dropItemNaturally(player.getLocation(), item.clone()));
+    }
+
     public static void clearInventory(Player player) {
         player.getInventory().clear();
+        // Clear off-hand slot
+        player.getInventory().setItemInOffHand(null);
         // Clear crafting-grid slots only for personal inventory views (avoid wiping chest GUI slots).
         if (hasPersonalCraftingGridOpen(player)) {
             for (int i = 1; i <= 4; i++) {
@@ -97,16 +106,43 @@ public class PlayerUtil {
         player.setItemOnCursor(null);
     }
 
+    public static void clearMainInventory(Player player) {
+        if (player == null) {
+            return;
+        }
+
+        PlayerInventory inventory = player.getInventory();
+        ItemStack[] storage = inventory.getStorageContents();
+        inventory.setStorageContents(new ItemStack[storage.length]);
+        inventory.setExtraContents(new ItemStack[inventory.getExtraContents().length]);
+
+        if (hasPersonalCraftingGridOpen(player)) {
+            for (int i = 1; i <= 4; i++) {
+                player.getOpenInventory().setItem(i, null);
+            }
+        }
+
+        player.setItemOnCursor(null);
+    }
+
+    public static void clearArmor(Player player) {
+        if (player == null) {
+            return;
+        }
+
+        PlayerInventory inventory = player.getInventory();
+        inventory.setHelmet(null);
+        inventory.setChestplate(null);
+        inventory.setLeggings(null);
+        inventory.setBoots(null);
+    }
+
     public static void setCollidesWithEntities(Player player, boolean bool) {
         player.setCollidable(bool);
     }
 
     public static int getPing(Player player) {
         return player.getPing();
-    }
-
-    public static ItemStack[] getInventoryStorageContent(Player player) {
-        return player.getInventory().getStorageContents();
     }
 
     public static double getPlayerHealth(Player player) {

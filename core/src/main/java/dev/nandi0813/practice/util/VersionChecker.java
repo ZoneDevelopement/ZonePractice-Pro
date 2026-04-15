@@ -36,10 +36,13 @@ public enum VersionChecker {
                         return null;
                     }
 
-                    if (mcVersion.startsWith("1.21"))
+                    if (mcVersion.startsWith("1.21")) {
                         bukkitVersion = BukkitVersion.v1_21_R3;
+                    }
+                    else if (mcVersion.startsWith("26")) {
+                        bukkitVersion = BukkitVersion.v_26_1_R1;
+                    }
                     else {
-                        // Unknown version - keep null but log for visibility
                         ZonePractice.getInstance().getLogger().warning("Unsupported MC version: " + mcVersion);
                         bukkitVersion = null;
                     }
@@ -58,7 +61,8 @@ public enum VersionChecker {
 
     @Getter
     public enum BukkitVersion {
-        v1_21_R3 // 1.21.X
+        v1_21_R3, // 1.21.11
+        v_26_1_R1, // 26.1
     }
 
 }

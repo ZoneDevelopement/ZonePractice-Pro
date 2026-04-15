@@ -6,7 +6,7 @@
 
     <groupId>dev.nandi0813</groupId>
     <artifactId>practice-parent</artifactId>
-    <version>7.4.0-SNAPSHOT</version>
+    <version>7.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ZonePractice Pro</name>
@@ -55,6 +55,12 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io/</url>
+        </repository>
+
+        <!-- Anvil GUI -->
+        <repository>
+            <id>mvn-wesjd-net</id>
+            <url>https://mvn.wesjd.net/</url>
         </repository>
 
         <!-- Placeholder API -->
@@ -111,7 +117,7 @@
         <dependency>
             <groupId>com.github.retrooper</groupId>
             <artifactId>packetevents-spigot</artifactId>
-            <version>2.11.2</version>
+            <version>2.12.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -132,7 +138,7 @@
         <dependency>
             <groupId>net.wesjd</groupId>
             <artifactId>anvilgui</artifactId>
-            <version>1.10.11-SNAPSHOT</version>
+            <version>1.10.12-SNAPSHOT</version>
         </dependency>
 
         <!-- BStats -->

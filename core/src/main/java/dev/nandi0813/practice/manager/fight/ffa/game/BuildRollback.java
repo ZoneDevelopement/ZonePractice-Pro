@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.fight.ffa.game;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.util.PermanentConfig;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Runnable;
 import lombok.Getter;
@@ -45,7 +46,7 @@ public class BuildRollback extends Runnable {
         this.seconds = ROLLBACK_SECONDS;
 
         if (ZonePractice.getInstance().isEnabled()) {
-            fightChange.rollback(300, 100, onRollbackComplete);
+            fightChange.rollback(PermanentConfig.MATCH_ROLLBACK_MAX_CHECKS, PermanentConfig.MATCH_ROLLBACK_MAX_CHANGES, onRollbackComplete);
         } else {
             fightChange.quickRollback();
             if (onRollbackComplete != null) {

@@ -21,12 +21,12 @@ public class WindChargeCooldownItem extends SettingItem {
 
     @Override
     public void clickEvent(InventoryClickEvent e) {
-        int windChargeCooldown = ladder.getWindChargeCooldown();
+        double windChargeCooldown = ladder.getWindChargeCooldown();
 
         if (e.getClick().isLeftClick() && windChargeCooldown > 0)
-            ladder.setWindChargeCooldown(windChargeCooldown - 1);
+            ladder.setWindChargeCooldown(windChargeCooldown - 0.5);
         else if (e.getClick().isRightClick() && windChargeCooldown < 30)
-            ladder.setWindChargeCooldown(windChargeCooldown + 1);
+            ladder.setWindChargeCooldown(windChargeCooldown + 0.5);
 
         build(true);
     }

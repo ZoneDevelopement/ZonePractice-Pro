@@ -1,4 +1,4 @@
-package dev.nandi0813.practice.command.singlecommands;
+package dev.nandi0813.practice.command.practice.arguments;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
@@ -16,27 +16,19 @@ import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.server.WorldEnum;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HologramCommand implements CommandExecutor, TabCompleter {
+public enum HologramArg {
+    ;
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player player)) {
-            Common.sendConsoleMMMessage(LanguageManager.getString("CANT-USE-CONSOLE"));
-            return false;
-        }
-
+    public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.setup")) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.NO-PERMISSION"));
-            return false;
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.PRACTICE.NO-PERMISSION"));
+            return;
         }
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
@@ -46,26 +38,26 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
             case EVENT:
             case SPECTATE:
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.CANT-USE"));
-                return false;
+                return;
         }
 
         if (ServerManager.getLobby() == null) {
             Common.sendMMMessage(player, LanguageManager.getString("SET-SERVER-LOBBY"));
-            return false;
+            return;
         }
 
         if (!ServerManager.getInstance().getInWorld().containsKey(player) || !ServerManager.getInstance().getInWorld().get(player).equals(WorldEnum.LOBBY)) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.ONLY-IN-LOBBY"));
-            return false;
+            return;
         }
 
-        if (args.length != 3 || !args[0].equalsIgnoreCase("create")) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.COMMAND-HELP").replace("%label%", label));
-            return false;
+        if (args.length != 4 || !args[1].equalsIgnoreCase("create")) {
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.COMMAND-HELP").replace("%label%", label + " hologram"));
+            return;
         }
 
         HologramType hologramType;
-        switch (args[2].toLowerCase()) {
+        switch (args[3].toLowerCase()) {
             case "global":
                 hologramType = HologramType.GLOBAL;
                 break;
@@ -77,23 +69,23 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                 break;
             default:
                 Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.INVALID-TYPE"));
-                return false;
+                return;
         }
 
         if (HologramManager.getInstance().getHolograms().size() >= 18) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.REACHED-MAX"));
-            return false;
+            return;
         }
 
-        String name = args[1];
+        String name = args[2];
         if (HologramManager.getInstance().getHologram(name) != null) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.HOLO-EXISTS"));
-            return false;
+            return;
         }
 
         if (name.length() > 9) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.CREATE-ERROR"));
-            return false;
+            return;
         }
 
         Hologram hologram = switch (hologramType) {
@@ -108,26 +100,28 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                 HologramSetupManager.getInstance().getHologramSetupGUIs().get(hologram).get(GUIType.Hologram_Main).open(player), 3L);
 
         Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.CREATE-SUCCESS").replace("%hologram%", hologram.getName()));
-
-        return true;
     }
 
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public static List<String> tabComplete(Player player, String[] args) {
         List<String> arguments = new ArrayList<>();
-        if (!(sender instanceof Player player)) return arguments;
 
-        if (player.hasPermission("zpp.setup")) {
-            if (args.length == 1) {
-                arguments.add("create");
-            } else if (args.length == 3 && args[0].equalsIgnoreCase("create")) {
-                arguments.add("global");
-                arguments.add("ladder_static");
-                arguments.add("ladder_dynamic");
-            }
+        if (!player.hasPermission("zpp.setup")) {
+            return arguments;
+        }
+
+        if (args.length == 2) {
+            arguments.add("create");
+            return StringUtil.copyPartialMatches(args[1], arguments, new ArrayList<>());
+        }
+
+        if (args.length == 4 && args[1].equalsIgnoreCase("create")) {
+            arguments.add("global");
+            arguments.add("ladder_static");
+            arguments.add("ladder_dynamic");
+            return StringUtil.copyPartialMatches(args[3], arguments, new ArrayList<>());
         }
 
         return arguments;
     }
-
 }
+

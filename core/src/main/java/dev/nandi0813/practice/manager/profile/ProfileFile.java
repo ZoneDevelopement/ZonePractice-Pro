@@ -12,6 +12,7 @@ import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorSlot;
 import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.ArmorTrimTier;
 import dev.nandi0813.practice.manager.profile.cosmetics.deatheffect.DeathEffect;
 import dev.nandi0813.practice.manager.profile.cosmetics.shield.ShieldLayout;
+import dev.nandi0813.practice.manager.profile.enums.ProfilePrefixVisibility;
 import dev.nandi0813.practice.manager.profile.enums.ProfileWorldTime;
 import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.manager.profile.group.GroupManager;
@@ -75,6 +76,7 @@ public class ProfileFile extends ConfigFile {
         config.set("settings.flying", profile.isFlying());
         config.set("settings.messages", profile.isPrivateMessages());
         config.set("settings.worldtime", profile.getWorldTime().toString());
+        config.set("settings.prefix-visibility", profile.getPrefixVisibility().toString());
 
         // Cosmetics data for armor trims
         if (profile.getCosmeticsData() != null) {
@@ -119,6 +121,7 @@ public class ProfileFile extends ConfigFile {
                         CustomKit customKit = profile.getUnrankedCustomKits().get(ladder).get(i);
                         if (customKit != null) {
                             config.set("customkit." + name + ".kit" + i + ".unranked.inventory", ItemSerializationUtil.itemStackArrayToBase64(customKit.getInventory()));
+                            config.set("customkit." + name + ".kit" + i + ".unranked.armor", ItemSerializationUtil.itemStackArrayToBase64(customKit.getArmor()));
                             config.set("customkit." + name + ".kit" + i + ".unranked.extra", ItemSerializationUtil.itemStackArrayToBase64(customKit.getExtra()));
                         }
                     }
@@ -132,6 +135,7 @@ public class ProfileFile extends ConfigFile {
                             CustomKit customKit = profile.getRankedCustomKits().get(ladder).get(i);
                             if (customKit != null) {
                                 config.set("customkit." + name + ".kit" + i + ".ranked.inventory", ItemSerializationUtil.itemStackArrayToBase64(customKit.getInventory()));
+                                config.set("customkit." + name + ".kit" + i + ".ranked.armor", ItemSerializationUtil.itemStackArrayToBase64(customKit.getArmor()));
                                 config.set("customkit." + name + ".kit" + i + ".ranked.extra", ItemSerializationUtil.itemStackArrayToBase64(customKit.getExtra()));
                             }
                         }
@@ -158,6 +162,13 @@ public class ProfileFile extends ConfigFile {
         config.set("settings.flying", ConfigManager.getBoolean("PLAYER.DEFAULT-SETTINGS.FLYING"));
         config.set("settings.messages", ConfigManager.getBoolean("PLAYER.DEFAULT-SETTINGS.PRIVATEMESSAGE"));
         config.set("settings.worldtime", ProfileWorldTime.valueOf(ConfigManager.getString("PLAYER.DEFAULT-SETTINGS.WORLD-TIME")).toString());
+
+        String defaultPrefixVisibility = ConfigManager.getString("PLAYER.DEFAULT-SETTINGS.PREFIX-VISIBILITY");
+        try {
+            config.set("settings.prefix-visibility", ProfilePrefixVisibility.valueOf(defaultPrefixVisibility.toUpperCase(Locale.ROOT)).toString());
+        } catch (Exception ignored) {
+            config.set("settings.prefix-visibility", ProfilePrefixVisibility.PREFIX_AND_SUFFIX.toString());
+        }
 
         saveFile();
     }
@@ -204,6 +215,13 @@ public class ProfileFile extends ConfigFile {
         profile.setFlying(config.getBoolean("settings.flying"));
         profile.setPrivateMessages(config.getBoolean("settings.messages"));
         profile.setWorldTime(ProfileWorldTime.valueOf(config.getString("settings.worldtime")));
+
+        String rawPrefixVisibility = config.getString("settings.prefix-visibility", ProfilePrefixVisibility.PREFIX_AND_SUFFIX.toString());
+        try {
+            profile.setPrefixVisibility(ProfilePrefixVisibility.valueOf(rawPrefixVisibility.toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException ignored) {
+            profile.setPrefixVisibility(ProfilePrefixVisibility.PREFIX_AND_SUFFIX);
+        }
 
         // Load cosmetics data for armor trims
         try {
@@ -280,12 +298,30 @@ public class ProfileFile extends ConfigFile {
             Map<Integer, CustomKit> unrankedInventory = new HashMap<>();
             for (int i = 1; i <= 4; i++) {
                 ItemStack[] inventory;
+                ItemStack[] armor;
                 ItemStack[] extra;
 
                 if (config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.inventory")) {
                     inventory = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.inventory"));
+                    armor = config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.armor")
+                            ? ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.armor"))
+                            : null;
                     extra = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.extra"));
-                    unrankedInventory.put(i, new CustomKit(null, inventory, extra));
+
+                    // Legacy migration: old format stored armor in inventory[36..39]
+                    if (armor == null && inventory != null && inventory.length > 36) {
+                        ItemStack[] splitInventory = new ItemStack[36];
+                        System.arraycopy(inventory, 0, splitInventory, 0, 36);
+                        armor = new ItemStack[]{
+                                inventory.length > 36 ? inventory[36] : null,
+                                inventory.length > 37 ? inventory[37] : null,
+                                inventory.length > 38 ? inventory[38] : null,
+                                inventory.length > 39 ? inventory[39] : null
+                        };
+                        inventory = splitInventory;
+                    }
+
+                    unrankedInventory.put(i, new CustomKit(null, inventory, armor, extra));
                 }
             }
             profile.getUnrankedCustomKits().put(ladder, unrankedInventory);
@@ -295,12 +331,30 @@ public class ProfileFile extends ConfigFile {
                 Map<Integer, CustomKit> rankedInventory = new HashMap<>();
                 for (int i = 1; i <= 4; i++) {
                     ItemStack[] inventory;
+                    ItemStack[] armor;
                     ItemStack[] extra;
 
                     if (config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.inventory")) {
                         inventory = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.inventory"));
+                        armor = config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.armor")
+                                ? ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.armor"))
+                                : null;
                         extra = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.extra"));
-                        rankedInventory.put(i, new CustomKit(null, inventory, extra));
+
+                        // Legacy migration: old format stored armor in inventory[36..39]
+                        if (armor == null && inventory != null && inventory.length > 36) {
+                            ItemStack[] splitInventory = new ItemStack[36];
+                            System.arraycopy(inventory, 0, splitInventory, 0, 36);
+                            armor = new ItemStack[]{
+                                    inventory.length > 36 ? inventory[36] : null,
+                                    inventory.length > 37 ? inventory[37] : null,
+                                    inventory.length > 38 ? inventory[38] : null,
+                                    inventory.length > 39 ? inventory[39] : null
+                            };
+                            inventory = splitInventory;
+                        }
+
+                        rankedInventory.put(i, new CustomKit(null, inventory, armor, extra));
                     }
                 }
                 profile.getRankedCustomKits().put(ladder, rankedInventory);

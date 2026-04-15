@@ -80,7 +80,7 @@ public class PlayerChatListener implements Listener {
     private void setViewers(AsyncChatEvent e, Collection<? extends Audience> targets) {
         Set<Audience> viewers = e.viewers();
         viewers.clear();
-        viewers.add(Bukkit.getServer());
+        viewers.add(Bukkit.getConsoleSender());
         viewers.addAll(targets);
     }
 
@@ -89,7 +89,7 @@ public class PlayerChatListener implements Listener {
      * resolving PAPI placeholders per-viewer when available.
      */
     private void applyRenderer(AsyncChatEvent e, String miniMessageString) {
-        e.renderer((source, sourceDisplayName, msg, viewer) -> {
+        e.renderer((_, _, _, viewer) -> {
             if (SoftDependUtil.isPAPI_ENABLED && viewer instanceof Player viewerPlayer) {
                 return PAPIUtil.runThroughFormat(viewerPlayer, miniMessageString);
             }

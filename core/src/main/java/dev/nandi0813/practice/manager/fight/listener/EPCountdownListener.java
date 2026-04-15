@@ -39,22 +39,22 @@ public class EPCountdownListener implements Listener {
 
         Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
         if (match != null) {
-            int duration = match.getLadder().getEnderPearlCooldown();
+            double duration = match.getLadder().getEnderPearlCooldown();
             if (duration <= 0) {
                 e.setCancelled(true);
             } else {
-                e.setCooldown(duration * 20);
+                e.setCooldown((int) (duration * 20));
             }
             return;
         }
 
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa != null) {
-            int duration = ffa.getPlayers().get(player).getEnderPearlCooldown();
+            double duration = ffa.getPlayers().get(player).getEnderPearlCooldown();
             if (duration <= 0) {
                 e.setCancelled(true);
             } else {
-                e.setCooldown(duration * 20);
+                e.setCooldown((int) (duration * 20));
             }
         }
     }
@@ -71,11 +71,11 @@ public class EPCountdownListener implements Listener {
             return;
         }
 
-        int duration = match.getLadder().getWindChargeCooldown();
+        double duration = match.getLadder().getWindChargeCooldown();
         if (duration <= 0) {
             e.setCancelled(true);
         } else {
-            e.setCooldown(duration * 20);
+            e.setCooldown((int) (duration * 20));
         }
     }
 
@@ -91,7 +91,7 @@ public class EPCountdownListener implements Listener {
 
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa != null) {
-            int duration = ffa.getPlayers().get(player).getEnderPearlCooldown();
+            double duration = ffa.getPlayers().get(player).getEnderPearlCooldown();
             if (duration <= 0) {
                 return;
             }
@@ -102,7 +102,7 @@ public class EPCountdownListener implements Listener {
 
         Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
         if (match != null) {
-            int duration = match.getLadder().getEnderPearlCooldown();
+            double duration = match.getLadder().getEnderPearlCooldown();
             if (duration <= 0) {
                 return;
             }
@@ -131,7 +131,7 @@ public class EPCountdownListener implements Listener {
             return;
         }
 
-        int duration = windMatch.getLadder().getWindChargeCooldown();
+        double duration = windMatch.getLadder().getWindChargeCooldown();
         if (duration <= 0) {
             return;
         }

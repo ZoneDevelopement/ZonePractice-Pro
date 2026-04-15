@@ -127,9 +127,9 @@ public class CustomSettingGUI extends GUI {
                     break;
                 case WIND_CHARGE_SLOT:
                     if (e.isLeftClick() && ladder.getWindChargeCooldown() > 0)
-                        ladder.setWindChargeCooldown(ladder.getWindChargeCooldown() - 1);
+                        ladder.setWindChargeCooldown(ladder.getWindChargeCooldown() - 0.5);
                     else if (e.isRightClick() && ladder.getWindChargeCooldown() < 30)
-                        ladder.setWindChargeCooldown(ladder.getWindChargeCooldown() + 1);
+                        ladder.setWindChargeCooldown(ladder.getWindChargeCooldown() + 0.5);
                     break;
                 default:
                     return;

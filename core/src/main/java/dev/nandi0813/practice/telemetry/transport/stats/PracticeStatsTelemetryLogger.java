@@ -2,7 +2,10 @@ package dev.nandi0813.practice.telemetry.transport.stats;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.backend.BackendManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -15,13 +18,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public enum PracticeStatsTelemetryLogger {
     ;
@@ -29,17 +35,26 @@ public enum PracticeStatsTelemetryLogger {
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(3);
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(5);
     private static final long FLUSH_PERIOD_TICKS = 20L * 60L * 2L;
+    private static final long BOOTSTRAP_BURST_PERIOD_TICKS = 5L;
     private static final int MAX_BATCH_SIZE = 200;
+    private static final int MAX_IN_FLIGHT_UPLOADS = 4;
 
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
     private static final AtomicBoolean flushInProgress = new AtomicBoolean(false);
     private static final AtomicBoolean unauthorizedLogged = new AtomicBoolean(false);
+    private static final AtomicBoolean bootstrapCheckStarted = new AtomicBoolean(false);
+    private static final AtomicBoolean profilesLoaded = new AtomicBoolean(false);
+    private static final AtomicBoolean bootstrapBurstActive = new AtomicBoolean(false);
+    private static final AtomicInteger inFlightUploads = new AtomicInteger(0);
 
     private static final Set<UUID> dirtyPlayers = ConcurrentHashMap.newKeySet();
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
     private static volatile BukkitTask flushTask;
+    private static volatile BukkitTask bootstrapBurstTask;
     private static volatile URI endpointUri;
+    private static volatile URI serverUploadedEndpointUri;
+    private static volatile URI serverUploadedFallbackEndpointUri;
     private static volatile String authToken;
     private static volatile String serverHash;
     private static volatile HttpClient httpClient;
@@ -55,11 +70,18 @@ public enum PracticeStatsTelemetryLogger {
         }
 
         endpointUri = TelemetryConfig.resolvePracticeStatsUploadEndpoint();
+        serverUploadedEndpointUri = TelemetryConfig.resolvePracticeStatsServerUploadedEndpoint();
+        serverUploadedFallbackEndpointUri = TelemetryConfig.resolvePracticeStatsServerUploadedFallbackEndpoint();
         authToken = TelemetryConfig.resolveConfiguredToken();
-        serverHash = ServerFingerprintUtil.getServerId();
+        serverHash = resolveServerHash();
 
         if (endpointUri == null) {
             TelemetryDebugLog.warning("Practice stats telemetry disabled: endpoint is not configured.");
+            return;
+        }
+
+        if (serverHash == null || serverHash.isBlank()) {
+            TelemetryDebugLog.warning("Practice stats telemetry disabled: server hash is missing.");
             return;
         }
 
@@ -76,6 +98,8 @@ public enum PracticeStatsTelemetryLogger {
                 FLUSH_PERIOD_TICKS,
                 FLUSH_PERIOD_TICKS
         );
+
+        tryStartBootstrapCheck("initialize");
     }
 
     public static void markDirty(Profile profile) {
@@ -101,16 +125,153 @@ public enum PracticeStatsTelemetryLogger {
             flushTask = null;
         }
 
+        BukkitTask currentBootstrapTask = bootstrapBurstTask;
+        if (currentBootstrapTask != null) {
+            currentBootstrapTask.cancel();
+            bootstrapBurstTask = null;
+        }
+
         flushDirtyBatchNow();
 
         dirtyPlayers.clear();
         httpClient = null;
         endpointUri = null;
+        serverUploadedEndpointUri = null;
+        serverUploadedFallbackEndpointUri = null;
         authToken = null;
         serverHash = null;
         transportEnabled = false;
         initialized.set(false);
         unauthorizedLogged.set(false);
+        bootstrapCheckStarted.set(false);
+        profilesLoaded.set(false);
+        bootstrapBurstActive.set(false);
+        inFlightUploads.set(0);
+    }
+
+    public static void onProfilesLoaded() {
+        profilesLoaded.set(true);
+        tryStartBootstrapCheck("profiles-loaded");
+    }
+
+    private static void tryStartBootstrapCheck(String source) {
+        if (!initialized.get() || !transportEnabled || httpClient == null || serverUploadedEndpointUri == null || serverHash == null) {
+            TelemetryDebugLog.info("Practice stats bootstrap check skipped (source=" + source + "): telemetry transport is not ready yet.");
+            return;
+        }
+
+        if (!profilesLoaded.get()) {
+            TelemetryDebugLog.info("Practice stats bootstrap check waiting for profiles (source=" + source + ").");
+            return;
+        }
+
+        if (!bootstrapCheckStarted.compareAndSet(false, true)) {
+            return;
+        }
+
+        TelemetryDebugLog.info("Practice stats bootstrap check started for server hash " + serverHash
+                + " using endpoint " + serverUploadedEndpointUri + ".");
+        checkServerUploaded(serverUploadedEndpointUri, true);
+    }
+
+    private static void checkServerUploaded(URI endpoint, boolean allowFallbackOn404) {
+        if (endpoint == null || httpClient == null) {
+            return;
+        }
+
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(resolveServerUploadedCheckUri(endpoint))
+                .timeout(REQUEST_TIMEOUT)
+                .header("Accept", "application/json")
+                .GET();
+
+        if (authToken != null && !authToken.isBlank()) {
+            requestBuilder.header("Authorization", "Bearer " + authToken);
+        }
+
+        httpClient.sendAsync(requestBuilder.build(), HttpResponse.BodyHandlers.ofString())
+                .whenComplete((response, throwable) -> {
+                    if (throwable != null || response == null) {
+                        TelemetryDebugLog.warning("Practice stats bootstrap check failed; continuing with incremental updates only.");
+                        return;
+                    }
+
+                    if (response.statusCode() == 401 && unauthorizedLogged.compareAndSet(false, true)) {
+                        TelemetryDebugLog.warning("Practice stats telemetry unauthorized (401). Check Bearer token configuration.");
+                        return;
+                    }
+
+                    if (response.statusCode() == 404 && allowFallbackOn404 && shouldUseFallbackEndpoint(endpoint)) {
+                        TelemetryDebugLog.info("Practice stats bootstrap check got 404 on " + endpoint + ", retrying fallback endpoint " + serverUploadedFallbackEndpointUri + ".");
+                        checkServerUploaded(serverUploadedFallbackEndpointUri, false);
+                        return;
+                    }
+
+                    if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                        TelemetryDebugLog.warning("Practice stats bootstrap check returned HTTP " + response.statusCode() + "; continuing with incremental updates only.");
+                        return;
+                    }
+
+                    Boolean uploaded = parseUploadedFlag(response.body());
+                    if (uploaded == null) {
+                        TelemetryDebugLog.warning("Practice stats bootstrap check returned invalid JSON; continuing with incremental updates only.");
+                        return;
+                    }
+
+                    if (uploaded) {
+                        TelemetryDebugLog.info("Practice stats bootstrap check reports uploaded=true; skipping full initial sync.");
+                        return;
+                    }
+
+                    Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+                        Set<UUID> allProfileUuids = new HashSet<>(ProfileManager.getInstance().getProfiles().keySet());
+                        dirtyPlayers.addAll(allProfileUuids);
+                        TelemetryDebugLog.info("Practice stats bootstrap check reports uploaded=false; queued "
+                                + allProfileUuids.size() + " profiles for full initial sync.");
+                        startBootstrapBurstFlush();
+                    });
+                });
+    }
+
+    private static void startBootstrapBurstFlush() {
+        if (!bootstrapBurstActive.compareAndSet(false, true)) {
+            return;
+        }
+
+        bootstrapBurstTask = Bukkit.getScheduler().runTaskTimer(
+                ZonePractice.getInstance(),
+                () -> {
+                    if (!transportEnabled) {
+                        stopBootstrapBurstFlush();
+                        return;
+                    }
+
+                    flushDirtyBatch();
+
+                    if (dirtyPlayers.isEmpty() && inFlightUploads.get() == 0) {
+                        TelemetryDebugLog.info("Practice stats full initial sync completed.");
+                        stopBootstrapBurstFlush();
+                    }
+                },
+                1L,
+                BOOTSTRAP_BURST_PERIOD_TICKS
+        );
+    }
+
+    private static void stopBootstrapBurstFlush() {
+        BukkitTask currentTask = bootstrapBurstTask;
+        if (currentTask != null) {
+            currentTask.cancel();
+            bootstrapBurstTask = null;
+        }
+        bootstrapBurstActive.set(false);
+    }
+
+    private static boolean shouldUseFallbackEndpoint(URI endpoint) {
+        if (serverUploadedFallbackEndpointUri == null) {
+            return false;
+        }
+
+        return !serverUploadedFallbackEndpointUri.toString().equals(endpoint.toString());
     }
 
     private static void flushDirtyBatch() {
@@ -124,6 +285,10 @@ public enum PracticeStatsTelemetryLogger {
         }
 
         try {
+            if (inFlightUploads.get() >= MAX_IN_FLIGHT_UPLOADS) {
+                return;
+            }
+
             List<UUID> batch = drainDirtyUuids(MAX_BATCH_SIZE);
             if (batch.isEmpty()) {
                 return;
@@ -192,19 +357,29 @@ public enum PracticeStatsTelemetryLogger {
             return;
         }
 
+        if (inFlightUploads.incrementAndGet() > MAX_IN_FLIGHT_UPLOADS) {
+            inFlightUploads.decrementAndGet();
+            requeue(uuids);
+            return;
+        }
+
         httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .whenComplete((response, throwable) -> {
-                    if (throwable != null) {
-                        requeue(uuids);
-                        return;
-                    }
+                    try {
+                        if (throwable != null) {
+                            requeue(uuids);
+                            return;
+                        }
 
-                    if (response == null) {
-                        requeue(uuids);
-                        return;
-                    }
+                        if (response == null) {
+                            requeue(uuids);
+                            return;
+                        }
 
-                    handleResponse(response.statusCode(), uuids);
+                        handleResponse(response.statusCode(), uuids);
+                    } finally {
+                        inFlightUploads.decrementAndGet();
+                    }
                 });
     }
 
@@ -262,6 +437,41 @@ public enum PracticeStatsTelemetryLogger {
         return payload;
     }
 
+    private static String resolveServerHash() {
+        String generated = ServerFingerprintUtil.getServerId();
+        return BackendManager.getOrCreatePracticeStatsServerHash(generated);
+    }
+
+    private static URI resolveServerUploadedCheckUri(URI endpoint) {
+        String encodedHash = URLEncoder.encode(serverHash, StandardCharsets.UTF_8);
+
+        try {
+            return new URI(
+                    endpoint.getScheme(),
+                    endpoint.getUserInfo(),
+                    endpoint.getHost(),
+                    endpoint.getPort(),
+                    endpoint.getPath(),
+                    "server_hash=" + encodedHash,
+                    null
+            );
+        } catch (Exception exception) {
+            return endpoint;
+        }
+    }
+
+    private static Boolean parseUploadedFlag(String responseBody) {
+        try {
+            JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
+            if (!jsonObject.has("uploaded")) {
+                return null;
+            }
+            return jsonObject.get("uploaded").getAsBoolean();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     private static Map<String, Object> toGlobalStatsMap(Profile profile, ProfileStat stats, String username) {
         Map<String, Object> global = new LinkedHashMap<>();
         global.put("username", username);
@@ -275,7 +485,7 @@ public enum PracticeStatsTelemetryLogger {
         global.put("rankedLosses", stats.getLosses(true));
         global.put("globalElo", stats.getGlobalElo());
 
-        String division = stats.getDivision() == null ? "" : stripDivisionColors(stats.getDivision().getFullName());
+        String division = stats.getDivision() == null ? null : stripDivisionColors(stats.getDivision().getFullName());
         global.put("globalRank", division);
 
         global.put("experience", stats.getExperience());
@@ -310,7 +520,7 @@ public enum PracticeStatsTelemetryLogger {
         ladderMap.put("rankedBestLoseStreak", ladderStats.getRankedBestLoseStreak());
         ladderMap.put("elo", ladderStats.getElo());
 
-        String division = stats.getDivision() == null ? "" : stripDivisionColors(stats.getDivision().getFullName());
+        String division = stats.getDivision() == null ? null : stripDivisionColors(stats.getDivision().getFullName());
         ladderMap.put("rank", division);
 
         ladderMap.put("kills", ladderStats.getKills());

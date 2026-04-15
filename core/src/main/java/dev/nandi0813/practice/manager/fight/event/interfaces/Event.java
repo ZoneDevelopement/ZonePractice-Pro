@@ -19,6 +19,7 @@ import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
+import dev.nandi0813.practice.util.PermanentConfig;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import lombok.Getter;
@@ -230,7 +231,7 @@ public abstract class Event implements Spectatable, dev.nandi0813.api.Interface.
 
         // Rollback fight changes if event was live
         if (wasLive) {
-            this.getFightChange().rollback(100, 50);
+            this.getFightChange().rollback(PermanentConfig.EVENT_ROLLBACK_MAX_CHECKS, PermanentConfig.EVENT_ROLLBACK_MAX_CHANGES);
         }
 
         // Remove from event manager

@@ -4,6 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.util.ArenaWorldUtil;
 import dev.nandi0813.practice.manager.backend.BackendManager;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
@@ -189,7 +190,7 @@ public class ServerManager implements Listener {
         if (lobby != null && to.equals(lobby.getWorld())) {
             if (from != null && from.equals(WorldEnum.OTHER)) {
                 InventoryManager.getInstance().setLobbyInventory(player, true);
-                if (!profile.isSidebar()) {
+                if (profile.isSidebar()) {
                     SidebarManager.getInstance().loadSidebar(player);
                 }
 
@@ -210,7 +211,6 @@ public class ServerManager implements Listener {
             if (from != null && !from.equals(WorldEnum.OTHER)) {
                 if (profile.getStatus().equals(ProfileStatus.LOBBY)) {
                     ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.OFFLINE);
-                    dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
                     SidebarManager.getInstance().unLoadSidebar(player);
                 }
             }
@@ -239,13 +239,31 @@ public class ServerManager implements Listener {
         }
     }
 
-    public void reloadFiles() {
-        ConfigManager.reload();
-        LanguageManager.reload();
-        InventoryManager.getInstance().reloadFile();
-        DivisionManager.getInstance().reloadRanks();
-        BackendManager.reload();
-        goldenHead.reload();
+    public boolean reloadFiles() {
+        try {
+            ConfigManager.reload();
+            LanguageManager.reload();
+            GUIFile.reload();
+            InventoryManager.getInstance().reloadFile();
+            DivisionManager.getInstance().reloadRanks();
+            BackendManager.reload();
+            loadLobby();
+            SidebarManager.getInstance().reloadSidebarConfig();
+            goldenHead.reload();
+            return true;
+        } catch (Exception e) {
+            Common.sendConsoleMMMessage("<red>Failed to reload practice files: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public void onPlayerQuit(Player player) {
+        if (player == null) {
+            return;
+        }
+
+        inWorld.remove(player);
+        onlineStaffs.remove(player);
     }
 
     public void alertPlayers(String permission, String message) {

@@ -9,6 +9,7 @@ import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.enums.ProfilePrefixVisibility;
 import dev.nandi0813.practice.manager.profile.enums.ProfileWorldTime;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.util.Common;
@@ -65,7 +66,8 @@ public class ProfileSettingsGui extends GUI {
         inventory.setItem(16, GUIFile.getGuiItem("GUIS.PLAYER-SETTINGS.ICONS.SIDEBAR.WORLD-TIME")
                 .replace("%worldTime%", profile.getWorldTime().getName())
                 .get());
-        inventory.setItem(22, getFlyingItem(profile.isFlying()));
+        inventory.setItem(23, getFlyingItem(profile.isFlying()));
+        inventory.setItem(21, getPrefixVisibilityItem(profile.getPrefixVisibility()));
 
         updatePlayers();
     }
@@ -108,12 +110,17 @@ public class ProfileSettingsGui extends GUI {
                     break;
                 case 11:
                     if (player.hasPermission("zpp.settings.scoreboard")) {
-                        if (profile.isSidebar())
-                            SidebarManager.getInstance().unLoadSidebar(player);
-                        else
-                            SidebarManager.getInstance().loadSidebar(player);
+                        if (!SidebarManager.getInstance().isSidebarGloballyEnabled()) {
+                            Common.sendMMMessage(player, LanguageManager.getString("PROFILE.SIDEBAR-GLOBALLY-DISABLED"));
+                            return;
+                        }
 
                         profile.setSidebar(!profile.isSidebar());
+
+                        if (profile.isSidebar())
+                            SidebarManager.getInstance().loadSidebar(player);
+                        else
+                            SidebarManager.getInstance().unLoadSidebar(player);
 
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
@@ -201,6 +208,18 @@ public class ProfileSettingsGui extends GUI {
                     } else
                         Common.sendMMMessage(player, LanguageManager.getString("PROFILE.NO-PERMISSION"));
                     break;
+                case 21:
+                    if (player.hasPermission("zpp.settings.prefixvisibility")) {
+                        ProfilePrefixVisibility newVisibility = ProfilePrefixVisibility.getNext(profile.getPrefixVisibility());
+                        profile.setPrefixVisibility(newVisibility);
+                        dev.nandi0813.practice.manager.inventory.InventoryUtil.setLobbyNametag(player, profile);
+
+                        update();
+                        if (!player.hasPermission("zpp.bypass.cooldown"))
+                            PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));
+                    } else
+                        Common.sendMMMessage(player, LanguageManager.getString("PROFILE.NO-PERMISSION"));
+                    break;
             }
         }
     }
@@ -253,6 +272,16 @@ public class ProfileSettingsGui extends GUI {
         } else {
             return GUIFile.getGuiItem("GUIS.PLAYER-SETTINGS.ICONS.SIDEBAR.FLYING.DISABLED").get();
         }
+    }
+
+    private static ItemStack getPrefixVisibilityItem(ProfilePrefixVisibility visibility) {
+        if (visibility == null) {
+            visibility = ProfilePrefixVisibility.PREFIX_AND_SUFFIX;
+        }
+
+        return GUIFile.getGuiItem("GUIS.PLAYER-SETTINGS.ICONS.SIDEBAR.PREFIX-VISIBILITY")
+                .replace("%prefixVisibility%", visibility.getName())
+                .get();
     }
 
 }

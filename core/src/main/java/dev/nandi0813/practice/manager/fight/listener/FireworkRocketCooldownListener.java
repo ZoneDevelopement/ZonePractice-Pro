@@ -24,7 +24,7 @@ public class FireworkRocketCooldownListener implements Listener {
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa != null) {
 
-            int duration = ffa.getPlayers().get(player).getFireworkRocketCooldown();
+            double duration = ffa.getPlayers().get(player).getFireworkRocketCooldown();
             if (duration <= 0) return;
 
             ModernItemCooldownHandler.handleFireworkRocket(player, duration, null);
@@ -36,7 +36,7 @@ public class FireworkRocketCooldownListener implements Listener {
         Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
         if (match != null) {
 
-            int duration = match.getLadder().getFireworkRocketCooldown();
+            double duration = match.getLadder().getFireworkRocketCooldown();
             if (duration <= 0) return;
 
             if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {

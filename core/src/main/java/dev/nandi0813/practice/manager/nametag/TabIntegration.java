@@ -6,11 +6,14 @@ import dev.nandi0813.practice.util.PermanentConfig;
 import lombok.Getter;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
+import me.neznamy.tab.api.event.EventBus;
+import me.neznamy.tab.api.event.player.PlayerLoadEvent;
 import me.neznamy.tab.api.nametag.NameTagManager;
 import me.neznamy.tab.api.tablist.TabListFormatManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 /**
@@ -65,6 +68,43 @@ public class TabIntegration {
         this.tabAPI = api;
         this.available = isAvailable;
         this.tablistFormattingEnabled = tablistEnabled;
+
+        if (this.available) {
+            registerVanillaNameHider();
+            hideNametagsForOnlinePlayers();
+        }
+    }
+
+    private void registerVanillaNameHider() {
+        try {
+            EventBus eventBus = tabAPI.getEventBus();
+            if (eventBus == null) {
+                return;
+            }
+
+            eventBus.register(PlayerLoadEvent.class, event -> {
+                hideNametag(event.getPlayer());
+
+                // hideNameTag() wipes any prefix/suffix TAB has for this player.
+                // Re-apply the lobby nametag immediately so it isn't lost on first join.
+                try {
+                    Object playerObj = event.getPlayer().getPlayer();
+                    if (!(playerObj instanceof Player player) || !player.isOnline()) return;
+                    dev.nandi0813.practice.manager.profile.Profile profile =
+                            dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
+                    if (profile == null) return;
+                    dev.nandi0813.practice.manager.inventory.InventoryUtil.setLobbyNametag(player, profile);
+                } catch (Exception ignored) {
+                }
+            });
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void hideNametagsForOnlinePlayers() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            hideNametag(player);
+        }
     }
 
     /**
@@ -145,6 +185,30 @@ public class TabIntegration {
         }
     }
 
+    public void hideNametag(Player player) {
+        if (!available || player == null) return;
+
+        try {
+            TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());
+            if (tabPlayer == null) return;
+
+            hideNametag(tabPlayer);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void hideNametag(TabPlayer tabPlayer) {
+        if (!available || tabPlayer == null) return;
+
+        try {
+            NameTagManager nameTagManager = tabAPI.getNameTagManager();
+            if (nameTagManager == null) return;
+
+            nameTagManager.hideNameTag(tabPlayer);
+        } catch (Exception ignored) {
+        }
+    }
+
     /**
      * Sets the player's tablist name to their lobby formatting using ONLY TAB API.
      * This method uses TabListFormatManager to set prefix, name, and suffix.
@@ -166,7 +230,7 @@ public class TabIntegration {
                     dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
             if (profile == null) return;
 
-            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName());
+            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName(), player);
 
             // Convert components to legacy strings for TAB API
             String prefixStr = componentToLegacy(lobbyNametag.getPrefix());
@@ -374,7 +438,7 @@ public class TabIntegration {
                     dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
             if (profile == null) return;
 
-            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName());
+            InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName(), player);
             Component tabListName = lobbyNametag.getPrefix()
                     .append(lobbyNametag.getName())
                     .append(lobbyNametag.getSuffix());
@@ -387,4 +451,4 @@ public class TabIntegration {
         }
     }
 
-}
+                }

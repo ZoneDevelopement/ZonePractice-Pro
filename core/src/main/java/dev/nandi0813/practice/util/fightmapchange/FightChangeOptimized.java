@@ -67,6 +67,9 @@ public class FightChangeOptimized {
     // Chunk tickets held only for the duration of a rollback to keep arena chunks loaded.
     private final java.util.Set<Long> rollbackChunkTickets = new java.util.HashSet<>();
 
+    // Fire positions tracked during the fight so rollback doesn't scan the full arena volume.
+    private final java.util.HashSet<Long> trackedFirePositions = new java.util.HashSet<>();
+
     /**
      * True while a rollback is in progress. Used by block spread/burn listeners to
      * cancel new fire spread during the multi-tick rollback window so fire doesn't
@@ -240,8 +243,9 @@ public class FightChangeOptimized {
      * Removes a temp block and optionally returns items to player.
      */
     private void removeTempBlock(BlockChangeEntry entry) {
+        Block block = entry.changedBlock.getLocation().getBlock();
+
         if (entry.tempData.returnItem && entry.tempData.player.isOnline()) {
-            Block block = entry.changedBlock.getLocation().getBlock();
             ItemStack storedItem = getStoredTempBuildItem(block);
             if (storedItem != null) {
                 giveReturnedItem(entry.tempData.player, storedItem);
@@ -255,6 +259,8 @@ public class FightChangeOptimized {
         }
 
         entry.changedBlock.reset();
+        BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
+        BlockUtil.clearMetadata(block, TempBuild.TEMP_BUILD_BLOCK_ITEM);
     }
 
     private void giveReturnedItem(Player player, ItemStack drop) {
@@ -363,7 +369,6 @@ public class FightChangeOptimized {
         // Quick rollback if server is shutting down
         if (!ZonePractice.getInstance().isEnabled()) {
             quickRollback();
-            extinguishFire();
             rollingBack = false;
             removeRollbackChunkTickets();
             if (onComplete != null) onComplete.run();
@@ -393,6 +398,7 @@ public class FightChangeOptimized {
             if (entity != null && entity.isValid()) {
                 // Skip hologram text displays
                 if (isHologramTextDisplay(entity)) continue;
+                BlockUtil.clearAllMetadata(entity);
                 entity.remove();
             }
         }
@@ -413,6 +419,7 @@ public class FightChangeOptimized {
                     if (entity instanceof Player) continue;
                     if (isHologramTextDisplay(entity)) continue;
                     if (entity.isValid()) {
+                        BlockUtil.clearAllMetadata(entity);
                         entity.remove();
                     }
                 }
@@ -476,24 +483,56 @@ public class FightChangeOptimized {
             BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
             blocks.remove(entry.getKey());
         }
+
+        extinguishFire();
     }
 
     /**
-     * Scans the arena cuboid and extinguishes any remaining fire (FIRE / SOUL_FIRE) blocks.
-     * <p>
-     * During multi-tick rollback, fire can spread to freshly-restored flammable blocks
-     * before the rollback finishes. This sweep ensures no fire persists after rollback.
+     * Tracks a fire candidate position inside this fight arena.
+     */
+    public void trackFirePosition(Block block) {
+        if (block == null || cuboid == null || !cuboid.contains(block.getLocation())) {
+            return;
+        }
+        trackedFirePositions.add(BlockPosition.encode(block));
+    }
+
+    /**
+     * Tracks a center block and adjacent positions as potential fire locations.
+     * Useful for lava/flint interactions where the exact target can vary by face.
+     */
+    public void trackFireAround(Block center) {
+        if (center == null) {
+            return;
+        }
+
+        trackFirePosition(center);
+        trackFirePosition(center.getRelative(0, 1, 0));
+        trackFirePosition(center.getRelative(0, -1, 0));
+        trackFirePosition(center.getRelative(1, 0, 0));
+        trackFirePosition(center.getRelative(-1, 0, 0));
+        trackFirePosition(center.getRelative(0, 0, 1));
+        trackFirePosition(center.getRelative(0, 0, -1));
+    }
+
+    /**
+     * Extinguishes tracked fire positions (FIRE / SOUL_FIRE) and clears the tracker.
      */
     private void extinguishFire() {
-        if (cuboid == null) return;
+        if (trackedFirePositions.isEmpty()) {
+            return;
+        }
 
-        for (Block block : cuboid) {
+        for (Long position : trackedFirePositions) {
+            Block block = BlockPosition.getBlock(world, position);
             String typeName = block.getType().name();
             if (typeName.equals("FIRE") || typeName.equals("SOUL_FIRE")) {
                 block.setBlockData(org.bukkit.Material.AIR.createBlockData(), false);
                 BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
             }
         }
+
+        trackedFirePositions.clear();
     }
 
     /**
@@ -658,8 +697,9 @@ public class FightChangeOptimized {
          * Resets the temp block (removes it).
          */
         public void reset(FightChangeOptimized fightChange, ChangedBlock changedBlock, long position) {
+            Block block = changedBlock.getLocation().getBlock();
+
             if (returnItem && player.isOnline()) {
-                Block block = changedBlock.getLocation().getBlock();
                 ItemStack storedItem = fightChange.getStoredTempBuildItem(block);
                 if (storedItem != null) {
                     fightChange.giveReturnedItem(player, storedItem);
@@ -672,6 +712,8 @@ public class FightChangeOptimized {
                 }
             }
             changedBlock.reset();
+            BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
+            BlockUtil.clearMetadata(block, TempBuild.TEMP_BUILD_BLOCK_ITEM);
             fightChange.getBlocks().remove(position);
         }
     }

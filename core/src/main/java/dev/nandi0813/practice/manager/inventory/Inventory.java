@@ -56,7 +56,8 @@ public abstract class Inventory {
         if (currentInventory != null)
             currentInventory.getPlayers().remove(player);
 
-        PlayerUtil.clearInventory(player);
+        PlayerUtil.clearArmor(player);
+        PlayerUtil.clearMainInventory(player);
 
         players.add(player);
 
@@ -68,10 +69,18 @@ public abstract class Inventory {
     }
 
     public void setArmor(Player player) {
-        player.getInventory().setHelmet(invArmor.getHelmet());
-        player.getInventory().setChestplate(invArmor.getChestplate());
-        player.getInventory().setLeggings(invArmor.getLeggings());
-        player.getInventory().setBoots(invArmor.getBoots());
+        if (invArmor.getHelmet() != null) {
+            player.getInventory().setHelmet(invArmor.getHelmet());
+        }
+        if (invArmor.getChestplate() != null) {
+            player.getInventory().setChestplate(invArmor.getChestplate());
+        }
+        if (invArmor.getLeggings() != null) {
+            player.getInventory().setLeggings(invArmor.getLeggings());
+        }
+        if (invArmor.getBoots() != null) {
+            player.getInventory().setBoots(invArmor.getBoots());
+        }
     }
 
     public InvItem getHoldItem(String name, Material material, int slot) {

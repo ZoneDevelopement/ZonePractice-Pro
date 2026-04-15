@@ -65,7 +65,7 @@ public class PracticeAdapter implements SidebarAdapter {
         if (targetProfile == null) {
             return Component.text(target.getName());
         }
-        return NameFormatUtil.resolveName(targetProfile, target.getName());
+        return NameFormatUtil.resolveFullName(targetProfile, target, target.getName());
     }
 
     private static Component parseColoredText(String text) {
@@ -690,8 +690,9 @@ public class PracticeAdapter implements SidebarAdapter {
         }
 
         Group group = profile.getGroup();
-        if (group != null && group.getSidebarExtension() != null && !group.getSidebarExtension().isEmpty()) {
-            for (Component extensionLine : group.getSidebarExtension()) {
+        if (group != null && group.getSidebarExtensionRaw() != null && !group.getSidebarExtensionRaw().isEmpty()) {
+            for (String rawLine : group.getSidebarExtensionRaw()) {
+                Component extensionLine = PAPIUtil.runThroughFormat(player, rawLine);
                 sidebar.add(NameFormatUtil.applyPlayerPlaceholders(NameFormatUtil.applyDivisionPlaceholders(extensionLine, profile), player.getName()));
             }
         }

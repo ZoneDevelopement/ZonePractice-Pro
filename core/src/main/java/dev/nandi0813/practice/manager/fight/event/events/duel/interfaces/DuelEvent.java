@@ -15,6 +15,7 @@ import dev.nandi0813.practice.manager.server.sound.SoundEffect;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.PermanentConfig;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import lombok.Getter;
@@ -52,7 +53,7 @@ public abstract class DuelEvent extends Event {
 
     protected void startNextRound() {
         if (this.round != 0) {
-            this.fightChange.rollback(100, 50);
+            this.fightChange.rollback(PermanentConfig.EVENT_ROLLBACK_MAX_CHECKS, PermanentConfig.EVENT_ROLLBACK_MAX_CHANGES);
         }
 
         this.round++;

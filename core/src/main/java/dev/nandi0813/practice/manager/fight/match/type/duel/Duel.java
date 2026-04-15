@@ -162,7 +162,8 @@ public class Duel extends Match implements Team {
                     // Default death behavior for standard ladders
                     this.getCurrentStat(player).end(true);
                     PlayerUtil.setFightPlayer(player);
-                    addEntityChange(dev.nandi0813.practice.manager.fight.util.PlayerUtil.dropPlayerInventory(player));
+                    if (ladder.isDropInventory())
+                        addEntityChange(dev.nandi0813.practice.manager.fight.util.PlayerUtil.dropPlayerInventory(player));
                     dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
                     player.setHealth(20);
                     SoundManager.getInstance().getSound(SoundType.MATCH_PLAYER_DEATH).play(this.getPeople());
