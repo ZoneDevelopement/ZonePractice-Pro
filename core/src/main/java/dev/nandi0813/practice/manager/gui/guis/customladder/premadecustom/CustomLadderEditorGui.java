@@ -231,6 +231,15 @@ public class CustomLadderEditorGui extends GUI {
         } else if (slot == 7) {
             player.setItemOnCursor(null);
             player.getInventory().setContents(ladder.getKitData().getStorage());
+
+            ItemStack[] defaultArmor = ladder.getKitData().getArmor();
+            inventory.setItem(45, getDefaultArmorItem(defaultArmor, 0));
+            inventory.setItem(36, getDefaultArmorItem(defaultArmor, 1));
+            inventory.setItem(27, getDefaultArmorItem(defaultArmor, 2));
+            inventory.setItem(18, getDefaultArmorItem(defaultArmor, 3));
+
+            ItemStack[] defaultExtra = ladder.getKitData().getExtra();
+            inventory.setItem(14, (defaultExtra != null && defaultExtra.length > 0 && defaultExtra[0] != null) ? defaultExtra[0].clone() : null);
             player.updateInventory();
         } else if (slot == 2) {
             if (!ladder.getWeightClass().equals(WeightClassType.UNRANKED_AND_RANKED)) return;
@@ -355,6 +364,19 @@ public class CustomLadderEditorGui extends GUI {
         } else {
             return GUIFile.getGuiItem("GUIS.KIT-EDITOR.KIT-EDITOR.ICONS.NO-EFFECT").get();
         }
+    }
+
+    private @Nullable ItemStack getDefaultArmorItem(ItemStack[] defaultArmor, int index) {
+        if (defaultArmor == null || defaultArmor.length <= index) {
+            return null;
+        }
+
+        ItemStack item = defaultArmor[index];
+        if (item == null || item.getType().equals(Material.AIR)) {
+            return null;
+        }
+
+        return item.clone();
     }
 
 }
