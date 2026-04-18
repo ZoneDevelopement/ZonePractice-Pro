@@ -1,7 +1,6 @@
 package dev.nandi0813.practice.manager.spectator;
 
 import dev.nandi0813.practice.ZonePractice;
-import dev.nandi0813.practice.manager.fight.event.events.duel.brackets.Brackets;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
@@ -17,10 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
@@ -197,9 +193,10 @@ public class SpectatorListener implements Listener {
     }
 
     @EventHandler
-    public void onItemPickup(PlayerPickupItemEvent e) {
-        if (hasSpectatorRestrictions(e.getPlayer())) {
+    public void onItemPickup(EntityPickupItemEvent e) {
+        if (e.getEntity() instanceof Player player && hasSpectatorRestrictions(player)) {
             e.setCancelled(true);
+
         }
     }
 
@@ -237,7 +234,7 @@ public class SpectatorListener implements Listener {
 
         if (profile != null && profile.getStatus().equals(ProfileStatus.SPECTATE)) {
             Spectatable spectatable = SpectatorManager.getInstance().getSpectators().get(player);
-            if (spectatable != null && !(spectatable instanceof Brackets))
+            if (spectatable != null)
                 spectatable.removeSpectator(player);
         }
     }

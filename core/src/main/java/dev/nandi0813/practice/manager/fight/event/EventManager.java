@@ -35,6 +35,7 @@ import dev.nandi0813.practice.manager.gui.setup.event.EventSetupManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.KitData;
 import dev.nandi0813.practice.util.StartUpCallback;
 import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
@@ -143,6 +144,10 @@ public class EventManager {
     }
 
     public void startEvent(Player starter, EventType eventType) {
+        startEvent(starter, eventType, null);
+    }
+
+    public void startEvent(Player starter, EventType eventType, KitData bracketsKitOverride) {
         if (eventType == null) {
             return;
         }
@@ -195,7 +200,7 @@ public class EventManager {
             case LMS -> new LMS(starter, (LMSData) eventData.get(EventType.LMS));
             case OITC -> new OITC(starter, (OITCData) eventData.get(EventType.OITC));
             case TNTTAG -> new TNTTag(starter, (TNTTagData) eventData.get(EventType.TNTTAG));
-            case BRACKETS -> new Brackets(starter, (BracketsData) eventData.get(EventType.BRACKETS));
+            case BRACKETS -> new Brackets(starter, (BracketsData) eventData.get(EventType.BRACKETS), bracketsKitOverride);
             case SUMO -> new Sumo(starter, (SumoData) eventData.get(EventType.SUMO));
             case SPLEGG -> new Splegg(starter, (SpleggData) eventData.get(EventType.SPLEGG));
             case JUGGERNAUT -> new Juggernaut(starter, (JuggernautData) eventData.get(EventType.JUGGERNAUT));

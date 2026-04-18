@@ -51,6 +51,7 @@ public enum GUIType {
     Event_Summary,
     Event_Main,
     Event_Settings,
+    Event_BracketsKitSelector,
 
     Spectator_Menu,
 
