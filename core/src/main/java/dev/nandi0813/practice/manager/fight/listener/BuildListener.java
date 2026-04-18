@@ -179,6 +179,16 @@ public class BuildListener implements Listener {
         return material != null && material.name().endsWith("_DOOR");
     }
 
+    private static Block getOtherDoorHalf(Block block) {
+        if (block == null || !isDoorMaterial(block.getType()) || !(block.getBlockData() instanceof Bisected bisected)) {
+            return null;
+        }
+
+        return bisected.getHalf() == Bisected.Half.TOP
+                ? block.getRelative(0, -1, 0)
+                : block.getRelative(0, 1, 0);
+    }
+
     private static void trackOpenableInteraction(Spectatable spectatable, Block clickedBlock) {
         if (spectatable == null || !spectatable.isBuild() || spectatable.getFightChange() == null || spectatable.getCuboid() == null) {
             return;
@@ -256,6 +266,11 @@ public class BuildListener implements Listener {
             if (!spectatable.isBuild()) return;
 
             spectatable.addBlockChange(new ChangedBlock(block));
+
+            Block otherHalf = getOtherDoorHalf(block);
+            if (otherHalf != null) {
+                spectatable.addBlockChange(new ChangedBlock(otherHalf));
+            }
             return;
         }
 
@@ -307,6 +322,14 @@ public class BuildListener implements Listener {
         }
 
         trackUnderBlockIfDirt(block, spectatable);
+
+        Block otherHalf = getOtherDoorHalf(block);
+        if (otherHalf != null && spectatable.getCuboid().contains(otherHalf.getLocation())) {
+            if (!BlockUtil.hasMetadata(otherHalf, PLACED_IN_FIGHT)) {
+                BlockUtil.setMetadata(otherHalf, PLACED_IN_FIGHT, spectatable);
+            }
+            spectatable.getFightChange().addBlockChange(new ChangedBlock(otherHalf, Material.AIR));
+        }
 
         Material placedType = block.getType();
         FightChangeOptimized fightChange = spectatable.getFightChange();

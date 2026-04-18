@@ -14,7 +14,6 @@ import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.server.sound.SoundEffect;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
-import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.PermanentConfig;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
@@ -83,23 +82,23 @@ public abstract class DuelEvent extends Event {
                 this.teleport(player2, this.getEventData().getLocation2());
             }
 
+            Set<Player> spectatorsToRefresh = new LinkedHashSet<>(this.getSpectators());
             if (leftPlayer != null) {
                 this.sendMessage(LanguageManager.getString(LANGUAGE_PATH + ".PLAYER-OUT-OF-ROUND").replace("%player%", leftPlayer.getName()), true);
-                this.addSpectator(leftPlayer, getRandomFightPlayer(), true, false);
+                spectatorsToRefresh.add(leftPlayer);
             }
 
-            for (Player spectator : this.getSpectators()) {
-                if (this.spectating.containsKey(spectator)) {
-                    Player target = spectating.get(spectator);
+            for (Player spectator : spectatorsToRefresh) {
+                Player target = this.spectating.get(spectator);
+                if (target != null && !this.isInFight(target)) {
+                    target = null;
+                }
 
-                    if (this.isInFight(target))
-                        this.addSpectator(spectator, target, true, false);
-                    else {
-                        Common.sendMMMessage(spectator, LanguageManager.getString(LANGUAGE_PATH + ".SPECTATOR-TARGET-NOT-PLAYING").replace("%target%", target.getName()));
-                        this.addSpectator(spectator, this.getRandomFightPlayer(), true, false);
-                    }
-                } else
-                    this.addSpectator(spectator, this.getRandomFightPlayer(), true, false);
+                if (target == null) {
+                    target = this.getRandomFightPlayer();
+                }
+
+                this.addSpectator(spectator, target, true, false);
             }
 
             // Set the status to start, countdown until the match is live.
@@ -194,10 +193,16 @@ public abstract class DuelEvent extends Event {
 
     @Override
     public boolean checkIfEnd() {
+        if (!this.fights.isEmpty()) {
+            return false;
+        }
+
         if (players.size() == 1) {
-            this.winner = players.stream().findFirst().get();
+            this.winner = players.getFirst();
             return true;
-        } else return players.isEmpty();
+        }
+
+        return players.isEmpty();
     }
 
     @Override
@@ -249,9 +254,11 @@ public abstract class DuelEvent extends Event {
     }
 
     public Player getRandomFightPlayer() {
-        for (Player player : players)
-            if (this.isInFight(player))
-                return player;
+        for (DuelFight fight : this.fights) {
+            if (!fight.getPlayers().isEmpty()) {
+                return fight.getPlayers().getFirst();
+            }
+        }
         return null;
     }
 
@@ -299,24 +306,46 @@ public abstract class DuelEvent extends Event {
             Bukkit.getPluginManager().callEvent(event);
         }
 
-        DuelFight fight;
-        if (target != null)
-            fight = this.getFight(target);
-        else
-            fight = this.getFight(this.getRandomFightPlayer());
+        Player resolvedTarget = target;
+        if (resolvedTarget != null && !this.isInFight(resolvedTarget)) {
+            resolvedTarget = null;
+        }
+
+        if (resolvedTarget == null) {
+            resolvedTarget = this.getRandomFightPlayer();
+        }
+
+        DuelFight fight = resolvedTarget != null ? this.getFight(resolvedTarget) : null;
+
+        Player previousTarget = this.spectating.get(spectator);
+        if (previousTarget != null) {
+            DuelFight previousFight = this.getFight(previousTarget);
+            if (previousFight != null) {
+                previousFight.getSpectators().remove(spectator);
+            }
+        }
 
         if (fight == null) {
-            if (target != null) {
-                Common.sendMMMessage(spectator, LanguageManager.getString("COMMAND.SPECTATE.TARGET-NOT-PLAYING").replace("%target%", target.getName()));
+            this.spectating.remove(spectator);
+
+            if (teleport) {
+                spectator.teleport(eventData.getCuboid().getCenter());
             }
+
+            if (players.contains(spectator)) {
+                PlayerUtil.clearPlayer(spectator, true, true, false);
+            } else {
+                this.addSpectator(spectator);
+                EventUtil.setEventSpectatorInventory(spectator);
+            }
+
             return;
         }
 
+        this.spectating.put(spectator, resolvedTarget);
+
         // Teleport the player to the spectator location.
-        if (target != null)
-            spectator.teleport(target);
-        else
-            spectator.teleport(eventData.getCuboid().getCenter());
+        spectator.teleport(resolvedTarget);
 
         if (players.contains(spectator)) {
             PlayerUtil.clearPlayer(spectator, true, true, false);
@@ -339,6 +368,19 @@ public abstract class DuelEvent extends Event {
             else
                 PlayerHider.getInstance().hidePlayer(spectator, eventPlayer, false);
         }
+    }
+
+    @Override
+    public void removeSpectator(Player player) {
+        Player previousTarget = this.spectating.remove(player);
+        if (previousTarget != null) {
+            DuelFight previousFight = this.getFight(previousTarget);
+            if (previousFight != null) {
+                previousFight.getSpectators().remove(player);
+            }
+        }
+
+        super.removeSpectator(player);
     }
 
     @Override

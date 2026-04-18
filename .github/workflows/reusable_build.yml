@@ -95,13 +95,37 @@ jobs:
           path: distribution/target/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
           if-no-files-found: error
 
+      - name: Resolve Dev Changelog Args
+        if: ${{ !inputs.is-release-build }}
+        id: changelog_args
+        run: |
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.event.after }}"
+
+          if [[ -z "$AFTER" ]]; then
+            AFTER="${{ github.sha }}"
+          fi
+
+          # Use push range when both SHAs exist and before is not the all-zero sentinel.
+          if [[ -n "$BEFORE" && -n "$AFTER" && "$BEFORE" != "0000000000000000000000000000000000000000" ]] \
+            && git cat-file -e "$BEFORE^{commit}" 2>/dev/null \
+            && git cat-file -e "$AFTER^{commit}" 2>/dev/null; then
+            ARGS="--verbose ${BEFORE}..${AFTER}"
+          elif git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            ARGS="--verbose HEAD^..HEAD"
+          else
+            ARGS="--verbose --unreleased"
+          fi
+
+          echo "args=$ARGS" >> "$GITHUB_OUTPUT"
+
       - name: Generate Dev Changelog
         if: ${{ !inputs.is-release-build }}
         id: git_cliff_dev
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --verbose ${{ github.event.before }}..${{ github.event.after }}
+          args: ${{ steps.changelog_args.outputs.args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

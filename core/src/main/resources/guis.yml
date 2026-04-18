@@ -1,4 +1,4 @@
-VERSION: 35
+VERSION: 36
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1022,6 +1022,38 @@ GUIS:
             - "&8&m------------------------"
   EVENT-HOST: # You can set each event icon in the game.
     TITLE: "&4Host Event"
+  BRACKETS-KIT-SELECTOR:
+    TITLE: "&8Brackets Kit Source"
+    ICONS:
+      DEFAULT-KIT:
+        NAME: "&6Use Admin Preset"
+        MATERIAL: CHEST
+        LORE:
+          - "&8&m------------------------"
+          - "&7Start Brackets with the"
+          - "&7configured admin event kit."
+          - ""
+          - "&aClick to select"
+          - "&8&m------------------------"
+      CUSTOM-KIT:
+        NAME: "&a%kitName%"
+        MATERIAL: BOOK
+        LORE:
+          - "&8&m------------------------"
+          - "&7Use this custom player kit"
+          - "&7for the entire Brackets event."
+          - ""
+          - "&aClick to select"
+          - "&8&m------------------------"
+      NO-CUSTOM-KIT:
+        NAME: "&cNo available custom kits"
+        MATERIAL: BARRIER
+        LORE:
+          - "&8&m------------------------"
+          - "&7Enable and configure your"
+          - "&7custom kits in the player kit menu"
+          - "&7to list them here."
+          - "&8&m------------------------"
   LADDER-PREVIEW:
     TITLE: "&8Preview of %ladder%"
     ICONS:

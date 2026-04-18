@@ -17,6 +17,9 @@ import dev.nandi0813.practice.manager.server.WorldEnum;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Tag;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mannequin;
 import org.bukkit.entity.NPC;
@@ -30,6 +33,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -108,6 +112,48 @@ public class InventoryListener implements Listener {
             e.setCancelled(true);
             e.setUseItemInHand(Event.Result.DENY);
             invItem.handleClickEvent(player);
+        }
+    }
+
+    @EventHandler
+    public void onLobbyInteractProtection(PlayerInteractEvent e) {
+        Player player = e.getPlayer();
+        if (!isInLobbyWorld(player) || player.hasPermission("zpp.admin")) {
+            return;
+        }
+
+        Block clickedBlock = e.getClickedBlock();
+        if (clickedBlock == null) {
+            return;
+        }
+
+        Action action = e.getAction();
+        Material type = clickedBlock.getType();
+
+        if (action == Action.PHYSICAL && Tag.PRESSURE_PLATES.isTagged(type)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if ((action == Action.RIGHT_CLICK_BLOCK || action == Action.LEFT_CLICK_BLOCK)
+                && (Tag.TRAPDOORS.isTagged(type) || isProtectedWorkstation(type))) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onLobbyWorkstationOpen(InventoryOpenEvent e) {
+        if (!(e.getPlayer() instanceof Player player)) {
+            return;
+        }
+
+        if (!isInLobbyWorld(player) || player.hasPermission("zpp.admin")) {
+            return;
+        }
+
+        if (e.getInventory().getHolder() instanceof BlockState blockState
+                && isProtectedWorkstation(blockState.getType())) {
+            e.setCancelled(true);
         }
     }
 
@@ -435,6 +481,21 @@ public class InventoryListener implements Listener {
         Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> InventoryManager.getInstance().applyLobbyCosmetics(player));
     }
 
+    @EventHandler(ignoreCancelled = true)
+    public void onLobbyWindChargeExplosion(EntityExplodeEvent e) {
+        if (!isLobbyWorld(e.getLocation().getWorld())) {
+            return;
+        }
+
+        String entityTypeName = e.getEntityType().name();
+        if (!entityTypeName.contains("WIND_CHARGE")) {
+            return;
+        }
+
+        // Prevent decorated pots and all other lobby blocks from being damaged by wind charges.
+        e.blockList().clear();
+    }
+
     @EventHandler
     public void onLobbyTridentBoost(PlayerInteractEvent event) {
         Action action = event.getAction();
@@ -505,6 +566,41 @@ public class InventoryListener implements Listener {
 
     private boolean isLobbyProtectionAllowed(String setting) {
         return ConfigManager.getConfig().getBoolean(LOBBY_PROTECTION_PATH + setting, false);
+    }
+
+    private boolean isInLobbyWorld(Player player) {
+        WorldEnum worldEnum = ServerManager.getInstance().getInWorld().get(player);
+        if (worldEnum != null) {
+            return worldEnum == WorldEnum.LOBBY;
+        }
+        return isLobbyWorld(player.getWorld());
+    }
+
+    private boolean isLobbyWorld(org.bukkit.World world) {
+        return world != null
+                && ServerManager.getLobby() != null
+                && ServerManager.getLobby().getWorld() != null
+                && world.equals(ServerManager.getLobby().getWorld());
+    }
+
+    private boolean isProtectedWorkstation(Material material) {
+        return switch (material) {
+            case CRAFTING_TABLE,
+                    FURNACE,
+                    BLAST_FURNACE,
+                    SMOKER,
+                    CARTOGRAPHY_TABLE,
+                    LOOM,
+                    SMITHING_TABLE,
+                    STONECUTTER,
+                    GRINDSTONE,
+                    BREWING_STAND,
+                    ENCHANTING_TABLE,
+                    ANVIL,
+                    CHIPPED_ANVIL,
+                    DAMAGED_ANVIL -> true;
+            default -> false;
+        };
     }
 
 }

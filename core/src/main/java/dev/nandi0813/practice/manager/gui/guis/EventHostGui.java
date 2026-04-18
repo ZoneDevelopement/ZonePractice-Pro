@@ -77,6 +77,11 @@ public class EventHostGui extends GUI {
                     return;
                 }
 
+                if (eventType == EventType.BRACKETS) {
+                    new BracketsKitSelectorGui(player).open(player);
+                    return;
+                }
+
                 EventManager.getInstance().startEvent(player, eventType);
                 player.closeInventory();
             }

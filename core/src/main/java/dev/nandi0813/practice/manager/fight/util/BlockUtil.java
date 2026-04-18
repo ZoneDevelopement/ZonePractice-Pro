@@ -3,7 +3,9 @@ package dev.nandi0813.practice.manager.fight.util;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 
@@ -14,6 +16,7 @@ public enum BlockUtil {
         if (match == null) return;
 
         match.addBlockChange(new ChangedBlock(block));
+        trackDoorOtherHalf(match, block);
         block.breakNaturally();
     }
 
@@ -21,7 +24,36 @@ public enum BlockUtil {
         if (ffa == null) return;
 
         ffa.getFightChange().addBlockChange(new ChangedBlock(block));
+        trackDoorOtherHalf(ffa, block);
         block.breakNaturally();
+    }
+
+    private static boolean isDoorMaterial(Material material) {
+        return material != null && material.name().endsWith("_DOOR");
+    }
+
+    private static Block getOtherDoorHalf(Block block) {
+        if (!isDoorMaterial(block.getType()) || !(block.getBlockData() instanceof Bisected bisected)) {
+            return null;
+        }
+
+        return bisected.getHalf() == Bisected.Half.TOP
+                ? block.getRelative(0, -1, 0)
+                : block.getRelative(0, 1, 0);
+    }
+
+    private static void trackDoorOtherHalf(Match match, Block block) {
+        Block otherHalf = getOtherDoorHalf(block);
+        if (otherHalf != null) {
+            match.addBlockChange(new ChangedBlock(otherHalf));
+        }
+    }
+
+    private static void trackDoorOtherHalf(FFA ffa, Block block) {
+        Block otherHalf = getOtherDoorHalf(block);
+        if (otherHalf != null) {
+            ffa.getFightChange().addBlockChange(new ChangedBlock(otherHalf));
+        }
     }
 
     /**

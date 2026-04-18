@@ -76,6 +76,7 @@ public class DuelFight {
 
         this.sendEndTitles(loser);
         this.duelEvent.getFights().remove(this);
+        Player nextTarget = this.duelEvent.getRandomFightPlayer();
 
         if (loser == null) {
             for (Player player : players) {
@@ -98,7 +99,7 @@ public class DuelFight {
                 forward.addAll(this.spectators);
 
                 for (Player player : forward) {
-                    this.duelEvent.addSpectator(player, this.duelEvent.getRandomFightPlayer(), true, true);
+                    this.duelEvent.addSpectator(player, nextTarget, true, true);
                     Common.sendMMMessage(player, LanguageManager.getString(duelEvent.getLANGUAGE_PATH() + ".SPECTATOR-FORWARDED"));
                 }
             }
