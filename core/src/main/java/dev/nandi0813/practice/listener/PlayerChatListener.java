@@ -3,6 +3,10 @@ package dev.nandi0813.practice.listener;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
+import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
+import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.Profile;
@@ -62,8 +66,44 @@ public class PlayerChatListener implements Listener {
 
         // --- Custom server chat ---
         if (ConfigManager.getBoolean("CHAT.SERVER-CHAT-ENABLED")) {
+            applyMatchChatIsolation(e, player);
             applyRenderer(e, ChatFormatUtil.buildServerChatMessage(profile, player, message));
         }
+    }
+
+    private void applyMatchChatIsolation(AsyncChatEvent e, Player sender) {
+        if (!ConfigManager.isMatchChatIsolated()) {
+            return;
+        }
+
+        MatchManager matchManager = MatchManager.getInstance();
+        FFAManager ffaManager = FFAManager.getInstance();
+
+        Set<Audience> viewers = e.viewers();
+        viewers.add(Bukkit.getConsoleSender());
+
+        Match senderMatch = matchManager.getLiveMatchByPlayer(sender);
+        if (senderMatch != null) {
+            viewers.clear();
+            viewers.addAll(senderMatch.getPlayers());
+            return;
+        }
+
+        FFA senderFfa = ffaManager.getFFAByPlayer(sender);
+        if (senderFfa != null) {
+            viewers.clear();
+            viewers.addAll(senderFfa.getPlayers().keySet());
+            return;
+        }
+
+        e.viewers().removeIf(viewer -> {
+            if (!(viewer instanceof Player recipient)) {
+                return false;
+            }
+
+            return matchManager.getLiveMatchByPlayer(recipient) != null
+                    || ffaManager.getFFAByPlayer(recipient) != null;
+        });
     }
 
     /**

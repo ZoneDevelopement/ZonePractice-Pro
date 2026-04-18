@@ -1,4 +1,4 @@
-VERSION: 56
+VERSION: 57
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -683,6 +683,7 @@ DIVISIONS:
 # Chat settings
 CHAT:
   SERVER-CHAT-ENABLED: true
+  ISOLATE-MATCH-CHAT: true # If true, active match/FFA players only see messages from fighters in their own ongoing fight.
   PARTY-CHAT-ENABLED: true
   STAFF-CHAT:
     ENABLED: true
