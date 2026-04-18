@@ -190,7 +190,7 @@ public class ProfileSettingsGui extends GUI {
                         Common.sendMMMessage(player, LanguageManager.getString("PROFILE.NO-PERMISSION"));
 
                     break;
-                case 22:
+                case 23:
                     if (player.hasPermission("zpp.settings.fly")) {
                         profile.setFlying(!profile.isFlying());
 
