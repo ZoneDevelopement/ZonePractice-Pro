@@ -67,7 +67,7 @@ public class PlayerHider implements Listener {
                  */
                 if (onlineProfile.isHideFromPlayers() && !player.hasPermission("zpp.staffmode.see")) {
                     hidePlayer(player, online, true);
-                } else if (profile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online).equals(WorldEnum.LOBBY)) {
+                } else if (profile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online) == WorldEnum.LOBBY) {
                     hidePlayer(player, online, false);
                 }
             }
@@ -84,7 +84,7 @@ public class PlayerHider implements Listener {
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
-            if (!ServerManager.getInstance().getInWorld().get(player).equals(WorldEnum.LOBBY)) return;
+            if (ServerManager.getInstance().getInWorld().get(player) != WorldEnum.LOBBY) return;
 
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (player == online) continue;
@@ -92,7 +92,7 @@ public class PlayerHider implements Listener {
                 Profile onlineProfile = ProfileManager.getInstance().getProfile(online);
 
                 // Handle the teleported player
-                if (profile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online).equals(WorldEnum.LOBBY)) {
+                if (profile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online) == WorldEnum.LOBBY) {
                     hidePlayer(player, online, false);
                 } else if (!onlineProfile.isHideFromPlayers() || player.hasPermission("zpp.staffmode.see")) {
                     showPlayer(player, online);
@@ -102,7 +102,7 @@ public class PlayerHider implements Listener {
 
                 // Handle the online player
                 if (!onlineProfile.getStatus().equals(ProfileStatus.MATCH) && !onlineProfile.getStatus().equals(ProfileStatus.EVENT) && !onlineProfile.getStatus().equals(ProfileStatus.FFA)) {
-                    if (onlineProfile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online).equals(WorldEnum.LOBBY)) {
+                    if (onlineProfile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online) == WorldEnum.LOBBY) {
                         hidePlayer(online, player, false);
                     } else if (!profile.isHideFromPlayers() || online.hasPermission("zpp.staffmode.see")) {
                         showPlayer(online, player);
@@ -228,7 +228,7 @@ public class PlayerHider implements Listener {
 
                 hidePlayer(online, player, true);
             } else {
-                if (!ServerManager.getInstance().getInWorld().get(online).equals(WorldEnum.LOBBY)) continue;
+                if (ServerManager.getInstance().getInWorld().get(online) != WorldEnum.LOBBY) continue;
 
                 Profile onlineProfile = ProfileManager.getInstance().getProfile(online);
 

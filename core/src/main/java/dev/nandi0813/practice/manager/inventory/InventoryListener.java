@@ -97,7 +97,7 @@ public class InventoryListener implements Listener {
 
         InvItem invItem;
         String itemDisplayName = Common.getItemDisplayName(item);
-        if (ServerManager.getInstance().getInWorld().get(player).equals(WorldEnum.LOBBY) && !player.hasPermission("zpp.admin")) {
+        if (isInLobbyWorld(player) && !player.hasPermission("zpp.admin")) {
             invItem = inventory.getHoldItem(itemDisplayName, item.getType(), e.getPlayer().getInventory().getHeldItemSlot());
         } else {
             int slot = -1;
