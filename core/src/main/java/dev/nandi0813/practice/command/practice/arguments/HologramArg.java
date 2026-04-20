@@ -2,11 +2,13 @@ package dev.nandi0813.practice.command.practice.arguments;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
+import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.gui.setup.hologram.HologramSetupManager;
 import dev.nandi0813.practice.manager.leaderboard.hologram.Hologram;
 import dev.nandi0813.practice.manager.leaderboard.hologram.HologramManager;
 import dev.nandi0813.practice.manager.leaderboard.hologram.HologramType;
+import dev.nandi0813.practice.manager.leaderboard.hologram.SetupHologramType;
 import dev.nandi0813.practice.manager.leaderboard.hologram.holograms.GlobalHologram;
 import dev.nandi0813.practice.manager.leaderboard.hologram.holograms.LadderDynamicHologram;
 import dev.nandi0813.practice.manager.leaderboard.hologram.holograms.LadderStaticHologram;
@@ -51,8 +53,38 @@ public enum HologramArg {
             return;
         }
 
+        if (args.length >= 2 && args[1].equalsIgnoreCase("teleport")) {
+            if (args.length != 3) {
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.TELEPORT.COMMAND-HELP").replace("%label%", label + " hologram"));
+                return;
+            }
+
+            Hologram hologram = HologramManager.getInstance().findHologram(args[2]).orElse(null);
+            if (hologram == null) {
+                Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.TELEPORT.HOLOGRAM-NOT-EXISTS").replace("%hologram%", args[2]));
+                return;
+            }
+
+            boolean enabled = hologram.isEnabled();
+            hologram.despawn();
+            hologram.moveTo(player.getLocation());
+            hologram.setData();
+
+            if (enabled) {
+                hologram.updateContent();
+            } else {
+                hologram.setSetupHologram(SetupHologramType.SETUP);
+            }
+
+            GUIManager.getInstance().searchGUI(GUIType.Hologram_Summary).update();
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.TELEPORT.TELEPORTED").replace("%hologram%", hologram.getName()));
+            return;
+        }
+
         if (args.length != 4 || !args[1].equalsIgnoreCase("create")) {
-            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.HOLOGRAM.COMMAND-HELP").replace("%label%", label + " hologram"));
+            for (String line : LanguageManager.getList("COMMAND.HOLOGRAM.COMMAND-HELP")) {
+                Common.sendMMMessage(player, line.replace("%label%", label + " hologram"));
+            }
             return;
         }
 
@@ -111,7 +143,13 @@ public enum HologramArg {
 
         if (args.length == 2) {
             arguments.add("create");
+            arguments.add("teleport");
             return StringUtil.copyPartialMatches(args[1], arguments, new ArrayList<>());
+        }
+
+        if (args.length == 3 && args[1].equalsIgnoreCase("teleport")) {
+            HologramManager.getInstance().getHolograms().forEach(hologram -> arguments.add(hologram.getName()));
+            return StringUtil.copyPartialMatches(args[2], arguments, new ArrayList<>());
         }
 
         if (args.length == 4 && args[1].equalsIgnoreCase("create")) {

@@ -1,4 +1,4 @@
-VERSION: 40
+VERSION: 41
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -616,13 +616,19 @@ COMMAND:
   HOLOGRAM:
     NO-PERMISSION: "<red>You don't have permission."
     CANT-USE: "<red>You can't use this right now!"
-    COMMAND-HELP: "<red>/%label% create <name> <type>"
+    COMMAND-HELP:
+      - "<red>/%label% create <name> <type>"
+      - "<red>/%label% teleport <name>"
     INVALID-TYPE: "<red>Invalid hologram type. Available types: <yellow>global, ladder_static, ladder_dynamic"
     ONLY-IN-LOBBY: "<red>You can only create holograms in the lobby."
     REACHED-MAX: "<red>You can't create more than 18 holograms."
     HOLO-EXISTS: "<red>Hologram with this name is already exists."
     CREATE-ERROR: "<red>Hologram name must be 9 character or less."
     CREATE-SUCCESS: "<green>You successfully created the <yellow>%hologram% <green>hologram."
+    TELEPORT:
+      COMMAND-HELP: "<red>/%label% teleport <name>"
+      HOLOGRAM-NOT-EXISTS: "<red>%hologram% hologram doesn't exists."
+      TELEPORTED: "<green>You moved <yellow>%hologram% <green>to your current location."
   MATCH-STAT:
     COMMAND-HELP: "<red>/matchinv <matchID> <player_uuid> <round>"
     INVALID-MATCH-ID: "<red>Match id is either invalid or it has expired."
@@ -745,6 +751,7 @@ COMMAND:
           - " <red> » /%label% lobby set <gray>- <white>Set lobby location."
           - " <red> » /%label% lobby load <gray>- <white>Load lobby inventory."
           - " <red> » /%label% arenas <gray>- <white>Teleport to arenas world."
+          - " <red> » /%label% hologram <gray>- <white>Manage practice holograms."
           - " <red> » /%label% rename <gray>- <white>Rename the item in your hand."
           - " <red> » /%label% info <player> <gray>- <white>View player's info."
           - " <red> » /%label% goldenhead <amount> - Get some golden heads."
