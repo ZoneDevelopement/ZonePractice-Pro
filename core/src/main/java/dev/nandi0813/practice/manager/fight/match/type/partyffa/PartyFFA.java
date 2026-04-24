@@ -31,6 +31,10 @@ public class PartyFFA extends Match {
     public PartyFFA(Ladder ladder, Arena arena, Party party, int winsNeeded) {
         super(ladder, arena, new ArrayList<>(party.getMembers()), winsNeeded);
         this.type = MatchType.PARTY_FFA;
+
+        for (Player player : players) {
+            NametagManager.getInstance().setNametag(player, TeamEnum.FFA.getPrefix(), TeamEnum.FFA.getNameColor(), TeamEnum.FFA.getSuffix(), 20);
+        }
     }
 
     @Override

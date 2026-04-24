@@ -620,10 +620,12 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
 
     public void removePlayerFromBelowName(Player player) {
         if (!this.ladder.isHealthBelowName()) {
+            NametagManager.getInstance().reset(player.getName());
             return;
         }
 
         MatchManager.getInstance().getBelowNameManager().cleanUpForUser(player);
+        NametagManager.getInstance().reset(player.getName());
     }
 
     @Override

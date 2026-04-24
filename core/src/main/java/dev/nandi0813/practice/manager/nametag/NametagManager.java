@@ -368,8 +368,8 @@ public class NametagManager {
 
             Component name = baseName;
             if (override.nameColor() != null) {
-                // Keep template/placeholder output, only provide a fallback tint for the name segment.
-                name = name.colorIfAbsent(override.nameColor());
+                // Priority: Use the override color from MATCH-SETTINGS for match types.
+                name = name.color(override.nameColor());
             }
 
             composed = prefix.append(name).append(suffix);
