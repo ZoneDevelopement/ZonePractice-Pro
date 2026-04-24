@@ -15,6 +15,7 @@ import dev.nandi0813.practice.manager.fight.match.type.duel.Duel;
 import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
 import dev.nandi0813.practice.manager.fight.match.util.MatchUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.fight.util.ChangedBlock;
 import dev.nandi0813.practice.manager.fight.util.DeathCause;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
