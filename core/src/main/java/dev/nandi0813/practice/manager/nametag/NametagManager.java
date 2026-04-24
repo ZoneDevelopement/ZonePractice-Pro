@@ -366,11 +366,11 @@ public class NametagManager {
             Component prefix = override.prefix() != null ? override.prefix() : basePrefix;
             Component suffix = override.suffix() != null ? override.suffix() : baseSuffix;
 
-            Component name = baseName;
-            if (override.nameColor() != null) {
-                // Priority: Use the override color from MATCH-SETTINGS for match types.
-                name = name.color(override.nameColor());
-            }
+            // During matches, we use the plain player name with the team color
+            // to ensure it overrides any complex lobby formatting like gradients.
+            Component name = override.nameColor() != null
+                    ? Component.text(player.getName(), override.nameColor())
+                    : baseName;
 
             composed = prefix.append(name).append(suffix);
         }
