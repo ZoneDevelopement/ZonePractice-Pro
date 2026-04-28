@@ -135,6 +135,15 @@ public abstract class Hologram {
         BackendManager.save();
     }
 
+    /**
+     * Moves the hologram to a new player-facing location.
+     *
+     * <p>The internal base location is stored two blocks below the visible hologram.
+     */
+    public void moveTo(@NotNull Location location) {
+        this.baseLocation = location.clone().subtract(0, 2, 0);
+    }
+
     // ==================== CORE MANAGEMENT ====================
 
     /**

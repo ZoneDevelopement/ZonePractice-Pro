@@ -97,7 +97,7 @@ public class InventoryListener implements Listener {
 
         InvItem invItem;
         String itemDisplayName = Common.getItemDisplayName(item);
-        if (ServerManager.getInstance().getInWorld().get(player).equals(WorldEnum.LOBBY) && !player.hasPermission("zpp.admin")) {
+        if (isInLobbyWorld(player) && !player.hasPermission("zpp.admin")) {
             invItem = inventory.getHoldItem(itemDisplayName, item.getType(), e.getPlayer().getInventory().getHeldItemSlot());
         } else {
             int slot = -1;
@@ -118,26 +118,31 @@ public class InventoryListener implements Listener {
     @EventHandler
     public void onLobbyInteractProtection(PlayerInteractEvent e) {
         Player player = e.getPlayer();
-        if (!isInLobbyWorld(player) || player.hasPermission("zpp.admin")) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        ProfileStatus profileStatus = profile.getStatus();
+
+        if (isLobbyStatus(profileStatus)) {
+            if (!isLobbyProtectionAllowed("allow-lobby-interact")
+                    && !player.hasPermission("zpp.admin")) {
+
+                Block clickedBlock = e.getClickedBlock();
+                if (clickedBlock == null) return;
+
+                Action action = e.getAction();
+                Material type = clickedBlock.getType();
+
+                if (action == Action.PHYSICAL && Tag.PRESSURE_PLATES.isTagged(type)) {
+                    e.setCancelled(true);
+                    return;
+                }
+
+                if ((action == Action.RIGHT_CLICK_BLOCK || action == Action.LEFT_CLICK_BLOCK)
+                        && (Tag.TRAPDOORS.isTagged(type) || isProtectedWorkstation(type))) {
+                    e.setCancelled(true);
+                }
+            }
+
             return;
-        }
-
-        Block clickedBlock = e.getClickedBlock();
-        if (clickedBlock == null) {
-            return;
-        }
-
-        Action action = e.getAction();
-        Material type = clickedBlock.getType();
-
-        if (action == Action.PHYSICAL && Tag.PRESSURE_PLATES.isTagged(type)) {
-            e.setCancelled(true);
-            return;
-        }
-
-        if ((action == Action.RIGHT_CLICK_BLOCK || action == Action.LEFT_CLICK_BLOCK)
-                && (Tag.TRAPDOORS.isTagged(type) || isProtectedWorkstation(type))) {
-            e.setCancelled(true);
         }
     }
 

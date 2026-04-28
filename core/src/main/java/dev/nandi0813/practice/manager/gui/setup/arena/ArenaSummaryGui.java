@@ -31,7 +31,7 @@ public class ArenaSummaryGui extends GUI {
     private static final String STATUS_ENABLED = GUIFile.getString("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.ARENA-ICON.STATUS-NAMES.ENABLED");
     private static final String STATUS_DISABLED = GUIFile.getString("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.ARENA-ICON.STATUS-NAMES.DISABLED");
 
-    private final int spaces = 27;
+    private final int spaces = 36;
     private final Map<Integer, Map<Integer, DisplayArena>> slots = new HashMap<>();
     // private final Map<ItemStack, DisplayArena> icons = new HashMap<>();
     private final Map<Player, Integer> backToPage = new HashMap<>();
@@ -62,18 +62,18 @@ public class ArenaSummaryGui extends GUI {
                 // Re-use existing inventory object if present, otherwise create a fresh one
                 Inventory inv = gui.containsKey(page)
                         ? gui.get(page)
-                        : InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.ARENA.ARENA-MANAGER.TITLE").replace("%page%", String.valueOf(page)), 5);
+                        : InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.ARENA.ARENA-MANAGER.TITLE").replace("%page%", String.valueOf(page)), 6);
                 newGui.put(page, inv);
 
                 inv.clear();
 
                 // Frame
-                for (int i : new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 36, 37, 38, 39, 40, 41, 42, 43, 44})
+                for (int i : new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 48, 49, 50, 51, 52, 53})
                     inv.setItem(i, GUIManager.getFILLER_ITEM());
 
                 // Arena icons
                 Map<Integer, DisplayArena> pageSlots = new HashMap<>();
-                for (Map.Entry<DisplayArena, ItemStack> entry : getPageItems(displayIcons, page).entrySet()) {
+                for (Map.Entry<DisplayArena, ItemStack> entry : getPageItems(displayIcons, page, spaces).entrySet()) {
                     int slot = inv.firstEmpty();
                     if (slot != -1 && slot < inv.getSize()) {
                         inv.setItem(slot, entry.getValue());
@@ -88,7 +88,7 @@ public class ArenaSummaryGui extends GUI {
                     left = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.PAGE-LEFT").replace("%page%", String.valueOf(page - 1)).get();
                 else
                     left = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.BACK-TO").get();
-                inv.setItem(36, left);
+                inv.setItem(45, left);
 
                 // Right navigation
                 ItemStack right;
@@ -96,7 +96,7 @@ public class ArenaSummaryGui extends GUI {
                     right = GUIFile.getGuiItem("GUIS.SETUP.ARENA.ARENA-MANAGER.ICONS.PAGE-RIGHT").replace("%page%", String.valueOf(page + 1)).get();
                 else
                     right = GUIManager.getFILLER_ITEM();
-                inv.setItem(44, right);
+                inv.setItem(53, right);
             }
         }
 
@@ -145,8 +145,8 @@ public class ArenaSummaryGui extends GUI {
         if (inventory.getSize() > slot && e.getCurrentItem() != null) {
             int page = inGuiPlayers.get(player);
 
-            if (slot == 36 || slot == 44) {
-                if (slot == 36) {
+            if (slot == 45 || slot == 53) {
+                if (slot == 45) {
                     if (page == 1) {
                         GUIManager.getInstance().searchGUI(GUIType.Setup_Hub).open(player);
                     } else {
@@ -216,11 +216,11 @@ public class ArenaSummaryGui extends GUI {
         return guiItem.get();
     }
 
-    private static Map<DisplayArena, ItemStack> getPageItems(Map<DisplayArena, ItemStack> items, int page) {
+    private static Map<DisplayArena, ItemStack> getPageItems(Map<DisplayArena, ItemStack> items, int page, int spaces) {
         Map<DisplayArena, ItemStack> sortedItems = sortByValue(items);
 
-        int upperBound = page * 27;
-        int lowerBound = upperBound - 27;
+        int upperBound = page * spaces;
+        int lowerBound = upperBound - spaces;
 
         // IMPORTANT: Use LinkedHashMap to preserve the sorted order!
         Map<DisplayArena, ItemStack> newItems = new LinkedHashMap<>();

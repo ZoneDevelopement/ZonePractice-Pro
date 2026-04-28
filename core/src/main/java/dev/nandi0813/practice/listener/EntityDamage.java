@@ -15,9 +15,9 @@ public class EntityDamage implements Listener {
         if (!(e.getEntity() instanceof Player player)) return;
 
         if (!e.getCause().equals(EntityDamageEvent.DamageCause.VOID)) return;
-        if (!ServerManager.getInstance().getInWorld().containsKey(player)) return;
 
-        if (ServerManager.getInstance().getInWorld().get(player).equals(WorldEnum.LOBBY)) {
+        WorldEnum worldEnum = ServerManager.getInstance().getInWorld().get(player);
+        if (worldEnum == WorldEnum.LOBBY) {
             Location lobbyLocation = ServerManager.getLobby();
             if (lobbyLocation != null)
                 player.teleport(lobbyLocation);
