@@ -1,4 +1,4 @@
-VERSION: 57
+VERSION: 58
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -656,6 +656,7 @@ PLAYER:
     allow-hunger: false
     allow-block-break: false
     allow-block-place: false
+    allow-lobby-interact: false
   LOBBY-NAMETAG:
     ENABLED: true
   NAMETAG-MANAGEMENT:
