@@ -89,6 +89,7 @@ public enum LadderType {
             .withBuild()
             .withMovementSettings()
             .withCommonSettings()
+            .withPearlSettings()
             .withSettings(
                     SettingType.GOLDEN_APPLE_COOLDOWN,
                     SettingType.TEMP_BUILD_RETURN_DELAY,
