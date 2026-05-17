@@ -8,7 +8,7 @@ settings:
   editable: true
   hitdelay: 20
   rounds: 3
-  epcooldown: 13
+  epcooldown: 0
   startcountdown: 3
   knockback: DEFAULT
   gacooldown: 0
