@@ -36,9 +36,7 @@ public enum InventoryUtil {
         // Tab-list
         Component listName = prefix.append(name).append(suffix);
         TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
-        if (tabIntegration != null && tabIntegration.isAvailable()) {
-            tabIntegration.setTabListName(player, listName);
-        } else {
+        if (tabIntegration == null || !tabIntegration.setTabListName(player, prefix, name, suffix)) {
             PlayerUtil.setPlayerListName(player, listName);
         }
 
