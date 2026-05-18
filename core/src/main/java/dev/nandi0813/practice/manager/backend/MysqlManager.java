@@ -71,7 +71,7 @@ public enum MysqlManager {
 
         try {
             // Explicitly load the MariaDB driver to ensure it's available for JDBC DriverManager
-            Class.forName("org.mariadb.jdbc.Driver");
+            Class.forName("dev.nandi0813.practice.dependencies.mariadb.Driver");
 
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl(url);

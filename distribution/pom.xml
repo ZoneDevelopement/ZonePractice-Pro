@@ -113,6 +113,10 @@
                                     <pattern>com.zaxxer.hikari</pattern>
                                     <shadedPattern>dev.nandi0813.practice.dependencies.hikari</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.mariadb.jdbc</pattern>
+                                    <shadedPattern>dev.nandi0813.practice.dependencies.mariadb</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
