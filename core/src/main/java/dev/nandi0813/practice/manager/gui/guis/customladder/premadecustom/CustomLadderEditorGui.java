@@ -136,18 +136,6 @@ public class CustomLadderEditorGui extends GUI {
 
         // Load armor BEFORE filler logic to prevent filler items from overwriting armor slots
         ItemStack[] customKitArmor = customKit.getArmor();
-        if (customKitArmor == null) {
-            // Legacy fallback for old kits where armor was appended to inventory[36..39]
-            ItemStack[] customKitInventory = customKit.getInventory();
-            if (customKitInventory != null && customKitInventory.length > 39) {
-                customKitArmor = new ItemStack[]{
-                        customKitInventory[36],
-                        customKitInventory[37],
-                        customKitInventory[38],
-                        customKitInventory[39]
-                };
-            }
-        }
 
         if (customKitArmor == null) {
             customKitArmor = ladder.getKitData().getArmor();

@@ -105,51 +105,53 @@ public class LadderStats {
     }
 
     public void setData(String ladderName, boolean ranked) {
-        config.set("stats.ladder-stats." + ladderName + ".unranked.wins", unRankedWins);
-        config.set("stats.ladder-stats." + ladderName + ".unranked.losses", unRankedLosses);
-        config.set("stats.ladder-stats." + ladderName + ".unranked.win-streak", unRankedWinStreak);
-        config.set("stats.ladder-stats." + ladderName + ".unranked.best-win-streak", unRankedBestWinStreak);
-        config.set("stats.ladder-stats." + ladderName + ".unranked.lose-streak", unRankedLoseStreak);
-        config.set("stats.ladder-stats." + ladderName + ".unranked.best-lose-streak", unRankedBestLoseStreak);
+        String base = "stats.ladder-stats." + ladderName;
+        config.set(base + ".unranked.wins", unRankedWins);
+        config.set(base + ".unranked.losses", unRankedLosses);
+        config.set(base + ".unranked.win-streak", unRankedWinStreak);
+        config.set(base + ".unranked.best-win-streak", unRankedBestWinStreak);
+        config.set(base + ".unranked.lose-streak", unRankedLoseStreak);
+        config.set(base + ".unranked.best-lose-streak", unRankedBestLoseStreak);
 
         if (ranked) {
-            config.set("stats.ladder-stats." + ladderName + ".ranked.wins", rankedWins);
-            config.set("stats.ladder-stats." + ladderName + ".ranked.losses", rankedLosses);
-            config.set("stats.ladder-stats." + ladderName + ".ranked.win-streak", rankedWinStreak);
-            config.set("stats.ladder-stats." + ladderName + ".ranked.best-win-streak", rankedBestWinStreak);
-            config.set("stats.ladder-stats." + ladderName + ".ranked.lose-streak", rankedLoseStreak);
-            config.set("stats.ladder-stats." + ladderName + ".ranked.best-lose-streak", rankedBestLoseStreak);
-            config.set("stats.ladder-stats." + ladderName + ".ranked.elo", elo != 0 ? elo : LadderManager.getDEFAULT_ELO());
+            config.set(base + ".ranked.wins", rankedWins);
+            config.set(base + ".ranked.losses", rankedLosses);
+            config.set(base + ".ranked.win-streak", rankedWinStreak);
+            config.set(base + ".ranked.best-win-streak", rankedBestWinStreak);
+            config.set(base + ".ranked.lose-streak", rankedLoseStreak);
+            config.set(base + ".ranked.best-lose-streak", rankedBestLoseStreak);
+            config.set(base + ".ranked.elo", elo != 0 ? elo : LadderManager.getDEFAULT_ELO());
         }
 
-        config.set("stats.ladder-stats." + ladderName + ".global.kills", kills);
-        config.set("stats.ladder-stats." + ladderName + ".global.deaths", deaths);
+        config.set(base + ".global.kills", kills);
+        config.set(base + ".global.deaths", deaths);
     }
 
     public void getData(String ladderName, boolean ranked) {
-        this.unRankedWins = config.getInt("stats.ladder-stats." + ladderName + ".unranked.wins");
-        this.unRankedLosses = config.getInt("stats.ladder-stats." + ladderName + ".unranked.losses");
-        this.unRankedWinStreak = config.getInt("stats.ladder-stats." + ladderName + ".unranked.win-streak");
-        this.unRankedBestWinStreak = config.getInt("stats.ladder-stats." + ladderName + ".unranked.best-win-streak");
-        this.unRankedLoseStreak = config.getInt("stats.ladder-stats." + ladderName + ".unranked.lose-streak");
-        this.unRankedBestLoseStreak = config.getInt("stats.ladder-stats." + ladderName + ".unranked.best-lose-streak");
+        String base = "stats.ladder-stats." + ladderName;
+        this.unRankedWins = config.getInt(base + ".unranked.wins");
+        this.unRankedLosses = config.getInt(base + ".unranked.losses");
+        this.unRankedWinStreak = config.getInt(base + ".unranked.win-streak");
+        this.unRankedBestWinStreak = config.getInt(base + ".unranked.best-win-streak");
+        this.unRankedLoseStreak = config.getInt(base + ".unranked.lose-streak");
+        this.unRankedBestLoseStreak = config.getInt(base + ".unranked.best-lose-streak");
 
         if (ranked) {
-            this.rankedWins = config.getInt("stats.ladder-stats." + ladderName + ".ranked.wins");
-            this.rankedLosses = config.getInt("stats.ladder-stats." + ladderName + ".ranked.losses");
-            this.rankedWinStreak = config.getInt("stats.ladder-stats." + ladderName + ".ranked.win-streak");
-            this.rankedBestWinStreak = config.getInt("stats.ladder-stats." + ladderName + ".ranked.best-win-streak");
-            this.rankedLoseStreak = config.getInt("stats.ladder-stats." + ladderName + ".ranked.lose-streak");
-            this.rankedBestLoseStreak = config.getInt("stats.ladder-stats." + ladderName + ".ranked.best-lose-streak");
-            this.elo = config.getInt("stats.ladder-stats." + ladderName + ".ranked.elo");
+            this.rankedWins = config.getInt(base + ".ranked.wins");
+            this.rankedLosses = config.getInt(base + ".ranked.losses");
+            this.rankedWinStreak = config.getInt(base + ".ranked.win-streak");
+            this.rankedBestWinStreak = config.getInt(base + ".ranked.best-win-streak");
+            this.rankedLoseStreak = config.getInt(base + ".ranked.lose-streak");
+            this.rankedBestLoseStreak = config.getInt(base + ".ranked.best-lose-streak");
+            this.elo = config.getInt(base + ".ranked.elo");
 
             if (this.elo == 0) {
                 this.elo = LadderManager.getDEFAULT_ELO();
             }
         }
 
-        this.kills = config.getInt("stats.ladder-stats." + ladderName + ".global.kills");
-        this.deaths = config.getInt("stats.ladder-stats." + ladderName + ".global.deaths");
+        this.kills = config.getInt(base + ".global.kills");
+        this.deaths = config.getInt(base + ".global.deaths");
     }
 
     public void reset() {

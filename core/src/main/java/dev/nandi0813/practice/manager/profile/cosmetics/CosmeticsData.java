@@ -96,7 +96,7 @@ public class CosmeticsData {
             tierData.put(resolvedTier, bySlot);
         }
 
-        return bySlot.computeIfAbsent(slot, k -> new SlotData());
+        return bySlot.computeIfAbsent(slot, _ -> new SlotData());
     }
 
     public ShieldLayout getActiveShieldLayout() {

@@ -32,30 +32,36 @@ import java.util.*;
 @Setter
 public class Profile {
 
+    // Identity
     private final UUID uuid;
     private final OfflinePlayer player;
     private final ProfileFile file;
     private final ProfileStat stats;
     private Group group;
 
+    // Name display
     private Component prefix;
     private String nameTemplate;
     private NamedTextColor nameColor;
     private Component suffix;
 
+    // Join timestamps
     private long firstJoin;
     private long lastJoin;
 
+    // Online state
     private ProfileStatus status;
     private boolean spectatorMode;
     private boolean party;
     private boolean hideSpectators;
 
+    // Staff state
     private boolean staffMode;
     private boolean staffChat;
     private boolean hideFromPlayers;
     private Player followTarget;
 
+    // Player settings
     private boolean duelRequest;
     private boolean sidebar;
     private boolean hidePlayers;
@@ -66,29 +72,31 @@ public class Profile {
     private boolean flying;
     private ProfilePrefixVisibility prefixVisibility = ProfilePrefixVisibility.PREFIX_AND_SUFFIX;
 
+    // Custom kits
     private int allowedCustomKits;
     private final Map<NormalLadder, Map<Integer, CustomKit>> unrankedCustomKits = new HashMap<>();
     private final Map<NormalLadder, Map<Integer, CustomKit>> rankedCustomKits = new HashMap<>();
 
-    // Unranked & Ranked & Event left daily
+    // Daily limits
     private final List<Profile> ignoredPlayers = new ArrayList<>();
-    private int unrankedLeft = 0;
-    private int rankedLeft = 0;
-    private int eventStartLeft = 0;
-    private int partyBroadcastLeft = 0;
+    private int unrankedLeft;
+    private int rankedLeft;
+    private int eventStartLeft;
+    private int partyBroadcastLeft;
 
+    // Misc
     private RankedBan rankedBan = new RankedBan();
     private ProfileSettingsGui settingsGui;
     private ActionBar actionBar;
 
-    // Cosmetics data for armor trims
+    // Cosmetics
     private CosmeticsData cosmeticsData = new CosmeticsData();
 
     // Custom ladder
     private PlayerCustomKitSelector playerCustomKitSelector;
     private final List<CustomLadder> customLadders = new ArrayList<>();
     private CustomLadder selectedCustomLadder;
-    private boolean fullDataLoaded = false;
+    private boolean fullDataLoaded;
 
     public Profile(UUID uuid, OfflinePlayer player) {
         this.uuid = uuid;
@@ -117,108 +125,118 @@ public class Profile {
         return Bukkit.getPlayer(uuid);
     }
 
-    public void saveData() {
-        this.rankedBan.set(file.getConfig(), "ranked-ban");
+    // Data persistence
 
-        for (CustomLadder customLadder : customLadders) {
-            customLadder.setData();
-        }
-        if (this.selectedCustomLadder != null) {
-            this.file.getConfig().set("selected-custom-ladder", customLadders.indexOf(this.selectedCustomLadder));
-        }
+    public void saveData() {
+        rankedBan.set(file.getConfig(), "ranked-ban");
+
+        saveCustomLadders();
 
         stats.setData(false);
         file.setData();
     }
 
+    private void saveCustomLadders() {
+        for (CustomLadder customLadder : customLadders) {
+            customLadder.setData();
+        }
+        if (selectedCustomLadder != null) {
+            file.getConfig().set("selected-custom-ladder", customLadders.indexOf(selectedCustomLadder));
+        }
+    }
+
     public void getData() {
-        this.stats.getLadderStats().clear();
+        stats.getLadderStats().clear();
         file.getData();
         stats.getData();
 
-        this.rankedBan.get(file.getConfig(), "ranked-ban");
+        rankedBan.get(file.getConfig(), "ranked-ban");
 
-        if (this.file.getConfig().isConfigurationSection("player-custom-kit")) {
-            this.customLadders.clear();
-            for (String ladder : Objects.requireNonNull(this.file.getConfig().getConfigurationSection("player-custom-kit")).getKeys(false)) {
-                try {
-                    int i = Integer.parseInt(ladder);
-                    if (i < 0 || i > 5) {
-                        continue;
-                    }
+        loadCustomLadders();
 
-                    this.customLadders.add(new CustomLadder(this, "player-custom-kit." + i, i + 1));
-                } catch (NumberFormatException e) {
-                    if (this.file.getConfig().isConfigurationSection("player-custom-kit")) {
-                        CustomLadder oldLadderFormat = new CustomLadder(this, "player-custom-kit", 1);
-                        this.customLadders.add(new CustomLadder(oldLadderFormat, this, "player-custom-kit.0"));
+        fullDataLoaded = true;
+    }
 
-                        this.file.getConfig().set("player-custom-kit", null);
-                        this.file.saveFile();
-                    }
-                    break;
-                }
-            }
+    private void loadCustomLadders() {
+        if (!file.getConfig().isConfigurationSection("player-custom-kit")) return;
 
-            if (!this.customLadders.isEmpty()) {
-                if (this.file.getConfig().isInt("selected-custom-ladder")) {
-                    int index = this.file.getConfig().getInt("selected-custom-ladder");
-                    if (index < this.customLadders.size() && index >= 0) {
-                        this.selectedCustomLadder = this.customLadders.get(index);
-                    }
-                }
-            }
+        customLadders.clear();
+        for (String key : Objects.requireNonNull(
+                file.getConfig().getConfigurationSection("player-custom-kit")).getKeys(false)) {
+            if (!tryLoadCustomLadder(key)) break;
         }
-        this.fullDataLoaded = true;
+
+        loadSelectedCustomLadder();
+    }
+
+    private boolean tryLoadCustomLadder(String key) {
+        try {
+            int i = Integer.parseInt(key);
+            if (i < 0 || i > 5) return true;
+
+            customLadders.add(new CustomLadder(this, "player-custom-kit." + i, i + 1));
+            return true;
+        } catch (NumberFormatException e) {
+            if (file.getConfig().isConfigurationSection("player-custom-kit")) {
+                CustomLadder oldFormat = new CustomLadder(this, "player-custom-kit", 1);
+                customLadders.add(new CustomLadder(oldFormat, this, "player-custom-kit.0"));
+                file.getConfig().set("player-custom-kit", null);
+                file.saveFile();
+            }
+            return false;
+        }
+    }
+
+    private void loadSelectedCustomLadder() {
+        if (customLadders.isEmpty()) return;
+        if (!file.getConfig().isInt("selected-custom-ladder")) return;
+
+        int index = file.getConfig().getInt("selected-custom-ladder");
+        if (index >= 0 && index < customLadders.size()) {
+            selectedCustomLadder = customLadders.get(index);
+        }
     }
 
     public synchronized void loadStatsOnlyData() {
-        this.file.reloadFile();
-        this.stats.getLadderStats().clear();
+        file.reloadFile();
+        stats.getLadderStats().clear();
 
-        if (this.file.getConfig().isLong("join.first"))
-            this.setFirstJoin(this.file.getConfig().getLong("join.first"));
+        if (file.getConfig().isLong("join.first"))
+            setFirstJoin(file.getConfig().getLong("join.first"));
 
-        if (this.file.getConfig().isLong("join.latest"))
-            this.setLastJoin(this.file.getConfig().getLong("join.latest"));
+        if (file.getConfig().isLong("join.latest"))
+            setLastJoin(file.getConfig().getLong("join.latest"));
 
-        this.stats.getData();
-        this.fullDataLoaded = false;
+        stats.getData();
+        fullDataLoaded = false;
     }
 
     public synchronized void ensureFullDataLoaded() {
-        if (this.fullDataLoaded) {
-            return;
-        }
+        if (fullDataLoaded) return;
 
         getData();
     }
 
     public synchronized void demoteToStatsOnly() {
-        this.settingsGui = null;
-        this.playerCustomKitSelector = null;
-        this.selectedCustomLadder = null;
-        this.customLadders.clear();
-        this.unrankedCustomKits.clear();
-        this.rankedCustomKits.clear();
-        this.ignoredPlayers.clear();
-        this.followTarget = null;
-        this.actionBar = null;
-        this.fullDataLoaded = false;
+        settingsGui = null;
+        playerCustomKitSelector = null;
+        selectedCustomLadder = null;
+        customLadders.clear();
+        unrankedCustomKits.clear();
+        rankedCustomKits.clear();
+        ignoredPlayers.clear();
+        followTarget = null;
+        actionBar = null;
+        fullDataLoaded = false;
     }
 
-    public boolean isFullDataLoaded() {
-        return fullDataLoaded;
-    }
+    // Group management
 
     public void checkGroup() {
         Player online = getOnlinePlayer();
         if (online == null || !online.isOnline()) return;
 
         Group newGroup = GroupManager.getInstance().getGroup(online);
-
-        // If newGroup is null (shouldn't happen with our fix, but safety check)
-        // or if the group has changed, update it
         if (newGroup == null) {
             Common.sendConsoleMMMessage("<red>Warning: Could not determine group for " + online.getName() + ". Assigning default (lowest weighted) group to them.");
             return;
@@ -227,7 +245,7 @@ public class Profile {
         if (group == newGroup) return;
 
         try {
-            this.setGroup(newGroup);
+            setGroup(newGroup);
         } catch (Exception e) {
             Common.sendConsoleMMMessage("<red>Failed to set group for " + online.getName() + "! Error: " + e.getMessage());
         }
@@ -235,15 +253,9 @@ public class Profile {
 
     public int getCustomKitPerm() {
         Player onlinePlayer = getOnlinePlayer();
+        if (onlinePlayer == null) return 0;
 
-        if (onlinePlayer == null) {
-            return 0;
-        }
-
-        if (this.group != null) {
-            return this.group.getModifiableKitLimit();
-        }
-
+        if (group != null) return group.getModifiableKitLimit();
         return -1;
     }
 
@@ -253,60 +265,62 @@ public class Profile {
         }
 
         this.group = group;
-        this.unrankedLeft = group.getUnrankedLimit();
-        this.rankedLeft = group.getRankedLimit();
-        this.eventStartLeft = group.getEventStartLimit();
-        this.partyBroadcastLeft = group.getPartyBroadcastLimit();
+        unrankedLeft = group.getUnrankedLimit();
+        rankedLeft = group.getRankedLimit();
+        eventStartLeft = group.getEventStartLimit();
+        partyBroadcastLeft = group.getPartyBroadcastLimit();
 
-        Player onlinePlayer = this.getOnlinePlayer();
-        if (onlinePlayer != null) {
-            Party partyObj = PartyManager.getInstance().getParty(onlinePlayer);
-            if (partyObj != null && onlinePlayer.equals(partyObj.getLeader())) {
-                partyObj.refreshMaxPlayerLimitForLeader();
-            }
-        }
-
-        while (this.customLadders.size() < this.group.getCustomKitLimit()) {
-            this.customLadders.add(new CustomLadder(this, "player-custom-kit." + customLadders.size(), this.customLadders.size() + 1));
-        }
-
-        while (this.customLadders.size() > this.group.getCustomKitLimit()) {
-            this.customLadders.removeLast();
-        }
+        refreshPartyLimit();
+        syncCustomLadderCount();
 
         // Invalidate the selector so it gets recreated on next access (lazy-loading)
-        this.playerCustomKitSelector = null;
+        playerCustomKitSelector = null;
     }
 
-    /**
-     * Lazily loads and returns the PlayerCustomKitSelector.
-     * Creates it only when first accessed to save RAM for offline players.
-     */
-    public PlayerCustomKitSelector getPlayerCustomKitSelector() {
-        if (this.playerCustomKitSelector == null) {
-            this.playerCustomKitSelector = new PlayerCustomKitSelector(this);
+    private void refreshPartyLimit() {
+        Player onlinePlayer = getOnlinePlayer();
+        if (onlinePlayer == null) return;
+
+        Party partyObj = PartyManager.getInstance().getParty(onlinePlayer);
+        if (partyObj != null && onlinePlayer.equals(partyObj.getLeader())) {
+            partyObj.refreshMaxPlayerLimitForLeader();
         }
-        return this.playerCustomKitSelector;
+    }
+
+    private void syncCustomLadderCount() {
+        while (customLadders.size() < group.getCustomKitLimit()) {
+            customLadders.add(new CustomLadder(this, "player-custom-kit." + customLadders.size(), customLadders.size() + 1));
+        }
+        while (customLadders.size() > group.getCustomKitLimit()) {
+            customLadders.removeLast();
+        }
+    }
+
+    // Lazy-loaded accessors
+
+    public PlayerCustomKitSelector getPlayerCustomKitSelector() {
+        if (playerCustomKitSelector == null) {
+            playerCustomKitSelector = new PlayerCustomKitSelector(this);
+        }
+        return playerCustomKitSelector;
     }
 
     public ActionBar getActionBar() {
-        if (this.actionBar == null) {
-            this.actionBar = new ActionBar(this);
+        if (actionBar == null) {
+            actionBar = new ActionBar(this);
         }
-
-        return this.actionBar;
+        return actionBar;
     }
 
+    // Setters with side effects
+
     public void setSelectedCustomLadder(CustomLadder customLadder) {
-        if (customLadder == null) {
+        if (customLadder == null)
             throw new IllegalArgumentException("Custom ladder cannot be null.");
-        }
-
-        if (!customLadders.contains(customLadder)) {
+        if (!customLadders.contains(customLadder))
             throw new IllegalArgumentException("Custom ladder not found in profile.");
-        }
 
-        this.selectedCustomLadder = customLadder;
+        selectedCustomLadder = customLadder;
     }
 
     public void setStatus(ProfileStatus status) {
@@ -315,15 +329,18 @@ public class Profile {
 
         Bukkit.getPluginManager().callEvent(new ProfileStatusChangeEvent(this, previous, status));
 
-        // Leaving lobby/spectate for a new activity invalidates pending rematches.
-        if ((previous == ProfileStatus.LOBBY || previous == ProfileStatus.SPECTATE)
-                && status != ProfileStatus.LOBBY
-                && status != ProfileStatus.SPECTATE
-                && status != ProfileStatus.OFFLINE) {
-            Player online = getOnlinePlayer();
-            if (online != null && online.isOnline()) {
-                MatchManager.getInstance().invalidateRematchByPlayer(online);
-            }
+        invalidateRematchIfLeftLobby(previous, status);
+    }
+
+    private void invalidateRematchIfLeftLobby(ProfileStatus previous, ProfileStatus status) {
+        boolean wasIdle = previous == ProfileStatus.LOBBY || previous == ProfileStatus.SPECTATE;
+        boolean isActive = status != ProfileStatus.LOBBY && status != ProfileStatus.SPECTATE && status != ProfileStatus.OFFLINE;
+
+        if (!wasIdle || !isActive) return;
+
+        Player online = getOnlinePlayer();
+        if (online != null && online.isOnline()) {
+            MatchManager.getInstance().invalidateRematchByPlayer(online);
         }
     }
 

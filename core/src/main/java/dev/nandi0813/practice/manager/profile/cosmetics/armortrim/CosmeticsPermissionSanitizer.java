@@ -13,9 +13,9 @@ import java.util.EnumSet;
 public enum CosmeticsPermissionSanitizer {
     ;
 
-    public static boolean sanitize(Player player, Profile profile) {
+    public static void sanitize(Player player, Profile profile) {
         if (player == null || profile == null || profile.getCosmeticsData() == null) {
-            return false;
+            return;
         }
 
         boolean changed = false;
@@ -95,7 +95,7 @@ public enum CosmeticsPermissionSanitizer {
         int maxShieldLayouts = CosmeticsPermissionManager.getMaxShieldLayouts(player);
         var shieldLayouts = profile.getCosmeticsData().getShieldLayouts();
         while (shieldLayouts.size() > maxShieldLayouts) {
-            shieldLayouts.remove(shieldLayouts.size() - 1);
+            shieldLayouts.removeLast();
             changed = true;
         }
 
@@ -113,7 +113,6 @@ public enum CosmeticsPermissionSanitizer {
             profile.saveData();
         }
 
-        return changed;
     }
 }
 

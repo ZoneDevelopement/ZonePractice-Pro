@@ -86,20 +86,11 @@ public class ProfileStat {
     }
 
     public void setData(boolean save) {
-        if (experience != 0) config.set("experience", experience);
-        else config.set("experience", null);
-
-        if (winStreak != 0) config.set("winStreak", winStreak);
-        else config.set("winStreak", null);
-
-        if (bestWinStreak != 0) config.set("bestWinStreak", bestWinStreak);
-        else config.set("bestWinStreak", null);
-
-        if (loseStreak != 0) config.set("loseStreak", loseStreak);
-        else config.set("loseStreak", null);
-
-        if (bestLoseStreak != 0) config.set("bestLoseStreak", bestLoseStreak);
-        else config.set("bestLoseStreak", null);
+        setConfigIntIfNonZero("experience", experience);
+        setConfigIntIfNonZero("winStreak", winStreak);
+        setConfigIntIfNonZero("bestWinStreak", bestWinStreak);
+        setConfigIntIfNonZero("loseStreak", loseStreak);
+        setConfigIntIfNonZero("bestLoseStreak", bestLoseStreak);
 
         for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
             getLadderStat(ladder).setData(ladder.getName().toLowerCase(), ladder.isRanked());
@@ -109,27 +100,29 @@ public class ProfileStat {
             profileFile.saveFile();
     }
 
+    private void setConfigIntIfNonZero(String path, int value) {
+        if (value != 0)
+            config.set(path, value);
+        else
+            config.set(path, null);
+    }
+
     public void getData() {
-        if (config.isInt("experience"))
-            this.setExperience(config.getInt("experience"));
-
-        if (config.isInt("winStreak"))
-            this.setWinStreak(config.getInt("winStreak"));
-
-        if (config.isInt("bestWinStreak"))
-            this.setBestWinStreak(config.getInt("bestWinStreak"));
-
-        if (config.isInt("loseStreak"))
-            this.setLoseStreak(config.getInt("loseStreak"));
-
-        if (config.isInt("bestLoseStreak"))
-            this.setBestLoseStreak(config.getInt("bestLoseStreak"));
+        setExperience(getConfigInt("experience"));
+        setWinStreak(getConfigInt("winStreak"));
+        setBestWinStreak(getConfigInt("bestWinStreak"));
+        setLoseStreak(getConfigInt("loseStreak"));
+        setBestLoseStreak(getConfigInt("bestLoseStreak"));
 
         for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
             LadderStats ladderStat = new LadderStats(config);
             ladderStat.getData(ladder.getName().toLowerCase(), ladder.isRanked());
             ladderStats.put(ladder, ladderStat);
         }
+    }
+
+    private int getConfigInt(String path) {
+        return config.isInt(path) ? config.getInt(path) : 0;
     }
 
     public void loadDefaultStats(NormalLadder ladder) {

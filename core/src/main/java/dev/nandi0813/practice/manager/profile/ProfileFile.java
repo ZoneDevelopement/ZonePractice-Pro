@@ -42,32 +42,56 @@ public class ProfileFile extends ConfigFile {
 
     @Override
     public void setData() {
-        config.set("join.latest", profile.getLastJoin());
+        setJoinTimestamps();
+        setGroup();
+        setPrefix();
+        setSuffix();
+        setNameTemplate();
+        setCustomKitPerm();
+        setSettings();
+        saveCosmetics();
+        saveCustomKits();
+        saveFile();
+    }
 
+    private void setJoinTimestamps() {
+        config.set("join.latest", profile.getLastJoin());
+    }
+
+    private void setGroup() {
         if (profile.getGroup() != null)
             config.set("group", profile.getGroup().getName());
         else
             config.set("group", null);
+    }
 
+    private void setPrefix() {
         if (profile.getPrefix() != null)
             config.set("prefix", dev.nandi0813.practice.ZonePractice.getMiniMessage().serialize(profile.getPrefix()));
         else
             config.set("prefix", null);
+    }
 
+    private void setSuffix() {
         if (profile.getSuffix() != null)
             config.set("suffix", dev.nandi0813.practice.ZonePractice.getMiniMessage().serialize(profile.getSuffix()));
         else
             config.set("suffix", null);
+    }
 
+    private void setNameTemplate() {
         if (profile.getNameTemplate() != null && !profile.getNameTemplate().isEmpty())
             config.set("name-template", profile.getNameTemplate());
         else
             config.set("name-template", null);
+    }
 
+    private void setCustomKitPerm() {
         int customKitPerm = profile.getCustomKitPerm();
         if (customKitPerm > 0) config.set("allowed-custom-kits", customKitPerm);
+    }
 
-        // Basic settings
+    private void setSettings() {
         config.set("settings.duelrequest", profile.isDuelRequest());
         config.set("settings.sidebar", profile.isSidebar());
         config.set("settings.hideplayers", profile.isHidePlayers());
@@ -77,74 +101,67 @@ public class ProfileFile extends ConfigFile {
         config.set("settings.messages", profile.isPrivateMessages());
         config.set("settings.worldtime", profile.getWorldTime().toString());
         config.set("settings.prefix-visibility", profile.getPrefixVisibility().toString());
+    }
 
-        // Cosmetics data for armor trims
-        if (profile.getCosmeticsData() != null) {
-            config.set("cosmetics.active-tier", profile.getCosmeticsData().getActiveTier().getId());
-            config.set("cosmetics.death-effect", profile.getCosmeticsData().getDeathEffect().getId());
-            config.set("cosmetics.lobby-item", profile.getCosmeticsData().getLobbyItemType().name());
-            config.set("cosmetics.shield.active-layout-index", profile.getCosmeticsData().getActiveShieldLayoutIndex());
+    private void saveCosmetics() {
+        if (profile.getCosmeticsData() == null) return;
 
-            List<String> serializedShieldLayouts = profile.getCosmeticsData().getShieldLayouts().stream()
-                    .map(ShieldLayout::serialise)
-                    .toList();
-            config.set("cosmetics.shield.layouts", serializedShieldLayouts);
+        config.set("cosmetics.active-tier", profile.getCosmeticsData().getActiveTier().getId());
+        config.set("cosmetics.death-effect", profile.getCosmeticsData().getDeathEffect().getId());
+        config.set("cosmetics.lobby-item", profile.getCosmeticsData().getLobbyItemType().name());
+        config.set("cosmetics.shield.active-layout-index", profile.getCosmeticsData().getActiveShieldLayoutIndex());
 
-            for (ArmorTrimTier tier : ArmorTrimTier.values()) {
-                for (ArmorSlot slot : ArmorSlot.values()) {
-                    String basePath = "cosmetics.tiers." + tier.getId() + "." + slot.getId();
+        List<String> serializedShieldLayouts = profile.getCosmeticsData().getShieldLayouts().stream()
+                .map(ShieldLayout::serialise)
+                .toList();
+        config.set("cosmetics.shield.layouts", serializedShieldLayouts);
 
-                    TrimPattern pattern = profile.getCosmeticsData().getPattern(tier, slot);
-                    if (pattern != null) {
-                        config.set(basePath + ".pattern", "minecraft:" + CosmeticsPermissionManager.getTrimId(pattern));
-                    } else {
-                        config.set(basePath + ".pattern", null);
-                    }
+        for (ArmorTrimTier tier : ArmorTrimTier.values()) {
+            for (ArmorSlot slot : ArmorSlot.values()) {
+                String basePath = "cosmetics.tiers." + tier.getId() + "." + slot.getId();
 
-                    TrimMaterial material = profile.getCosmeticsData().getMaterial(tier, slot);
-                    if (material != null) {
-                        config.set(basePath + ".material", "minecraft:" + CosmeticsPermissionManager.getTrimId(material));
-                    } else {
-                        config.set(basePath + ".material", null);
-                    }
+                TrimPattern pattern = profile.getCosmeticsData().getPattern(tier, slot);
+                if (pattern != null) {
+                    config.set(basePath + ".pattern", "minecraft:" + CosmeticsPermissionManager.getTrimId(pattern));
+                } else {
+                    config.set(basePath + ".pattern", null);
+                }
+
+                TrimMaterial material = profile.getCosmeticsData().getMaterial(tier, slot);
+                if (material != null) {
+                    config.set(basePath + ".material", "minecraft:" + CosmeticsPermissionManager.getTrimId(material));
+                } else {
+                    config.set(basePath + ".material", null);
                 }
             }
         }
+    }
 
-        // Ladder win/lose stats
+    private void saveCustomKits() {
         for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
             String name = ladder.getName().toLowerCase();
 
-            for (int i = 1; i <= 4; i++) {
-                if (!profile.getUnrankedCustomKits().isEmpty()) {
-                    if (profile.getUnrankedCustomKits().containsKey(ladder) && profile.getUnrankedCustomKits().get(ladder).containsKey(i)) {
-                        CustomKit customKit = profile.getUnrankedCustomKits().get(ladder).get(i);
-                        if (customKit != null) {
-                            config.set("customkit." + name + ".kit" + i + ".unranked.inventory", ItemSerializationUtil.itemStackArrayToBase64(customKit.getInventory()));
-                            config.set("customkit." + name + ".kit" + i + ".unranked.armor", ItemSerializationUtil.itemStackArrayToBase64(customKit.getArmor()));
-                            config.set("customkit." + name + ".kit" + i + ".unranked.extra", ItemSerializationUtil.itemStackArrayToBase64(customKit.getExtra()));
-                        }
-                    }
-                }
-            }
-
-            if (ladder.isRanked()) {
-                for (int i = 1; i <= 4; i++) {
-                    if (!profile.getRankedCustomKits().isEmpty()) {
-                        if (profile.getRankedCustomKits().containsKey(ladder) && profile.getRankedCustomKits().get(ladder).containsKey(i)) {
-                            CustomKit customKit = profile.getRankedCustomKits().get(ladder).get(i);
-                            if (customKit != null) {
-                                config.set("customkit." + name + ".kit" + i + ".ranked.inventory", ItemSerializationUtil.itemStackArrayToBase64(customKit.getInventory()));
-                                config.set("customkit." + name + ".kit" + i + ".ranked.armor", ItemSerializationUtil.itemStackArrayToBase64(customKit.getArmor()));
-                                config.set("customkit." + name + ".kit" + i + ".ranked.extra", ItemSerializationUtil.itemStackArrayToBase64(customKit.getExtra()));
-                            }
-                        }
-                    }
-                }
-            }
+            saveCustomKitSet(profile.getUnrankedCustomKits(), ladder, name, "unranked");
+            if (ladder.isRanked())
+                saveCustomKitSet(profile.getRankedCustomKits(), ladder, name, "ranked");
         }
+    }
 
-        saveFile();
+    private void saveCustomKitSet(Map<NormalLadder, Map<Integer, CustomKit>> kits, NormalLadder ladder, String name, String type) {
+        if (kits.isEmpty()) return;
+
+        Map<Integer, CustomKit> ladderKits = kits.get(ladder);
+        if (ladderKits == null) return;
+
+        for (int i = 1; i <= 4; i++) {
+            CustomKit customKit = ladderKits.get(i);
+            if (customKit == null) continue;
+
+            String base = "customkit." + name + ".kit" + i + "." + type;
+            config.set(base + ".inventory", ItemSerializationUtil.itemStackArrayToBase64(customKit.getInventory()));
+            config.set(base + ".armor", ItemSerializationUtil.itemStackArrayToBase64(customKit.getArmor()));
+            config.set(base + ".extra", ItemSerializationUtil.itemStackArrayToBase64(customKit.getExtra()));
+        }
     }
 
     public void setDefaultData() {
@@ -180,38 +197,62 @@ public class ProfileFile extends ConfigFile {
 
     @Override
     public void getData() {
+        loadJoinTimestamps();
+        loadGroup();
+        loadPrefix();
+        loadSuffix();
+        loadNameTemplate();
+        loadCustomKitPerm();
+        loadSettings();
+        loadCosmetics();
+        loadCustomKits();
+    }
+
+    private void loadJoinTimestamps() {
         if (config.isLong("join.first"))
             profile.setFirstJoin(config.getLong("join.first"));
 
         if (config.isLong("join.latest"))
             profile.setLastJoin(config.getLong("join.latest"));
+    }
 
-        if (config.isSet("group")) {
-            Group group = GroupManager.getInstance().getGroup(config.getString("group"));
-            if (group != null) {
-                try {
-                    profile.setGroup(group);
-                } catch (Exception e) {
-                    Common.sendConsoleMMMessage("<red>Failed to set group for " + profile.getPlayer().getName() + "! Error: " + e.getMessage());
-                }
-                profile.setUnrankedLeft(group.getUnrankedLimit());
-                profile.setRankedLeft(group.getRankedLimit());
-                profile.setEventStartLeft(group.getEventStartLimit());
+    private void loadGroup() {
+        if (!config.isSet("group")) return;
+
+        Group group = GroupManager.getInstance().getGroup(config.getString("group"));
+        if (group != null) {
+            try {
+                profile.setGroup(group);
+            } catch (Exception e) {
+                Common.sendConsoleMMMessage("<red>Failed to set group for " + profile.getPlayer().getName() + "! Error: " + e.getMessage());
             }
+            profile.setUnrankedLeft(group.getUnrankedLimit());
+            profile.setRankedLeft(group.getRankedLimit());
+            profile.setEventStartLeft(group.getEventStartLimit());
         }
+    }
 
+    private void loadPrefix() {
         if (config.isString("prefix"))
             profile.setPrefix(NameFormatUtil.parseConfiguredComponent(Objects.requireNonNull(config.getString("prefix"))));
+    }
 
+    private void loadSuffix() {
         if (config.isString("suffix"))
             profile.setSuffix(NameFormatUtil.parseConfiguredComponent(Objects.requireNonNull(config.getString("suffix"))));
+    }
 
+    private void loadNameTemplate() {
         if (config.isString("name-template"))
             profile.setNameTemplate(config.getString("name-template"));
+    }
 
+    private void loadCustomKitPerm() {
         if (config.isInt("allowed-custom-kits"))
             profile.setAllowedCustomKits(config.getInt("allowed-custom-kits"));
+    }
 
+    private void loadSettings() {
         profile.setDuelRequest(config.getBoolean("settings.duelrequest"));
         profile.setSidebar(config.getBoolean("settings.sidebar"));
         profile.setHidePlayers(config.getBoolean("settings.hideplayers"));
@@ -219,6 +260,7 @@ public class ProfileFile extends ConfigFile {
         profile.setAllowSpectate(config.getBoolean("settings.allowspectate"));
         profile.setFlying(config.getBoolean("settings.flying"));
         profile.setPrivateMessages(config.getBoolean("settings.messages"));
+
         String rawWorldTime = config.getString("settings.worldtime", ProfileWorldTime.DAY.toString());
         try {
             profile.setWorldTime(ProfileWorldTime.valueOf(rawWorldTime.toUpperCase(Locale.ROOT)));
@@ -232,8 +274,9 @@ public class ProfileFile extends ConfigFile {
         } catch (IllegalArgumentException ignored) {
             profile.setPrefixVisibility(ProfilePrefixVisibility.PREFIX_AND_SUFFIX);
         }
+    }
 
-        // Load cosmetics data for armor trims
+    private void loadCosmetics() {
         try {
             ArmorTrimTier activeTier = ArmorTrimTier.fromId(config.getString("cosmetics.active-tier", "leather"));
             profile.getCosmeticsData().setActiveTier(activeTier);
@@ -300,76 +343,35 @@ public class ProfileFile extends ConfigFile {
         } catch (Exception e) {
             // Handle invalid cosmetics data - silently ignore for graceful handling of removed/renamed cosmetics
         }
+    }
 
+    private void loadCustomKits() {
         for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
             String name = ladder.getName().toLowerCase();
 
-            // Unranked custom kit
-            Map<Integer, CustomKit> unrankedInventory = new HashMap<>();
-            for (int i = 1; i <= 4; i++) {
-                ItemStack[] inventory;
-                ItemStack[] armor;
-                ItemStack[] extra;
-
-                if (config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.inventory")) {
-                    inventory = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.inventory"));
-                    armor = config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.armor")
-                            ? ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.armor"))
-                            : null;
-                    extra = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".unranked.extra"));
-
-                    // Legacy migration: old format stored armor in inventory[36..39]
-                    if (armor == null && inventory != null && inventory.length > 36) {
-                        ItemStack[] splitInventory = new ItemStack[36];
-                        System.arraycopy(inventory, 0, splitInventory, 0, 36);
-                        armor = new ItemStack[]{
-                                inventory.length > 36 ? inventory[36] : null,
-                                inventory.length > 37 ? inventory[37] : null,
-                                inventory.length > 38 ? inventory[38] : null,
-                                inventory.length > 39 ? inventory[39] : null
-                        };
-                        inventory = splitInventory;
-                    }
-
-                    unrankedInventory.put(i, new CustomKit(null, inventory, armor, extra));
-                }
-            }
-            profile.getUnrankedCustomKits().put(ladder, unrankedInventory);
-
-            if (ladder.isRanked()) {
-                // Ranked custom kit
-                Map<Integer, CustomKit> rankedInventory = new HashMap<>();
-                for (int i = 1; i <= 4; i++) {
-                    ItemStack[] inventory;
-                    ItemStack[] armor;
-                    ItemStack[] extra;
-
-                    if (config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.inventory")) {
-                        inventory = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.inventory"));
-                        armor = config.isString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.armor")
-                                ? ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.armor"))
-                                : null;
-                        extra = ItemSerializationUtil.itemStackArrayFromBase64(config.getString("customkit." + name.toLowerCase() + ".kit" + i + ".ranked.extra"));
-
-                        // Legacy migration: old format stored armor in inventory[36..39]
-                        if (armor == null && inventory != null && inventory.length > 36) {
-                            ItemStack[] splitInventory = new ItemStack[36];
-                            System.arraycopy(inventory, 0, splitInventory, 0, 36);
-                            armor = new ItemStack[]{
-                                    inventory.length > 36 ? inventory[36] : null,
-                                    inventory.length > 37 ? inventory[37] : null,
-                                    inventory.length > 38 ? inventory[38] : null,
-                                    inventory.length > 39 ? inventory[39] : null
-                            };
-                            inventory = splitInventory;
-                        }
-
-                        rankedInventory.put(i, new CustomKit(null, inventory, armor, extra));
-                    }
-                }
-                profile.getRankedCustomKits().put(ladder, rankedInventory);
-            }
+            profile.getUnrankedCustomKits().put(ladder, loadCustomKitSet(ladder, name, "unranked"));
+            if (ladder.isRanked())
+                profile.getRankedCustomKits().put(ladder, loadCustomKitSet(ladder, name, "ranked"));
         }
+    }
+
+    private Map<Integer, CustomKit> loadCustomKitSet(NormalLadder ladder, String name, String type) {
+        Map<Integer, CustomKit> result = new HashMap<>();
+
+        for (int i = 1; i <= 4; i++) {
+            String base = "customkit." + name + ".kit" + i + "." + type;
+            if (!config.isString(base + ".inventory")) continue;
+
+            ItemStack[] inventory = ItemSerializationUtil.itemStackArrayFromBase64(config.getString(base + ".inventory"));
+            ItemStack[] armor = config.isString(base + ".armor")
+                    ? ItemSerializationUtil.itemStackArrayFromBase64(config.getString(base + ".armor"))
+                    : null;
+            ItemStack[] extra = ItemSerializationUtil.itemStackArrayFromBase64(config.getString(base + ".extra"));
+
+            result.put(i, new CustomKit(null, inventory, armor, extra));
+        }
+
+        return result;
     }
 
     public void deleteCustomKit(Ladder ladder, int kit) {

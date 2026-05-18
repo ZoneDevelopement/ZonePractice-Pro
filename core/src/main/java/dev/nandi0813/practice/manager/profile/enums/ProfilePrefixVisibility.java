@@ -33,12 +33,12 @@ public enum ProfilePrefixVisibility {
         if (current != null) {
             int index = list.indexOf(current);
             if (index == list.size() - 1) {
-                return list.get(0);
+                return list.getFirst();
             }
             return list.get(index + 1);
         }
 
-        return list.get(0);
+        return list.getFirst();
     }
 }
 

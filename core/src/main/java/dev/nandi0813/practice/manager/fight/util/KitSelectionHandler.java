@@ -128,22 +128,6 @@ public class KitSelectionHandler {
                 ItemStack[] inventory = kit.getInventory();
                 ItemStack[] armor = kit.getArmor();
 
-                // Legacy safeguard: old kits may still have armor appended into inventory[36..39].
-                if (inventory != null && inventory.length > 36) {
-                    if (armor == null) {
-                        armor = new ItemStack[]{
-                                inventory[36],
-                                inventory.length > 37 ? inventory[37] : null,
-                                inventory.length > 38 ? inventory[38] : null,
-                                inventory.length > 39 ? inventory[39] : null
-                        };
-                    }
-
-                    ItemStack[] trimmed = new ItemStack[36];
-                    System.arraycopy(inventory, 0, trimmed, 0, 36);
-                    inventory = trimmed;
-                }
-
                 if (armor == null) {
                     armor = ladder.getKitData().getArmor();
                 }

@@ -31,11 +31,11 @@ public enum ProfileWorldTime {
             int c = list.indexOf(profileWorldTime);
 
             if (list.size() - 1 == c)
-                return list.get(0);
+                return list.getFirst();
             else
                 return list.get(c + 1);
         } else
-            return list.get(0);
+            return list.getFirst();
     }
 
 }

@@ -54,18 +54,19 @@ public class ProfileManager {
     }
 
     public Profile getProfile(Player player) {
-        if (player == null) return null;
-
+        if (player == null) {
+            return null;
+        }
         UUID uuid = player.getUniqueId();
         uuids.put(player, uuid);
         Profile profile = profiles.get(uuid);
         if (profile == null) {
-            profile = loadProfileIfExists(uuid, player, true);
-        } else if (!profile.isFullDataLoaded()) {
+            return loadProfileIfExists(uuid, player, true);
+        }
+        if (!profile.isFullDataLoaded()) {
             profile.ensureFullDataLoaded();
             loadProfileInfo(profile);
         }
-
         return profile;
     }
 
@@ -90,14 +91,14 @@ public class ProfileManager {
     }
 
     public Profile newProfile(Player player, UUID uuid) {
-        final Profile profile = new Profile(uuid);
+        Profile profile = new Profile(uuid);
 
         profile.getFile().setDefaultData();
         profile.getData();
         profile.getStats().setDivision(DivisionManager.getInstance().getDivision(profile));
 
-        ProfileManager.getInstance().getProfiles().put(uuid, profile);
-        ProfileManager.getInstance().loadProfileInfo(profile);
+        profiles.put(uuid, profile);
+        loadProfileInfo(profile);
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
                 Bukkit.getPluginManager().callEvent(new NewPlayerJoin(player)), 20L * 2);
@@ -108,40 +109,46 @@ public class ProfileManager {
     public void loadProfiles(final StartUpCallback startUpCallback) {
         Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
         {
-            if (!folder.exists() && !folder.mkdirs()) {
-                Common.sendConsoleMMMessage("<red>Error: Could not create profiles folder.");
-            }
+            loadProfilesFromDisk();
 
-            if (folder.isDirectory() && folder.listFiles() != null) {
-                for (File profileFile : Objects.requireNonNull(folder.listFiles())) {
-                    if (profileFile.isFile() && profileFile.getName().endsWith(".yml")) {
-                        YamlConfiguration config = YamlConfiguration.loadConfiguration(profileFile);
-                        String uuidString = config.getString("uuid");
-                        UUID uuid = parseUuid(uuidString);
-
-                        if (uuid == null) {
-                            Common.sendConsoleMMMessage("<yellow>Warning: Skipping corrupted profile file <white>" + profileFile.getName() + "<yellow> (invalid or missing uuid: <white>" + uuidString + "<yellow>)");
-                            continue;
-                        }
-
-                        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-                        Profile profile = new Profile(uuid, offlinePlayer);
-                        profile.loadStatsOnlyData();
-                        profile.getStats().setDivision(DivisionManager.getInstance().getDivision(profile));
-                        profiles.put(uuid, profile);
-                    }
-                }
-            }
-
-            Collection<Profile> loadedProfiles = ProfileManager.getInstance().getProfiles().values();
-            CompletableFuture<Void> loadFuture = MysqlManager.loadProfilesAsync(loadedProfiles);
-            loadFuture.whenComplete((ignored, throwable) -> {
+            Collection<Profile> loadedProfiles = profiles.values();
+            MysqlManager.loadProfilesAsync(loadedProfiles).whenComplete((ignored, throwable) -> {
                 if (throwable != null) {
                     Common.sendConsoleMMMessage("<red>Error: " + throwable.getMessage());
                 }
                 Bukkit.getScheduler().runTask(ZonePractice.getInstance(), startUpCallback::onLoadingDone);
             });
         });
+    }
+
+    private void loadProfilesFromDisk() {
+        if (!folder.exists() && !folder.mkdirs()) {
+            Common.sendConsoleMMMessage("<red>Error: Could not create profiles folder.");
+        }
+
+        if (!folder.isDirectory()) return;
+
+        File[] files = folder.listFiles();
+        if (files == null) return;
+
+        for (File profileFile : files) {
+            if (!profileFile.isFile() || !profileFile.getName().endsWith(".yml")) continue;
+
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(profileFile);
+            String uuidString = config.getString("uuid");
+            UUID uuid = parseUuid(uuidString);
+
+            if (uuid == null) {
+                Common.sendConsoleMMMessage("<yellow>Warning: Skipping corrupted profile file <white>" + profileFile.getName() + "<yellow> (invalid or missing uuid: <white>" + uuidString + "<yellow>)");
+                continue;
+            }
+
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+            Profile profile = new Profile(uuid, offlinePlayer);
+            profile.loadStatsOnlyData();
+            profile.getStats().setDivision(DivisionManager.getInstance().getDivision(profile));
+            profiles.put(uuid, profile);
+        }
     }
 
     private UUID parseUuid(String uuidString) {
