@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Getter
 public class Duel extends Match implements Team {
@@ -108,9 +109,11 @@ public class Duel extends Match implements Team {
 
     @Override
     public int getWonRounds(Player player) {
+        UUID playerUuid = player.getUniqueId();
         int wonRounds = 0;
         for (Round round : this.rounds.values()) {
-            if (((DuelRound) round).getRoundWinner() == player)
+            Player winner = ((DuelRound) round).getRoundWinner();
+            if (winner != null && winner.getUniqueId().equals(playerUuid))
                 wonRounds++;
         }
         return wonRounds;

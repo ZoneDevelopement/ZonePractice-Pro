@@ -154,20 +154,17 @@ public enum AdapterUtil {
         }
 
         Component component = Component.empty();
-        boolean firstNotWon = true;
         String roundSymbol = getRoundSymbol();
         Component wonSymbol = wonColor == null
                 ? Component.text(roundSymbol)
                 : wonColor.append(Component.text(roundSymbol));
+        Component notWonSymbol = Component.text(roundSymbol, NamedTextColor.GRAY);
 
         for (int i = 1; i <= rounds; i++) {
             if (i <= clampedWonRounds) {
                 component = component.append(wonSymbol);
-            } else if (firstNotWon) {
-                component = component.append(Component.text(roundSymbol, NamedTextColor.GRAY));
-                firstNotWon = false;
             } else {
-                component = component.append(Component.text(roundSymbol));
+                component = component.append(notWonSymbol);
             }
         }
 
