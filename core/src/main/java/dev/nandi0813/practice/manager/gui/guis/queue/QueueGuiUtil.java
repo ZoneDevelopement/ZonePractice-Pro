@@ -63,11 +63,11 @@ public enum QueueGuiUtil {
         OfflinePlayer player = players.get(placement - 1);
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
-        Division division = null;
-        if (profile != null) {
-            division = profile.getStats().getDivision();
+        if (profile == null || player.getName() == null) {
+            return "&cNo player found!";
         }
-        
+
+        Division division = profile.getStats().getDivision();
         int score = leaderboard.getList().get(player);
 
         return format

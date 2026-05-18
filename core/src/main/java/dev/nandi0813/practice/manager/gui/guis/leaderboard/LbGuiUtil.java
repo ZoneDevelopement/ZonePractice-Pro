@@ -158,8 +158,10 @@ public enum LbGuiUtil {
             List<OfflinePlayer> topPlayers = new ArrayList<>();
             Map<OfflinePlayer, Integer> list = leaderboard.getList();
             for (OfflinePlayer player : list.keySet()) {
-                if (topPlayers.size() < showPlayers) topPlayers.add(player);
-                else break;
+                if (player.getName() != null && ProfileManager.getInstance().getProfile(player) != null) {
+                    topPlayers.add(player);
+                }
+                if (topPlayers.size() >= showPlayers) break;
             }
 
             List<String> topStrings = new ArrayList<>();
@@ -171,7 +173,7 @@ public enum LbGuiUtil {
                     int stat = list.get(target);
                     topStrings.add(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.LADDER-LEADERBOARD.LORE.FORMAT")
                             .replace("%number%", String.valueOf(i))
-                            .replace("%player%", Objects.requireNonNull(target.getName()))
+                            .replace("%player%", target.getName())
                             .replace("%ladder_elo%", String.valueOf(stat))
                             .replace("%division%", division != null ? Common.mmToNormal(division.getFullName()) : "")
                             .replace("%division_short%", division != null ? Common.mmToNormal(division.getShortName()) : ""));
@@ -204,8 +206,10 @@ public enum LbGuiUtil {
             List<OfflinePlayer> topPlayers = new ArrayList<>();
             Map<OfflinePlayer, Integer> list = leaderboard.getList();
             for (OfflinePlayer player : list.keySet()) {
-                if (topPlayers.size() < showPlayers) topPlayers.add(player);
-                else break;
+                if (player.getName() != null && ProfileManager.getInstance().getProfile(player) != null) {
+                    topPlayers.add(player);
+                }
+                if (topPlayers.size() >= showPlayers) break;
             }
 
             List<String> topStrings = new ArrayList<>();
@@ -219,7 +223,7 @@ public enum LbGuiUtil {
                             .replace("%number%", String.valueOf(i))
                             .replace("%division%", division != null ? Common.mmToNormal(division.getFullName()) : "")
                             .replace("%division_short%", division != null ? Common.mmToNormal(division.getShortName()) : "")
-                            .replace("%player%", Objects.requireNonNull(target.getName()))
+                            .replace("%player%", target.getName())
                             .replace("%global_elo%", String.valueOf(stat)));
                 } else {
                     topStrings.add(GUIFile.getString("GUIS.STATISTICS.ELO-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.LORE.FORMAT-NULL")
@@ -250,8 +254,10 @@ public enum LbGuiUtil {
             List<OfflinePlayer> topPlayers = new ArrayList<>();
             Map<OfflinePlayer, Integer> list = leaderboard.getList();
             for (OfflinePlayer player : list.keySet()) {
-                if (topPlayers.size() < showPlayers) topPlayers.add(player);
-                else break;
+                if (player.getName() != null && ProfileManager.getInstance().getProfile(player) != null) {
+                    topPlayers.add(player);
+                }
+                if (topPlayers.size() >= showPlayers) break;
             }
 
             List<String> topStrings = new ArrayList<>();
@@ -296,8 +302,10 @@ public enum LbGuiUtil {
             List<OfflinePlayer> topPlayers = new ArrayList<>();
             Map<OfflinePlayer, Integer> list = leaderboard.getList();
             for (OfflinePlayer player : list.keySet()) {
-                if (topPlayers.size() < showPlayers) topPlayers.add(player);
-                else break;
+                if (player.getName() != null && ProfileManager.getInstance().getProfile(player) != null) {
+                    topPlayers.add(player);
+                }
+                if (topPlayers.size() >= showPlayers) break;
             }
 
             List<String> topStrings = new ArrayList<>();
@@ -311,7 +319,7 @@ public enum LbGuiUtil {
                             .replace("%number%", String.valueOf(i))
                             .replace("%division%", division != null ? Common.mmToNormal(division.getFullName()) : "")
                             .replace("%division_short%", division != null ? Common.mmToNormal(division.getShortName()) : "")
-                            .replace("%player%", Objects.requireNonNull(target.getName()))
+                            .replace("%player%", target.getName())
                             .replace("%global_win%", String.valueOf(stat)));
                 } else {
                     topStrings.add(GUIFile.getString("GUIS.STATISTICS.WIN-LEADERBOARD.ICONS.GLOBAL-LEADERBOARD.LORE.FORMAT-NULL")

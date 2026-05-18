@@ -161,7 +161,12 @@ public class ProfileFile extends ConfigFile {
         config.set("settings.allowspectate", ConfigManager.getBoolean("PLAYER.DEFAULT-SETTINGS.ALLOWSPECTATE"));
         config.set("settings.flying", ConfigManager.getBoolean("PLAYER.DEFAULT-SETTINGS.FLYING"));
         config.set("settings.messages", ConfigManager.getBoolean("PLAYER.DEFAULT-SETTINGS.PRIVATEMESSAGE"));
-        config.set("settings.worldtime", ProfileWorldTime.valueOf(ConfigManager.getString("PLAYER.DEFAULT-SETTINGS.WORLD-TIME")).toString());
+        String defaultWorldTime = ConfigManager.getString("PLAYER.DEFAULT-SETTINGS.WORLD-TIME");
+        try {
+            config.set("settings.worldtime", ProfileWorldTime.valueOf(defaultWorldTime.toUpperCase(Locale.ROOT)).toString());
+        } catch (Exception ignored) {
+            config.set("settings.worldtime", ProfileWorldTime.DAY.toString());
+        }
 
         String defaultPrefixVisibility = ConfigManager.getString("PLAYER.DEFAULT-SETTINGS.PREFIX-VISIBILITY");
         try {
@@ -214,7 +219,12 @@ public class ProfileFile extends ConfigFile {
         profile.setAllowSpectate(config.getBoolean("settings.allowspectate"));
         profile.setFlying(config.getBoolean("settings.flying"));
         profile.setPrivateMessages(config.getBoolean("settings.messages"));
-        profile.setWorldTime(ProfileWorldTime.valueOf(config.getString("settings.worldtime")));
+        String rawWorldTime = config.getString("settings.worldtime", ProfileWorldTime.DAY.toString());
+        try {
+            profile.setWorldTime(ProfileWorldTime.valueOf(rawWorldTime.toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException ignored) {
+            profile.setWorldTime(ProfileWorldTime.DAY);
+        }
 
         String rawPrefixVisibility = config.getString("settings.prefix-visibility", ProfilePrefixVisibility.PREFIX_AND_SUFFIX.toString());
         try {

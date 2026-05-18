@@ -62,7 +62,7 @@ public class Profile {
     private boolean partyInvites;
     private boolean allowSpectate;
     private boolean privateMessages;
-    private ProfileWorldTime worldTime;
+    private ProfileWorldTime worldTime = ProfileWorldTime.DAY;
     private boolean flying;
     private ProfilePrefixVisibility prefixVisibility = ProfilePrefixVisibility.PREFIX_AND_SUFFIX;
 

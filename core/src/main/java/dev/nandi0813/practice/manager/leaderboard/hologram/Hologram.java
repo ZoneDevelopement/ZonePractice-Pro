@@ -347,6 +347,7 @@ public abstract class Hologram {
     private List<String> buildPlacementStrings(Leaderboard leaderboard) {
         Map<OfflinePlayer, Integer> playerStats = leaderboard.getList();
         List<OfflinePlayer> topPlayers = playerStats.keySet().stream()
+                .filter(p -> p.getName() != null && ProfileManager.getInstance().getProfile(p) != null)
                 .limit(showStat)
                 .collect(Collectors.toList());
 
