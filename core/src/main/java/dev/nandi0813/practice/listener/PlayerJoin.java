@@ -10,6 +10,8 @@ import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.CosmeticsPermi
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.telemetry.transport.stats.PracticeStatsTelemetryLogger;
+import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.util.PermanentConfig;
 import dev.nandi0813.practice.util.UpdateChecker;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
@@ -60,6 +62,14 @@ public class PlayerJoin implements Listener {
                 if (ConfigManager.getBoolean("STAFF-MODE.JOIN-HIDE-FROM-PLAYERS") && player.hasPermission("zpp.staffmode"))
                     profile1.setHideFromPlayers(true);
             }, 10L);
+
+            // If the player was disconnected while in a match, remove them from it
+            // to prevent ending up in the match with lobby items on rejoin
+            if (profile.getStatus() == ProfileStatus.MATCH) {
+                Match liveMatch = MatchManager.getInstance().getLiveMatchByPlayer(player);
+                if (liveMatch != null)
+                    liveMatch.removePlayer(player, true);
+            }
 
             InventoryManager.getInstance().setLobbyInventory(player, true);
         } else {
