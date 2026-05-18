@@ -399,7 +399,10 @@ public class FFAListener implements Listener {
         ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
         if (killer != null) {
-            Statistic statistic = ffa.getStatistics().get(killer);
+            Statistic statistic = ffa.getStatistics().computeIfAbsent(
+                    killer,
+                    p -> new Statistic(ProfileManager.getInstance().getUuids().get(p))
+            );
             statistic.setKills(statistic.getKills() + 1);
         }
     }
