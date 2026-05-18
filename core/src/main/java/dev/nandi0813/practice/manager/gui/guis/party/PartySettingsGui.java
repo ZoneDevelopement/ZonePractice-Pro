@@ -96,6 +96,7 @@ public class PartySettingsGui extends GUI {
                     update();
                 } else
                     Common.sendMMMessage(player, LanguageManager.getString("PARTY.NO-PERMISSION"));
+                break;
             case 11:
                 if (player.hasPermission("zpp.party.changelimit")) {
                     int groupPartyLimit = PartyManager.getInstance().resolvePartyMemberLimit(party.getLeader());
@@ -118,12 +119,14 @@ public class PartySettingsGui extends GUI {
                     update();
                 } else
                     Common.sendMMMessage(player, LanguageManager.getString("PARTY.NO-PERMISSION"));
+                break;
             case 14:
                 if (player.hasPermission("zpp.party.allinvite")) {
                     party.setAllInvite(!party.isAllInvite());
                     update();
                 } else
                     Common.sendMMMessage(player, LanguageManager.getString("PARTY.NO-PERMISSION"));
+                break;
             case 15:
                 if (player.hasPermission("zpp.party.public")) {
                     if (PlayerCooldown.isActive(player, CooldownObject.PUBLIC_PARTY_CHANGE)) {
