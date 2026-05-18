@@ -11,77 +11,71 @@ public class LadderStats {
 
     private final YamlConfiguration config;
 
-    private int unRankedWins = 0;
-    private int unRankedLosses = 0;
-    private int unRankedWinStreak = 0;
-    private int unRankedBestWinStreak = 0;
-    private int unRankedLoseStreak = 0;
-    private int unRankedBestLoseStreak = 0;
+    private int unRankedWins;
+    private int unRankedLosses;
+    private int unRankedWinStreak;
+    private int unRankedBestWinStreak;
+    private int unRankedLoseStreak;
+    private int unRankedBestLoseStreak;
 
-    private int rankedWins = 0;
-    private int rankedLosses = 0;
-    private int rankedWinStreak = 0;
-    private int rankedBestWinStreak = 0;
-    private int rankedLoseStreak = 0;
-    private int rankedBestLoseStreak = 0;
+    private int rankedWins;
+    private int rankedLosses;
+    private int rankedWinStreak;
+    private int rankedBestWinStreak;
+    private int rankedLoseStreak;
+    private int rankedBestLoseStreak;
     private int elo = LadderManager.getDEFAULT_ELO();
 
-    private int kills = 0;
-    private int deaths = 0;
+    private int kills;
+    private int deaths;
 
     public LadderStats(YamlConfiguration config) {
         this.config = config;
     }
 
     public void increaseWins(boolean ranked) {
-        if (ranked) {
-            this.rankedWins++;
-        } else {
-            this.unRankedWins++;
-        }
+        if (ranked)
+            rankedWins++;
+        else
+            unRankedWins++;
     }
 
     public void increaseLosses(boolean ranked) {
-        if (ranked) {
-            this.rankedLosses++;
-        } else {
-            this.unRankedLosses++;
-        }
+        if (ranked)
+            rankedLosses++;
+        else
+            unRankedLosses++;
     }
 
     public void increaseWinStreak(boolean ranked) {
         if (ranked) {
-            this.rankedWinStreak++;
-            this.rankedLoseStreak = 0;
+            rankedWinStreak++;
+            rankedLoseStreak = 0;
 
-            if (this.rankedWinStreak > this.rankedBestWinStreak) {
-                this.rankedBestWinStreak = this.rankedWinStreak;
-            }
+            if (rankedWinStreak > rankedBestWinStreak)
+                rankedBestWinStreak = rankedWinStreak;
         } else {
-            this.unRankedWinStreak++;
-            this.unRankedLoseStreak = 0;
+            unRankedWinStreak++;
+            unRankedLoseStreak = 0;
 
-            if (this.unRankedWinStreak > this.unRankedBestWinStreak) {
-                this.unRankedBestWinStreak = this.unRankedWinStreak;
-            }
+            if (unRankedWinStreak > unRankedBestWinStreak)
+                unRankedBestWinStreak = unRankedWinStreak;
         }
     }
 
     public void increaseLoseStreak(boolean ranked) {
         if (ranked) {
-            this.rankedLoseStreak++;
-            this.rankedWinStreak = 0;
+            rankedLoseStreak++;
+            rankedWinStreak = 0;
 
-            if (this.rankedLoseStreak > this.rankedBestLoseStreak) {
-                this.rankedBestLoseStreak = this.rankedLoseStreak;
-            }
+            if (rankedLoseStreak > rankedBestLoseStreak)
+                rankedBestLoseStreak = rankedLoseStreak;
         } else {
-            this.unRankedLoseStreak++;
-            this.unRankedWinStreak = 0;
+            unRankedLoseStreak++;
+            unRankedWinStreak = 0;
 
-            if (this.unRankedLoseStreak > this.unRankedBestLoseStreak) {
-                this.unRankedBestLoseStreak = this.unRankedLoseStreak;
-            }
+            if (unRankedLoseStreak > unRankedBestLoseStreak)
+                unRankedBestLoseStreak = unRankedLoseStreak;
         }
     }
 
@@ -97,11 +91,11 @@ public class LadderStats {
     }
 
     public void increaseKills() {
-        this.kills++;
+        kills++;
     }
 
     public void increaseDeaths() {
-        this.deaths++;
+        deaths++;
     }
 
     public void setData(String ladderName, boolean ranked) {
@@ -129,49 +123,48 @@ public class LadderStats {
 
     public void getData(String ladderName, boolean ranked) {
         String base = "stats.ladder-stats." + ladderName;
-        this.unRankedWins = config.getInt(base + ".unranked.wins");
-        this.unRankedLosses = config.getInt(base + ".unranked.losses");
-        this.unRankedWinStreak = config.getInt(base + ".unranked.win-streak");
-        this.unRankedBestWinStreak = config.getInt(base + ".unranked.best-win-streak");
-        this.unRankedLoseStreak = config.getInt(base + ".unranked.lose-streak");
-        this.unRankedBestLoseStreak = config.getInt(base + ".unranked.best-lose-streak");
+        unRankedWins = config.getInt(base + ".unranked.wins");
+        unRankedLosses = config.getInt(base + ".unranked.losses");
+        unRankedWinStreak = config.getInt(base + ".unranked.win-streak");
+        unRankedBestWinStreak = config.getInt(base + ".unranked.best-win-streak");
+        unRankedLoseStreak = config.getInt(base + ".unranked.lose-streak");
+        unRankedBestLoseStreak = config.getInt(base + ".unranked.best-lose-streak");
 
         if (ranked) {
-            this.rankedWins = config.getInt(base + ".ranked.wins");
-            this.rankedLosses = config.getInt(base + ".ranked.losses");
-            this.rankedWinStreak = config.getInt(base + ".ranked.win-streak");
-            this.rankedBestWinStreak = config.getInt(base + ".ranked.best-win-streak");
-            this.rankedLoseStreak = config.getInt(base + ".ranked.lose-streak");
-            this.rankedBestLoseStreak = config.getInt(base + ".ranked.best-lose-streak");
-            this.elo = config.getInt(base + ".ranked.elo");
+            rankedWins = config.getInt(base + ".ranked.wins");
+            rankedLosses = config.getInt(base + ".ranked.losses");
+            rankedWinStreak = config.getInt(base + ".ranked.win-streak");
+            rankedBestWinStreak = config.getInt(base + ".ranked.best-win-streak");
+            rankedLoseStreak = config.getInt(base + ".ranked.lose-streak");
+            rankedBestLoseStreak = config.getInt(base + ".ranked.best-lose-streak");
+            elo = config.getInt(base + ".ranked.elo");
 
-            if (this.elo == 0) {
-                this.elo = LadderManager.getDEFAULT_ELO();
-            }
+            if (elo == 0)
+                elo = LadderManager.getDEFAULT_ELO();
         }
 
-        this.kills = config.getInt(base + ".global.kills");
-        this.deaths = config.getInt(base + ".global.deaths");
+        kills = config.getInt(base + ".global.kills");
+        deaths = config.getInt(base + ".global.deaths");
     }
 
     public void reset() {
-        this.unRankedWins = 0;
-        this.unRankedLosses = 0;
-        this.unRankedWinStreak = 0;
-        this.unRankedBestWinStreak = 0;
-        this.unRankedLoseStreak = 0;
-        this.unRankedBestLoseStreak = 0;
+        unRankedWins = 0;
+        unRankedLosses = 0;
+        unRankedWinStreak = 0;
+        unRankedBestWinStreak = 0;
+        unRankedLoseStreak = 0;
+        unRankedBestLoseStreak = 0;
 
-        this.rankedWins = 0;
-        this.rankedLosses = 0;
-        this.rankedWinStreak = 0;
-        this.rankedBestWinStreak = 0;
-        this.rankedLoseStreak = 0;
-        this.rankedBestLoseStreak = 0;
-        this.elo = LadderManager.getDEFAULT_ELO();
+        rankedWins = 0;
+        rankedLosses = 0;
+        rankedWinStreak = 0;
+        rankedBestWinStreak = 0;
+        rankedLoseStreak = 0;
+        rankedBestLoseStreak = 0;
+        elo = LadderManager.getDEFAULT_ELO();
 
-        this.kills = 0;
-        this.deaths = 0;
+        kills = 0;
+        deaths = 0;
     }
 
 }

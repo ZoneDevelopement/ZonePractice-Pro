@@ -128,7 +128,7 @@ public class Profile {
     // Data persistence
 
     public void saveData() {
-        rankedBan.set(file.getConfig(), "ranked-ban");
+        rankedBan.saveToConfig(file.getConfig(), "ranked-ban");
 
         saveCustomLadders();
 
@@ -150,7 +150,7 @@ public class Profile {
         file.getData();
         stats.getData();
 
-        rankedBan.get(file.getConfig(), "ranked-ban");
+        rankedBan.loadFromConfig(file.getConfig(), "ranked-ban");
 
         loadCustomLadders();
 

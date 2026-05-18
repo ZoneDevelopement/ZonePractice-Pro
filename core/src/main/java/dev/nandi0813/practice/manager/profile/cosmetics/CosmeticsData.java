@@ -41,18 +41,14 @@ public class CosmeticsData {
     public CosmeticsData() {
         for (ArmorTrimTier tier : ArmorTrimTier.values()) {
             Map<ArmorSlot, SlotData> bySlot = new EnumMap<>(ArmorSlot.class);
-            for (ArmorSlot armorSlot : ArmorSlot.values()) {
+            for (ArmorSlot armorSlot : ArmorSlot.values())
                 bySlot.put(armorSlot, new SlotData());
-            }
             tierData.put(tier, bySlot);
         }
     }
 
     public TrimPattern getPattern(ArmorTrimTier tier, ArmorSlot slot) {
-        if (slot == null) {
-            return null;
-        }
-
+        if (slot == null) return null;
         return getSlotData(tier, slot).pattern;
     }
 
@@ -61,18 +57,12 @@ public class CosmeticsData {
     }
 
     public TrimMaterial getMaterial(ArmorTrimTier tier, ArmorSlot slot) {
-        if (slot == null) {
-            return null;
-        }
-
+        if (slot == null) return null;
         return getSlotData(tier, slot).material;
     }
 
     public void setPattern(ArmorTrimTier tier, ArmorSlot slot, TrimPattern pattern) {
-        if (slot == null) {
-            return;
-        }
-
+        if (slot == null) return;
         getSlotData(tier, slot).pattern = pattern;
     }
 
@@ -81,10 +71,7 @@ public class CosmeticsData {
     }
 
     public void setMaterial(ArmorTrimTier tier, ArmorSlot slot, TrimMaterial material) {
-        if (slot == null) {
-            return;
-        }
-
+        if (slot == null) return;
         getSlotData(tier, slot).material = material;
     }
 
@@ -113,14 +100,14 @@ public class CosmeticsData {
     }
 
     public void setShieldLayouts(List<ShieldLayout> layouts) {
-        this.shieldLayouts.clear();
-        if (layouts != null) {
-            this.shieldLayouts.addAll(layouts);
-        }
+        shieldLayouts.clear();
+        if (layouts != null)
+            shieldLayouts.addAll(layouts);
     }
 
     private static final class SlotData {
         private TrimPattern pattern;
         private TrimMaterial material;
     }
+
 }

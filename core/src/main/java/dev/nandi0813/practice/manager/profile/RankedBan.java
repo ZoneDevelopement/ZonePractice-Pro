@@ -13,59 +13,60 @@ import java.util.UUID;
 @Setter
 public class RankedBan {
 
-    private Profile banner = null;
-    private boolean banned = false;
-    private String reason = null;
-    private long time = 0L;
+    private Profile banner;
+    private boolean banned;
+    private String reason;
+    private long time;
 
     public boolean ban(Profile banner, String reason) {
-        if (!this.banned) {
-            this.banned = true;
-            this.banner = banner;
-            this.reason = reason;
-            this.time = System.currentTimeMillis();
-            return true;
-        }
-        return false;
+        if (banned) return false;
+
+        this.banned = true;
+        this.banner = banner;
+        this.reason = reason;
+        this.time = System.currentTimeMillis();
+        return true;
     }
 
     public boolean unban() {
-        if (this.banned) {
-            this.banned = false;
-            this.reason = null;
-            return true;
-        }
-        return false;
+        if (!banned) return false;
+
+        this.banned = false;
+        this.reason = null;
+        return true;
     }
 
-    public void set(final @NotNull YamlConfiguration config, final String path) {
-        if (this.isBanned()) {
-            if (banner != null)
-                config.set(path + ".banner", this.getBanner().getUuid().toString());
-            config.set(path + ".banned", true);
-            config.set(path + ".reason", this.getReason());
-            config.set(path + ".bannedAt", this.getTime());
-        } else
+    public void saveToConfig(final @NotNull YamlConfiguration config, final String path) {
+        if (!isBanned()) {
             config.set(path, null);
+            return;
+        }
+
+        if (banner != null)
+            config.set(path + ".banner", banner.getUuid().toString());
+
+        config.set(path + ".banned", true);
+        config.set(path + ".reason", reason);
+        config.set(path + ".bannedAt", time);
     }
 
-    public void get(final @NotNull YamlConfiguration config, final String path) {
-        if (config.isBoolean(path + ".banned"))
-            this.banned = config.getBoolean(path + ".banned");
+    public void loadFromConfig(final @NotNull YamlConfiguration config, final String path) {
+        if (!config.isBoolean(path + ".banned")) return;
 
-        if (this.isBanned()) {
-            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-            {
-                if (config.isString(path + ".banner"))
-                    banner = ProfileManager.getInstance().getProfile(UUID.fromString(config.getString(path + ".banner")));
-            }, 20L * 3);
+        banned = config.getBoolean(path + ".banned");
 
-            if (config.isString(path + ".reason"))
-                this.reason = config.getString(path + ".reason");
+        if (!isBanned()) return;
 
-            if (config.isLong(path + ".bannedAt"))
-                this.time = config.getLong(path + ".bannedAt");
-        }
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            if (config.isString(path + ".banner"))
+                banner = ProfileManager.getInstance().getProfile(UUID.fromString(config.getString(path + ".banner")));
+        }, 20L * 3);
+
+        if (config.isString(path + ".reason"))
+            reason = config.getString(path + ".reason");
+
+        if (config.isLong(path + ".bannedAt"))
+            time = config.getLong(path + ".bannedAt");
     }
 
 }
