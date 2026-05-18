@@ -102,13 +102,13 @@ public class EPCountdownListener implements Listener {
 
         Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
         if (match != null) {
-            double duration = match.getLadder().getEnderPearlCooldown();
-            if (duration <= 0) {
+            if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
+                e.setCancelled(true);
                 return;
             }
 
-            if (!match.getCurrentRound().getRoundStatus().equals(RoundStatus.LIVE)) {
-                e.setCancelled(true);
+            double duration = match.getLadder().getEnderPearlCooldown();
+            if (duration <= 0) {
                 return;
             }
 
