@@ -2,7 +2,6 @@ package dev.nandi0813.practice.manager.fight.match.enums;
 
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.util.Common;
-import dev.nandi0813.practice.util.StringUtil;
 
 public enum WeightClass {
 
@@ -16,7 +15,7 @@ public enum WeightClass {
     }
 
     public String getName() {
-        return StringUtil.CC(this.name);
+        return Common.mmToNormal(this.name);
     }
 
     public String getMMName() {
