@@ -15,6 +15,7 @@ import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.NameFormatUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -79,8 +80,8 @@ public enum AdapterUtil {
                 .replaceText(replace("%roundDuration%", roundDuration))
                 .replaceText(replace("%matchDuration%", match.getFormattedTime()))
                 .replaceText(replace("%ping%", String.valueOf(PlayerUtil.getPing(player))))
-                .replaceText(replace("%arena%", match.getArena().getDisplayName()))
-                .replaceText(replace("%ladder%", match.getLadder().getDisplayName()));
+                .replaceText(replace("%arena%", Common.deserializeMiniMessage(match.getArena().getDisplayName())))
+                .replaceText(replace("%ladder%", Common.deserializeMiniMessage(match.getLadder().getDisplayName())));
     }
 
     /**
@@ -258,8 +259,8 @@ public enum AdapterUtil {
                 .replaceText(replace("%spectators%", String.valueOf(ffa.getSpectators().size())))
                 .replaceText(replace("%nextReset%", ffa.getBuildRollback() != null ? ffa.getBuildRollback().getFormattedTime() : "N/A"))
                 .replaceText(replace("%ping%", String.valueOf(PlayerUtil.getPing(player))))
-                .replaceText(replace("%ladder%", ffa.getPlayers().get(player).getDisplayName()))
-                .replaceText(replace("%arena%", ffa.getArena().getDisplayName()))
+                .replaceText(replace("%ladder%", Common.deserializeMiniMessage(ffa.getPlayers().get(player).getDisplayName())))
+                .replaceText(replace("%arena%", Common.deserializeMiniMessage(ffa.getArena().getDisplayName())))
                 .replaceText(replace("%kills%", String.valueOf(statistic.getKills())))
                 .replaceText(replace("%deaths%", String.valueOf(statistic.getDeaths())));
     }
@@ -269,7 +270,7 @@ public enum AdapterUtil {
                 .replaceText(replace("%players%", String.valueOf(ffa.getPlayers().size())))
                 .replaceText(replace("%spectators%", String.valueOf(ffa.getSpectators().size())))
                 .replaceText(replace("%nextReset%", ffa.getBuildRollback() != null ? ffa.getBuildRollback().getFormattedTime() : "N/A"))
-                .replaceText(replace("%arena%", ffa.getArena().getDisplayName()));
+                .replaceText(replace("%arena%", Common.deserializeMiniMessage(ffa.getArena().getDisplayName())));
     }
 
     public static Component replaceMatchSpectatePlaceholders(Component line, Match match) {
@@ -280,8 +281,8 @@ public enum AdapterUtil {
                 .replaceText(replace("%totalRounds%", String.valueOf(match.getLadder().getRounds())))
                 .replaceText(replace("%roundDuration%", roundDuration))
                 .replaceText(replace("%matchDuration%", match.getFormattedTime()))
-                .replaceText(replace("%arena%", match.getArena().getDisplayName()))
-                .replaceText(replace("%ladder%", match.getLadder().getDisplayName()));
+                .replaceText(replace("%arena%", Common.deserializeMiniMessage(match.getArena().getDisplayName())))
+                .replaceText(replace("%ladder%", Common.deserializeMiniMessage(match.getLadder().getDisplayName())));
 
         // Replace team colors for non-FFA matches
         if (!match.getType().equals(MatchType.PARTY_FFA)) {
