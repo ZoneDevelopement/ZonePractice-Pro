@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.profile.group;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigFile;
+import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -48,7 +49,7 @@ public class GroupManager extends ConfigFile {
             List<String> sidebarExtensionRaw = new ArrayList<>();
             if (SidebarManager.getInstance().isList("GROUP-EXTENSIONS." + groupName)) {
                 for (String line : SidebarManager.getInstance().getList("GROUP-EXTENSIONS." + groupName)) {
-                    sidebarExtension.add(ZonePractice.getMiniMessage().deserialize(line));
+                    sidebarExtension.add(ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(line)));
                     sidebarExtensionRaw.add(line);
                 }
             }

@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public enum StringUtil {
     ;
@@ -25,6 +26,70 @@ public enum StringUtil {
             list.add(CC(string));
         }
         return list;
+    }
+
+    private static final Map<Character, String> LEGACY_TO_MM = Map.ofEntries(
+            Map.entry('0', "black"),
+            Map.entry('1', "dark_blue"),
+            Map.entry('2', "dark_green"),
+            Map.entry('3', "dark_aqua"),
+            Map.entry('4', "dark_red"),
+            Map.entry('5', "dark_purple"),
+            Map.entry('6', "gold"),
+            Map.entry('7', "gray"),
+            Map.entry('8', "dark_gray"),
+            Map.entry('9', "blue"),
+            Map.entry('a', "green"),
+            Map.entry('b', "aqua"),
+            Map.entry('c', "red"),
+            Map.entry('d', "light_purple"),
+            Map.entry('e', "yellow"),
+            Map.entry('f', "white"),
+            Map.entry('k', "obfuscated"),
+            Map.entry('l', "bold"),
+            Map.entry('m', "strikethrough"),
+            Map.entry('n', "underlined"),
+            Map.entry('o', "italic"),
+            Map.entry('r', "reset")
+    );
+
+    public static String legacyToMiniMessage(String text) {
+        if (text == null || text.isEmpty()) return text;
+
+        StringBuilder out = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+
+            if ((c == '&' || c == '§') && i + 1 < text.length()) {
+                char code = Character.toLowerCase(text.charAt(++i));
+
+                // hex
+                if (code == '#' && i + 6 < text.length()) {
+                    String hex = text.substring(i + 1, i + 7);
+
+                    if (hex.matches("[0-9a-fA-F]{6}")) {
+                        out.append("<#").append(hex).append(">");
+                        i += 6;
+                        continue;
+                    }
+                }
+
+                // legacy
+                String tag = LEGACY_TO_MM.get(code);
+                if (tag != null) {
+                    out.append('<').append(tag).append('>');
+                    continue;
+                }
+
+                out.append(c).append(code);
+                continue;
+            }
+
+            out.append(c);
+        }
+
+        return out.toString();
     }
 
     public static String replaceSecondString(String string, double seconds) {

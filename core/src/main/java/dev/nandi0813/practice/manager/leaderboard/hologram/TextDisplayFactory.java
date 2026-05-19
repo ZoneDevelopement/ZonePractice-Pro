@@ -1,9 +1,9 @@
 package dev.nandi0813.practice.manager.leaderboard.hologram;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.util.StringUtil;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
@@ -68,10 +68,7 @@ public class TextDisplayFactory {
     }
 
     private Component deserializeText(@NotNull String text) {
-        if (text.contains("<") && text.contains(">")) {
-            return ZonePractice.getMiniMessage().deserialize(text);
-        }
-        return LegacyComponentSerializer.legacySection().deserialize(text.replace('&', LegacyComponentSerializer.SECTION_CHAR));
+        return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(text));
     }
 
     /**

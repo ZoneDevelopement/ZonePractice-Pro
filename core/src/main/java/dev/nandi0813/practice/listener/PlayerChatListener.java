@@ -15,6 +15,7 @@ import dev.nandi0813.practice.util.ChatFormatUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.PAPIUtil;
 import dev.nandi0813.practice.util.SoftDependUtil;
+import dev.nandi0813.practice.util.StringUtil;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -133,7 +134,7 @@ public class PlayerChatListener implements Listener {
             if (SoftDependUtil.isPAPI_ENABLED && viewer instanceof Player viewerPlayer) {
                 return PAPIUtil.runThroughFormat(viewerPlayer, miniMessageString);
             }
-            return ZonePractice.getMiniMessage().deserialize(miniMessageString);
+            return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(miniMessageString));
         });
     }
 }

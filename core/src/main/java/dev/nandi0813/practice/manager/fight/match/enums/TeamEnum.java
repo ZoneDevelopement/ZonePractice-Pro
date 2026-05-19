@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.fight.match.enums;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -9,18 +10,18 @@ import net.kyori.adventure.text.format.NamedTextColor;
 public enum TeamEnum {
 
     TEAM1(
-            ZonePractice.getMiniMessage().deserialize(ConfigManager.getConfig().getString("MATCH-SETTINGS.TEAMS.TEAM1.NAME")),
+            ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(ConfigManager.getConfig().getString("MATCH-SETTINGS.TEAMS.TEAM1.NAME"))),
             ConfigManager.getConfig().getString("MATCH-SETTINGS.TEAMS.TEAM1.COLOR"),
-            ZonePractice.getMiniMessage().deserialize(ConfigManager.getString("MATCH-SETTINGS.TEAMS.TEAM1.NAMETAG.PREFIX")),
+            ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(ConfigManager.getString("MATCH-SETTINGS.TEAMS.TEAM1.NAMETAG.PREFIX"))),
             NamedTextColor.NAMES.valueOr(ConfigManager.getString("MATCH-SETTINGS.TEAMS.TEAM1.NAMETAG.NAME-COLOR").toLowerCase(), NamedTextColor.WHITE),
-            ZonePractice.getMiniMessage().deserialize(ConfigManager.getString("MATCH-SETTINGS.TEAMS.TEAM1.NAMETAG.SUFFIX"))
+            ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(ConfigManager.getString("MATCH-SETTINGS.TEAMS.TEAM1.NAMETAG.SUFFIX")))
     ),
     TEAM2(
-            ZonePractice.getMiniMessage().deserialize(ConfigManager.getConfig().getString("MATCH-SETTINGS.TEAMS.TEAM2.NAME")),
+            ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(ConfigManager.getConfig().getString("MATCH-SETTINGS.TEAMS.TEAM2.NAME"))),
             ConfigManager.getConfig().getString("MATCH-SETTINGS.TEAMS.TEAM2.COLOR"),
-            ZonePractice.getMiniMessage().deserialize(ConfigManager.getString("MATCH-SETTINGS.TEAMS.TEAM2.NAMETAG.PREFIX")),
+            ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(ConfigManager.getString("MATCH-SETTINGS.TEAMS.TEAM2.NAMETAG.PREFIX"))),
             NamedTextColor.NAMES.valueOr(ConfigManager.getString("MATCH-SETTINGS.TEAMS.TEAM2.NAMETAG.NAME-COLOR").toLowerCase(), NamedTextColor.WHITE),
-            ZonePractice.getMiniMessage().deserialize(ConfigManager.getString("MATCH-SETTINGS.TEAMS.TEAM2.NAMETAG.SUFFIX"))
+            ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(ConfigManager.getString("MATCH-SETTINGS.TEAMS.TEAM2.NAMETAG.SUFFIX")))
     ),
     FFA(
             Component.empty(),
@@ -41,7 +42,7 @@ public enum TeamEnum {
     private final Component suffix;
 
     TeamEnum(Component name, String color, Component prefix, NamedTextColor nameColor, Component suffix) {
-        this.name = ZonePractice.getMiniMessage().deserialize(color).append(name);
+        this.name = ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(color)).append(name);
         this.color = color;
 
         this.prefix = prefix;
@@ -54,7 +55,7 @@ public enum TeamEnum {
     }
 
     public Component getColor() {
-        return ZonePractice.getMiniMessage().deserialize(color);
+        return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(color));
     }
 
     public String getNameMM() {

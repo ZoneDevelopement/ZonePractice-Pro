@@ -3,6 +3,7 @@ package dev.nandi0813.practice.util.actionbar;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -306,7 +307,7 @@ public class ActionBar {
     private Component deserializeOrFallback(String text) {
         String safeText = text == null ? "" : text;
         try {
-            return ZonePractice.getMiniMessage().deserialize(safeText);
+            return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(safeText));
         } catch (Exception ignored) {
             return Component.text(Objects.toString(text, ""));
         }

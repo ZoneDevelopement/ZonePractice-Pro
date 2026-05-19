@@ -14,10 +14,10 @@ public enum PAPIUtil {
         }
 
         if (SoftDependUtil.isPAPI_ENABLED) {
-            return ZonePractice.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, line));
+            return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(PlaceholderAPI.setPlaceholders(player, line)));
         }
 
-        return ZonePractice.getMiniMessage().deserialize(line);
+        return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(line));
     }
 
 }

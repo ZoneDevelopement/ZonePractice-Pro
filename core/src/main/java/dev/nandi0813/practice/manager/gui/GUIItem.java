@@ -4,6 +4,7 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.ItemCreateUtil;
+import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -130,7 +131,7 @@ public class GUIItem {
         if (raw == null || raw.isEmpty()) return net.kyori.adventure.text.Component.empty();
         // Explicitly mark italic as false so Minecraft's default item-name italic doesn't apply.
         // Users can still opt back in by writing <italic> in their config.
-        return ZonePractice.getMiniMessage().deserialize(raw)
+        return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(raw))
                 .decorationIfAbsent(net.kyori.adventure.text.format.TextDecoration.ITALIC,
                         net.kyori.adventure.text.format.TextDecoration.State.FALSE);
     }

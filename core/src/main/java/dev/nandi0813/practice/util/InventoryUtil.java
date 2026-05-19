@@ -9,7 +9,7 @@ public enum InventoryUtil {
     ;
 
     public static Inventory createInventory(String title, int row) {
-        Component component = ZonePractice.getMiniMessage().deserialize(title);
+        Component component = ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(title));
         return Bukkit.getServer().createInventory(null, row * 9, component);
     }
 

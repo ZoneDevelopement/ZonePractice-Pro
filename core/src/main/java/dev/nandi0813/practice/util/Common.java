@@ -37,15 +37,16 @@ public enum Common {
             line = PlaceholderAPI.setPlaceholders(player, line);
         }
 
-        send(player, ZonePractice.getMiniMessage().deserialize(line));
+        send(player, ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(line)));
     }
 
     public static void sendConsoleMMMessage(String string) {
-        send(ZonePractice.getInstance().getServer().getConsoleSender(), ZonePractice.getMiniMessage().deserialize(string));
+        send(ZonePractice.getInstance().getServer().getConsoleSender(), ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(string)));
     }
 
     public static Component deserializeMiniMessage(String line) {
-        return ZonePractice.getMiniMessage().deserialize(line);
+        if (line == null || line.isEmpty()) return Component.empty();
+        return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(line));
     }
 
     public static String serializeComponentToLegacyString(Component component) {
@@ -57,7 +58,7 @@ public enum Common {
     }
 
     public static String serializeNormalToMMString(String normalString) {
-        return ZonePractice.getMiniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(normalString));
+        return StringUtil.legacyToMiniMessage(normalString);
     }
 
     public static String colorize(String message) {
@@ -68,14 +69,14 @@ public enum Common {
         if (message == null) {
             return Component.empty();
         }
-        return ZonePractice.getMiniMessage().deserialize(message);
+        return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(message));
     }
 
     public static String stripLegacyColor(String message) {
         if (message == null || message.isEmpty()) {
             return "";
         }
-        Component component = ZonePractice.getMiniMessage().deserialize(message);
+        Component component = ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(message));
         return PlainTextComponentSerializer.plainText().serialize(component);
     }
 

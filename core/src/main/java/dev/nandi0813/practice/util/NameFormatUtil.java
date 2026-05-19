@@ -9,7 +9,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
 
@@ -56,7 +55,7 @@ public enum NameFormatUtil {
 
     public static Component parseConfiguredComponent(String raw) {
         if (raw == null || raw.isEmpty()) return Component.empty();
-        return ZonePractice.getMiniMessage().deserialize(raw);
+        return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(raw));
     }
 
     public static Component applyDivisionPlaceholders(Component template, Profile profile) {
@@ -91,19 +90,14 @@ public enum NameFormatUtil {
         if (!SoftDependUtil.isPAPI_ENABLED) return component;
         String serialized = ZonePractice.getMiniMessage().serialize(component);
         String resolved   = PlaceholderAPI.setPlaceholders(player, serialized);
-        if (resolved.contains("&") || resolved.contains("§")) {
-            resolved = ZonePractice.getMiniMessage().serialize(
-                    LegacyComponentSerializer.legacyAmpersand().deserialize(resolved)
-            );
-        }
-        return ZonePractice.getMiniMessage().deserialize(resolved);
+        return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(resolved));
     }
 
     public static String normalizePlayerNameTemplate(String rawTemplate) {
         if (rawTemplate == null || rawTemplate.isEmpty()) return rawTemplate;
         boolean hasPlayerPlaceholder = rawTemplate.contains("%player%") || rawTemplate.contains("%%player%%");
         if (hasPlayerPlaceholder) return rawTemplate;
-        String plainText = PLAIN_TEXT_SERIALIZER.serialize(ZonePractice.getMiniMessage().deserialize(rawTemplate)).trim();
+        String plainText = PLAIN_TEXT_SERIALIZER.serialize(ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(rawTemplate))).trim();
         if (!plainText.isEmpty()) return rawTemplate;
         return rawTemplate + "%player%";
     }
@@ -134,11 +128,7 @@ public enum NameFormatUtil {
             normalized = PlaceholderAPI.setPlaceholders(player, normalized);
         }
 
-        if (normalized.contains("&") || normalized.contains("§")) {
-            normalized = ZonePractice.getMiniMessage().serialize(
-                    LegacyComponentSerializer.legacyAmpersand().deserialize(normalized)
-            );
-        }
+        normalized = StringUtil.legacyToMiniMessage(normalized);
 
         String division = profile.getStats().getDivision() != null
                 ? ZonePractice.getMiniMessage().serialize(profile.getStats().getDivision().getComponentFullName()) : "";
