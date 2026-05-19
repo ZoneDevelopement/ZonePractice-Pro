@@ -2,6 +2,8 @@ package dev.nandi0813.practice.listener;
 
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.profile.Profile;
@@ -9,12 +11,10 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.cosmetics.armortrim.CosmeticsPermissionSanitizer;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
-import dev.nandi0813.practice.telemetry.transport.stats.PracticeStatsTelemetryLogger;
-import dev.nandi0813.practice.manager.fight.match.Match;
-import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.util.PermanentConfig;
 import dev.nandi0813.practice.util.UpdateChecker;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,6 +30,7 @@ public class PlayerJoin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         final Player player = e.getPlayer();
         final UUID uuid = player.getUniqueId();
+        e.joinMessage(Component.empty());
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile == null)
@@ -44,7 +45,6 @@ public class PlayerJoin implements Listener {
         NametagManager.getInstance().sendTeams(player);
 
         profile.setLastJoin(System.currentTimeMillis());
-        PracticeStatsTelemetryLogger.markDirty(profile);
 
         // Check how many custom kits the player is allowed to save.
         int customKitPerm = profile.getCustomKitPerm();

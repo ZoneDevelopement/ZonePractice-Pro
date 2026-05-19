@@ -43,11 +43,6 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.cosmetics.CosmeticsPermissionManager;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
-import dev.nandi0813.practice.telemetry.bootstrap.TelemetryBootstrap;
-import dev.nandi0813.practice.telemetry.collector.TelemetryMatchListener;
-import dev.nandi0813.practice.telemetry.transport.ai.AiTrainingLogger;
-import dev.nandi0813.practice.telemetry.transport.regular.TelemetryLogger;
-import dev.nandi0813.practice.telemetry.transport.stats.PracticeStatsTelemetryLogger;
 import dev.nandi0813.practice.util.*;
 import dev.nandi0813.practice.util.placeholderapi.PlayerExpansion;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -62,7 +57,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ZonePractice extends JavaPlugin {
 
@@ -83,7 +77,6 @@ public final class ZonePractice extends JavaPlugin {
 
     // BStats
     private Metrics metrics;
-    private final AtomicBoolean telemetryListenerRegistered = new AtomicBoolean(false);
 
     public static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
     private final BukkitMetrics faststats_metrics = BukkitMetrics.factory()
@@ -122,30 +115,6 @@ public final class ZonePractice extends JavaPlugin {
 
         ConfigManager.createFile();
         BackendManager.createFile(this);
-        TelemetryBootstrap.initializeAsync()
-                .thenApply(regularEnabled -> regularEnabled
-                        || TelemetryBootstrap.isAiCollectionActive()
-                        || TelemetryBootstrap.isPracticeStatsActive())
-                .thenAccept(enabled -> {
-                    if (!enabled) {
-                        return;
-                    }
-
-                    Bukkit.getScheduler().runTask(this, () -> {
-                        if (!isEnabled()) {
-                            return;
-                        }
-
-                        if (TelemetryBootstrap.isPracticeStatsActive()) {
-                            PracticeStatsTelemetryLogger.initialize();
-                        }
-
-                        if ((TelemetryBootstrap.isActive() || TelemetryBootstrap.isAiCollectionActive())
-                                && telemetryListenerRegistered.compareAndSet(false, true)) {
-                            Bukkit.getPluginManager().registerEvents(new TelemetryMatchListener(), this);
-                        }
-                    });
-                });
         LanguageManager.createFile(this);
         GUIFile.createFile(this);
         MysqlManager.openConnection();
@@ -186,10 +155,6 @@ public final class ZonePractice extends JavaPlugin {
             {
                 ProfileManager.getInstance().loadAllProfileInformations();
                 startUpProgress.replace(StartUpTypes.PROFILE_LOADING, true);
-
-                if (TelemetryBootstrap.isPracticeStatsActive()) {
-                    PracticeStatsTelemetryLogger.onProfilesLoaded();
-                }
 
                 LeaderboardManager.getInstance().createAllLB(() ->
                 {
@@ -252,11 +217,6 @@ public final class ZonePractice extends JavaPlugin {
         faststats_metrics.shutdown();
         MysqlManager.closeConnection();
         BackendManager.save();
-
-        // Flush async telemetry writes at shutdown so completed matches are persisted.
-        TelemetryLogger.shutdown();
-        AiTrainingLogger.shutdown();
-        PracticeStatsTelemetryLogger.shutdown();
     }
 
     /**

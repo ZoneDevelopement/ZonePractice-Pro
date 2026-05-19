@@ -56,6 +56,9 @@ public enum MysqlManager {
             "rankedWins=VALUES(rankedWins), rankedLosses=VALUES(rankedLosses), rankedWinStreak=VALUES(rankedWinStreak), " +
             "rankedBestWinStreak=VALUES(rankedBestWinStreak), rankedLoseStreak=VALUES(rankedLoseStreak), " +
             "rankedBestLoseStreak=VALUES(rankedBestLoseStreak), elo=VALUES(elo), `rank`=VALUES(`rank`), kills=VALUES(kills), deaths=VALUES(deaths);";
+    private static final int RETRYABLE_WRITE_MAX_ATTEMPTS = 3;
+    private static final long RETRYABLE_WRITE_BASE_DELAY_MS = 40L;
+    private static final Object[] PROFILE_WRITE_LOCKS = createLockStripes(64);
 
     public static void openConnection() {
         if (!ConfigManager.getBoolean("MYSQL-DATABASE.ENABLED")) return;
@@ -150,18 +153,15 @@ public enum MysqlManager {
     }
 
     public static CompletableFuture<Void> saveProfileAsync(Profile profile) {
-        if (!isConnected(true)) {
+        if (profile == null || !isConnected(true)) {
             return CompletableFuture.completedFuture(null);
         }
 
-        return CompletableFuture.runAsync(() -> {
-            try (Connection connection = getConnection()) {
+        return CompletableFuture.runAsync(() ->
+                executeProfileWriteWithRetry(profile.getUuid(), "[MySQL] save profile", connection -> {
                 saveGlobalStats(connection, profile);
                 saveLadderStats(connection, profile);
-            } catch (SQLException e) {
-                Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
-            }
-        }, getExecutor());
+                }), getExecutor());
     }
 
     public static CompletableFuture<Void> saveProfilesAsync(Collection<Profile> profiles) {
@@ -170,6 +170,7 @@ public enum MysqlManager {
         }
 
         CompletableFuture<?>[] futures = profiles.stream()
+                .filter(Objects::nonNull)
                 .map(MysqlManager::saveProfileAsync)
                 .toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(futures);
@@ -180,18 +181,21 @@ public enum MysqlManager {
             return;
         }
 
-        try (Connection connection = getConnection()) {
-            int saved = 0;
-            for (Profile profile : profiles) {
-                saveGlobalStats(connection, profile);
-                saveLadderStats(connection, profile);
-                saved++;
+        int saved = 0;
+        for (Profile profile : profiles) {
+            if (profile == null) {
+                continue;
             }
 
-            Common.sendConsoleMMMessage("<gray>MySQL shutdown flush completed: <green>" + saved + "<gray> profiles saved.");
-        } catch (SQLException e) {
-            Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
+            if (executeProfileWriteWithRetry(profile.getUuid(), "[MySQL] save profile", connection -> {
+                saveGlobalStats(connection, profile);
+                saveLadderStats(connection, profile);
+            })) {
+                saved++;
+            }
         }
+
+        Common.sendConsoleMMMessage("<gray>MySQL shutdown flush completed: <green>" + saved + "<gray> profiles saved.");
     }
 
     public static CompletableFuture<Void> loadProfileAsync(Profile profile) {
@@ -225,8 +229,8 @@ public enum MysqlManager {
             return CompletableFuture.completedFuture(null);
         }
 
-        return CompletableFuture.runAsync(() -> {
-            try (Connection connection = getConnection()) {
+        return CompletableFuture.runAsync(() ->
+                executeProfileWriteWithRetry(uuid, "[MySQL] delete profile stats", connection -> {
                 try (PreparedStatement stmt = connection.prepareStatement("DELETE FROM global_stats WHERE uuid=?;")) {
                     stmt.setString(1, uuid.toString());
                     stmt.executeUpdate();
@@ -236,10 +240,7 @@ public enum MysqlManager {
                     stmt.setString(1, uuid.toString());
                     stmt.executeUpdate();
                 }
-            } catch (SQLException e) {
-                Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
-            }
-        }, getExecutor());
+                }), getExecutor());
     }
 
     public static CompletableFuture<Void> deleteLadderStatsAsync(String ladderName) {
@@ -247,15 +248,13 @@ public enum MysqlManager {
             return CompletableFuture.completedFuture(null);
         }
 
-        return CompletableFuture.runAsync(() -> {
-            try (Connection connection = getConnection();
-                 PreparedStatement stmt = connection.prepareStatement("DELETE FROM ladder_stats WHERE ladder=?;")) {
-                stmt.setString(1, ladderName);
-                stmt.executeUpdate();
-            } catch (SQLException e) {
-                Common.sendConsoleMMMessage("<red>Error: " + e.getMessage());
-            }
-        }, getExecutor());
+        return CompletableFuture.runAsync(() ->
+                executeWriteWithRetry("[MySQL] delete ladder stats", connection -> {
+                    try (PreparedStatement stmt = connection.prepareStatement("DELETE FROM ladder_stats WHERE ladder=?;")) {
+                        stmt.setString(1, ladderName);
+                        stmt.executeUpdate();
+                    }
+                }), getExecutor());
     }
 
     private static void initDB() throws IOException, SQLException {
@@ -398,10 +397,14 @@ public enum MysqlManager {
             return;
         }
 
+        List<Map.Entry<NormalLadder, LadderStats>> orderedLadderStats =
+                new ArrayList<>(profile.getStats().getLadderStats().entrySet());
+        orderedLadderStats.sort(Comparator.comparing(entry -> entry.getKey().getName(), String.CASE_INSENSITIVE_ORDER));
+
         try (PreparedStatement stmt = connection.prepareStatement(LADDER_STATS_UPSERT)) {
             String username = profile.getPlayer().getName() != null ? profile.getPlayer().getName() : profile.getUuid().toString();
 
-            for (Map.Entry<NormalLadder, LadderStats> entry : profile.getStats().getLadderStats().entrySet()) {
+            for (Map.Entry<NormalLadder, LadderStats> entry : orderedLadderStats) {
                 NormalLadder ladder = entry.getKey();
                 LadderStats ladderStats = entry.getValue();
 
@@ -429,6 +432,73 @@ public enum MysqlManager {
 
             stmt.executeBatch();
         }
+    }
+
+    @FunctionalInterface
+    private interface SqlWriteOperation {
+        void run(Connection connection) throws SQLException;
+    }
+
+    private static boolean executeProfileWriteWithRetry(UUID uuid, String operation, SqlWriteOperation writeOperation) {
+        if (uuid == null) {
+            return executeWriteWithRetry(operation, writeOperation);
+        }
+
+        synchronized (getProfileWriteLock(uuid)) {
+            return executeWriteWithRetry(operation, writeOperation);
+        }
+    }
+
+    private static boolean executeWriteWithRetry(String operation, SqlWriteOperation writeOperation) {
+        int attempt = 1;
+        while (attempt <= RETRYABLE_WRITE_MAX_ATTEMPTS) {
+            try (Connection connection = getConnection()) {
+                writeOperation.run(connection);
+                return true;
+            } catch (SQLException e) {
+                if (isRetryableWriteError(e) && attempt < RETRYABLE_WRITE_MAX_ATTEMPTS) {
+                    sleepBeforeRetry(attempt);
+                    attempt++;
+                    continue;
+                }
+                Common.sendConsoleMMMessage("<red>" + operation + " error: " + e.getMessage());
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isRetryableWriteError(SQLException e) {
+        for (SQLException sqlException = e; sqlException != null; sqlException = sqlException.getNextException()) {
+            int errorCode = sqlException.getErrorCode();
+            String sqlState = sqlException.getSQLState();
+            if (errorCode == 1213 || errorCode == 1205 || "40001".equals(sqlState) || "41000".equals(sqlState)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void sleepBeforeRetry(int attempt) {
+        long delay = RETRYABLE_WRITE_BASE_DELAY_MS * attempt
+                + ThreadLocalRandom.current().nextLong(20L, 81L);
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException interruptedException) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private static Object getProfileWriteLock(UUID uuid) {
+        return PROFILE_WRITE_LOCKS[Math.floorMod(uuid.hashCode(), PROFILE_WRITE_LOCKS.length)];
+    }
+
+    private static Object[] createLockStripes(int size) {
+        Object[] locks = new Object[size];
+        for (int i = 0; i < size; i++) {
+            locks[i] = new Object();
+        }
+        return locks;
     }
 
     private static void loadGlobalStats(Connection connection, Profile profile) throws SQLException {
@@ -525,17 +595,14 @@ public enum MysqlManager {
                                              UUID winnerUuid, int matchDuration, long playedAt) {
         if (!isConnected(false)) return;
 
-        CompletableFuture.runAsync(() -> {
-            try (Connection conn = getConnection()) {
-                insertMatchHistoryRow(conn, playerUuid, opponentUuid, playerName, opponentName,
-                        kitName, arenaName, playerScore, opponentScore,
-                        playerFinalHealth, opponentFinalHealth, winnerUuid, matchDuration, playedAt);
-                pruneMatchHistory(conn, playerUuid);
-                pruneMatchHistory(conn, opponentUuid);
-            } catch (SQLException e) {
-                Common.sendConsoleMMMessage("<red>[MatchHistory] MySQL save error: " + e.getMessage());
-            }
-        }, getExecutor());
+        CompletableFuture.runAsync(() ->
+                executeWriteWithRetry("[MatchHistory] MySQL save", conn -> {
+                    insertMatchHistoryRow(conn, playerUuid, opponentUuid, playerName, opponentName,
+                            kitName, arenaName, playerScore, opponentScore,
+                            playerFinalHealth, opponentFinalHealth, winnerUuid, matchDuration, playedAt);
+                    pruneMatchHistory(conn, playerUuid);
+                    pruneMatchHistory(conn, opponentUuid);
+                }), getExecutor());
     }
 
     /**

@@ -11,7 +11,6 @@ import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.statistics.LadderStats;
-import dev.nandi0813.practice.telemetry.transport.stats.PracticeStatsTelemetryLogger;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
@@ -50,9 +49,6 @@ public class DuelRound extends Round implements PlayerWinner {
                     LadderStats lLadderStats = loserProfile.getStats().getLadderStat(normalLadder);
                     lLadderStats.increaseLosses(duel.isRanked());
                     loserProfile.getStats().increaseLoseStreak(normalLadder, duel.isRanked());
-
-                    PracticeStatsTelemetryLogger.markDirty(winnerProfile);
-                    PracticeStatsTelemetryLogger.markDirty(loserProfile);
 
                     if (duel.isRanked()) {
                         int eloChange = MatchUtil.getRandomElo();
