@@ -49,7 +49,8 @@ public class SaveResource {
             "spleef.yml",
             "sumo.yml",
             "tntsumo.yml",
-            "vanilla.yml"
+            "vanilla.yml",
+            "sword.yml"
     };
 
     public void saveResources(ZonePractice practice) {
