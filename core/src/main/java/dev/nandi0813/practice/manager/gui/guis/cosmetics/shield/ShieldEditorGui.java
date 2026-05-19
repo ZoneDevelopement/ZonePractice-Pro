@@ -183,8 +183,7 @@ public class ShieldEditorGui extends GUI {
         }
     }
 
-    // ── Apply / unapply ──────────────────────────────────────────────
-
+    // Apply / unapply
     private void handleApply(Player player) {
         int current = profile.getCosmeticsData().getActiveShieldLayoutIndex();
         if (current == layoutIndex) {
@@ -204,8 +203,7 @@ public class ShieldEditorGui extends GUI {
         update(true);
     }
 
-    // ── Item builders ────────────────────────────────────────────────
-
+    // Item builders
     private ItemStack buildPreviewShield(ShieldLayout layout) {
         ItemStack shield = new ItemStack(Material.SHIELD);
         ShieldCosmeticsUtil.applyLayoutToItem(shield, layout);
@@ -272,8 +270,7 @@ public class ShieldEditorGui extends GUI {
         return stack;
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────
-
+    // Helpers
     private ShieldLayout getLayout() {
         List<ShieldLayout> layouts = profile.getCosmeticsData().getShieldLayouts();
         if (layoutIndex < 0 || layoutIndex >= layouts.size()) return null;

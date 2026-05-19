@@ -61,7 +61,7 @@ public class MatchHistoryGui extends GUI {
 
     @Override
     public void update() {
-        // ── Read config ────────────────────────────────────────
+        // Read config
         String rawTitle = GUIFile.getString("GUIS.MATCH-HISTORY.TITLE");
         if (rawTitle == null || rawTitle.isEmpty())
             rawTitle = "<dark_gray>Match History <gray>- <gold>%player%";
@@ -73,14 +73,14 @@ public class MatchHistoryGui extends GUI {
         boolean centerItems = getBooleanOrDefault("GUIS.MATCH-HISTORY.CENTER-ITEMS", true);
         int configuredStart = GUIFile.getInt("GUIS.MATCH-HISTORY.START-SLOT"); // -1 means auto
 
-        // ── Build inventory ────────────────────────────────────
+        // Build inventory
         Inventory inventory = InventoryUtil.createInventory(rawTitle, size / 9);
 
         // Fill with configurable glass pane
         ItemStack filler = buildFillerItem();
         for (int i = 0; i < size; i++) inventory.setItem(i, filler);
 
-        // ── Determine where to place the match items ───────────
+        // Determine where to place the match items
         int startSlot;
         if (configuredStart >= 0) {
             startSlot = configuredStart;
@@ -90,7 +90,7 @@ public class MatchHistoryGui extends GUI {
             startSlot = 0;
         }
 
-        // ── Place match items ──────────────────────────────────
+        // Place match items
         String materialStr = GUIFile.getString("GUIS.MATCH-HISTORY.MATCH-ITEM.MATERIAL");
         Material material = Material.PAPER;
         if (materialStr != null && !materialStr.isBlank()) {
@@ -110,8 +110,7 @@ public class MatchHistoryGui extends GUI {
         gui.put(1, inventory);
     }
 
-    // ── Item builders ────────────────────────────────────────────
-
+    // Item builders
     private ItemStack buildMatchItem(MatchHistoryEntry entry,
                                      Material fallbackMaterial,
                                      boolean usePlayerHead) {
@@ -138,14 +137,14 @@ public class MatchHistoryGui extends GUI {
         int    myScore   = getMyScore(entry);
         int    oppScore  = getOpponentScore(entry);
 
-        // ── Name ──────────────────────────────────────────────
+        // Name
         String rawName = GUIFile.getString("GUIS.MATCH-HISTORY.MATCH-ITEM.NAME");
         if (rawName == null || rawName.isBlank())
             rawName = "<yellow>Match vs <white>%opponent%";
         String displayName = applyPlaceholders(rawName, entry, oppName,
                 result, myScore, oppScore, myHealth, oppHealth, won, draw);
 
-        // ── Lore ──────────────────────────────────────────────
+        // Lore
         List<String> loreCfg = GUIFile.getStringList("GUIS.MATCH-HISTORY.MATCH-ITEM.LORE");
         if (loreCfg == null || loreCfg.isEmpty()) {
             loreCfg = defaultLore();
@@ -156,7 +155,7 @@ public class MatchHistoryGui extends GUI {
                 .map(line -> Common.legacyToComponent(StringUtil.CC(line)))
                 .collect(Collectors.toList());
 
-        // ── ItemStack ─────────────────────────────────────────
+        // ItemStack
         ItemStack item;
         if (usePlayerHead) {
             item = buildSkull(oppUuid, oppName);
@@ -218,8 +217,7 @@ public class MatchHistoryGui extends GUI {
         return item;
     }
 
-    // ── Centering logic ──────────────────────────────────────────
-
+    // Centering logic
     /**
      * Computes the first slot so that {@code count} items are centred
      * inside the inventory. Works row-by-row:
@@ -242,8 +240,7 @@ public class MatchHistoryGui extends GUI {
         return startRow * 9 + startCol;
     }
 
-    // ── Placeholder helpers ──────────────────────────────────────
-
+    // Placeholder helpers
     private String applyPlaceholders(String text, MatchHistoryEntry entry,
                                      String oppName, String result,
                                      int myScore, int oppScore,
@@ -266,8 +263,7 @@ public class MatchHistoryGui extends GUI {
         return String.format("%.1f❤", raw / 2.0);
     }
 
-    // ── Perspective helpers ──────────────────────────────────────
-
+    // Perspective helpers
     private boolean isViewer(MatchHistoryEntry e) {
         return viewerUuid != null && e.getPlayerUuid().equals(viewerUuid);
     }
@@ -296,8 +292,7 @@ public class MatchHistoryGui extends GUI {
         return isViewer(e) ? e.getOpponentScore() : e.getPlayerScore();
     }
 
-    // ── Default lore ─────────────────────────────────────────────
-
+    // Default lore
     private List<String> defaultLore() {
         List<String> lore = new ArrayList<>();
         lore.add("<dark_gray><st>--------------------");
@@ -313,8 +308,7 @@ public class MatchHistoryGui extends GUI {
         return lore;
     }
 
-    // ── Utility ─────────────────────────────────────────────────
-
+    // Utility
     private boolean getBooleanOrDefault(String path, boolean def) {
         if (GUIFile.getConfig().isSet(path.toUpperCase()))
             return GUIFile.getConfig().getBoolean(path.toUpperCase());

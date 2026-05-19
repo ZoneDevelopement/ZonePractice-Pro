@@ -52,8 +52,7 @@ public class ShieldLayout {
         return true;
     }
 
-    // ── Serialisation helpers ────────────────────────────────────────
-
+    // Serialisation helpers
     /** Serialise to a single string for YAML storage: "name|BASE_COLOR|COLOR:PATTERN,COLOR:PATTERN,..." */
     public String serialise() {
         var bannerPatternRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.BANNER_PATTERN);
@@ -112,8 +111,7 @@ public class ShieldLayout {
     private static String escapePipe(String s)   { return s.replace("|", "\\|"); }
     private static String unescapePipe(String s) { return s.replace("\\|", "|"); }
 
-    // ── PatternLayer record ──────────────────────────────────────────
-
+    // PatternLayer record
     public record PatternLayer(DyeColor color, PatternType pattern) {
         @Override
         public boolean equals(Object obj) {

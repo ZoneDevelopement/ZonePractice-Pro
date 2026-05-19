@@ -346,8 +346,7 @@ public enum LbGuiUtil {
         return buildItem(Material.CLOCK, "<yellow>Auto-Update Info", lore);
     }
 
-    // ── Item building helpers ────────────────────────────────────────────────
-
+    // Item building helpers
     /** Builds an ItemStack from an existing icon with a parsed name and lore. */
     private static ItemStack buildItem(ItemStack icon, String name, List<String> lore) {
         ItemStack item = icon != null ? icon.clone() : new ItemStack(Material.BARRIER);

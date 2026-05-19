@@ -215,8 +215,7 @@ public class ShieldLayoutListGui extends GUI {
                 .open(player);
     }
 
-    // ── Builders ─────────────────────────────────────────────────────
-
+    // Builders
     private ItemStack buildLayoutItem(ShieldLayout layout, int index, boolean active) {
         ItemStack shield = new ItemStack(Material.SHIELD);
         ShieldCosmeticsUtil.applyLayoutToItem(shield, layout);

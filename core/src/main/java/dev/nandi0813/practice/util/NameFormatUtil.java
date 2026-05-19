@@ -17,8 +17,7 @@ public enum NameFormatUtil {
 
     private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
 
-    // ── Color helpers ────────────────────────────────────────────────────────
-
+    // Color helpers
     private static TextColor findFirstExplicitColor(Component component) {
         if (component == null) return null;
         if (component.color() != null) return component.color();
@@ -51,8 +50,7 @@ public enum NameFormatUtil {
         return findLastExplicitColor(component);
     }
 
-    // ── Template / placeholder helpers ──────────────────────────────────────
-
+    // Template / placeholder helpers
     public static Component parseConfiguredComponent(String raw) {
         if (raw == null || raw.isEmpty()) return Component.empty();
         return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(raw));
@@ -102,8 +100,7 @@ public enum NameFormatUtil {
         return rawTemplate + "%player%";
     }
 
-    // ── Internal rendering ───────────────────────────────────────────────────
-
+    // Internal rendering
     private static Component renderTemplate(String rawTemplate, Profile profile, String playerName) {
         return renderTemplate(rawTemplate, profile, playerName, null);
     }
@@ -146,8 +143,7 @@ public enum NameFormatUtil {
         return ZonePractice.getMiniMessage().deserialize(normalized);
     }
 
-    // ── Public resolution API ────────────────────────────────────────────────
-
+    // Public resolution API
     public static Component resolvePrefix(Profile profile) {
         return resolvePrefix(profile, null);
     }

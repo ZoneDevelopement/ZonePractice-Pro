@@ -82,8 +82,7 @@ public class CosmeticsHubGui extends GUI {
         }
     }
 
-    // ── Button builders ──────────────────────────────────────────────
-
+    // Button builders
     private ItemStack buildTrimsButton() {
         String name = GUIFile.getConfig().getString(
                 "GUIS.COSMETICS.HUB.BUTTONS.ARMOR-TRIMS.NAME", "<gold>✦ Armor Trims");
@@ -161,8 +160,7 @@ public class CosmeticsHubGui extends GUI {
         return item.get();
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────
-
+    // Helpers
     private List<String> getOrDefaultLore(String key, List<String> defaults) {
         List<String> lore = GUIFile.getConfig().getStringList(key);
         return lore.isEmpty() ? defaults : lore;

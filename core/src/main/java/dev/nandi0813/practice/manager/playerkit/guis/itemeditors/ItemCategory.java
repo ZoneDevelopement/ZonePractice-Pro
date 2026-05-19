@@ -108,7 +108,7 @@ public class ItemCategory extends ItemEditor {
         KitItem kitItem = editing.getKitItem();
         GUI mainGUI = editing.getCustomLadder().getMainGUI();
 
-        // ── Back ──────────────────────────────────────────────────────
+        // Back
         if (icon.equals(StaticItems.CATEGORY_GUI_BACK_ICON)) {
             if (editing.isEditingShulker()) {
                 dev.nandi0813.practice.manager.playerkit.guis.ShulkerBoxEditorGUI editor = editing.getShulkerEditor();
@@ -120,7 +120,7 @@ public class ItemCategory extends ItemEditor {
             return;
         }
 
-        // ── None ─────────────────────────────────────────────────────
+        // None
         if (icon.equals(StaticItems.CATEGORY_GUI_NONE_ICON)) {
             kitItem.reset();
             if (editing.isEditingShulker()) {
@@ -137,7 +137,7 @@ public class ItemCategory extends ItemEditor {
             return;
         }
 
-        // ── Fixed categories ─────────────────────────────────────────
+        // Fixed categories
         if (icon.equals(StaticItems.CATEGORY_GUI_ARMOR_ICON)) {
             GUIManager.getInstance().searchGUI(GUIType.PlayerCustom_Armor).open(player);
             return;
@@ -159,7 +159,7 @@ public class ItemCategory extends ItemEditor {
             return;
         }
 
-        // ── Dynamic categories ───────────────────────────────────────
+        // Dynamic categories
         for (DynamicCategory cat : PlayerKitManager.getInstance().getDynamicCategories()) {
             if (icon.equals(cat.getIcon())) {
                 cat.getGui().open(player);

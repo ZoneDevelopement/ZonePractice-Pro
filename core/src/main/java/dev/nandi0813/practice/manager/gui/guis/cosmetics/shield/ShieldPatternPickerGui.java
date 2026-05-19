@@ -170,8 +170,7 @@ public class ShieldPatternPickerGui extends GUI {
         backToGui.open(player);
     }
 
-    // ── Item builder ─────────────────────────────────────────────────
-
+    // Item builder
     private ItemStack buildPatternItem(PatternType pattern) {
         // Material already encodes the base colour (e.g. RED_BANNER for RED).
         // In 1.21.1 BannerMeta no longer has setBaseColor(); the colour is the Material.
