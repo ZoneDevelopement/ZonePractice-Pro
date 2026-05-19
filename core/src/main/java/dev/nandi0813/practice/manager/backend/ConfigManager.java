@@ -3,7 +3,6 @@ package dev.nandi0813.practice.manager.backend;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.util.Common;
-import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -51,7 +50,7 @@ public enum ConfigManager {
     public static String getString(String loc) {
         String s = config.getString(loc);
         if (s != null)
-            return StringUtil.CC(s);
+            return s;
         return "";
     }
 
@@ -80,7 +79,7 @@ public enum ConfigManager {
     }
 
     public static List<String> getList(String loc) {
-        return StringUtil.CC(getConfig().getStringList(loc));
+        return getConfig().getStringList(loc);
     }
 
     public static Set<String> getConfigList(String loc) {

@@ -73,10 +73,6 @@ public class PracticeAdapter implements SidebarAdapter {
             return Component.empty();
         }
 
-        if (text.contains("&") || text.contains("§")) {
-            text = StringUtil.legacyColorToMiniMessage(text);
-        }
-
         return Common.deserializeMiniMessage(text);
     }
 

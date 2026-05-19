@@ -50,7 +50,7 @@ public class ArmorPieceHubGui extends GUI {
         this.profile = profile;
         this.armorSlot = armorSlot;
         this.backToGui = backToGui;
-        this.gui.put(1, InventoryUtil.createInventory("&8" + armorSlot.getDisplayName() + " Cosmetics", INVENTORY_ROWS));
+        this.gui.put(1, InventoryUtil.createInventory("<dark_gray>" + armorSlot.getDisplayName() + " Cosmetics", INVENTORY_ROWS));
         build();
     }
 
@@ -106,7 +106,7 @@ public class ArmorPieceHubGui extends GUI {
     private ItemStack buildPreviewItem(ArmorTrimTier tier, TrimPattern pattern, TrimMaterial material) {
         Material previewMaterial = tier.getMaterial(armorSlot);
         GUIItem item = new GUIItem(previewMaterial);
-        item.setName(GUIFile.getConfig().getString("GUIS.COSMETICS.ARMOR-PIECE-HUB.PREVIEW-ITEM.NAME", "&eCurrent Preview"));
+        item.setName(GUIFile.getConfig().getString("GUIS.COSMETICS.ARMOR-PIECE-HUB.PREVIEW-ITEM.NAME", "<yellow>Current Preview"));
 
         ItemStack itemStack = item.get();
         if (armorSlot != ArmorSlot.SHIELD && pattern != null && material != null && itemStack.getItemMeta() instanceof ArmorMeta armorMeta) {
@@ -123,7 +123,7 @@ public class ArmorPieceHubGui extends GUI {
 
         List<String> lore = new ArrayList<>();
         lore.add(loreLine);
-        lore.add("&eClick to open.");
+        lore.add("<yellow>Click to open.");
         item.setLore(lore);
 
         return item.get();
@@ -139,7 +139,7 @@ public class ArmorPieceHubGui extends GUI {
             }
         }
 
-        String name = GUIFile.getConfig().getString("GUIS.COSMETICS.ARMOR-PIECE-HUB.PATTERN-SELECTION-BUTTON.NAME", "&bPattern Selection");
+        String name = GUIFile.getConfig().getString("GUIS.COSMETICS.ARMOR-PIECE-HUB.PATTERN-SELECTION-BUTTON.NAME", "<aqua>Pattern Selection");
         String loreLine = GUIFile.getConfig().getStringList("GUIS.COSMETICS.ARMOR-PIECE-HUB.PATTERN-SELECTION-BUTTON.LORE").getFirst();
         return buildNavigationItem(buttonMaterial, name, loreLine);
     }
@@ -153,7 +153,7 @@ public class ArmorPieceHubGui extends GUI {
             }
         }
 
-        String name = GUIFile.getConfig().getString("GUIS.COSMETICS.ARMOR-PIECE-HUB.MATERIAL-SELECTION-BUTTON.NAME", "&6Material Selection");
+        String name = GUIFile.getConfig().getString("GUIS.COSMETICS.ARMOR-PIECE-HUB.MATERIAL-SELECTION-BUTTON.NAME", "<gold>Material Selection");
         String loreLine = GUIFile.getConfig().getStringList("GUIS.COSMETICS.ARMOR-PIECE-HUB.MATERIAL-SELECTION-BUTTON.LORE").getFirst();
         return buildNavigationItem(buttonMaterial, name, loreLine);
     }

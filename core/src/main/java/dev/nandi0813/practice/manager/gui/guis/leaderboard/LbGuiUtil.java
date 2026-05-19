@@ -13,7 +13,6 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.ItemCreateUtil;
-import dev.nandi0813.practice.util.StringUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
@@ -31,14 +30,9 @@ import java.util.stream.Collectors;
 public enum LbGuiUtil {
     ;
 
-    /**
-     * Parses a raw config string into a Component with full color support
-     * (legacy &c, hex &#RRGGBB, MiniMessage tags) and italic explicitly disabled.
-     */
     private static Component parseColor(String raw) {
         if (raw == null || raw.isEmpty()) return Component.empty();
-        return ZonePractice.getMiniMessage()
-                .deserialize(StringUtil.translateColorsToMiniMessage(raw))
+        return ZonePractice.getMiniMessage().deserialize(raw)
                 .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     }
 
@@ -92,9 +86,9 @@ public enum LbGuiUtil {
         }
 
         String divisionName = profile.getStats().getDivision() != null
-                ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "&cN/A";
+                ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "<red>N/A";
         String divisionShort = profile.getStats().getDivision() != null
-                ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "&cN/A";
+                ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "<red>N/A";
 
         guiItem
                 .replace("%ladder%", ladder.getDisplayName())
@@ -118,9 +112,9 @@ public enum LbGuiUtil {
         List<String> lore = new ArrayList<>();
 
         String divisionName = profile.getStats().getDivision() != null
-                ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "&cN/A";
+                ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "<red>N/A";
         String divisionShort = profile.getStats().getDivision() != null
-                ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "&cN/A";
+                ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "<red>N/A";
 
         for (String line : GUIFile.getStringList("GUIS.STATISTICS.PLAYER-STATISTICS.ICONS.ALL-STAT.LORE")) {
             lore.add(line
@@ -341,14 +335,14 @@ public enum LbGuiUtil {
 
     public static ItemStack getCacheInfoItem() {
         List<String> lore = new ArrayList<>();
-        lore.add("&8&m------------------------");
-        lore.add("&7This leaderboard automatically");
-        lore.add("&7updates every &e5 minutes&7.");
+        lore.add("<dark_gray><st>------------------------");
+        lore.add("<gray>This leaderboard automatically");
+        lore.add("<gray>updates every <yellow>5 minutes<gray>.");
         lore.add("");
-        lore.add("&7Last update: &aRecently");
-        lore.add("&7Next update: &eWithin 5 minutes");
-        lore.add("&8&m------------------------");
-        return buildItem(Material.CLOCK, "&eAuto-Update Info", lore);
+        lore.add("<gray>Last update: <green>Recently");
+        lore.add("<gray>Next update: <yellow>Within 5 minutes");
+        lore.add("<dark_gray><st>------------------------");
+        return buildItem(Material.CLOCK, "<yellow>Auto-Update Info", lore);
     }
 
     // ── Item building helpers ────────────────────────────────────────────────

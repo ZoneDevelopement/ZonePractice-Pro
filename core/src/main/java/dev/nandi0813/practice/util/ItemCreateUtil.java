@@ -19,12 +19,12 @@ public class ItemCreateUtil {
 
     /**
      * Parses a raw config string into a {@link Component}, supporting all color formats:
-     * legacy {@code &c} / {@code §c} codes, shorthand hex {@code &#RRGGBB}, Bungeecord hex
-     * {@code &x&R&R&G&G&B&B}, bare {@code #RRGGBB}, and MiniMessage tags {@code <red>}.
+     * legacy {@code <red>} / {@code §c} codes, shorthand hex {@code &#RRGGBB}, Bungeecord hex
+     * {@code &x<reset><reset>&G&G<aqua><aqua>}, bare {@code #RRGGBB}, and MiniMessage tags {@code <red>}.
      */
     private static Component parseColor(String raw) {
         if (raw == null || raw.isEmpty()) return Component.empty();
-        return ZonePractice.getMiniMessage().deserialize(StringUtil.translateColorsToMiniMessage(raw))
+        return ZonePractice.getMiniMessage().deserialize(raw)
                 .decorationIfAbsent(net.kyori.adventure.text.format.TextDecoration.ITALIC,
                         net.kyori.adventure.text.format.TextDecoration.State.FALSE);
     }

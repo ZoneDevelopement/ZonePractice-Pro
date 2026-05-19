@@ -11,7 +11,6 @@ import dev.nandi0813.practice.manager.playerkit.items.KitItem;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.enchantments.Enchantment;
 import dev.nandi0813.practice.util.InventoryUtil;
-import dev.nandi0813.practice.util.StringUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
@@ -71,7 +70,7 @@ public class ShulkerBoxEditorGUI extends GUI {
         // Load existing contents from the shulker's BlockStateMeta
         loadContents();
 
-        String title = StringUtil.CC("&8Shulker Box Contents");
+        String title = "<dark_gray>Shulker Box Contents";
         this.gui.put(1, InventoryUtil.createInventory(title, ROWS));
         build();
     }
@@ -143,9 +142,9 @@ public class ShulkerBoxEditorGUI extends GUI {
         ItemStack clearItem = new ItemStack(Material.BARRIER);
         var clearMeta = clearItem.getItemMeta();
         if (clearMeta != null) {
-            clearMeta.displayName(net.kyori.adventure.text.Component.text(StringUtil.CC("&cClear All Contents")));
+            clearMeta.displayName(Common.deserializeMiniMessage("<red>Clear All Contents"));
             java.util.List<net.kyori.adventure.text.Component> clearLore = new java.util.ArrayList<>();
-            clearLore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&7Removes all items inside.")));
+            clearLore.add(Common.deserializeMiniMessage("<gray>Removes all items inside."));
             clearMeta.lore(clearLore);
             clearItem.setItemMeta(clearMeta);
         }
@@ -155,10 +154,10 @@ public class ShulkerBoxEditorGUI extends GUI {
         ItemStack removeItem = new ItemStack(Material.SHULKER_BOX);
         var removeMeta = removeItem.getItemMeta();
         if (removeMeta != null) {
-            removeMeta.displayName(net.kyori.adventure.text.Component.text(StringUtil.CC("&cRemove Shulker Box")));
+            removeMeta.displayName(Common.deserializeMiniMessage("<red>Remove Shulker Box"));
             java.util.List<net.kyori.adventure.text.Component> removeLore = new java.util.ArrayList<>();
-            removeLore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&7Removes this shulker box")));
-            removeLore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&7from the kit slot entirely.")));
+            removeLore.add(Common.deserializeMiniMessage("<gray>Removes this shulker box"));
+            removeLore.add(Common.deserializeMiniMessage("<gray>from the kit slot entirely."));
             removeMeta.lore(removeLore);
             removeItem.setItemMeta(removeMeta);
         }
@@ -297,21 +296,21 @@ public class ShulkerBoxEditorGUI extends GUI {
                 ? new java.util.ArrayList<>(meta.lore())
                 : new java.util.ArrayList<>();
 
-        lore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("")));
-        lore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&eLeft-click &7to replace item")));
-        lore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&eShift-click &7to remove")));
+        lore.add(net.kyori.adventure.text.Component.empty());
+        lore.add(Common.deserializeMiniMessage("<yellow>Left-click <gray>to replace item"));
+        lore.add(Common.deserializeMiniMessage("<yellow>Shift-click <gray>to remove"));
 
         boolean stackable = item.getType().getMaxStackSize() > 1;
         boolean enchantable = canBeEnchanted(item);
 
         if (stackable) {
-            lore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&eRight-click &7to change amount")));
+            lore.add(Common.deserializeMiniMessage("<yellow>Right-click <gray>to change amount"));
         }
         if (enchantable) {
             if (stackable) {
-                lore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&eShift-right-click &7to enchant")));
+                lore.add(Common.deserializeMiniMessage("<yellow>Shift-right-click <gray>to enchant"));
             } else {
-                lore.add(net.kyori.adventure.text.Component.text(StringUtil.CC("&eRight-click &7to enchant")));
+                lore.add(Common.deserializeMiniMessage("<yellow>Right-click <gray>to enchant"));
             }
         }
 
@@ -332,7 +331,7 @@ public class ShulkerBoxEditorGUI extends GUI {
         ItemStack item = new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE);
         var meta = item.getItemMeta();
         if (meta != null) {
-            meta.displayName(net.kyori.adventure.text.Component.text(StringUtil.CC("&7Slot " + (index + 1))));
+            meta.displayName(Common.deserializeMiniMessage("<gray>Slot " + (index + 1)));
             item.setItemMeta(meta);
         }
         return item;

@@ -59,13 +59,13 @@ public class SpawnMarkerManager {
         if (arena instanceof Arena standardArena) {
             // Show position 1
             if (standardArena.getPosition1() != null) {
-                Mannequin marker = createMarker(standardArena.getPosition1(), "&c&lSpawn 1");
+                Mannequin marker = createMarker(standardArena.getPosition1(), "<red><bold>Spawn 1");
                 if (marker != null) markers.add(marker);
             }
 
             // Show position 2
             if (standardArena.getPosition2() != null) {
-                Mannequin marker = createMarker(standardArena.getPosition2(), "&c&lSpawn 2");
+                Mannequin marker = createMarker(standardArena.getPosition2(), "<red><bold>Spawn 2");
                 if (marker != null) markers.add(marker);
             }
         } else if (arena instanceof FFAArena ffaArena) {
@@ -73,7 +73,7 @@ public class SpawnMarkerManager {
             int index = 0; // Use 0-based index to match the list
             for (Location spawnLoc : ffaArena.getFfaPositions()) {
                 // Create main marker with player model
-                Mannequin marker = createMarker(spawnLoc, "&c&lFFA Spawn #" + (index + 1)); // Display as 1-based
+                Mannequin marker = createMarker(spawnLoc, "<red><bold>FFA Spawn #" + (index + 1)); // Display as 1-based
                 if (marker != null) {
                     markers.add(marker);
                     // Track this main marker to its spawn index
@@ -81,7 +81,7 @@ public class SpawnMarkerManager {
 
                     // Create second mannequin above for instruction text (closer spacing)
                     Location labelLoc = spawnLoc.clone().add(0, 2.3, 0);
-                    Mannequin labelStand = createLabelOnly(labelLoc, "&7(Right-click to remove)");
+                    Mannequin labelStand = createLabelOnly(labelLoc, "<gray>(Right-click to remove)");
                     if (labelStand != null) {
                         markers.add(labelStand);
                     }
@@ -108,7 +108,7 @@ public class SpawnMarkerManager {
         mannequin.setGravity(false);
         mannequin.setCanPickupItems(false);
         mannequin.setCustomNameVisible(true);
-        mannequin.customName(Component.text(dev.nandi0813.practice.util.StringUtil.CC(name)));
+                mannequin.customName(dev.nandi0813.practice.util.Common.deserializeMiniMessage(name));
         mannequin.setAI(false);
         mannequin.setCollidable(false);
         mannequin.setSilent(true);
@@ -152,7 +152,7 @@ public class SpawnMarkerManager {
         labelStand.setGravity(false);
         labelStand.setCanPickupItems(false);
         labelStand.setCustomNameVisible(true);
-        labelStand.customName(Component.text(dev.nandi0813.practice.util.StringUtil.CC(text)));
+                labelStand.customName(dev.nandi0813.practice.util.Common.deserializeMiniMessage(text));
         labelStand.setAI(false);
         labelStand.setCollidable(false);
         labelStand.setSilent(true);
@@ -319,7 +319,7 @@ public class SpawnMarkerManager {
      * or were not properly removed due to timing issues.
      * <p>
      * Orphaned markers are identified by:
-     * - Having a custom name starting with "&c&l" (our marker naming pattern)
+     * - Having a custom name starting with "<red><bold>" (our marker naming pattern)
      * - Being in the arenas world
      * - Not being tracked in our current marker lists
      *

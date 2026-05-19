@@ -35,7 +35,7 @@ public abstract class FFAEvent extends FullRunnableInterface {
     public void teleport(final Player player) {
         // Safety check: ensure spawns list is not empty
         if (eventData.getSpawns() == null || eventData.getSpawns().isEmpty()) {
-            player.sendMessage(Common.colorize("&cError: No spawn points configured for this event!"));
+            player.sendMessage(Common.colorize("<red>Error: No spawn points configured for this event!"));
             return;
         }
 
@@ -49,7 +49,7 @@ public abstract class FFAEvent extends FullRunnableInterface {
 
         // Safety check: ensure spawn location is valid
         if (spawnLocation == null || spawnLocation.getWorld() == null) {
-            player.sendMessage(Common.colorize("&cError: Invalid spawn location!"));
+            player.sendMessage(Common.colorize("<red>Error: Invalid spawn location!"));
             return;
         }
 

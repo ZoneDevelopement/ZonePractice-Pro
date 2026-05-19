@@ -7,7 +7,6 @@ import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.manager.ladder.util.LadderKnockback;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.KitData;
-import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -148,7 +147,7 @@ public abstract class Ladder {
 
         String iconDisplayName = Common.getItemDisplayName(icon);
         if (!iconDisplayName.isBlank())
-            this.displayName = StringUtil.CC(iconDisplayName);
+            this.displayName = Common.serializeNormalToMMString(iconDisplayName);
         else
             this.displayName = name;
     }

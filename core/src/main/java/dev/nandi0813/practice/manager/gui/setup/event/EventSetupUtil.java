@@ -24,7 +24,7 @@ public enum EventSetupUtil {
             case TNTTAG ->
                     GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-SETTINGS.ICONS.DURATION.TNTTAG").replace("%explodeTime%", String.valueOf(eventData.getDuration())).get();
             case BRACKETS, SUMO ->
-                    GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-SETTINGS.ICONS.DURATION.SUMO&BRACKETS").replace("%roundDuration%", String.valueOf(eventData.getDuration() / 60)).get();
+                    GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-SETTINGS.ICONS.DURATION.SUMO<aqua>RACKETS").replace("%roundDuration%", String.valueOf(eventData.getDuration() / 60)).get();
             default ->
                     GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-SETTINGS.ICONS.DURATION.OTHER").replace("%duration%", String.valueOf(eventData.getDuration() / 60)).get();
         };

@@ -211,8 +211,8 @@ public class ProfileSetupGui extends GUI {
                 .replace("%last_played%", (profile.getStatus().equals(ProfileStatus.OFFLINE) ? StringUtil.getDate(profile.getLastJoin()) : GUIFile.getString("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.BASIC-INFO.ONLINE-STATUS")))
                 .replace("%unranked_left%", String.valueOf(profile.getUnrankedLeft()))
                 .replace("%ranked_left%", String.valueOf(profile.getRankedLeft()))
-                .replace("%division_fullName%", profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "&cN/A")
-                .replace("%division_shortName%", profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "&cN/A");
+                .replace("%division_fullName%", profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getFullName()) : "<red>N/A")
+                .replace("%division_shortName%", profile.getStats().getDivision() != null ? Common.mmToNormal(profile.getStats().getDivision().getShortName()) : "<red>N/A");
 
         return guiItem.get();
     }
@@ -264,8 +264,8 @@ public class ProfileSetupGui extends GUI {
             RankedBan rankedBan = profile.getRankedBan();
             return GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.MAIN-PAGE.ICONS.RANKED-BAN")
                     .replace("%player%", profile.getPlayer().getName())
-                    .replace("%banner%", rankedBan.getBanner() == null ? "&cConsole" : rankedBan.getBanner().getPlayer().getName())
-                    .replace("%reason%", rankedBan.getReason() == null ? "&cN/A" : rankedBan.getReason())
+                    .replace("%banner%", rankedBan.getBanner() == null ? "<red>Console" : rankedBan.getBanner().getPlayer().getName())
+                    .replace("%reason%", rankedBan.getReason() == null ? "<red>N/A" : rankedBan.getReason())
                     .replace("%time%", StringUtil.getDate(rankedBan.getTime()))
                     .get();
         } else

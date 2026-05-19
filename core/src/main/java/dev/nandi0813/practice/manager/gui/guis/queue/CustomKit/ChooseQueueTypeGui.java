@@ -85,17 +85,17 @@ public class ChooseQueueTypeGui extends GUI {
 
         ItemStack hostItem = GUIFile.getGuiItem(GUI_PATH + ".ICONS.QUEUE-OWN-KIT").get();
         if (hostItem == null) {
-            hostItem = ItemCreateUtil.createItem("&aQueue Your Own Kit", Material.WRITABLE_BOOK);
+            hostItem = ItemCreateUtil.createItem("<green>Queue Your Own Kit", Material.WRITABLE_BOOK);
         }
 
         ItemStack joinOthersItem = GUIFile.getGuiItem(GUI_PATH + ".ICONS.QUEUE-OTHERS-KITS").get();
         if (joinOthersItem == null) {
-            joinOthersItem = ItemCreateUtil.createItem("&eQueue Others Kits", Material.BOOK);
+            joinOthersItem = ItemCreateUtil.createItem("<yellow>Queue Others Kits", Material.BOOK);
         }
 
         ItemStack backItem = GUIFile.getGuiItem(GUI_PATH + ".ICONS.BACK").get();
         if (backItem == null) {
-            backItem = ItemCreateUtil.createItem("&cBack", Material.ARROW);
+            backItem = ItemCreateUtil.createItem("<red>Back", Material.ARROW);
         }
 
         if (hostOwnSlot() >= 0 && hostOwnSlot() < inventory.getSize()) {

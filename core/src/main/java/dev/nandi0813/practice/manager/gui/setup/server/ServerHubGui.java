@@ -125,7 +125,7 @@ public class ServerHubGui extends GUI {
         return GUIFile.getGuiItem("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.INFORMATIONS")
                 .replace("%onlinePlayers%", String.valueOf(Bukkit.getOnlinePlayers().size()))
                 .replace("%onlineStaffs%", String.valueOf(PlayerUtil.getOnlineStaff().size()))
-                .replace("%requiredDivision%", DivisionManager.getInstance().getMinimumForRanked() != null ? DivisionManager.getInstance().getMinimumForRanked().getFullName() : "&cN/A")
+                .replace("%requiredDivision%", DivisionManager.getInstance().getMinimumForRanked() != null ? DivisionManager.getInstance().getMinimumForRanked().getFullName() : "<red>N/A")
                 .replace("%lobbyStatus%", ServerManager.getLobby() != null ? GUIFile.getString("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.INFORMATIONS.STATUS-NAMES.SET") : GUIFile.getString("GUIS.SETUP.SERVER.SERVER-MANAGER.ICONS.INFORMATIONS.STATUS-NAMES.UNSET"))
                 .replace("%enabledArena%", String.valueOf(
                         ArenaManager.getInstance().getEnabledArenas().size() +

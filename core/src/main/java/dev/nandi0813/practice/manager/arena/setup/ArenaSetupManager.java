@@ -73,7 +73,7 @@ public class ArenaSetupManager {
         // Show spawn position markers
         SpawnMarkerManager.getInstance().showMarkers(arena);
 
-        player.sendMessage(Common.colorize("&aSetup mode started for arena: &e" + arena.getName() + "&a."));
+        player.sendMessage(Common.colorize("<green>Setup mode started for arena: <yellow>" + arena.getName() + "<green>."));
         return true;
     }
 
@@ -95,7 +95,7 @@ public class ArenaSetupManager {
             SpawnMarkerManager.getInstance().clearMarkers(arena);
         }
 
-        player.sendMessage(Common.colorize("&cSetup mode ended for arena: &c" + arena.getName() + "."));
+        player.sendMessage(Common.colorize("<red>Setup mode ended for arena: <red>" + arena.getName() + "."));
     }
 
     public SetupSession getSession(Player player) {
@@ -178,25 +178,25 @@ public class ArenaSetupManager {
         ItemMeta meta = wand.getItemMeta();
         SetupMode mode = session.getCurrentMode();
 
-        meta.displayName(Common.legacyToComponent(Common.colorize("&6Arena Wand &7(&e" + mode.getDisplayName() + "&7)")));
+        meta.displayName(Common.legacyToComponent(Common.colorize("<gold>Arena Wand <gray>(<yellow>" + mode.getDisplayName() + "<gray>)")));
 
         List<String> lore = new ArrayList<>();
-        lore.add(Common.colorize("&7Editing: &a" + arena.getName()));
-        lore.add(Common.colorize("&7Type: &b" + (arena instanceof FFAArena ? "FFA" : "Standard")));
+        lore.add(Common.colorize("<gray>Editing: <green>" + arena.getName()));
+        lore.add(Common.colorize("<gray>Type: <aqua>" + (arena instanceof FFAArena ? "FFA" : "Standard")));
         lore.add("");
-        lore.add(Common.colorize("&eCurrent Mode: &f" + mode.getDisplayName()));
+        lore.add(Common.colorize("<yellow>Current Mode: <white>" + mode.getDisplayName()));
         lore.add("");
-        lore.add(Common.colorize("&7Controls:"));
+        lore.add(Common.colorize("<gray>Controls:"));
 
         for (String line : mode.getDescription()) {
             lore.add(Common.colorize(line));
         }
 
         lore.add("");
-        lore.add(Common.colorize("&dShift + Left: &7Next Mode"));
-        lore.add(Common.colorize("&dShift + Right: &7Prev Mode"));
+        lore.add(Common.colorize("<light_purple>Shift + Left: <gray>Next Mode"));
+        lore.add(Common.colorize("<light_purple>Shift + Right: <gray>Prev Mode"));
         lore.add("");
-        lore.add(Common.colorize("&cDrop (Q): &7Exit Setup"));
+        lore.add(Common.colorize("<red>Drop (Q): <gray>Exit Setup"));
 
         meta.lore(lore.stream().map(Common::legacyToComponent).collect(Collectors.toList()));
         wand.setItemMeta(meta);

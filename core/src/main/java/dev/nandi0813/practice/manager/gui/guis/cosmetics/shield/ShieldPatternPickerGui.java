@@ -72,7 +72,7 @@ public class ShieldPatternPickerGui extends GUI {
         this.backToGui   = backToGui;
 
         String title = GUIFile.getConfig().getString(
-                "GUIS.COSMETICS.SHIELD.PATTERN-PICKER.TITLE", "&8Pick Pattern");
+                "GUIS.COSMETICS.SHIELD.PATTERN-PICKER.TITLE", "<dark_gray>Pick Pattern");
         this.gui.put(1, InventoryUtil.createInventory(title, ROWS));
         build();
     }
@@ -96,11 +96,11 @@ public class ShieldPatternPickerGui extends GUI {
 
         // Navigation
         if (page > 0) {
-            GUIItem prev = new GUIItem("&ePrevious Page &8(" + page + "/" + totalPages + ")", Material.ARROW);
+            GUIItem prev = new GUIItem("<yellow>Previous Page <dark_gray>(" + page + "/" + totalPages + ")", Material.ARROW);
             inv.setItem(PREV_SLOT, prev.get());
         }
         if (page < totalPages - 1) {
-            GUIItem next = new GUIItem("&eNext Page &8(" + (page + 2) + "/" + totalPages + ")", Material.ARROW);
+            GUIItem next = new GUIItem("<yellow>Next Page <dark_gray>(" + (page + 2) + "/" + totalPages + ")", Material.ARROW);
             inv.setItem(NEXT_SLOT, next.get());
         }
 
@@ -177,7 +177,7 @@ public class ShieldPatternPickerGui extends GUI {
         // In 1.21.1 BannerMeta no longer has setBaseColor(); the colour is the Material.
         Material bannerMat = ShieldEditorGui.dyeToBanner(chosenColor);
         GUIItem item = new GUIItem(bannerMat);
-        item.setName("&f" + getPatternDisplayName(pattern));
+        item.setName("<white>" + getPatternDisplayName(pattern));
 
         ItemStack stack = item.get();
         // Apply the pattern using a contrasting colour so it is visible
@@ -187,15 +187,15 @@ public class ShieldPatternPickerGui extends GUI {
             bm.addPattern(new Pattern(contrast, pattern));
             bm.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
             List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
-            lore.add(tc("&7Color: &f" + fmt(chosenColor.name())));
-            lore.add(tc("&eClick to apply."));
+            lore.add(tc("<gray>Color: <white>" + fmt(chosenColor.name())));
+            lore.add(tc("<yellow>Click to apply."));
             bm.lore(lore);
             stack.setItemMeta(bm);
         } else if (stack.hasItemMeta()) {
             ItemMeta meta = stack.getItemMeta();
             List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
-            lore.add(tc("&7Color: &f" + fmt(chosenColor.name())));
-            lore.add(tc("&eClick to apply."));
+            lore.add(tc("<gray>Color: <white>" + fmt(chosenColor.name())));
+            lore.add(tc("<yellow>Click to apply."));
             meta.lore(lore);
             stack.setItemMeta(meta);
         }
@@ -209,7 +209,7 @@ public class ShieldPatternPickerGui extends GUI {
     }
 
     private static net.kyori.adventure.text.Component tc(String legacy) {
-        return net.kyori.adventure.text.Component.text(StringUtil.CC(legacy));
+        return dev.nandi0813.practice.util.Common.deserializeMiniMessage(legacy);
     }
 
     private static String fmt(String raw) {

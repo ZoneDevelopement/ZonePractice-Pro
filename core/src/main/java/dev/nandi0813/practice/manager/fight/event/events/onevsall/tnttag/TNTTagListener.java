@@ -70,7 +70,7 @@ public class TNTTagListener extends EventListenerInterface {
                             continue;
                         }
 
-                        tntTag.sendMessage("&cSince " + player.getName() + " left the game, the new IT will be " + eventPlayer.getName() + ".", true);
+                        tntTag.sendMessage("<red>Since " + player.getName() + " left the game, the new IT will be " + eventPlayer.getName() + ".", true);
                         tntTag.setTag(null, eventPlayer);
                         break;
                     }

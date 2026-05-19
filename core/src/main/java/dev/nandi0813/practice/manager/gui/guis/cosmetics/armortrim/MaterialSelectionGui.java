@@ -42,7 +42,7 @@ public class MaterialSelectionGui extends GUI {
         this.profile = profile;
         this.armorSlot = armorSlot;
         this.backToGui = backToGui;
-        String title = GUIFile.getConfig().getString("GUIS.COSMETICS.MATERIAL-SELECTION.INVENTORY-TITLE", "&8Select Material - %armor%")
+        String title = GUIFile.getConfig().getString("GUIS.COSMETICS.MATERIAL-SELECTION.INVENTORY-TITLE", "<dark_gray>Select Material - %armor%")
             .replace("%armor%", armorSlot.getDisplayName());
         this.gui.put(1, InventoryUtil.createInventory(title, INVENTORY_ROWS));
         build();
@@ -136,7 +136,7 @@ public class MaterialSelectionGui extends GUI {
 
         GUIItem item = new GUIItem(resolveIcon(materialId));
         
-        String itemName = GUIFile.getConfig().getString("GUIS.COSMETICS.MATERIAL-SELECTION.MATERIAL-ITEM.NAME", "&6%material_name% Material")
+        String itemName = GUIFile.getConfig().getString("GUIS.COSMETICS.MATERIAL-SELECTION.MATERIAL-ITEM.NAME", "<gold>%material_name% Material")
             .replace("%material_name%", StringUtil.getNormalizedName(materialId));
         item.setName(itemName);
 
@@ -144,8 +144,8 @@ public class MaterialSelectionGui extends GUI {
         List<String> lore = new ArrayList<>();
         for (String loreLine : configLore) {
             lore.add(loreLine
-                .replace("%state%", active ? "&aActive" : "&cInactive")
-                .replace("%access%", hasPermission ? "&aUnlocked" : "&cLocked")
+                .replace("%state%", active ? "<green>Active" : "<red>Inactive")
+                .replace("%access%", hasPermission ? "<green>Unlocked" : "<red>Locked")
                 .replace("%permission%", permissionNode));
         }
         item.setLore(lore);

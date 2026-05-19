@@ -54,7 +54,7 @@ public class DeathEffectsGui extends GUI {
         this.backToGui = backToGui;
 
         String title = GUIFile.getConfig().getString(
-                "GUIS.COSMETICS.DEATH-EFFECTS.TITLE", "&8Death Effects");
+                "GUIS.COSMETICS.DEATH-EFFECTS.TITLE", "<dark_gray>Death Effects");
         this.gui.put(1, InventoryUtil.createInventory(title, ROWS));
         build();
     }
@@ -148,11 +148,11 @@ public class DeathEffectsGui extends GUI {
 
         String statusPrefix;
         if (isActive) {
-            statusPrefix = "&a&lSelected &8| &f";
+            statusPrefix = "<green><bold>Selected <dark_gray>| <white>";
         } else if (hasPerms) {
-            statusPrefix = "&e&lUnlocked &8| &f";
+            statusPrefix = "<yellow><bold>Unlocked <dark_gray>| <white>";
         } else {
-            statusPrefix = "&c&lLocked &8| &f";
+            statusPrefix = "<red><bold>Locked <dark_gray>| <white>";
         }
 
         item.setName(statusPrefix + nameTemplate);
@@ -165,24 +165,24 @@ public class DeathEffectsGui extends GUI {
                     "GUIS.COSMETICS.DEATH-EFFECTS.DEFAULT-LORE");
         }
         for (String line : loreTemplate) {
-            lore.add(line.replace("%status%", isActive ? "&aSelected" : (hasPerms ? "&eUnlocked" : "&cLocked")));
+            lore.add(line.replace("%status%", isActive ? "<green>Selected" : (hasPerms ? "<yellow>Unlocked" : "<red>Locked")));
         }
 
-        lore.add(0, "&8Status: " + (isActive ? "&aSelected" : (hasPerms ? "&eUnlocked" : "&cLocked")));
+        lore.add(0, "<dark_gray>Status: " + (isActive ? "<green>Selected" : (hasPerms ? "<yellow>Unlocked" : "<red>Locked")));
         lore.add(1, "");
 
         if (isActive) {
             lore.add("");
             lore.add(GUIFile.getConfig().getString(
-                    "GUIS.COSMETICS.DEATH-EFFECTS.CLICK-TO-DESELECT", "&7Click to deselect this effect."));
+                    "GUIS.COSMETICS.DEATH-EFFECTS.CLICK-TO-DESELECT", "<gray>Click to deselect this effect."));
         } else if (hasPerms) {
             lore.add("");
             lore.add(GUIFile.getConfig().getString(
-                    "GUIS.COSMETICS.DEATH-EFFECTS.CLICK-TO-SELECT", "&eClick to select this effect."));
-            lore.add("&7A preview will play for you.");
+                    "GUIS.COSMETICS.DEATH-EFFECTS.CLICK-TO-SELECT", "<yellow>Click to select this effect."));
+            lore.add("<gray>A preview will play for you.");
         } else {
             lore.add("");
-            lore.add("&cYou do not have permission for this effect.");
+            lore.add("<red>You do not have permission for this effect.");
         }
 
         item.setLore(lore);

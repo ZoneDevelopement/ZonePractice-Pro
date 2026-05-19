@@ -38,7 +38,7 @@ public class LobbyItemsGui extends GUI {
         this.profile = profile;
         this.backToGui = backToGui;
 
-        String title = GUIFile.getConfig().getString("GUIS.COSMETICS.LOBBY-ITEMS.TITLE", "&8✦ Lobby Items");
+        String title = GUIFile.getConfig().getString("GUIS.COSMETICS.LOBBY-ITEMS.TITLE", "<dark_gray>✦ Lobby Items");
         this.gui.put(1, InventoryUtil.createInventory(title, ROWS));
         build();
     }
@@ -120,22 +120,22 @@ public class LobbyItemsGui extends GUI {
         boolean active = type == selected;
 
         String basePath = "GUIS.COSMETICS.LOBBY-ITEMS.ENTRIES." + type.name();
-        String name = GUIFile.getConfig().getString(basePath + ".NAME", "&e" + formatName(type));
+        String name = GUIFile.getConfig().getString(basePath + ".NAME", "<yellow>" + formatName(type));
         Material material = safeMaterial(GUIFile.getConfig().getString(basePath + ".MATERIAL"), defaultMaterial(type));
 
         List<String> lore = GUIFile.getConfig().getStringList(basePath + ".LORE");
         if (lore.isEmpty()) {
             lore = new ArrayList<>(List.of(
                     "",
-                    "&7Status: %status%",
-                    "&7Required: &f%permission%",
+                    "<gray>Status: %status%",
+                    "<gray>Required: <white>%permission%",
                     ""
             ));
         } else {
             lore = new ArrayList<>(lore);
         }
 
-        String status = active ? "&aSelected" : (unlocked ? "&eUnlocked" : "&cLocked");
+        String status = active ? "<green>Selected" : (unlocked ? "<yellow>Unlocked" : "<red>Locked");
         String permission = type == CosmeticsData.LobbyItemType.NONE ? "none" : type.getPermissionNode();
         lore.replaceAll(line -> line
                 .replace("%status%", status)
@@ -143,11 +143,11 @@ public class LobbyItemsGui extends GUI {
                 .replace("%type%", formatName(type)));
 
         if (active) {
-            lore.add("&7Click to disable.");
+            lore.add("<gray>Click to disable.");
         } else if (unlocked) {
-            lore.add("&eClick to select.");
+            lore.add("<yellow>Click to select.");
         } else {
-            lore.add("&cYou do not have permission.");
+            lore.add("<red>You do not have permission.");
         }
 
         GUIItem item = new GUIItem(name, material, lore);

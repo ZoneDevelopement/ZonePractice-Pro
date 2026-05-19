@@ -88,7 +88,7 @@ public class CustomKitHostSelectorGui extends GUI {
 
         ItemStack backItem = GUIFile.getGuiItem(GUI_PATH + ".ICONS.BACK").get();
         if (backItem == null) {
-            backItem = ItemCreateUtil.createItem("&cBack", Material.ARROW);
+            backItem = ItemCreateUtil.createItem("<red>Back", Material.ARROW);
         }
         if (backSlot() >= 0 && backSlot() < inventory.getSize()) {
             inventory.setItem(backSlot(), backItem);
@@ -98,7 +98,7 @@ public class CustomKitHostSelectorGui extends GUI {
         if (hostableKits.isEmpty()) {
             ItemStack noKitsItem = GUIFile.getGuiItem(GUI_PATH + ".ICONS.NO-KITS").get();
             if (noKitsItem == null) {
-                noKitsItem = ItemCreateUtil.createItem("&cNo Saved Custom Kits", Material.BARRIER);
+                noKitsItem = ItemCreateUtil.createItem("<red>No Saved Custom Kits", Material.BARRIER);
             }
 
             if (noKitsSlot() >= 0 && noKitsSlot() < inventory.getSize()) {
@@ -114,12 +114,12 @@ public class CustomKitHostSelectorGui extends GUI {
 
             ItemStack icon = customLadder.getIcon();
             if (icon == null || icon.getType() == Material.AIR) {
-                icon = ItemCreateUtil.createItem("&e" + customLadder.getDisplayName(), Material.WRITABLE_BOOK);
+                icon = ItemCreateUtil.createItem("<yellow>" + customLadder.getDisplayName(), Material.WRITABLE_BOOK);
             } else {
                 icon = icon.clone();
                 ItemMeta itemMeta = icon.getItemMeta();
                 if (itemMeta != null) {
-                    itemMeta.displayName(Common.legacyToComponent("&e" + customLadder.getDisplayName()));
+                    itemMeta.displayName(Common.legacyToComponent("<yellow>" + customLadder.getDisplayName()));
                     icon.setItemMeta(itemMeta);
                 }
             }

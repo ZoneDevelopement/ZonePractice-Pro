@@ -111,7 +111,7 @@ public class ArenaMainGui extends GUI {
                     player.performCommand("arena info " + ffaArena.getName());
                 } else if (clickType.isRightClick()) {
                     if (!ArenaSetupManager.getInstance().startSetup(player, ffaArena)) {
-                        player.sendMessage(Common.colorize("&cYou can't edit an enabled arena."));
+                        player.sendMessage(Common.colorize("<red>You can't edit an enabled arena."));
                     }
                 }
                 break;

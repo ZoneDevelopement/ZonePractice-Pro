@@ -59,8 +59,8 @@ public class ShieldColorPickerGui extends GUI {
 
         boolean isBase = (layerIndex == -1);
         String title = isBase
-                ? GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.COLOR-PICKER.BASE-TITLE",  "&8Pick Base Color")
-                : GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.COLOR-PICKER.LAYER-TITLE", "&8Pick Layer Color");
+                ? GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.COLOR-PICKER.BASE-TITLE",  "<dark_gray>Pick Base Color")
+                : GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.COLOR-PICKER.LAYER-TITLE", "<dark_gray>Pick Layer Color");
         this.gui.put(1, InventoryUtil.createInventory(title, ROWS));
         build();
     }
@@ -121,10 +121,10 @@ public class ShieldColorPickerGui extends GUI {
         GUIItem item  = new GUIItem(wool);
         boolean active = (color == preselected);
 
-        String prefix = active ? "&a✔ " : "&f";
+        String prefix = active ? "<green>✔ " : "<white>";
         item.setName(prefix + fmt(color.name()));
         List<String> lore = new ArrayList<>();
-        lore.add(active ? "&7Currently selected." : "&eClick to select.");
+        lore.add(active ? "<gray>Currently selected." : "<yellow>Click to select.");
         item.setLore(lore);
         if (active) item.setGlowing(true);
         return item.get();

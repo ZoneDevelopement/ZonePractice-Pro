@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.playerkit.PlayerKitEditing;
 import dev.nandi0813.practice.manager.playerkit.PlayerKitManager;
 import dev.nandi0813.practice.manager.playerkit.StaticItems;
 import dev.nandi0813.practice.manager.playerkit.items.KitItem;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -30,22 +31,22 @@ public class ShulkerCategoryGUI extends GUI {
     // Ordered map: display name → Material
     private static final Map<String, Material> SHULKERS = new LinkedHashMap<>();
     static {
-        SHULKERS.put("&fWhite Shulker Box",      Material.WHITE_SHULKER_BOX);
-        SHULKERS.put("&6Orange Shulker Box",     Material.ORANGE_SHULKER_BOX);
-        SHULKERS.put("&dMagenta Shulker Box",    Material.MAGENTA_SHULKER_BOX);
-        SHULKERS.put("&bLight Blue Shulker Box", Material.LIGHT_BLUE_SHULKER_BOX);
-        SHULKERS.put("&eYellow Shulker Box",     Material.YELLOW_SHULKER_BOX);
-        SHULKERS.put("&aLime Shulker Box",       Material.LIME_SHULKER_BOX);
-        SHULKERS.put("&dPink Shulker Box",       Material.PINK_SHULKER_BOX);
-        SHULKERS.put("&8Gray Shulker Box",       Material.GRAY_SHULKER_BOX);
-        SHULKERS.put("&7Light Gray Shulker Box", Material.LIGHT_GRAY_SHULKER_BOX);
-        SHULKERS.put("&3Cyan Shulker Box",       Material.CYAN_SHULKER_BOX);
-        SHULKERS.put("&5Purple Shulker Box",     Material.PURPLE_SHULKER_BOX);
-        SHULKERS.put("&9Blue Shulker Box",       Material.BLUE_SHULKER_BOX);
-        SHULKERS.put("&cBrown Shulker Box",      Material.BROWN_SHULKER_BOX);
-        SHULKERS.put("&2Green Shulker Box",      Material.GREEN_SHULKER_BOX);
-        SHULKERS.put("&cRed Shulker Box",        Material.RED_SHULKER_BOX);
-        SHULKERS.put("&0Black Shulker Box",      Material.BLACK_SHULKER_BOX);
+        SHULKERS.put("<white>White Shulker Box",      Material.WHITE_SHULKER_BOX);
+        SHULKERS.put("<gold>Orange Shulker Box",     Material.ORANGE_SHULKER_BOX);
+        SHULKERS.put("<light_purple>Magenta Shulker Box",    Material.MAGENTA_SHULKER_BOX);
+        SHULKERS.put("<aqua>Light Blue Shulker Box", Material.LIGHT_BLUE_SHULKER_BOX);
+        SHULKERS.put("<yellow>Yellow Shulker Box",     Material.YELLOW_SHULKER_BOX);
+        SHULKERS.put("<green>Lime Shulker Box",       Material.LIME_SHULKER_BOX);
+        SHULKERS.put("<light_purple>Pink Shulker Box",       Material.PINK_SHULKER_BOX);
+        SHULKERS.put("<dark_gray>Gray Shulker Box",       Material.GRAY_SHULKER_BOX);
+        SHULKERS.put("<gray>Light Gray Shulker Box", Material.LIGHT_GRAY_SHULKER_BOX);
+        SHULKERS.put("<dark_aqua>Cyan Shulker Box",       Material.CYAN_SHULKER_BOX);
+        SHULKERS.put("<dark_purple>Purple Shulker Box",     Material.PURPLE_SHULKER_BOX);
+        SHULKERS.put("<blue>Blue Shulker Box",       Material.BLUE_SHULKER_BOX);
+        SHULKERS.put("<red>Brown Shulker Box",      Material.BROWN_SHULKER_BOX);
+        SHULKERS.put("<dark_green>Green Shulker Box",      Material.GREEN_SHULKER_BOX);
+        SHULKERS.put("<red>Red Shulker Box",        Material.RED_SHULKER_BOX);
+        SHULKERS.put("<black>Black Shulker Box",      Material.BLACK_SHULKER_BOX);
     }
 
     // Slot positions for the 16 shulkers (two rows of 8, centred in a 5-row GUI)
@@ -166,13 +167,10 @@ public class ShulkerCategoryGUI extends GUI {
         ItemStack item = new ItemStack(mat);
         var meta = item.getItemMeta();
         if (meta != null) {
-            meta.displayName(net.kyori.adventure.text.Component.text(
-                    dev.nandi0813.practice.util.StringUtil.CC(name)));
+            meta.displayName(Common.deserializeMiniMessage(name));
             var lore = new java.util.ArrayList<net.kyori.adventure.text.Component>();
-            lore.add(net.kyori.adventure.text.Component.text(
-                    dev.nandi0813.practice.util.StringUtil.CC("&eLeft-click &7to add to kit")));
-            lore.add(net.kyori.adventure.text.Component.text(
-                    dev.nandi0813.practice.util.StringUtil.CC("&eRight-click &7to edit contents")));
+            lore.add(Common.deserializeMiniMessage("<yellow>Left-click <gray>to add to kit"));
+            lore.add(Common.deserializeMiniMessage("<yellow>Right-click <gray>to edit contents"));
             meta.lore(lore);
             item.setItemMeta(meta);
         }

@@ -188,8 +188,8 @@ public class ArmorTrimMainGui extends GUI {
         for (String line : lorTemplate) {
             String processedLine = line
                 .replace("%tier%", tier.getDisplayName())
-                .replace("%pattern%", activePattern == null ? "&cNone" : "&b" + formatDisplayName(activePattern))
-                .replace("%material%", activeMaterial == null ? "&cNone" : "&6" + formatDisplayName(activeMaterial));
+                .replace("%pattern%", activePattern == null ? "<red>None" : "<aqua>" + formatDisplayName(activePattern))
+                .replace("%material%", activeMaterial == null ? "<red>None" : "<gold>" + formatDisplayName(activeMaterial));
             lore.add(processedLine);
         }
         guiItem.setLore(lore);
@@ -231,7 +231,7 @@ public class ArmorTrimMainGui extends GUI {
         guiItem.replace("%pattern_total%", String.valueOf(totalPatternPermissions));
         guiItem.replace("%material_unlocked%", String.valueOf(playerMaterialPermissions));
         guiItem.replace("%material_total%", String.valueOf(totalMaterialPermissions));
-        guiItem.setName("&bArmor Tier: &e" + activeTier.getDisplayName());
+        guiItem.setName("<aqua>Armor Tier: <yellow>" + activeTier.getDisplayName());
 
         List<String> lore = guiItem.getLore() == null ? new ArrayList<>() : new ArrayList<>(guiItem.getLore());
         
@@ -250,20 +250,20 @@ public class ArmorTrimMainGui extends GUI {
         guiItem.setMaterial(guiItem.getMaterial() == null ? Material.SMITHING_TABLE : guiItem.getMaterial());
 
         if (guiItem.getName() == null || guiItem.getName().isEmpty()) {
-            guiItem.setName("&aApply Current Tier To All Tiers");
+            guiItem.setName("<green>Apply Current Tier To All Tiers");
         }
 
         if (guiItem.getLore() == null || guiItem.getLore().isEmpty()) {
             List<String> lore = new ArrayList<>();
-            lore.add("&7Copies the active tier trim setup");
-            lore.add("&7to every armor tier.");
+            lore.add("<gray>Copies the active tier trim setup");
+            lore.add("<gray>to every armor tier.");
             lore.add("");
-            lore.add("&eHelmet -> Helmet");
-            lore.add("&eChestplate -> Chestplate");
-            lore.add("&eLeggings -> Leggings");
-            lore.add("&eBoots -> Boots");
+            lore.add("<yellow>Helmet -> Helmet");
+            lore.add("<yellow>Chestplate -> Chestplate");
+            lore.add("<yellow>Leggings -> Leggings");
+            lore.add("<yellow>Boots -> Boots");
             lore.add("");
-            lore.add("&aClick to apply");
+            lore.add("<green>Click to apply");
             guiItem.setLore(lore);
         }
 

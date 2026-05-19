@@ -3,7 +3,6 @@ package dev.nandi0813.practice.manager.backend;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.util.Common;
-import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -42,7 +41,7 @@ public enum GUIFile {
     }
 
     public static String getString(String loc) {
-        return StringUtil.CC(config.getString(loc.toUpperCase()));
+        return config.getString(loc.toUpperCase());
     }
 
     public static int getInt(String loc) {
@@ -50,7 +49,7 @@ public enum GUIFile {
     }
 
     public static List<String> getStringList(String loc) {
-        return StringUtil.CC(config.getStringList(loc.toUpperCase()));
+        return config.getStringList(loc.toUpperCase());
     }
 
     public static GUIItem getGuiItem(String loc) {

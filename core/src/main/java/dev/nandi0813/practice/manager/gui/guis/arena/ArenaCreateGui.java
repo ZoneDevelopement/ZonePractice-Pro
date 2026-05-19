@@ -61,7 +61,7 @@ public class ArenaCreateGui extends GUI {
         inventory.setItem(16, null);
 
         for (ArenaType type : ArenaType.values()) {
-            ItemStack item = ItemCreateUtil.createItem("&e" + type.getName(), type.getIcon());
+            ItemStack item = ItemCreateUtil.createItem("<yellow>" + type.getName(), type.getIcon());
             ItemMeta itemMeta = item.getItemMeta();
             itemMeta.lore(type.getDescription().stream().map(Common::legacyToComponent).toList());
             item.setItemMeta(itemMeta);

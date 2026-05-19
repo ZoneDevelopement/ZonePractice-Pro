@@ -39,7 +39,7 @@ public class PatternSelectionGui extends GUI {
         this.profile = profile;
         this.armorSlot = armorSlot;
         this.backToGui = backToGui;
-        String title = GUIFile.getConfig().getString("GUIS.COSMETICS.PATTERN-SELECTION.INVENTORY-TITLE", "&8Select Pattern - %armor%")
+        String title = GUIFile.getConfig().getString("GUIS.COSMETICS.PATTERN-SELECTION.INVENTORY-TITLE", "<dark_gray>Select Pattern - %armor%")
             .replace("%armor%", armorSlot.getDisplayName());
         this.gui.put(1, InventoryUtil.createInventory(title, INVENTORY_ROWS));
         build();
@@ -137,7 +137,7 @@ public class PatternSelectionGui extends GUI {
         }
         GUIItem item = new GUIItem(templateMaterial == null ? Material.PAPER : templateMaterial);
         
-        String itemName = GUIFile.getConfig().getString("GUIS.COSMETICS.PATTERN-SELECTION.PATTERN-ITEM.NAME", "&b%pattern_name% Pattern")
+        String itemName = GUIFile.getConfig().getString("GUIS.COSMETICS.PATTERN-SELECTION.PATTERN-ITEM.NAME", "<aqua>%pattern_name% Pattern")
             .replace("%pattern_name%", StringUtil.getNormalizedName(patternId));
         item.setName(itemName);
 
@@ -145,8 +145,8 @@ public class PatternSelectionGui extends GUI {
         List<String> lore = new ArrayList<>();
         for (String loreLine : configLore) {
             lore.add(loreLine
-                .replace("%state%", active ? "&aActive" : "&cInactive")
-                .replace("%access%", hasPermission ? "&aUnlocked" : "&cLocked")
+                .replace("%state%", active ? "<green>Active" : "<red>Inactive")
+                .replace("%access%", hasPermission ? "<green>Unlocked" : "<red>Locked")
                 .replace("%permission%", permissionNode));
         }
         item.setLore(lore);

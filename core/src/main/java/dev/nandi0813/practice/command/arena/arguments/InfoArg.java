@@ -37,7 +37,7 @@ public enum InfoArg {
                     .replace("%arena%", arena.getName())
                     .replace("%type%", arena.getType().getName())
                     .replace("%icon%", arena.getIcon() != null ? LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.INFO.STATUS-NAMES.SET") : LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.INFO.STATUS-NAMES.NOT-SET"))
-                    .replace("%displayName%", StringUtil.legacyColorToMiniMessage(arena.getDisplayName()))
+                    .replace("%displayName%", arena.getDisplayName())
                     .replace("%ladders%", (ladderNames.isEmpty() ? StringUtil.CC("<red>NULL") : ladderNames.toString().replace("]", "").replace("[", "")))
                     .replace("%corner1%", ArenaUtil.convertLocation(arena.getCorner1()))
                     .replace("%corner2%", ArenaUtil.convertLocation(arena.getCorner2()))

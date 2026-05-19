@@ -58,7 +58,7 @@ public class ShieldEditorGui extends GUI {
         ShieldLayout layout = getLayout();
         String layoutName   = layout != null ? layout.getName() : "Shield";
         String title = GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.EDITOR.TITLE",
-                "&8Editing: &e%name%").replace("%name%", layoutName);
+                "<dark_gray>Editing: <yellow>%name%").replace("%name%", layoutName);
         this.gui.put(1, InventoryUtil.createInventory(title, ROWS));
         build();
     }
@@ -99,13 +99,13 @@ public class ShieldEditorGui extends GUI {
         boolean canAdd = layout.getLayers().size() < ShieldLayout.MAX_LAYERS;
         GUIItem addBtn = new GUIItem(canAdd ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE);
         addBtn.setName(canAdd
-                ? GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.EDITOR.ADD-LAYER.NAME", "&aAdd Layer")
-                : GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.EDITOR.MAX-LAYERS.NAME", "&cMax Layers Reached"));
+                ? GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.EDITOR.ADD-LAYER.NAME", "<green>Add Layer")
+                : GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.EDITOR.MAX-LAYERS.NAME", "<red>Max Layers Reached"));
         List<String> addLore = new ArrayList<>();
-        addLore.add("&7Layers: &f" + layout.getLayers().size() + "&7/&f" + ShieldLayout.MAX_LAYERS);
+        addLore.add("<gray>Layers: <white>" + layout.getLayers().size() + "<gray>/<white>" + ShieldLayout.MAX_LAYERS);
         if (canAdd) {
-            addLore.add("&eClick to add a new layer.");
-            addLore.add("&7Step 1: choose color, Step 2: choose pattern.");
+            addLore.add("<yellow>Click to add a new layer.");
+            addLore.add("<gray>Step 1: choose color, Step 2: choose pattern.");
         }
         addBtn.setLore(addLore);
         inv.setItem(ADD_LAYER_SLOT, addBtn.get());
@@ -114,12 +114,12 @@ public class ShieldEditorGui extends GUI {
         boolean canRemove = !layout.getLayers().isEmpty();
         GUIItem removeBtn = new GUIItem(canRemove ? Material.ORANGE_STAINED_GLASS_PANE : Material.GRAY_STAINED_GLASS_PANE);
         removeBtn.setName(canRemove
-                ? GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.EDITOR.REMOVE-LAYER.NAME", "&cRemove Top Layer")
-                : "&8No layers to remove");
+                ? GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.EDITOR.REMOVE-LAYER.NAME", "<red>Remove Top Layer")
+                : "<dark_gray>No layers to remove");
         if (canRemove) {
             List<String> remLore = new ArrayList<>();
-            remLore.add("&7Removes the most recently added layer.");
-            remLore.add("&cClick to remove.");
+            remLore.add("<gray>Removes the most recently added layer.");
+            remLore.add("<red>Click to remove.");
             removeBtn.setLore(remLore);
         }
         inv.setItem(REMOVE_LAYER_SLOT, removeBtn.get());
@@ -211,10 +211,10 @@ public class ShieldEditorGui extends GUI {
         ShieldCosmeticsUtil.applyLayoutToItem(shield, layout);
         ItemMeta meta = shield.getItemMeta();
         if (meta != null) {
-            meta.displayName(tc("&eShield Preview"));
+            meta.displayName(tc("<yellow>Shield Preview"));
             List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
-            lore.add(tc("&7Base: &f" + (layout.getBaseColor() != null ? fmt(layout.getBaseColor().name()) : "White")));
-            lore.add(tc("&7Layers: &f" + layout.getLayers().size() + "&7/&f" + ShieldLayout.MAX_LAYERS));
+            lore.add(tc("<gray>Base: <white>" + (layout.getBaseColor() != null ? fmt(layout.getBaseColor().name()) : "White")));
+            lore.add(tc("<gray>Layers: <white>" + layout.getLayers().size() + "<gray>/<white>" + ShieldLayout.MAX_LAYERS));
             meta.lore(lore);
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
             shield.setItemMeta(meta);
@@ -226,10 +226,10 @@ public class ShieldEditorGui extends GUI {
         DyeColor base = layout.getBaseColor() != null ? layout.getBaseColor() : DyeColor.WHITE;
         Material wool = dyeToWool(base);
         GUIItem item  = new GUIItem(wool);
-        item.setName("&bBase Color: &f" + fmt(base.name()));
+        item.setName("<aqua>Base Color: <white>" + fmt(base.name()));
         List<String> lore = new ArrayList<>();
-        lore.add("&7The background color of your shield.");
-        lore.add("&eClick to change.");
+        lore.add("<gray>The background color of your shield.");
+        lore.add("<yellow>Click to change.");
         item.setLore(lore);
         return item.get();
     }
@@ -237,9 +237,9 @@ public class ShieldEditorGui extends GUI {
     private ItemStack buildApplyButton(boolean isActive) {
         Material mat = isActive ? Material.LIME_WOOL : Material.GRAY_WOOL;
         GUIItem item = new GUIItem(mat);
-        item.setName(isActive ? "&a&lLayout Active &7(Click to unapply)" : "&eApply This Layout");
+        item.setName(isActive ? "<green><bold>Layout Active <gray>(Click to unapply)" : "<yellow>Apply This Layout");
         List<String> lore = new ArrayList<>();
-        lore.add(isActive ? "&7This design is on your shield." : "&7Apply this design to your shield.");
+        lore.add(isActive ? "<gray>This design is on your shield." : "<gray>Apply this design to your shield.");
         item.setLore(lore);
         if (isActive) item.setGlowing(true);
         return item.get();
@@ -248,7 +248,7 @@ public class ShieldEditorGui extends GUI {
     private ItemStack buildLayerItem(ShieldLayout.PatternLayer layer, int index) {
         Material banner = dyeToBanner(layer.color());
         GUIItem item = new GUIItem(banner);
-        item.setName("&fLayer " + (index + 1) + ": &e" + getPatternDisplayName(layer.pattern()));
+        item.setName("<white>Layer " + (index + 1) + ": <yellow>" + getPatternDisplayName(layer.pattern()));
 
         // Apply pattern to the banner icon
         ItemStack stack = item.get();
@@ -260,11 +260,11 @@ public class ShieldEditorGui extends GUI {
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
             List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
-            lore.add(tc("&7Color: &f" + fmt(layer.color().name())));
-            lore.add(tc("&7Pattern: &f" + getPatternDisplayName(layer.pattern())));
+            lore.add(tc("<gray>Color: <white>" + fmt(layer.color().name())));
+            lore.add(tc("<gray>Pattern: <white>" + getPatternDisplayName(layer.pattern())));
             lore.add(tc(""));
-            lore.add(tc("&eClick to edit this layer."));
-            lore.add(tc("&7Use Add Layer for a new slot."));
+            lore.add(tc("<yellow>Click to edit this layer."));
+            lore.add(tc("<gray>Use Add Layer for a new slot."));
             meta.lore(lore);
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
             stack.setItemMeta(meta);
@@ -281,7 +281,7 @@ public class ShieldEditorGui extends GUI {
     }
 
     private static net.kyori.adventure.text.Component tc(String legacy) {
-        return net.kyori.adventure.text.Component.text(StringUtil.CC(legacy));
+        return dev.nandi0813.practice.util.Common.deserializeMiniMessage(legacy);
     }
 
     private static String fmt(String raw) {

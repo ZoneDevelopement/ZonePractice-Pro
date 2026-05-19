@@ -64,7 +64,7 @@ public class MatchHistoryGui extends GUI {
         // ── Read config ────────────────────────────────────────
         String rawTitle = GUIFile.getString("GUIS.MATCH-HISTORY.TITLE");
         if (rawTitle == null || rawTitle.isEmpty())
-            rawTitle = "&8Match History &7- &6%player%";
+            rawTitle = "<dark_gray>Match History <gray>- <gold>%player%";
         rawTitle = rawTitle.replace("%player%", targetName);
 
         int size = GUIFile.getInt("GUIS.MATCH-HISTORY.SIZE");
@@ -130,7 +130,7 @@ public class MatchHistoryGui extends GUI {
                 : StringUtil.CC(GUIFile.getString(
                 "GUIS.MATCH-HISTORY.MESSAGES.LOSS"));
         final String result = (rawResult == null || rawResult.isBlank())
-                ? (won ? "§aWin" : draw ? "§eEquality" : "§cLoss")
+                ? (won ? "<green>Win" : draw ? "<yellow>Equality" : "<red>Loss")
                 : rawResult;
 
         double myHealth  = getMyHealth(entry);
@@ -141,7 +141,7 @@ public class MatchHistoryGui extends GUI {
         // ── Name ──────────────────────────────────────────────
         String rawName = GUIFile.getString("GUIS.MATCH-HISTORY.MATCH-ITEM.NAME");
         if (rawName == null || rawName.isBlank())
-            rawName = "&eMatch vs &f%opponent%";
+            rawName = "<yellow>Match vs <white>%opponent%";
         String displayName = applyPlaceholders(rawName, entry, oppName,
                 result, myScore, oppScore, myHealth, oppHealth, won, draw);
 
@@ -300,16 +300,16 @@ public class MatchHistoryGui extends GUI {
 
     private List<String> defaultLore() {
         List<String> lore = new ArrayList<>();
-        lore.add("&8&m--------------------");
-        lore.add("&7Result: %result%");
-        lore.add("&7Score: %score%");
-        lore.add("&7Kit: &f%kit%");
-        lore.add("&7Arena: &f%arena%");
-        lore.add("&7Your Health: %player_health%");
-        lore.add("&7Opponent Health: %opponent_health%");
-        lore.add("&7Duration: &f%duration%");
-        lore.add("&7Played: &f%date%");
-        lore.add("&8&m--------------------");
+        lore.add("<dark_gray><st>--------------------");
+        lore.add("<gray>Result: %result%");
+        lore.add("<gray>Score: %score%");
+        lore.add("<gray>Kit: <white>%kit%");
+        lore.add("<gray>Arena: <white>%arena%");
+        lore.add("<gray>Your Health: %player_health%");
+        lore.add("<gray>Opponent Health: %opponent_health%");
+        lore.add("<gray>Duration: <white>%duration%");
+        lore.add("<gray>Played: <white>%date%");
+        lore.add("<dark_gray><st>--------------------");
         return lore;
     }
 

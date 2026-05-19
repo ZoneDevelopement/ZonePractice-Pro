@@ -224,13 +224,13 @@ MATCH-SETTINGS:
       COLOR:
         "<yellow>"
   MATCH-TYPE-NAMES:
-    DUEL: "&e&lDuel"
-    PARTY_FFA: "&e&lParty FFA"
-    PARTY_SPLIT: "&e&lParty Split"
-    PARTY_VS_PARTY: "&e&lParty Vs Party"
+    DUEL: "<yellow><bold>Duel"
+    PARTY_FFA: "<yellow><bold>Party FFA"
+    PARTY_SPLIT: "<yellow><bold>Party Split"
+    PARTY_VS_PARTY: "<yellow><bold>Party Vs Party"
   WEIGHT-CLASS:
-    UNRANKED: "&aUnranked"
-    RANKED: "&cRanked"
+    UNRANKED: "<green>Unranked"
+    RANKED: "<red>Ranked"
   LEAVE-COMMAND:
     ENABLED: true
     WEIGHT-CLASS:
@@ -274,13 +274,13 @@ MATCH-SETTINGS:
     COOLDOWN: 10 # Cooldown in seconds between Golden Head uses.
     ACTION-BAR-COOLDOWN-MSG: "<gold>🕒 <yellow>%remaining%s"
     ITEM:
-      NAME: "&e&lGolden Head"
+      NAME: "<yellow><bold>Golden Head"
       MATERIAL: GOLDEN_APPLE
       DAMAGE: 1
       LORE:
         - ""
-        - "&7This apple gives you extra"
-        - "&7health and effects."
+        - "<gray>This apple gives you extra"
+        - "<gray>health and effects."
         - ""
     #
     # You can add any potion effects for the golden head.
@@ -359,10 +359,10 @@ MATCH-SETTINGS:
     EXPIRE-TIME: 20 # sec
   KIT-ITEMS:
     DEFAULT-KIT:
-      NAME: "&e&lDefault Kit"
+      NAME: "<yellow><bold>Default Kit"
       MATERIAL: ENCHANTED_BOOK
     CUSTOM-KIT:
-      NAME: "&a&lKit %kit%"
+      NAME: "<green><bold>Kit %kit%"
       MATERIAL: ENCHANTED_BOOK
   LADDER-SETTINGS:
     BRIDGE:
@@ -478,99 +478,99 @@ LEADERBOARD:
     DYNAMIC-UPDATE: 10 # Sec. This type of hologram is switching between ladders.
     STATIC-UPDATE: 30 # Sec. This type of hologram is always show one ladder or global elo stats.
     FORMAT: # Also placeholders: %division%, %division_short%, %group%, %ladder_name%
-      NULL-LINE: "&6%number%. &cN/A"
-      NOTHING-TO-DISPLAY: "&cThere is nothing to display."
+      NULL-LINE: "<gold>%number%. <red>N/A"
+      NOTHING-TO-DISPLAY: "<red>There is nothing to display."
       ELO:
         TITLE-LINE-SPACING: 0.5
         LINE-SPACING: 0.3
-        FORMAT: "&6%placement%. %division% | %player%&8: &e%score%"
+        FORMAT: "<gold>%placement%. %division% | %player%<dark_gray>: <yellow>%score%"
         LINES:
           GLOBAL:
-            - "&6ELO Top"
+            - "<gold>ELO Top"
             - "%top%"
           LADDER:
-            - "&6ELO Top &7- &e%ladder_displayName%"
+            - "<gold>ELO Top <gray>- <yellow>%ladder_displayName%"
             - "%top%"
       WIN:
         TITLE-LINE-SPACING: 0.5
         LINE-SPACING: 0.3
-        FORMAT: "&6%placement%. %division% | %player%&8: &e%score%"
+        FORMAT: "<gold>%placement%. %division% | %player%<dark_gray>: <yellow>%score%"
         LINES:
           GLOBAL:
-            - "&6Win Top"
+            - "<gold>Win Top"
             - "%top%"
           LADDER:
-            - "&6Win Top &7- &e%ladder_displayName%"
+            - "<gold>Win Top <gray>- <yellow>%ladder_displayName%"
             - "%top%"
       KILLS:
         TITLE-LINE-SPACING: 0.5
         LINE-SPACING: 0.3
-        FORMAT: "&6%placement%. %division% | %player%&8: &e%score%"
+        FORMAT: "<gold>%placement%. %division% | %player%<dark_gray>: <yellow>%score%"
         LINES:
           GLOBAL:
-            - "&6Kill Top"
+            - "<gold>Kill Top"
             - "%top%"
           LADDER:
-            - "&6Kill Top &7- &e%ladder_displayName%"
+            - "<gold>Kill Top <gray>- <yellow>%ladder_displayName%"
             - "%top%"
       DEATHS:
         TITLE-LINE-SPACING: 0.5
         LINE-SPACING: 0.3
-        FORMAT: "&6%placement%. %division% | %player%&8: &e%score%"
+        FORMAT: "<gold>%placement%. %division% | %player%<dark_gray>: <yellow>%score%"
         LINES:
           GLOBAL:
-            - "&6Deaths Top"
+            - "<gold>Deaths Top"
             - "%top%"
           LADDER:
-            - "&6Deaths Top &7- &e%ladder_displayName%"
+            - "<gold>Deaths Top <gray>- <yellow>%ladder_displayName%"
             - "%top%"
       WIN_STREAK:
         TITLE-LINE-SPACING: 0.5
         LINE-SPACING: 0.3
-        FORMAT: "&6%placement%. %division% | %player%&8: &e%score%"
+        FORMAT: "<gold>%placement%. %division% | %player%<dark_gray>: <yellow>%score%"
         LINES:
           GLOBAL:
-            - "&6Win Streak Top"
+            - "<gold>Win Streak Top"
             - "%top%"
           LADDER:
-            - "&6Win Streak Top &7- &e%ladder_displayName%"
+            - "<gold>Win Streak Top <gray>- <yellow>%ladder_displayName%"
             - "%top%"
       BEST_WIN_STREAK:
         TITLE-LINE-SPACING: 0.5
         LINE-SPACING: 0.3
-        FORMAT: "&6%placement%. %division% | %player%&8: &e%score%"
+        FORMAT: "<gold>%placement%. %division% | %player%<dark_gray>: <yellow>%score%"
         LINES:
           GLOBAL:
-            - "&6Best Win Streak Top"
+            - "<gold>Best Win Streak Top"
             - "%top%"
           LADDER:
-            - "&6Best Win Streak Top &7- &e%ladder_displayName%"
+            - "<gold>Best Win Streak Top <gray>- <yellow>%ladder_displayName%"
             - "%top%"
       LOSE_STREAK:
         TITLE-LINE-SPACING: 0.5
         LINE-SPACING: 0.3
-        FORMAT: "&6%placement%. %division% | %player%&8: &e%score%"
+        FORMAT: "<gold>%placement%. %division% | %player%<dark_gray>: <yellow>%score%"
         LINES:
           GLOBAL:
-            - "&6Lose Streak Top"
+            - "<gold>Lose Streak Top"
             - "%top%"
           LADDER:
-            - "&6Lose Streak Top &7- &e%ladder_displayName%"
+            - "<gold>Lose Streak Top <gray>- <yellow>%ladder_displayName%"
             - "%top%"
       BEST_LOSE_STREAK:
         TITLE-LINE-SPACING: 0.5
         LINE-SPACING: 0.3
-        FORMAT: "&6%placement%. %division% | %player%&8: &e%score%"
+        FORMAT: "<gold>%placement%. %division% | %player%<dark_gray>: <yellow>%score%"
         LINES:
           GLOBAL:
-            - "&6Best Lose Streak Top"
+            - "<gold>Best Lose Streak Top"
             - "%top%"
           LADDER:
-            - "&6Best Lose Streak Top &7- &e%ladder_displayName%"
+            - "<gold>Best Lose Streak Top <gray>- <yellow>%ladder_displayName%"
             - "%top%"
       SETUP-HOLO:
-        TITLE: "&cThis hologram must be set."
-        LINE: "&6Hologram Name: &e%name%"
+        TITLE: "<red>This hologram must be set."
+        LINE: "<gold>Hologram Name: <yellow>%name%"
 #
 # Sidebar settings
 SIDEBAR:
@@ -588,7 +588,7 @@ ARENA:
   DEFAULT-ICON: # If default icon is enabled it won't be necessary to set an arena icon, but you still can.
     ENABLED: false
     ICON:
-      NAME: "&6%arena%"
+      NAME: "<gold>%arena%"
       MATERIAL: FIREWORK_STAR
       # DAMAGE: 4 # You can set the damage to the material as well.
 #
@@ -607,7 +607,7 @@ EVENT:
       IN-RANKED-MATCH: false # If true and the player is in a ranked match, he will receive the broadcast message.
       IN-EVENT: true # If true and the player is in another event, he will receive the broadcast message.
   PLAYER-TRACKER: # Shows the nearest player.
-    NAME: "&cPlayer Tracker &7(Right-Click)"
+    NAME: "<red>Player Tracker <gray>(Right-Click)"
     MATERIAL: COMPASS
   LMS: # Please be aware that building is not yet supported for the event.
     NAME: "LMS"
@@ -629,7 +629,7 @@ EVENT:
     WINNER-COMMAND:
       - "practice ranked add %player% 3"
     TAGGED-ITEM:
-      NAME: "&cYou're IT, tag someone!"
+      NAME: "<red>You're IT, tag someone!"
       MATERIAL: TNT
   BRACKETS: # Please be aware that building is not yet supported for the event.
     NAME: "Brackets"
@@ -646,7 +646,7 @@ EVENT:
     BREAKABLE-MATERIALS: # Generic entries like WOOL or TERRACOTTA also match colored variants.
       - "WOOL"
     EGG-LAUNCHER-ITEM:
-      NAME: "&aShoot The Blocks &7(Right-Click)"
+      NAME: "<green>Shoot The Blocks <gray>(Right-Click)"
       MATERIAL: IRON_SHOVEL
   JUGGERNAUT: # Please be aware that building is not yet supported for the event.
     NAME: "Juggernaut"

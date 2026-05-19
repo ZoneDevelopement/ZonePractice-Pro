@@ -28,8 +28,8 @@ public class KnockbackItem extends SettingItem {
         for (KnockbackType kt : KnockbackType.values()) {
             String ktName = StringUtils.capitalize(kt.name().toLowerCase());
 
-            if (ladder.getLadderKnockback().getKnockbackType().equals(kt)) extension.add(" &a» " + ktName);
-            else extension.add(" &7» " + ktName);
+            if (ladder.getLadderKnockback().getKnockbackType().equals(kt)) extension.add(" <green>» " + ktName);
+            else extension.add(" <gray>» " + ktName);
         }
 
         GUIItem guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.KNOCKBACK");

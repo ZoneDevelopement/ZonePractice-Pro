@@ -6,43 +6,43 @@ import lombok.Getter;
 public enum SetupMode {
 
     CORNERS("Corner Selection", new String[]{
-            "&b Left Click: &fSet Corner 1",
-            "&b Right Click: &fSet Corner 2"
+            "<aqua> Left Click: <white>Set Corner 1",
+            "<aqua> Right Click: <white>Set Corner 2"
     }),
 
     POSITIONS("Spawn Points (Standard)", new String[]{
-            "&b Left Click Block: &fSet Position 1 (Blue)",
-            "&b Right Click Block: &fSet Position 2 (Red)"
+            "<aqua> Left Click Block: <white>Set Position 1 (Blue)",
+            "<aqua> Right Click Block: <white>Set Position 2 (Red)"
     }),
 
     FFA_POSITIONS("Spawn Points (FFA)", new String[]{
-            "&b Right Click Block: &fAdd Spawn Point",
-            "&b Right Click Armor Stand: &fRemove That Spawn",
-            "&b Left Click (Anywhere): &fRemove Last Spawn"
+            "<aqua> Right Click Block: <white>Add Spawn Point",
+            "<aqua> Right Click Armor Stand: <white>Remove That Spawn",
+            "<aqua> Left Click (Anywhere): <white>Remove Last Spawn"
     }),
 
     BUILD_MAX("Build Height Limit", new String[]{
-            "&b Right Click: &fSet to Current Y-Level",
-            "&b Left Click: &fDisable Build Limit"
+            "<aqua> Right Click: <white>Set to Current Y-Level",
+            "<aqua> Left Click: <white>Disable Build Limit"
     }),
 
     DEAD_ZONE("Dead Zone (Void)", new String[]{
-            "&b Right Click: &fSet to Current Y-Level",
-            "&b Left Click: &fDisable Dead Zone"
+            "<aqua> Right Click: <white>Set to Current Y-Level",
+            "<aqua> Left Click: <white>Disable Dead Zone"
     }),
 
     BED_LOCATIONS("Bed Locations", new String[]{
-            "&b Left Click: &fSet Blue Bed",
-            "&b Right Click: &fSet Red Bed"
+            "<aqua> Left Click: <white>Set Blue Bed",
+            "<aqua> Right Click: <white>Set Red Bed"
     }),
 
     PORTALS("Portal Setup", new String[]{
-            "&b Right Click: &fAdd Portal Region",
-            "&b Left Click: &fRemove Portal Region"
+            "<aqua> Right Click: <white>Add Portal Region",
+            "<aqua> Left Click: <white>Remove Portal Region"
     }),
 
     TOGGLE_STATUS("Arena Status", new String[]{
-            "&b Right Click: &fEnable Arena",
+            "<aqua> Right Click: <white>Enable Arena",
     });
 
     private final String displayName;

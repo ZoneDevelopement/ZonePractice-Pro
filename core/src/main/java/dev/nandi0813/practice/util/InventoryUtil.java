@@ -1,5 +1,7 @@
 package dev.nandi0813.practice.util;
 
+import dev.nandi0813.practice.ZonePractice;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 
@@ -7,7 +9,8 @@ public enum InventoryUtil {
     ;
 
     public static Inventory createInventory(String title, int row) {
-        return Bukkit.getServer().createInventory(null, row * 9, StringUtil.CC(title));
+        Component component = ZonePractice.getMiniMessage().deserialize(title);
+        return Bukkit.getServer().createInventory(null, row * 9, component);
     }
 
 }

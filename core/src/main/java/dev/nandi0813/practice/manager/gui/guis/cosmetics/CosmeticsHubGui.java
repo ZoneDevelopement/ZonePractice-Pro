@@ -47,7 +47,7 @@ public class CosmeticsHubGui extends GUI {
         this.profile = profile;
 
         String title = GUIFile.getConfig().getString(
-                "GUIS.COSMETICS.HUB.TITLE", "&8✦ Cosmetics");
+                "GUIS.COSMETICS.HUB.TITLE", "<dark_gray>✦ Cosmetics");
         this.gui.put(1, InventoryUtil.createInventory(title, ROWS));
         build();
     }
@@ -86,12 +86,12 @@ public class CosmeticsHubGui extends GUI {
 
     private ItemStack buildTrimsButton() {
         String name = GUIFile.getConfig().getString(
-                "GUIS.COSMETICS.HUB.BUTTONS.ARMOR-TRIMS.NAME", "&6✦ Armor Trims");
+                "GUIS.COSMETICS.HUB.BUTTONS.ARMOR-TRIMS.NAME", "<gold>✦ Armor Trims");
         Material mat = safeMaterial(
                 GUIFile.getConfig().getString("GUIS.COSMETICS.HUB.BUTTONS.ARMOR-TRIMS.MATERIAL"),
                 Material.DIAMOND_CHESTPLATE);
         List<String> lore = getOrDefaultLore("GUIS.COSMETICS.HUB.BUTTONS.ARMOR-TRIMS.LORE",
-                List.of("&7Customize your armor tier,", "&7trim patterns and materials."));
+                List.of("<gray>Customize your armor tier,", "<gray>trim patterns and materials."));
 
         GUIItem item = new GUIItem(name, mat, lore);
         item.setGlowing(GUIFile.getConfig().getBoolean(
@@ -101,18 +101,18 @@ public class CosmeticsHubGui extends GUI {
 
     private ItemStack buildShieldButton() {
         String name = GUIFile.getConfig().getString(
-                "GUIS.COSMETICS.HUB.BUTTONS.SHIELD.NAME", "&9✦ Shield");
+                "GUIS.COSMETICS.HUB.BUTTONS.SHIELD.NAME", "<blue>✦ Shield");
         Material mat = safeMaterial(
                 GUIFile.getConfig().getString("GUIS.COSMETICS.HUB.BUTTONS.SHIELD.MATERIAL"),
                 Material.SHIELD);
         List<String> lore = getOrDefaultLore("GUIS.COSMETICS.HUB.BUTTONS.SHIELD.LORE",
-                List.of("&7Design your shield with any", "&7color and pattern combination.", "&7Save multiple layouts."));
+                List.of("<gray>Design your shield with any", "<gray>color and pattern combination.", "<gray>Save multiple layouts."));
 
         ShieldLayout active = profile.getCosmeticsData().getActiveShieldLayout();
         List<String> finalLore = new ArrayList<>(lore);
         finalLore.add("");
-        finalLore.add("&7Active layout: &e" + (active != null ? active.getName() : "&cNone"));
-        finalLore.add("&7Saved layouts: &e"
+        finalLore.add("<gray>Active layout: <yellow>" + (active != null ? active.getName() : "<red>None"));
+        finalLore.add("<gray>Saved layouts: <yellow>"
                 + profile.getCosmeticsData().getShieldLayouts().size());
 
         GUIItem item = new GUIItem(name, mat, finalLore);
@@ -123,17 +123,17 @@ public class CosmeticsHubGui extends GUI {
 
     private ItemStack buildKillEffectButton() {
         String name = GUIFile.getConfig().getString(
-                "GUIS.COSMETICS.HUB.BUTTONS.KILL-EFFECTS.NAME", "&c✦ Death Effects");
+                "GUIS.COSMETICS.HUB.BUTTONS.KILL-EFFECTS.NAME", "<red>✦ Death Effects");
         Material mat = safeMaterial(
                 GUIFile.getConfig().getString("GUIS.COSMETICS.HUB.BUTTONS.KILL-EFFECTS.MATERIAL"),
                 Material.BLAZE_POWDER);
         List<String> lore = getOrDefaultLore("GUIS.COSMETICS.HUB.BUTTONS.KILL-EFFECTS.LORE",
-                List.of("&7Choose a particle effect", "&7that plays when you kill someone."));
+                List.of("<gray>Choose a particle effect", "<gray>that plays when you kill someone."));
 
         DeathEffect active = profile.getCosmeticsData().getDeathEffect();
         List<String> finalLore = new ArrayList<>(lore);
         finalLore.add("");
-        finalLore.add("&7Active effect: &e" + (active != null ? active.getDisplayName() : "&cNone"));
+        finalLore.add("<gray>Active effect: <yellow>" + (active != null ? active.getDisplayName() : "<red>None"));
 
         GUIItem item = new GUIItem(name, mat, finalLore);
         item.setGlowing(GUIFile.getConfig().getBoolean(
@@ -143,17 +143,17 @@ public class CosmeticsHubGui extends GUI {
 
     private ItemStack buildLobbyItemsButton() {
         String name = GUIFile.getConfig().getString(
-                "GUIS.COSMETICS.HUB.BUTTONS.LOBBY-ITEMS.NAME", "&b✦ Lobby Items");
+                "GUIS.COSMETICS.HUB.BUTTONS.LOBBY-ITEMS.NAME", "<aqua>✦ Lobby Items");
         Material mat = safeMaterial(
                 GUIFile.getConfig().getString("GUIS.COSMETICS.HUB.BUTTONS.LOBBY-ITEMS.MATERIAL"),
                 Material.ELYTRA);
         List<String> lore = getOrDefaultLore("GUIS.COSMETICS.HUB.BUTTONS.LOBBY-ITEMS.LORE",
-                List.of("&7Select movement cosmetics", "&7for your lobby loadout."));
+                List.of("<gray>Select movement cosmetics", "<gray>for your lobby loadout."));
 
         CosmeticsData.LobbyItemType active = profile.getCosmeticsData().getLobbyItemType();
         List<String> finalLore = new ArrayList<>(lore);
         finalLore.add("");
-        finalLore.add("&7Active item: &e" + formatName(active == null ? "NONE" : active.name()));
+        finalLore.add("<gray>Active item: <yellow>" + formatName(active == null ? "NONE" : active.name()));
 
         GUIItem item = new GUIItem(name, mat, finalLore);
         item.setGlowing(GUIFile.getConfig().getBoolean(

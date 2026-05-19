@@ -1,6 +1,6 @@
 package dev.nandi0813.practice.command.staff.arguments;
 
-import dev.nandi0813.practice.util.StringUtil;
+import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 
 public enum FollowArg {
@@ -8,11 +8,11 @@ public enum FollowArg {
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.staffmode.follow")) {
-            player.sendMessage(StringUtil.CC("&cYou don't have permission."));
+            Common.sendMMMessage(player, "<red>You don't have permission.");
             return;
         }
 
-        player.sendMessage(StringUtil.CC("&cCurrently not a feature of the plugin."));
+        Common.sendMMMessage(player, "<red>Currently not a feature of the plugin.");
 
         /*
         if (args.length == 2)
@@ -28,13 +28,13 @@ public enum FollowArg {
 
                 }
                 else
-                    player.sendMessage(StringUtil.CC("&cPlayer is not online."));
+                    Common.sendMMMessage(player, "<red>Player is not online.");
             }
             else
-                player.sendMessage(StringUtil.CC("&cYou can only use this command in staff mode."));
+                Common.sendMMMessage(player, "<red>You can only use this command in staff mode.");
         }
         else
-            player.sendMessage(StringUtil.CC("&c/" + label + " follow <player>"));
+            Common.sendMMMessage(player, "<red>/" + label + " follow <yellow><player>"));
          */
     }
 

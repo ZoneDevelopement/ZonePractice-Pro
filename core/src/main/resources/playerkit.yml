@@ -2,82 +2,82 @@ VERSION: 4
 
 GUI:
   MAIN:
-    TITLE: "&8%name%"
+    TITLE: "<dark_gray>%name%"
     ICONS:
       BACK-TO:
-        NAME: "&7&lBack"
+        NAME: "<gray><bold>Back"
         MATERIAL: ARROW
         LORE:
-          - "&7Click to go back"
+          - "<gray>Click to go back"
       CUSTOM-SETTINGS:
-        NAME: "&bCustom Settings"
+        NAME: "<aqua>Custom Settings"
         MATERIAL: COMPARATOR
       GUIDE:
-        NAME: "&b&lGuide"
+        NAME: "<aqua><bold>Guide"
         MATERIAL: PAPER
         LORE:
-          - "&fLeft click to change item"
-          - "&fShit left click to remove item"
-          - "&fRight click to enchant or change count"
-          - "&fShift right click to copy or paste item"
+          - "<white>Left click to change item"
+          - "<white>Shit left click to remove item"
+          - "<white>Right click to enchant or change count"
+          - "<white>Shift right click to copy or paste item"
       RESET-KIT:
-        NAME: "&cReset Kit"
+        NAME: "<red>Reset Kit"
         MATERIAL: GUNPOWDER
       CHANGE-NAME:
-        NAME: "&bChange the name of kit"
+        NAME: "<aqua>Change the name of kit"
         MATERIAL: NAME_TAG
       SHARE-KIT:
-        NAME: "&bShare Kit"
+        NAME: "<aqua>Share Kit"
         MATERIAL: OAK_SIGN
       KIT-SLOT-PLACEHOLDERS:
         HEAD:
-          NAME: "&7Head"
+          NAME: "<gray>Head"
           MATERIAL: BLUE_STAINED_GLASS_PANE
           LORE:
-            - "&3Click to add"
+            - "<dark_aqua>Click to add"
         CHEST:
-          NAME: "&7Chest"
+          NAME: "<gray>Chest"
           MATERIAL: BLUE_STAINED_GLASS_PANE
           LORE:
-            - "&3Click to add"
+            - "<dark_aqua>Click to add"
         LEGS:
-          NAME: "&7Legs"
+          NAME: "<gray>Legs"
           MATERIAL: BLUE_STAINED_GLASS_PANE
           LORE:
-            - "&3Click to add"
+            - "<dark_aqua>Click to add"
         BOOTS:
-          NAME: "&7Feet"
+          NAME: "<gray>Feet"
           MATERIAL: BLUE_STAINED_GLASS_PANE
           LORE:
-            - "&3Click to add"
+            - "<dark_aqua>Click to add"
         OFFHAND:
-          NAME: "&7Offhand"
+          NAME: "<gray>Offhand"
           MATERIAL: BLUE_STAINED_GLASS_PANE
           LORE:
-            - "&3Click to add"
+            - "<dark_aqua>Click to add"
         HOTBAR:
-          NAME: "&7None"
+          NAME: "<gray>None"
           MATERIAL: LIGHT_BLUE_STAINED_GLASS_PANE
           LORE:
-            - "&3Click to add"
+            - "<dark_aqua>Click to add"
         OTHER-INVENTORY:
-          NAME: "&7None"
+          NAME: "<gray>None"
           MATERIAL: GRAY_STAINED_GLASS_PANE
           LORE:
-              - "&3Click to add"
+              - "<dark_aqua>Click to add"
   MAIN-ARMOR:
-    TITLE: "&8Armor"
+    TITLE: "<dark_gray>Armor"
     SIZE: 6
     ICONS:
       OFFICIAL:
         BACK-TO:
-          NAME: "&7&lBack"
+          NAME: "<gray><bold>Back"
           MATERIAL: ARROW
           SLOT: 45
           LORE:
-            - "&7Click to go back"
+            - "<gray>Click to go back"
         NONE:
-          NAME: "&7None"
+          NAME: "<gray>None"
           SLOT: 18
           MATERIAL: GRAY_STAINED_GLASS_PANE
       HELMETS:
@@ -166,212 +166,212 @@ GUI:
           MATERIAL: NETHERITE_BOOTS
           SLOT: 24
   CUSTOM-SETTINGS:
-    TITLE: "&8Settings"
+    TITLE: "<dark_gray>Settings"
     ICONS:
       NAV:
         GO-BACK:
-          NAME: "&cGo Back"
+          NAME: "<red>Go Back"
           MATERIAL: ARROW
       NORMAL-SETTINGS:
         REGENERATION:
           ENABLED:
-            NAME: "&7Regeneration: &aEnabled"
+            NAME: "<gray>Regeneration: <green>Enabled"
             MATERIAL: GLOWSTONE_DUST
             LORE:
               - ""
-              - "&7Players health is automatically regenerate."
+              - "<gray>Players health is automatically regenerate."
               - ""
-              - "&e&lClick here &7to &cdisable&7."
+              - "<yellow><bold>Click here <gray>to <red>disable<gray>."
           DISABLED:
-            NAME: "&7Regeneration: &cDisabled"
+            NAME: "<gray>Regeneration: <red>Disabled"
             MATERIAL: GLOWSTONE_DUST
             LORE:
               - ""
-              - "&7Players health is not regenerate."
+              - "<gray>Players health is not regenerate."
               - ""
-              - "&e&lClick here &7to &aenable&7."
+              - "<yellow><bold>Click here <gray>to <green>enable<gray>."
         HUNGER:
           ENABLED:
-            NAME: "&7Hunger: &aEnabled"
+            NAME: "<gray>Hunger: <green>Enabled"
             MATERIAL: COOKED_BEEF
             LORE:
               - ""
-              - "&7Players starve during the game."
+              - "<gray>Players starve during the game."
               - ""
-              - "&e&lClick here &7to &cdisable&7."
+              - "<yellow><bold>Click here <gray>to <red>disable<gray>."
           DISABLED:
-            NAME: "&7Hunger: &cDisabled"
+            NAME: "<gray>Hunger: <red>Disabled"
             MATERIAL: COOKED_BEEF
             LORE:
               - ""
-              - "&7Players don't starve."
+              - "<gray>Players don't starve."
               - ""
-              - "&e&lClick here &7to &aenable&7."
+              - "<yellow><bold>Click here <gray>to <green>enable<gray>."
         BUILD:
           ENABLED:
-            NAME: "&7Build: &aEnabled"
+            NAME: "<gray>Build: <green>Enabled"
             MATERIAL: DIAMOND_PICKAXE
             LORE:
               - ""
-              - "&7Players can build during the game."
+              - "<gray>Players can build during the game."
               - ""
-              - "&e&lClick here &7to &cdisable&7."
+              - "<yellow><bold>Click here <gray>to <red>disable<gray>."
           DISABLED:
-            NAME: "&7Build: &cDisabled"
+            NAME: "<gray>Build: <red>Disabled"
             MATERIAL: DIAMOND_PICKAXE
             LORE:
               - ""
-              - "&7Players can't build."
+              - "<gray>Players can't build."
               - ""
-              - "&e&lClick here &7to &aenable&7."
+              - "<yellow><bold>Click here <gray>to <green>enable<gray>."
         ROUNDS:
-          NAME: "&7Rounds: &6%rounds%"
+          NAME: "<gray>Rounds: <gold>%rounds%"
           MATERIAL: FIRE_CHARGE
           LORE:
             - ""
-            - "&7The first player/team to reach"
-            - "&7the, winning rounds wins."
+            - "<gray>The first player/team to reach"
+            - "<gray>the, winning rounds wins."
             - ""
-            - "&a&lLEFT-CLICK &ato reduce the rounds."
-            - "&b&lRIGHT-CLICK &bto increase the rounds."
+            - "<green><bold>LEFT-CLICK <green>to reduce the rounds."
+            - "<aqua><bold>RIGHT-CLICK <aqua>to increase the rounds."
         KNOCKBACK:
-          NAME: "&eKnockback Modifier"
+          NAME: "<yellow>Knockback Modifier"
           MATERIAL: STICK
           LORE:
             - ""
             - "%knockbackTypes%"
         HITDELAY:
-          NAME: "&7Attack Cooldown: &6%hitdelay%x"
+          NAME: "<gray>Attack Cooldown: <gold>%hitdelay%x"
           MATERIAL: DIAMOND_SWORD
           LORE:
             - ""
-            - "&71.0 = Normal speed (20 ticks)"
-            - "&70.5 = 2x faster"
-            - "&72.0 = 2x slower"
+            - "<gray>1.0 = Normal speed (20 ticks)"
+            - "<gray>0.5 = 2x faster"
+            - "<gray>2.0 = 2x slower"
             - ""
-            - "&c&lNote: &71 sec = 20 tick"
+            - "<red><bold>Note: <gray>1 sec = 20 tick"
             - ""
-            - "&a&lLEFT-CLICK &ato reduce the rounds."
-            - "&b&lRIGHT-CLICK &bto increase the rounds."
+            - "<green><bold>LEFT-CLICK <green>to reduce the rounds."
+            - "<aqua><bold>RIGHT-CLICK <aqua>to increase the rounds."
         ENDERPEARL-COOLDOWN:
-          NAME: "&7EnderPearl Cooldown: &6%epCooldown% sec"
+          NAME: "<gray>EnderPearl Cooldown: <gold>%epCooldown% sec"
           MATERIAL: ENDER_PEARL
           LORE:
             - ""
-            - "&7Players must wait this long before"
-            - "&7they can throw the next enderpearl."
+            - "<gray>Players must wait this long before"
+            - "<gray>they can throw the next enderpearl."
             - ""
-            - "&a&lLEFT-CLICK &ato reduce the cooldown."
-            - "&b&lRIGHT-CLICK &bto increase the cooldown."
+            - "<green><bold>LEFT-CLICK <green>to reduce the cooldown."
+            - "<aqua><bold>RIGHT-CLICK <aqua>to increase the cooldown."
         GOLDENAPPLE-COOLDOWN:
-          NAME: "&7Golden Apple Cooldown: &6%gaCooldown%"
+          NAME: "<gray>Golden Apple Cooldown: <gold>%gaCooldown%"
           MATERIAL: GOLDEN_APPLE
           LORE:
             - ""
-            - "&7Players must wait this long before"
-            - "&7they can consume the next golden apple."
+            - "<gray>Players must wait this long before"
+            - "<gray>they can consume the next golden apple."
             - ""
-            - "&7This setting includes both enchanted"
-            - "&7and non-enchanted golden apples."
+            - "<gray>This setting includes both enchanted"
+            - "<gray>and non-enchanted golden apples."
             - ""
-            - "&a&lLEFT-CLICK &ato reduce the cooldown."
-            - "&b&lRIGHT-CLICK &bto increase the cooldown."
+            - "<green><bold>LEFT-CLICK <green>to reduce the cooldown."
+            - "<aqua><bold>RIGHT-CLICK <aqua>to increase the cooldown."
         WIND-CHARGE-COOLDOWN:
-          NAME: "&7Wind Charge Cooldown: &6%windChargeCooldown% sec"
+          NAME: "<gray>Wind Charge Cooldown: <gold>%windChargeCooldown% sec"
           MATERIAL: WIND_CHARGE
           LORE:
             - ""
-            - "&7Players must wait this long before"
-            - "&7they can launch the next wind charge."
+            - "<gray>Players must wait this long before"
+            - "<gray>they can launch the next wind charge."
             - ""
-            - "&a&lLEFT-CLICK &ato reduce the cooldown."
-            - "&b&lRIGHT-CLICK &bto increase the cooldown."
+            - "<green><bold>LEFT-CLICK <green>to reduce the cooldown."
+            - "<aqua><bold>RIGHT-CLICK <aqua>to increase the cooldown."
         HEALTH-BELOW-NAME:
           ENABLED:
-            NAME: "&7Health Below Name: &aEnabled"
+            NAME: "<gray>Health Below Name: <green>Enabled"
             MATERIAL: RED_DYE
             LORE:
               - ""
-              - "&7Players will display their hearts"
-              - "&7during the match."
+              - "<gray>Players will display their hearts"
+              - "<gray>during the match."
               - ""
-              - "&e&lClick here &7to &cdisable&7."
+              - "<yellow><bold>Click here <gray>to <red>disable<gray>."
           DISABLED:
-            NAME: "&7Health Below Name: &cDisabled"
+            NAME: "<gray>Health Below Name: <red>Disabled"
             MATERIAL: RED_DYE
             LORE:
               - ""
-              - "&7Players will display their hearts"
-              - "&7during the match."
+              - "<gray>Players will display their hearts"
+              - "<gray>during the match."
               - ""
-              - "&e&lClick here &7to &aenable&7."
+              - "<yellow><bold>Click here <gray>to <green>enable<gray>."
   ITEMS:
     CATEGORY-GUI:
-      TITLE: "&8Item categories"
+      TITLE: "<dark_gray>Item categories"
       SIZE: 6
       ICONS:
         BACK-TO:
-          NAME: "&7&lBack"
+          NAME: "<gray><bold>Back"
           MATERIAL: ARROW
           SLOT: 45
           LORE:
-            - "&7Click to go back"
+            - "<gray>Click to go back"
         NONE:
-          NAME: "&bNone"
+          NAME: "<aqua>None"
           MATERIAL: GRAY_STAINED_GLASS_PANE
           SLOT: 18
         ARMOR:
-          NAME: "&bArmor"
+          NAME: "<aqua>Armor"
           MATERIAL: DIAMOND_CHESTPLATE
           SLOT: 19
         WEAPONS-TOOLS:
-          NAME: "&bWeapons & Tools"
+          NAME: "<aqua>Weapons & Tools"
           MATERIAL: IRON_SWORD
           SLOT: 20
         BOWS-ARROWS:
-          NAME: "&bBows & Arrows"
+          NAME: "<aqua>Bows & Arrows"
           MATERIAL: BOW
           SLOT: 21
         POTIONS:
-          NAME: "&bPotions"
+          NAME: "<aqua>Potions"
           MATERIAL: POTION
           SLOT: 22
         SHULKER-BOXES:
-          NAME: "&bShulker Boxes"
+          NAME: "<aqua>Shulker Boxes"
           MATERIAL: PURPLE_SHULKER_BOX
           SLOT: 32
         # ── Custom categories ──────────────────────────────────────────────────
         # Any key added here (that isn't a built-in) becomes a custom category.
         # Add a matching entry under ITEMS-GUI.CATEGORIES with TITLE and ITEMS.
         FOOD:
-          NAME: "&bFood"
+          NAME: "<aqua>Food"
           MATERIAL: COOKED_BEEF
           SLOT: 23
         BLOCKS:
-          NAME: "&bBlocks"
+          NAME: "<aqua>Blocks"
           MATERIAL: COBBLESTONE
           SLOT: 24
     ITEMS-GUI:
       SIZE: 6
       OFFICIAL-ICONS:
         BACK-TO:
-          NAME: "&7&lBack"
+          NAME: "<gray><bold>Back"
           MATERIAL: ARROW
           LORE:
-            - "&7Click to go back"
+            - "<gray>Click to go back"
         NEXT-PAGE:
-          NAME: "&7&lNext Page"
+          NAME: "<gray><bold>Next Page"
           MATERIAL: ARROW
           LORE:
-              - "&7Click"
+              - "<gray>Click"
         PREVIOUS-PAGE:
-          NAME: "&7&lPrevious Page"
+          NAME: "<gray><bold>Previous Page"
           MATERIAL: ARROW
           LORE:
-              - "&7Click"
+              - "<gray>Click"
       CATEGORIES:
         ARMOR:
-          TITLE: "&8Armor"
+          TITLE: "<dark_gray>Armor"
           ITEMS:
             - "LEATHER_HELMET"
             - "GOLDEN_HELMET"
@@ -407,7 +407,7 @@ GUI:
             - "DIAMOND_BOOTS"
             - "NETHERITE_BOOTS"
         WEAPONS-TOOLS:
-          TITLE: "&8Weapons and Tools"
+          TITLE: "<dark_gray>Weapons and Tools"
           ITEMS:
             - "WOODEN_SWORD"
             - "GOLDEN_SWORD"
@@ -455,7 +455,7 @@ GUI:
             - "SNOWBALL"
             - "FIREWORK_ROCKET"
         BOWS-ARROWS:
-          TITLE: "&8Bows and Arrows"
+          TITLE: "<dark_gray>Bows and Arrows"
           ITEMS:
             - "BOW"
             - "CROSSBOW"
@@ -500,18 +500,18 @@ GUI:
             - "TIPPED_ARROW::SLOW_FALLING"
             - "TIPPED_ARROW::LONG_SLOW_FALLING"
         POTION:
-          TITLE: "&8Potions"
+          TITLE: "<dark_gray>Potions"
           OFFICIAL-ICONS:
             BACK-TO:
-              NAME: "&7&lBack"
+              NAME: "<gray><bold>Back"
               MATERIAL: ARROW
               LORE:
-                - "&7Click to go back"
+                - "<gray>Click to go back"
             SWITCH-TO-SPLASH:
-              NAME: "&bShow splash potions"
+              NAME: "<aqua>Show splash potions"
               MATERIAL: SPLASH_POTION
             SWITCH-TO-DRINKABLE:
-              NAME: "&bShow drinkable potions"
+              NAME: "<aqua>Show drinkable potions"
               MATERIAL: POTION
           DRINKABLE-POTIONS:
             ITEMS:
@@ -594,7 +594,7 @@ GUI:
               - "SPLASH_POTION::SLOW_FALLING"
               - "SPLASH_POTION::LONG_SLOW_FALLING"
         FOOD:
-          TITLE: "&8Food"
+          TITLE: "<dark_gray>Food"
           ITEMS:
             - "APPLE"
             - "MUSHROOM_STEW"
@@ -637,7 +637,7 @@ GUI:
             - "GLOW_BERRIES"
             - "HONEY_BOTTLE"
         BLOCKS:
-          TITLE: "&8Blocks"
+          TITLE: "<dark_gray>Blocks"
           ITEMS:
             - "OBSIDIAN"
             - "ANVIL"
@@ -708,58 +708,58 @@ GUI:
             - "MOSS_BLOCK"
             - "STONE"
         SHULKER-BOXES:
-          TITLE: "&8Shulker Boxes"
+          TITLE: "<dark_gray>Shulker Boxes"
     ENCHANT-GUI:
-      TITLE: "&8Add enchantments"
+      TITLE: "<dark_gray>Add enchantments"
       ICONS:
         BACK-TO:
-          NAME: "&7&lBack"
+          NAME: "<gray><bold>Back"
           MATERIAL: ARROW
           LORE:
-            - "&7Click to go back"
+            - "<gray>Click to go back"
         MAKE-UNBREAKABLE:
-          NAME: "&bMake unbreakable"
+          NAME: "<aqua>Make unbreakable"
           MATERIAL: STONE_BRICKS
         MAKE-BREAKABLE:
-          NAME: "&bMake breakable"
+          NAME: "<aqua>Make breakable"
           MATERIAL: STONE_BRICKS
         CLEAR-ENCHANTS:
-          NAME: "&bClear Enchants"
+          NAME: "<aqua>Clear Enchants"
           MATERIAL: BARRIER
         CHANGE-DURABILITY:
-          NAME: "&bChange Durability"
+          NAME: "<aqua>Change Durability"
           MATERIAL: ANVIL
         SET-ENCHANTMENT-LEVEL:
-          NAME: "&d%enchantment% &7- &e%level%"
+          NAME: "<light_purple>%enchantment% <gray>- <yellow>%level%"
           MATERIAL: SUGAR
           LORE:
-            - "&8&m------------------------"
-            - "&7Click here to set the level of"
-            - "&7the &d%enchantment% &7enchantment."
-            - "&8&m------------------------"
+            - "<dark_gray><st>------------------------"
+            - "<gray>Click here to set the level of"
+            - "<gray>the <light_purple>%enchantment% <gray>enchantment."
+            - "<dark_gray><st>------------------------"
         SET-ENCHANTMENT-LEVEL-PLACEHOLDER:
           NAME: " "
           MATERIAL: BLUE_STAINED_GLASS_PANE
         ENCHANTMENT-ICON:
-          NAME: "&d%enchantment%"
+          NAME: "<light_purple>%enchantment%"
           MATERIAL: ENCHANTED_BOOK
           LORE:
-            - "&8&m------------------------"
-            - "&7Click here to select"
-            - "&7the &d%enchantment% &7enchantment."
-            - "&8&m------------------------"
+            - "<dark_gray><st>------------------------"
+            - "<gray>Click here to select"
+            - "<gray>the <light_purple>%enchantment% <gray>enchantment."
+            - "<dark_gray><st>------------------------"
     CUSTOM-DURABILITY-GUI:
       TITLE: "1-%max%"
     CHANGE-COUNT-GUI:
-      TITLE: "&8Change item count"
+      TITLE: "<dark_gray>Change item count"
       ICONS:
         BACK-TO:
-          NAME: "&7&lBack"
+          NAME: "<gray><bold>Back"
           MATERIAL: ARROW
           LORE:
-            - "&7Click to go back"
+            - "<gray>Click to go back"
         CUSTOM-COUNT:
-          NAME: "&bCustom Amount"
+          NAME: "<aqua>Custom Amount"
           MATERIAL: PAPER
     CUSTOM-COUNT-GUI:
       TITLE: "Enter a number 1-%max%"

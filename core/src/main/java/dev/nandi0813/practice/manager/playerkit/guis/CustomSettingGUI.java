@@ -147,8 +147,8 @@ public class CustomSettingGUI extends GUI {
         for (KnockbackType kt : KnockbackType.values()) {
             String ktName = StringUtils.capitalize(kt.name().toLowerCase());
 
-            if (ladder.getLadderKnockback().getKnockbackType().equals(kt)) extension.add(" &a» " + ktName);
-            else extension.add(" &7» " + ktName);
+            if (ladder.getLadderKnockback().getKnockbackType().equals(kt)) extension.add(" <green>» " + ktName);
+            else extension.add(" <gray>» " + ktName);
         }
 
         for (String line : guiItem.getLore()) {

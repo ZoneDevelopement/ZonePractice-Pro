@@ -54,7 +54,7 @@ public class ShieldLayoutListGui extends GUI {
         super(GUIType.Cosmetics_Shield_Layouts);
         this.profile   = profile;
         this.backToGui = backToGui;
-        String title = GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.LAYOUTS.TITLE", "&8Shield Layouts");
+        String title = GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.LAYOUTS.TITLE", "<dark_gray>Shield Layouts");
         this.gui.put(1, InventoryUtil.createInventory(title, ROWS));
         build();
     }
@@ -84,12 +84,12 @@ public class ShieldLayoutListGui extends GUI {
         boolean canCreate = layouts.size() < maxLayouts;
         GUIItem newItem = new GUIItem(
                 GUIFile.getConfig().getString("GUIS.COSMETICS.SHIELD.LAYOUTS.NEW-BUTTON.NAME",
-                        canCreate ? "&aNew Layout" : "&cLayout limit reached"),
+                        canCreate ? "<green>New Layout" : "<red>Layout limit reached"),
                 canCreate ? Material.LIME_DYE : Material.RED_DYE);
         List<String> newLore = new ArrayList<>();
-        newLore.add("&7Saved: &e" + layouts.size() + "&7/&e" + maxLayouts);
-        if (canCreate) newLore.add("&eClick to create a new layout.");
-        else newLore.add("&cGet a higher rank for more slots.");
+        newLore.add("<gray>Saved: <yellow>" + layouts.size() + "<gray>/<yellow>" + maxLayouts);
+        if (canCreate) newLore.add("<yellow>Click to create a new layout.");
+        else newLore.add("<red>Get a higher rank for more slots.");
         newItem.setLore(newLore);
         inv.setItem(NEW_SLOT, newItem.get());
 
@@ -223,29 +223,28 @@ public class ShieldLayoutListGui extends GUI {
 
         var meta = shield.getItemMeta();
         if (meta != null) {
-            String nameColor = active ? "&a✔ " : "&e";
-            meta.displayName(net.kyori.adventure.text.Component.text(
-                    dev.nandi0813.practice.util.StringUtil.CC(nameColor + layout.getName())));
+            String nameColor = active ? "<green>✔ " : "<yellow>";
+            meta.displayName(dev.nandi0813.practice.util.Common.deserializeMiniMessage(nameColor + layout.getName()));
 
             List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
             String base = layout.getBaseColor() != null ? formatName(layout.getBaseColor().name()) : "White";
-            lore.add(tc("&7Base color: &f" + base));
-            lore.add(tc("&7Layers: &f" + layout.getLayers().size() + "&7/&f" + ShieldLayout.MAX_LAYERS));
+            lore.add(tc("<gray>Base color: <white>" + base));
+            lore.add(tc("<gray>Layers: <white>" + layout.getLayers().size() + "<gray>/<white>" + ShieldLayout.MAX_LAYERS));
             if (!layout.getLayers().isEmpty()) {
-                lore.add(tc("&8─────────────────"));
+                lore.add(tc("<dark_gray>─────────────────"));
                 for (int i = 0; i < layout.getLayers().size(); i++) {
                     ShieldLayout.PatternLayer layer = layout.getLayers().get(i);
-                    lore.add(tc("&7" + (i + 1) + ". &f" + formatName(layer.color().name())
-                            + " &8│ &f" + getPatternDisplayName(layer.pattern())));
+                    lore.add(tc("<gray>" + (i + 1) + ". <white>" + formatName(layer.color().name())
+                            + " <dark_gray>│ <white>" + getPatternDisplayName(layer.pattern())));
                 }
             }
-            lore.add(tc("&8─────────────────"));
+            lore.add(tc("<dark_gray>─────────────────"));
             if (active) {
-                lore.add(tc("&a&lCurrently Active"));
+                lore.add(tc("<green><bold>Currently Active"));
             }
-            lore.add(tc("&eLeft-click &7to edit"));
-            lore.add(tc("&bShift-click &7to rename"));
-            lore.add(tc("&cRight-click &7to delete"));
+            lore.add(tc("<yellow>Left-click <gray>to edit"));
+            lore.add(tc("<aqua>Shift-click <gray>to rename"));
+            lore.add(tc("<red>Right-click <gray>to delete"));
             meta.lore(lore);
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
             shield.setItemMeta(meta);
@@ -259,8 +258,7 @@ public class ShieldLayoutListGui extends GUI {
     }
 
     private static net.kyori.adventure.text.Component tc(String legacy) {
-        return net.kyori.adventure.text.Component.text(
-                dev.nandi0813.practice.util.StringUtil.CC(legacy));
+        return dev.nandi0813.practice.util.Common.deserializeMiniMessage(legacy);
     }
 
     private static String formatName(String raw) {

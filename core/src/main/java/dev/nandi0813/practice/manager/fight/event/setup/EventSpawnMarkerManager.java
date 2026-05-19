@@ -73,7 +73,7 @@ public class EventSpawnMarkerManager {
         if (!spawns.isEmpty()) {
             int index = 0;
             for (Location spawnLoc : spawns) {
-                Mannequin marker = createMarker(spawnLoc, "&c&lSpawn #" + (index + 1));
+                Mannequin marker = createMarker(spawnLoc, "<red><bold>Spawn #" + (index + 1));
                 if (marker != null) {
                     markers.add(marker);
                     // Track this main marker to its spawn index
@@ -123,7 +123,7 @@ public class EventSpawnMarkerManager {
         mannequin.teleport(facingLoc);
 
         // Give it a sword to hold (to make it more visible)
-        ItemStack sword = ItemCreateUtil.createItem("&cSpawn Marker", org.bukkit.Material.DIAMOND_SWORD);
+        ItemStack sword = ItemCreateUtil.createItem("<red>Spawn Marker", org.bukkit.Material.DIAMOND_SWORD);
         mannequin.getEquipment().setItemInMainHand(sword);
 
         // Make it invulnerable and non-persistent.
@@ -145,7 +145,7 @@ public class EventSpawnMarkerManager {
         labelStand.setGravity(false);
         labelStand.setCanPickupItems(false);
         labelStand.setCustomNameVisible(true);
-        labelStand.customName(Component.text(Common.colorize("&7(Right-click to remove)")));
+        labelStand.customName(Component.text(Common.colorize("<gray>(Right-click to remove)")));
         labelStand.setAI(false);
         labelStand.setCollidable(false);
         labelStand.setSilent(true);

@@ -144,7 +144,7 @@ public class HologramMainGui extends GUI {
     private static ItemStack getTypeItem(Hologram hologram) {
         List<String> typeExtension = new ArrayList<>();
         for (LbSecondaryType hologramType : HologramManager.getInstance().getLbSecondaryTypes()) {
-            typeExtension.add((hologramType.equals(hologram.getLeaderboardType()) ? "&a" : "&c") + " &l► &e" + StringUtil.getNormalizedName(hologramType.name()));
+            typeExtension.add((hologramType.equals(hologram.getLeaderboardType()) ? "<green>" : "<red>") + " <bold>► <yellow>" + StringUtil.getNormalizedName(hologramType.name()));
         }
 
         GUIItem guiItem = GUIFile.getGuiItem("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MAIN.ICONS.EVENT-TYPE");

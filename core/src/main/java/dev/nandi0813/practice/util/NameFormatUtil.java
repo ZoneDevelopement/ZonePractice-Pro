@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
 
@@ -55,11 +56,7 @@ public enum NameFormatUtil {
 
     public static Component parseConfiguredComponent(String raw) {
         if (raw == null || raw.isEmpty()) return Component.empty();
-        String normalized = raw;
-        if (normalized.contains("&") || normalized.contains("\u00A7")) {
-            normalized = StringUtil.legacyColorToMiniMessage(normalized);
-        }
-        return ZonePractice.getMiniMessage().deserialize(normalized);
+        return ZonePractice.getMiniMessage().deserialize(raw);
     }
 
     public static Component applyDivisionPlaceholders(Component template, Profile profile) {
@@ -83,8 +80,10 @@ public enum NameFormatUtil {
 
     /**
      * Applies any PlaceholderAPI placeholders present in {@code component} by
-     * serialising to MiniMessage, running PAPI, translating legacy/hex color codes,
-     * then re-parsing.  Returns {@code component} unchanged if PAPI is not installed
+     * serialising to MiniMessage, running PAPI, then re-parsing.
+     * PAPI expansions may inject legacy {@code &} codes — these are converted
+     * to MiniMessage via the Adventure legacy serializer.
+     * Returns {@code component} unchanged if PAPI is not installed
      * or {@code player} is null.
      */
     public static Component applyPAPIPlaceholders(Component component, Player player) {
@@ -92,19 +91,19 @@ public enum NameFormatUtil {
         if (!SoftDependUtil.isPAPI_ENABLED) return component;
         String serialized = ZonePractice.getMiniMessage().serialize(component);
         String resolved   = PlaceholderAPI.setPlaceholders(player, serialized);
-        String translated = StringUtil.translateColorsToMiniMessage(resolved);
-        return ZonePractice.getMiniMessage().deserialize(translated);
+        if (resolved.contains("&") || resolved.contains("§")) {
+            resolved = ZonePractice.getMiniMessage().serialize(
+                    LegacyComponentSerializer.legacyAmpersand().deserialize(resolved)
+            );
+        }
+        return ZonePractice.getMiniMessage().deserialize(resolved);
     }
 
     public static String normalizePlayerNameTemplate(String rawTemplate) {
         if (rawTemplate == null || rawTemplate.isEmpty()) return rawTemplate;
-        String normalized = rawTemplate;
-        if (normalized.contains("&") || normalized.contains("\u00A7")) {
-            normalized = StringUtil.legacyColorToMiniMessage(normalized);
-        }
-        boolean hasPlayerPlaceholder = normalized.contains("%player%") || normalized.contains("%%player%%");
+        boolean hasPlayerPlaceholder = rawTemplate.contains("%player%") || rawTemplate.contains("%%player%%");
         if (hasPlayerPlaceholder) return rawTemplate;
-        String plainText = PLAIN_TEXT_SERIALIZER.serialize(ZonePractice.getMiniMessage().deserialize(normalized)).trim();
+        String plainText = PLAIN_TEXT_SERIALIZER.serialize(ZonePractice.getMiniMessage().deserialize(rawTemplate)).trim();
         if (!plainText.isEmpty()) return rawTemplate;
         return rawTemplate + "%player%";
     }
@@ -135,7 +134,11 @@ public enum NameFormatUtil {
             normalized = PlaceholderAPI.setPlaceholders(player, normalized);
         }
 
-        normalized = StringUtil.translateColorsToMiniMessage(normalized);
+        if (normalized.contains("&") || normalized.contains("§")) {
+            normalized = ZonePractice.getMiniMessage().serialize(
+                    LegacyComponentSerializer.legacyAmpersand().deserialize(normalized)
+            );
+        }
 
         String division = profile.getStats().getDivision() != null
                 ? ZonePractice.getMiniMessage().serialize(profile.getStats().getDivision().getComponentFullName()) : "";

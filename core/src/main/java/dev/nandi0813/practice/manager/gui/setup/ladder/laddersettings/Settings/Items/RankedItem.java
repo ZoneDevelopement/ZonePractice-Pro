@@ -29,8 +29,8 @@ public class RankedItem extends SettingItem {
         for (WeightClassType weightClassType : WeightClassType.values()) {
             String ktName = StringUtils.capitalize(weightClassType.getName());
 
-            if (ladder.getWeightClass().equals(weightClassType)) extension.add(" &a» " + ktName);
-            else extension.add(" &7» " + ktName);
+            if (ladder.getWeightClass().equals(weightClassType)) extension.add(" <green>» " + ktName);
+            else extension.add(" <gray>» " + ktName);
         }
 
         GUIItem guiItem = GUIFile.getGuiItem("GUIS.SETUP.LADDER.SETTINGS.ICONS.WEIGHT-CLASS");

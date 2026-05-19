@@ -37,7 +37,6 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.KitData;
 import dev.nandi0813.practice.util.StartUpCallback;
-import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -311,10 +310,6 @@ public class EventManager {
     private Component toTitleComponent(String line) {
         if (line == null || line.isEmpty()) {
             return Component.empty();
-        }
-
-        if (line.contains("&") || line.contains("§")) {
-            line = StringUtil.legacyColorToMiniMessage(line);
         }
 
         return Common.deserializeMiniMessage(line);

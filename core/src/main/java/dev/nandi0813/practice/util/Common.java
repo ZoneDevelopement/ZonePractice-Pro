@@ -29,15 +29,7 @@ public enum Common {
     }
 
     public static void sendMMMessage(Player player, String line) {
-        if (line == null) {
-            return;
-        }
-
-        if (line.contains("&") || line.contains("§")) {
-            line = StringUtil.legacyColorToMiniMessage(line);
-        }
-
-        if (line.isEmpty()) {
+        if (line == null || line.isEmpty()) {
             return;
         }
 
@@ -61,35 +53,29 @@ public enum Common {
     }
 
     public static String mmToNormal(String line) {
-        if (line.contains("&") || line.contains("§")) {
-            line = StringUtil.legacyColorToMiniMessage(line);
-        }
-
         return StringUtil.CC(serializeComponentToLegacyString(deserializeMiniMessage(line)));
     }
 
     public static String serializeNormalToMMString(String normalString) {
-        String normalized = normalString.replace('&', LegacyComponentSerializer.SECTION_CHAR);
-        Component component = LegacyComponentSerializer.legacySection().deserialize(normalized);
-        return ZonePractice.getMiniMessage().serialize(component);
+        return ZonePractice.getMiniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(normalString));
     }
 
     public static String colorize(String message) {
-        return StringUtil.CC(message);
+        return serializeComponentToLegacyString(deserializeMiniMessage(message));
     }
 
     public static Component legacyToComponent(String message) {
         if (message == null) {
             return Component.empty();
         }
-        return LegacyComponentSerializer.legacyAmpersand().deserialize(message);
+        return ZonePractice.getMiniMessage().deserialize(message);
     }
 
     public static String stripLegacyColor(String message) {
         if (message == null || message.isEmpty()) {
             return "";
         }
-        Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(message);
+        Component component = ZonePractice.getMiniMessage().deserialize(message);
         return PlainTextComponentSerializer.plainText().serialize(component);
     }
 

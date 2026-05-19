@@ -6,18 +6,18 @@ import lombok.Getter;
 public enum EventSetupMode {
 
     CORNERS("Corner Selection", new String[]{
-            "&b Left Click: &fSet Corner 1",
-            "&b Right Click: &fSet Corner 2"
+            "<aqua> Left Click: <white>Set Corner 1",
+            "<aqua> Right Click: <white>Set Corner 2"
     }),
 
     SPAWN_POINTS("Spawn Points", new String[]{
-            "&b Right Click Block: &fAdd Spawn Point",
-            "&b Right Click Armor Stand: &fRemove That Spawn",
-            "&b Left Click (Anywhere): &fRemove Last Spawn"
+            "<aqua> Right Click Block: <white>Add Spawn Point",
+            "<aqua> Right Click Armor Stand: <white>Remove That Spawn",
+            "<aqua> Left Click (Anywhere): <white>Remove Last Spawn"
     }),
 
     TOGGLE_STATUS("Event Status", new String[]{
-            "&b Right Click: &fEnable Event",
+            "<aqua> Right Click: <white>Enable Event",
     });
 
     private final String displayName;

@@ -15,7 +15,7 @@ public enum EventType {
     LMS(
             10,
             ConfigManager.getString("EVENT.LMS.NAME"),
-            ItemCreateUtil.createItem("&eLast Man Standing", Material.DIAMOND_SWORD),
+            ItemCreateUtil.createItem("<yellow>Last Man Standing", Material.DIAMOND_SWORD),
             15,
             LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.LMS.BROADCAST"),
             ConfigManager.getList("EVENT.LMS.WINNER-COMMAND"),
@@ -29,7 +29,7 @@ public enum EventType {
     OITC(
             11,
             ConfigManager.getString("EVENT.OITC.NAME"),
-            ItemCreateUtil.createItem("&6One In The Chamber", Material.BOW),
+            ItemCreateUtil.createItem("<gold>One In The Chamber", Material.BOW),
             15,
             LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.OITC.BROADCAST"),
             ConfigManager.getList("EVENT.OITC.WINNER-COMMAND"),
@@ -43,7 +43,7 @@ public enum EventType {
     TNTTAG(
             12,
             ConfigManager.getString("EVENT.TNTTAG.NAME"),
-            ItemCreateUtil.createItem("&cTNT Tag", Material.TNT),
+            ItemCreateUtil.createItem("<red>TNT Tag", Material.TNT),
             15,
             LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.TNTTAG.BROADCAST"),
             ConfigManager.getList("EVENT.TNTTAG.WINNER-COMMAND"),
@@ -57,7 +57,7 @@ public enum EventType {
     BRACKETS(
             13,
             ConfigManager.getString("EVENT.BRACKETS.NAME"),
-            ItemCreateUtil.createItem("&aBrackets", Material.POTION, Short.valueOf("34")),
+            ItemCreateUtil.createItem("<green>Brackets", Material.POTION, Short.valueOf("34")),
             15,
             LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.BRACKETS.BROADCAST"),
             ConfigManager.getList("EVENT.BRACKETS.WINNER-COMMAND"),
@@ -71,7 +71,7 @@ public enum EventType {
     SUMO(
             14,
             ConfigManager.getString("EVENT.SUMO.NAME"),
-            ItemCreateUtil.createItem("&6Sumo", Material.STICK),
+            ItemCreateUtil.createItem("<gold>Sumo", Material.STICK),
             15,
             LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.SUMO.BROADCAST"),
             ConfigManager.getList("EVENT.SUMO.WINNER-COMMAND"),
@@ -85,7 +85,7 @@ public enum EventType {
     SPLEGG(
             15,
             ConfigManager.getString("EVENT.SPLEGG.NAME"),
-            ItemCreateUtil.createItem("&bSplegg", Material.EGG),
+            ItemCreateUtil.createItem("<aqua>Splegg", Material.EGG),
             15,
             LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.SPLEGG.BROADCAST"),
             ConfigManager.getList("EVENT.SPLEGG.WINNER-COMMAND"),
@@ -99,7 +99,7 @@ public enum EventType {
     JUGGERNAUT(
             16,
             ConfigManager.getString("EVENT.JUGGERNAUT.NAME"),
-            ItemCreateUtil.createItem("&6Juggernaut", Material.GOLDEN_APPLE),
+            ItemCreateUtil.createItem("<gold>Juggernaut", Material.GOLDEN_APPLE),
             15,
             LanguageManager.getString("COMMAND.EVENT.ARGUMENTS.JUGGERNAUT.BROADCAST"),
             ConfigManager.getList("EVENT.JUGGERNAUT.WINNER-COMMAND"),

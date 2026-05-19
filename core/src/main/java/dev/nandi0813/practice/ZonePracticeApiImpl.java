@@ -12,7 +12,6 @@ import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.group.Group;
-import dev.nandi0813.practice.util.StringUtil;
 import org.bukkit.entity.Player;
 
 public class ZonePracticeApiImpl extends ZonePracticeApi {
@@ -28,8 +27,8 @@ public class ZonePracticeApiImpl extends ZonePracticeApi {
         if (profile.getStats().getDivision() == null) return null;
 
         return switch (divisionName) {
-            case FULL -> StringUtil.CC(profile.getStats().getDivision().getFullName());
-            case SHORT -> StringUtil.CC(profile.getStats().getDivision().getShortName());
+            case FULL -> profile.getStats().getDivision().getFullName();
+            case SHORT -> profile.getStats().getDivision().getShortName();
         };
     }
 

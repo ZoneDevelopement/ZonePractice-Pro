@@ -166,7 +166,7 @@ public final class InventoryCosmeticService {
         ItemStack elytra = new ItemStack(Material.ELYTRA);
         ItemMeta meta = elytra.getItemMeta();
         if (meta != null) {
-            meta.displayName(Common.legacyToComponent("&bLobby Elytra"));
+            meta.displayName(Common.legacyToComponent("<aqua>Lobby Elytra"));
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS);
             meta.setUnbreakable(true);
             tagAsLobbyCosmetic(meta, CosmeticsData.LobbyItemType.NONE);
@@ -191,9 +191,9 @@ public final class InventoryCosmeticService {
         ItemMeta meta = itemStack.getItemMeta();
         if (meta != null) {
             String displayName = switch (type) {
-                case WIND_CHARGE -> "&bWind Charge";
-                case TRIDENT -> "&3Riptide Trident";
-                case SPEAR -> "&5Lunge Spear";
+                case WIND_CHARGE -> "<aqua>Wind Charge";
+                case TRIDENT -> "<dark_aqua>Riptide Trident";
+                case SPEAR -> "<dark_purple>Lunge Spear";
                 default -> throw new IllegalStateException("Unexpected value: " + type);
             };
 

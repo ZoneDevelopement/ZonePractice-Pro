@@ -4,7 +4,6 @@ import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.ItemCreateUtil;
-import dev.nandi0813.practice.util.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -124,14 +123,14 @@ public class GUIItem {
 
     /**
      * Parses a raw name/lore string into a {@link net.kyori.adventure.text.Component},
-     * supporting all color formats: legacy {@code &c}, hex {@code &#RRGGBB},
-     * Bungeecord hex {@code &x&R&R&G&G&B&B}, and MiniMessage tags {@code <red>}.
+     * supporting all color formats: legacy {@code <red>}, hex {@code &#RRGGBB},
+     * Bungeecord hex {@code &x<reset><reset>&G&G<aqua><aqua>}, and MiniMessage tags {@code <red>}.
      */
     private static net.kyori.adventure.text.Component parseColor(String raw) {
         if (raw == null || raw.isEmpty()) return net.kyori.adventure.text.Component.empty();
         // Explicitly mark italic as false so Minecraft's default item-name italic doesn't apply.
         // Users can still opt back in by writing <italic> in their config.
-        return ZonePractice.getMiniMessage().deserialize(StringUtil.translateColorsToMiniMessage(raw))
+        return ZonePractice.getMiniMessage().deserialize(raw)
                 .decorationIfAbsent(net.kyori.adventure.text.format.TextDecoration.ITALIC,
                         net.kyori.adventure.text.format.TextDecoration.State.FALSE);
     }

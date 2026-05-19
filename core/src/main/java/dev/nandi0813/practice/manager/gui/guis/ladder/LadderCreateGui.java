@@ -66,7 +66,7 @@ public class LadderCreateGui extends GUI {
                 break;
             }
 
-            ItemStack item = ItemCreateUtil.createItem("&e" + type.getName(), type.getIcon());
+            ItemStack item = ItemCreateUtil.createItem("<yellow>" + type.getName(), type.getIcon());
             ItemMeta itemMeta = item.getItemMeta();
             itemMeta.lore(StringUtil.CC(type.getDescription()).stream().map(Common::legacyToComponent).toList());
             item.setItemMeta(itemMeta);

@@ -89,7 +89,7 @@ public class PlayerKitManager extends ConfigFile implements Listener {
             String itemsPath = "GUI.ITEMS.ITEMS-GUI.CATEGORIES." + id + ".ITEMS";
 
             EditorIcon icon  = getEditorItem(iconPath);
-            String title     = config.getString(titlePath, "&8" + id);
+            String title     = config.getString(titlePath, "<dark_gray>" + id);
             List<String> items = config.getStringList(itemsPath);
 
             CategoryGUI gui = new CategoryGUI(GUIType.PlayerCustom_DynamicCategory, title, items);

@@ -1,6 +1,6 @@
 package dev.nandi0813.practice.manager.fight.util;
 
-import dev.nandi0813.practice.util.StringUtil;
+import dev.nandi0813.practice.util.Common;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -151,7 +151,7 @@ public class PlayerUtil {
 
     @SuppressWarnings("deprecation")
     public static void setActiveInventoryTitle(Player player, String title) {
-        player.getOpenInventory().setTitle(StringUtil.CC(title));
+        player.getOpenInventory().setTitle(Common.mmToNormal(title));
     }
 
     public static void setPlayerListName(Player player, Component component) {

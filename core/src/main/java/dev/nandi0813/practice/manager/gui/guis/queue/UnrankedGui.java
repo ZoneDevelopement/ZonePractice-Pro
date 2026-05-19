@@ -78,7 +78,7 @@ public class UnrankedGui extends QueueSelectorGui {
 
         ItemStack customQueueItem = GUIFile.getGuiItem(CUSTOM_QUEUE_ITEM_PATH).get();
         if (customQueueItem == null) {
-            customQueueItem = ItemCreateUtil.createItem("&6Custom Kit Queue", Material.BOOK);
+            customQueueItem = ItemCreateUtil.createItem("<gold>Custom Kit Queue", Material.BOOK);
         }
 
         inventory.setItem(slot, customQueueItem);
@@ -129,7 +129,7 @@ public class UnrankedGui extends QueueSelectorGui {
 
         ItemStack switchItem = GUIFile.getGuiItem(SWITCH_TO_RANKED_ITEM_PATH).get();
         if (switchItem == null) {
-            switchItem = ItemCreateUtil.createItem("&cSwitch to Ranked", Material.IRON_SWORD);
+            switchItem = ItemCreateUtil.createItem("<red>Switch to Ranked", Material.IRON_SWORD);
         }
 
         inventory.setItem(switchSlot, switchItem);

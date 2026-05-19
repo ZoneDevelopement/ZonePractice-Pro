@@ -64,8 +64,8 @@ public class EventMainGui extends GUI {
 
         inventory.setItem(16, GUIFile.getGuiItem("GUIS.SETUP.EVENT.EVENT-MAIN.ICONS.LOCATION")
                 .replace("%eventName%", eventData.getType().getName())
-                .replace("%corner1%", Common.mmToNormal(ArenaUtil.convertLocation(eventData.getCuboidLoc1())))
-                .replace("%corner2%", Common.mmToNormal(ArenaUtil.convertLocation(eventData.getCuboidLoc2())))
+                .replace("%corner1%", ArenaUtil.convertLocation(eventData.getCuboidLoc1()))
+                .replace("%corner2%", ArenaUtil.convertLocation(eventData.getCuboidLoc2()))
                 .replace("%spawnPositions%", String.valueOf(eventData.getSpawns().size()))
                 .get());
 

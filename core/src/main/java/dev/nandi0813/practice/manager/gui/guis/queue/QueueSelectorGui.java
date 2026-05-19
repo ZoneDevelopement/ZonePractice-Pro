@@ -459,7 +459,7 @@ public abstract class QueueSelectorGui extends GUI {
 
     private String getCategoryLadderPreview(CategoryConfig category) {
         if (category.ladderNames().isEmpty()) {
-            return "&7No ladders";
+            return "<gray>No ladders";
         }
 
         List<String> preview = new ArrayList<>();
@@ -470,7 +470,7 @@ public abstract class QueueSelectorGui extends GUI {
             preview.add(ladder != null ? ladder.getDisplayName() : ladderName);
         }
 
-        return String.join("&7, &f", preview);
+        return String.join("<gray>, <white>", preview);
     }
 
     private GUIItem getLadderIcon(NormalLadder ladder, GUIItem template, String guiPath) {

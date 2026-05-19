@@ -711,7 +711,7 @@ COMMAND:
         NO-INVITES: "<red>%target% doesn't accept party invites."
         ALREADY-INVITED: "<red>%target% is already invited to the party."
         PLAYER-INVITED: "<green>%target% <yellow>has been invited to the party!"
-        PLAYER-GOT-INVITE: "<aqua>%inviter% <yellow>has invited you to their party. <hover:show_text:'<yellow>Click here to accept the invite.'><click:run_command:/party accept %inviter%>&a[ACCEPT]"
+        PLAYER-GOT-INVITE: "<aqua>%inviter% <yellow>has invited you to their party. <hover:show_text:'<yellow>Click here to accept the invite.'><click:run_command:/party accept %inviter%><green>[ACCEPT]"
       KICK:
         COMMAND-HELP: "<red>/%label% kick <player>"
         NO-PARTY: "<red>You are not a member of a party."
@@ -927,7 +927,7 @@ COMMAND:
       ARENAS-WORLD: "<red>You must be in the arenas world to set up the event."
       SET-FIRST-CORNER: "<yellow>You set the <green>first <yellow>corner for the <red>%event% <yellow>event."
       SET-SECOND-CORNER: "<yellow>You set the <green>seconds <yellow>corner for the <red>%event% <yellow>event."
-      MAP-SET: "<green>You have successfully selected the area for the <yellow>%event% event&a."
+      MAP-SET: "<green>You have successfully selected the area for the <yellow>%event% event<green>."
     HOLOGRAM:
       CANT-EDIT-ENABLED: "<red>You can't edit enabled holograms."
       NO-REQUIREMENTS: "<red>Hologram doesn't meet the requirements."
@@ -990,14 +990,14 @@ COMMAND:
           PLAYER: "<yellow>You removed <red>%target% <yellow> as spectator."
           TARGET: "<yellow>You've got removed from spectating by <red>%player%<yellow>."
       HELP:
-        - "&c&m------------------------------------------------"
-        - " &c » /%label% enable - Enable staff mode."
-        - " &c » /%label% chat - Toggle staff chat."
-        - " &c » /%label% chat <message> - Send message in staff chat." # Console
-        - " &c » /%label% vanish - Toggle visibility."
-        - " &c » /%label% forceend <player> - Force end any match or event." # Console
-        - " &c » /%label% stop <player> - Remove a player from a match or event." # Console
-        - "&c&m------------------------------------------------"
+        - "<red><st>------------------------------------------------"
+        - " <red> » /%label% enable - Enable staff mode."
+        - " <red> » /%label% chat - Toggle staff chat."
+        - " <red> » /%label% chat <message> - Send message in staff chat." # Console
+        - " <red> » /%label% vanish - Toggle visibility."
+        - " <red> » /%label% forceend <player> - Force end any match or event." # Console
+        - " <red> » /%label% stop <player> - Remove a player from a match or event." # Console
+        - "<red><st>------------------------------------------------"
       VANISH:
         COMMAND-HELP: "<red>/%label% vanish"
         CANT-USE: "<red>You can't use this command right now."
@@ -1477,15 +1477,15 @@ MATCH:
       BED-WARS:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
-        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+        BED-DESTROYED: "%team% team's <yellow>bed has been destroyed!"
       FIREBALL-FIGHT:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
-        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+        BED-DESTROYED: "%team% team's <yellow>bed has been destroyed!"
       MLG-RUSH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
-        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+        BED-DESTROYED: "%team% team's <yellow>bed has been destroyed!"
       BATTLE-RUSH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
@@ -1590,15 +1590,15 @@ MATCH:
       BED-WARS:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
-        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+        BED-DESTROYED: "%team% team's <yellow>bed has been destroyed!"
       FIREBALL-FIGHT:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
-        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+        BED-DESTROYED: "%team% team's <yellow>bed has been destroyed!"
       MLG-RUSH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
-        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+        BED-DESTROYED: "%team% team's <yellow>bed has been destroyed!"
       BATTLE-RUSH:
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
@@ -1653,17 +1653,17 @@ MATCH:
         PLAYER-DIED: "%teamColor%%player% <yellow>has <red>died<yellow>."
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
-        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+        BED-DESTROYED: "%team% team's <yellow>bed has been destroyed!"
       FIREBALL-FIGHT:
         PLAYER-DIED: "%teamColor%%player% <yellow>has <red>died<yellow>."
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
-        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+        BED-DESTROYED: "%team% team's <yellow>bed has been destroyed!"
       MLG-RUSH:
         PLAYER-DIED: "%teamColor%%player% <yellow>has <red>died<yellow>."
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
         PLAYER-RESPAWNED: "%teamColor%%player% <yellow>has <green>respawned<yellow>."
-        BED-DESTROYED: "%team% team's &ebed has been destroyed!"
+        BED-DESTROYED: "%team% team's <yellow>bed has been destroyed!"
       BATTLE-RUSH:
         PLAYER-DIED: "%teamColor%%player% <yellow>has <red>died<yellow>."
         RESPAWN: "<yellow>You will respawn in <red>%seconds% <yellow>%secondName%."
