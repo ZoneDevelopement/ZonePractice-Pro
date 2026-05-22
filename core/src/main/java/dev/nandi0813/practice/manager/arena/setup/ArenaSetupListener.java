@@ -54,7 +54,7 @@ public class ArenaSetupListener implements Listener {
         DisplayArena displayArena = session.getArena();
 
         if (displayArena == null) {
-            player.sendMessage(Common.colorize("<red>Arena not found!"));
+            Common.sendMMMessage(player, "<red>Arena not found!");
             setupManager.stopSetup(player);
             return;
         }
@@ -125,7 +125,7 @@ public class ArenaSetupListener implements Listener {
             return;
         }
         setupManager.updateWand(player);
-        player.sendMessage(Common.colorize("<yellow>Switched to: <white>" + session.getCurrentMode().getDisplayName()));
+        Common.sendMMMessage(player, "<yellow>Switched to: <white>" + session.getCurrentMode().getDisplayName());
     }
 
     private void handleStandardPositions(Player player, Arena arena, Action action, PlayerInteractEvent event) {
@@ -145,7 +145,7 @@ public class ArenaSetupListener implements Listener {
         if (action == Action.LEFT_CLICK_BLOCK) {
             // Check minimum distance from position 2
             if (arena.getPosition2() != null && arena.getPosition2().distance(loc) < 1.0) {
-                player.sendMessage(Common.colorize("<red>Spawn positions must be at least 1 block apart!"));
+                Common.sendMMMessage(player, "<red>Spawn positions must be at least 1 block apart!");
                 return;
             }
             arena.setPosition1(loc);
@@ -154,7 +154,7 @@ public class ArenaSetupListener implements Listener {
         } else {
             // Check minimum distance from position 1
             if (arena.getPosition1() != null && arena.getPosition1().distance(loc) < 1.0) {
-                player.sendMessage(Common.colorize("<red>Spawn positions must be at least 1 block apart!"));
+                Common.sendMMMessage(player, "<red>Spawn positions must be at least 1 block apart!");
                 return;
             }
             arena.setPosition2(loc);
@@ -183,8 +183,8 @@ public class ArenaSetupListener implements Listener {
             // Check minimum distance from all existing spawns (must be at least 1 block apart)
             for (Location existingSpawn : ffaArena.getFfaPositions()) {
                 if (existingSpawn.distance(loc) < 1.0) {
-                    player.sendMessage(Common.colorize("<red>Spawn positions must be at least 1 block apart from each other!"));
-                    player.sendMessage(Common.colorize("<gray>Too close to an existing spawn position."));
+                    Common.sendMMMessage(player, "<red>Spawn positions must be at least 1 block apart from each other!");
+                    Common.sendMMMessage(player, "<gray>Too close to an existing spawn position.");
                     return;
                 }
             }
@@ -203,9 +203,9 @@ public class ArenaSetupListener implements Listener {
                 ffaArena.getFfaPositions().remove(index);
                 SpawnMarkerManager.getInstance().updateMarkers(ffaArena);
                 updateGui(ffaArena);
-                player.sendMessage(Common.colorize("<red>Removed last FFA spawn point. Remaining: " + index));
+                Common.sendMMMessage(player, "<red>Removed last FFA spawn point. Remaining: " + index);
             } else {
-                player.sendMessage(Common.colorize("<red>No spawn points to remove."));
+                Common.sendMMMessage(player, "<red>No spawn points to remove.");
             }
         }
     }
@@ -330,7 +330,7 @@ public class ArenaSetupListener implements Listener {
         if (action.name().contains("LEFT")) {
             arena.setBuildMax(false);
             arena.setBuildMaxValue(ConfigManager.getInt("MATCH-SETTINGS.BUILD-LIMIT-DEFAULT"));
-            player.sendMessage(Common.colorize("<red>Build Height Limit disabled for " + arena.getName()));
+            Common.sendMMMessage(player, "<red>Build Height Limit disabled for " + arena.getName());
             return;
         }
 
@@ -352,7 +352,7 @@ public class ArenaSetupListener implements Listener {
 
         if (action.name().contains("LEFT")) {
             arena.setDeadZone(false);
-            player.sendMessage(Common.colorize("<red>Dead Zone disabled for " + arena.getName()));
+            Common.sendMMMessage(player, "<red>Dead Zone disabled for " + arena.getName());
             return;
         }
 
@@ -550,34 +550,34 @@ public class ArenaSetupListener implements Listener {
 
         // Check if player is in setup mode
         if (!setupManager.isSettingUp(player)) {
-            player.sendMessage(Common.colorize("<red>You must be in setup mode to remove spawn markers."));
+            Common.sendMMMessage(player, "<red>You must be in setup mode to remove spawn markers.");
             return;
         }
 
         // Find which arena this marker belongs to
         DisplayArena arena = SpawnMarkerManager.getInstance().getArenaForMarker(mannequin);
         if (arena == null) {
-            player.sendMessage(Common.colorize("<red>Could not find arena for this marker."));
+            Common.sendMMMessage(player, "<red>Could not find arena for this marker.");
             return;
         }
 
         // ONLY allow for FFA arenas
         if (!(arena instanceof FFAArena ffaArena)) {
-            player.sendMessage(Common.colorize("<red>Direct marker removal only works for FFA arenas."));
-            player.sendMessage(Common.colorize("<gray>Use left/right click on blocks to set standard arena spawn positions."));
+            Common.sendMMMessage(player, "<red>Direct marker removal only works for FFA arenas.");
+            Common.sendMMMessage(player, "<gray>Use left/right click on blocks to set standard arena spawn positions.");
             return;
         }
 
         // Check if player is setting up this arena
         ArenaSetupManager.SetupSession session = setupManager.getSession(player);
         if (session == null || !session.getArena().equals(arena)) {
-            player.sendMessage(Common.colorize("<red>You are not currently setting up this arena."));
+            Common.sendMMMessage(player, "<red>You are not currently setting up this arena.");
             return;
         }
 
         // Check if in correct mode
         if (session.getCurrentMode() != SetupMode.FFA_POSITIONS) {
-            player.sendMessage(Common.colorize("<red>Switch to FFA Positions mode to remove spawn markers."));
+            Common.sendMMMessage(player, "<red>Switch to FFA Positions mode to remove spawn markers.");
             return;
         }
 
@@ -587,9 +587,9 @@ public class ArenaSetupListener implements Listener {
             SpawnMarkerManager.getInstance().updateMarkers(arena);
             updateGui(arena);
 
-            player.sendMessage(Common.colorize("<red>Removed FFA spawn. Remaining: " + ffaArena.getFfaPositions().size()));
+            Common.sendMMMessage(player, "<red>Removed FFA spawn. Remaining: " + ffaArena.getFfaPositions().size());
         } else {
-            player.sendMessage(Common.colorize("<red>Failed to remove spawn marker."));
+            Common.sendMMMessage(player, "<red>Failed to remove spawn marker.");
         }
     }
 
@@ -629,9 +629,9 @@ public class ArenaSetupListener implements Listener {
             ffaArena.getFfaPositions().remove(index);
             SpawnMarkerManager.getInstance().updateMarkers(ffaArena);
             updateGui(ffaArena);
-            player.sendMessage(Common.colorize("<red>Removed last FFA spawn point. Remaining: " + index));
+            Common.sendMMMessage(player, "<red>Removed last FFA spawn point. Remaining: " + index);
         } else {
-            player.sendMessage(Common.colorize("<red>No spawn points to remove."));
+            Common.sendMMMessage(player, "<red>No spawn points to remove.");
         }
     }
 }

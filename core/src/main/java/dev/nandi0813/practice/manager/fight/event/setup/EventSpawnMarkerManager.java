@@ -5,7 +5,6 @@ import dev.nandi0813.practice.manager.fight.event.interfaces.EventData;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.ItemCreateUtil;
 import lombok.Getter;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -110,7 +109,7 @@ public class EventSpawnMarkerManager {
         mannequin.setGravity(false);
         mannequin.setCanPickupItems(false);
         mannequin.setCustomNameVisible(true);
-        mannequin.customName(Component.text(Common.colorize(name)));
+        mannequin.customName(Common.deserializeMiniMessage(name));
         mannequin.setAI(false);
         mannequin.setCollidable(false);
         mannequin.setSilent(true);
@@ -145,7 +144,7 @@ public class EventSpawnMarkerManager {
         labelStand.setGravity(false);
         labelStand.setCanPickupItems(false);
         labelStand.setCustomNameVisible(true);
-        labelStand.customName(Component.text(Common.colorize("<gray>(Right-click to remove)")));
+        labelStand.customName(Common.deserializeMiniMessage("<gray>(Right-click to remove)"));
         labelStand.setAI(false);
         labelStand.setCollidable(false);
         labelStand.setSilent(true);

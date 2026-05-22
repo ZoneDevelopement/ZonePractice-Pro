@@ -71,7 +71,7 @@ public class EventSetupListener implements Listener {
         EventData eventData = session.getEventData();
 
         if (eventData == null) {
-            player.sendMessage(Common.colorize("<red>Event not found!"));
+            Common.sendMMMessage(player, "<red>Event not found!");
             setupManager.stopSetup(player);
             return;
         }
@@ -193,7 +193,7 @@ public class EventSetupListener implements Listener {
         if (spawnIndex < 0 || spawnIndex >= eventData.getSpawns().size()) {
             markerManager.updateMarkers(eventData);
             updateGui(eventData);
-            player.sendMessage(Common.colorize("<red>This spawn marker is outdated. Markers have been refreshed."));
+            Common.sendMMMessage(player, "<red>This spawn marker is outdated. Markers have been refreshed.");
             return;
         }
 
@@ -202,7 +202,7 @@ public class EventSetupListener implements Listener {
         updateGui(eventData);
         scheduleSave(eventData);
 
-        player.sendMessage(Common.colorize("<green>Removed spawn point #" + (spawnIndex + 1) + ". Remaining: " + eventData.getSpawns().size()));
+        Common.sendMMMessage(player, "<green>Removed spawn point #" + (spawnIndex + 1) + ". Remaining: " + eventData.getSpawns().size());
     }
 
     // Prevent damage to marker mannequins
@@ -244,9 +244,9 @@ public class EventSetupListener implements Listener {
             EventSpawnMarkerManager.getInstance().updateMarkers(eventData);
             updateGui(eventData);
             scheduleSave(eventData);
-            player.sendMessage(Common.colorize("<red>Removed last spawn point. Remaining: " + index));
+            Common.sendMMMessage(player, "<red>Removed last spawn point. Remaining: " + index);
         } else {
-            player.sendMessage(Common.colorize("<red>No spawn points to remove."));
+            Common.sendMMMessage(player, "<red>No spawn points to remove.");
         }
     }
 
@@ -270,7 +270,7 @@ public class EventSetupListener implements Listener {
         }
 
         setupManager.updateWand(player);
-        player.sendMessage(Common.colorize("<yellow>Switched to mode: <white>" + session.getCurrentMode().getDisplayName()));
+        Common.sendMMMessage(player, "<yellow>Switched to mode: <white>" + session.getCurrentMode().getDisplayName());
     }
 
     private void handleCornerSelection(Player player, EventData eventData, Action action, PlayerInteractEvent event) {
@@ -281,7 +281,7 @@ public class EventSetupListener implements Listener {
 
         Block targetBlock = event.getClickedBlock();
         if (targetBlock == null || targetBlock.getType().equals(Material.AIR)) {
-            player.sendMessage(Common.colorize("<red>Block location cannot be found!"));
+            Common.sendMMMessage(player, "<red>Block location cannot be found!");
             return;
         }
 
@@ -313,7 +313,7 @@ public class EventSetupListener implements Listener {
         }
 
         if (eventData.getCuboid() == null) {
-            player.sendMessage(Common.colorize("<red>You must set corners first!"));
+            Common.sendMMMessage(player, "<red>You must set corners first!");
             return;
         }
 
@@ -325,7 +325,7 @@ public class EventSetupListener implements Listener {
             Location spawnLoc = getSnappedLocation(block, player);
 
             if (!eventData.getCuboid().contains(spawnLoc)) {
-                player.sendMessage(Common.colorize("<red>Spawn point must be within the event cuboid!"));
+                Common.sendMMMessage(player, "<red>Spawn point must be within the event cuboid!");
                 return;
             }
 
@@ -333,7 +333,7 @@ public class EventSetupListener implements Listener {
                 eventData.addSpawn(spawnLoc);
             } catch (IllegalStateException ex) {
                 // Ignore duplicate/invalid add attempts and show the setup error to the player.
-                player.sendMessage(Common.colorize("<red>" + ex.getMessage()));
+                Common.sendMMMessage(player, "<red>" + ex.getMessage());
                 return;
             }
 
@@ -341,7 +341,7 @@ public class EventSetupListener implements Listener {
             updateGui(eventData);
             scheduleSave(eventData);
 
-            player.sendMessage(Common.colorize("<green>Added spawn point #" + eventData.getSpawns().size() + " at your location."));
+            Common.sendMMMessage(player, "<green>Added spawn point #" + eventData.getSpawns().size() + " at your location.");
         }
         // Left-click anywhere to remove the last spawn point
         else if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
@@ -351,9 +351,9 @@ public class EventSetupListener implements Listener {
                 EventSpawnMarkerManager.getInstance().updateMarkers(eventData);
                 updateGui(eventData);
                 scheduleSave(eventData);
-                player.sendMessage(Common.colorize("<red>Removed last spawn point. Remaining: " + index));
+                Common.sendMMMessage(player, "<red>Removed last spawn point. Remaining: " + index);
             } else {
-                player.sendMessage(Common.colorize("<red>No spawn points to remove."));
+                Common.sendMMMessage(player, "<red>No spawn points to remove.");
             }
         }
     }
@@ -366,19 +366,19 @@ public class EventSetupListener implements Listener {
         try {
             if (eventData.isEnabled()) {
                 eventData.setEnabled(false);
-                player.sendMessage(Common.colorize("<red>Disabled event: <yellow>" + eventData.getType().getName()));
+                Common.sendMMMessage(player, "<red>Disabled event: <yellow>" + eventData.getType().getName());
             } else {
                 if (eventData.getCuboidLoc1() == null || eventData.getCuboidLoc2() == null) {
-                    player.sendMessage(Common.colorize("<red>You must set both corners first!"));
+                    Common.sendMMMessage(player, "<red>You must set both corners first!");
                     return;
                 }
                 if (eventData.getSpawns().isEmpty()) {
-                    player.sendMessage(Common.colorize("<red>You must set at least one spawn point!"));
+                    Common.sendMMMessage(player, "<red>You must set at least one spawn point!");
                     return;
                 }
 
                 eventData.setEnabled(true);
-                player.sendMessage(Common.colorize("<green>Enabled event: <yellow>" + eventData.getType().getName()));
+                Common.sendMMMessage(player, "<green>Enabled event: <yellow>" + eventData.getType().getName());
 
                 // End setup mode for all players currently setting up this event
                 List<Player> playersSettingUp = new ArrayList<>(setupManager.getPlayersSettingUpEvent(eventData));
@@ -390,7 +390,7 @@ public class EventSetupListener implements Listener {
             updateGui(eventData);
             scheduleSave(eventData);
         } catch (Exception e) {
-            player.sendMessage(Common.colorize("<red>Error toggling status: " + e.getMessage()));
+            Common.sendMMMessage(player, "<red>Error toggling status: " + e.getMessage());
         }
     }
 

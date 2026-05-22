@@ -73,7 +73,7 @@ public class ArenaSetupManager {
         // Show spawn position markers
         SpawnMarkerManager.getInstance().showMarkers(arena);
 
-        player.sendMessage(Common.colorize("<green>Setup mode started for arena: <yellow>" + arena.getName() + "<green>."));
+        Common.sendMMMessage(player, "<green>Setup mode started for arena: <yellow>" + arena.getName() + "<green>.");
         return true;
     }
 
@@ -95,7 +95,7 @@ public class ArenaSetupManager {
             SpawnMarkerManager.getInstance().clearMarkers(arena);
         }
 
-        player.sendMessage(Common.colorize("<red>Setup mode ended for arena: <red>" + arena.getName() + "."));
+        Common.sendMMMessage(player, "<red>Setup mode ended for arena: <red>" + arena.getName() + ".");
     }
 
     public SetupSession getSession(Player player) {

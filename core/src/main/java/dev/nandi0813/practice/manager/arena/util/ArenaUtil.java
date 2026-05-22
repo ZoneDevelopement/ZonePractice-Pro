@@ -147,7 +147,7 @@ public enum ArenaUtil {
             List<Player> editors = new ArrayList<>(setupManager.getPlayersSettingUpArena(arena));
             for (Player editor : editors) {
                 setupManager.stopSetup(editor);
-                editor.sendMessage(Common.colorize("<red>Setup mode force ended because the arena has been <green>ENABLED<red>!"));
+                Common.sendMMMessage(editor, "<red>Setup mode force ended because the arena has been <green>ENABLED<red>!");
             }
         }
 

@@ -80,7 +80,7 @@ public class EventWandSetupManager {
         // Show spawn position markers
         EventSpawnMarkerManager.getInstance().showMarkers(eventData);
 
-        player.sendMessage(Common.colorize("<green>Setup mode started for event: <yellow>" + eventData.getType().getName() + "<green>."));
+        Common.sendMMMessage(player, "<green>Setup mode started for event: <yellow>" + eventData.getType().getName() + "<green>.");
     }
 
     public void stopSetup(Player player) {
@@ -101,7 +101,7 @@ public class EventWandSetupManager {
             EventSpawnMarkerManager.getInstance().clearMarkers(eventData);
         }
 
-        player.sendMessage(Common.colorize("<red>Setup mode ended for event: <red>" + eventData.getType().getName() + "."));
+        Common.sendMMMessage(player, "<red>Setup mode ended for event: <red>" + eventData.getType().getName() + ".");
     }
 
     public SetupSession getSession(Player player) {
