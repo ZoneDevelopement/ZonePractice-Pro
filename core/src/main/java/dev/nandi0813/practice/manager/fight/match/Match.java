@@ -469,6 +469,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
         }
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
+        profile.setStatus(ProfileStatus.SPECTATE);
 
         if (profile.isStaffMode()) {
             InventoryManager.getInstance().setStaffModeInventory(player);
