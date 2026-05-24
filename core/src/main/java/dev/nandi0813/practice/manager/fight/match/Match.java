@@ -343,7 +343,13 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             removeSpectator(spectator);
 
         // Reset the arena and only make it reusable after rollback completes.
-        resetMap(() -> this.arena.setAvailable(true));
+        // Also defer live-match removal to the rollback callback so block event listeners
+        // can still resolve this match via cuboid lookup during the multi-tick rollback,
+        // preventing untracked block changes from leaking into the next match.
+        resetMap(() -> {
+            MatchManager.getInstance().getLiveMatches().remove(this);
+            this.arena.setAvailable(true);
+        });
 
         this.cancel();
 
@@ -422,7 +428,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             return;
         }
 
-        if (this.status.equals(MatchStatus.OVER)) {
+        if (this.status.equals(MatchStatus.OVER) || this.players.isEmpty()) {
             Common.sendMMMessage(player, LanguageManager.getString("SPECTATE.MATCH.MATCH-ENDED"));
             return;
         }

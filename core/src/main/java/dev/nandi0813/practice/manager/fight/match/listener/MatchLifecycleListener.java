@@ -58,7 +58,10 @@ public class MatchLifecycleListener implements Listener {
         if (party != null)
             party.setMatch(null);
 
-        MatchManager.getInstance().getLiveMatches().remove(match);
+        // Live match removal is deferred to after rollback completes in Match.endMatch().
+        // This ensures block event listeners can still resolve the match via cuboid lookup
+        // during the multi-tick rollback window, preventing untracked block changes.
+        // MatchManager.getInstance().getLiveMatches().remove(match);
 
         // Update GUIs
         if (match instanceof Duel && ((Duel) match).isRanked())
