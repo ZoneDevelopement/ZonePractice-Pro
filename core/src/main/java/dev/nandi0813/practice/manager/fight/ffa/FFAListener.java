@@ -217,14 +217,7 @@ public class FFAListener implements Listener {
 
         Block block = e.getBlock();
 
-        // Blocks placed during the fight — allow breaking (tracking done by BuildListener)
-        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
-            Object mv = BlockUtil.getMetadata(block, PLACED_IN_FIGHT, Object.class);
-            if (ListenerUtil.checkMetaData(mv)) {
-                e.setCancelled(true);
-            }
-            return;
-        }
+        if (ListenerUtil.handlePlacedInFightBlock(block, e)) return;
 
         // For natural arena blocks or destroyable blocks, check build limits
         if (e.getBlock().getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(ffa.getArena())) {

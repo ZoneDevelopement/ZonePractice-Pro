@@ -1,11 +1,16 @@
 package dev.nandi0813.practice.manager.fight.match.util;
 
 import dev.nandi0813.practice.manager.backend.ConfigManager;
+import dev.nandi0813.practice.manager.fight.match.Match;
+import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.manager.fight.match.type.partyffa.PartyFFA;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.enums.LadderType;
 import dev.nandi0813.practice.manager.ladder.type.SkyWars;
+import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
@@ -14,13 +19,23 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
-public enum MatchUtil {
-    ;
+public final class MatchUtil {
+    private MatchUtil() {
+    }
 
     public static String getMatchID() {
         return "match-" + System.currentTimeMillis() + NumberUtil.getRandomNumber(100, 999);
+    }
+
+    @Nullable
+    public static Match getMatchIfInMatch(Player player) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null || profile.getStatus() != ProfileStatus.MATCH)
+            return null;
+        return MatchManager.getInstance().getLiveMatchByPlayer(player);
     }
 
     public static boolean isLadderBedRelated(Ladder ladder) {

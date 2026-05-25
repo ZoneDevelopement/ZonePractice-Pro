@@ -17,8 +17,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum ForceEndArg {
-    ;
+public final class ForceEndArg {
+    private ForceEndArg() {
+    }
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.staffmode.forceend")) {
