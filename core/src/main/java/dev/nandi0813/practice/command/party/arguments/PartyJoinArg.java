@@ -4,8 +4,9 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 
-public enum PartyJoinArg {
-    ;
+public final class PartyJoinArg {
+
+    private PartyJoinArg() {}
 
     public static void JoinCommand(Player player, String label, String[] args) {
         if (args.length != 2) {

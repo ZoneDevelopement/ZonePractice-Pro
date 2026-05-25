@@ -6,8 +6,9 @@ import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 
-public enum PartyDisbandArg {
-    ;
+public final class PartyDisbandArg {
+
+    private PartyDisbandArg() {}
 
     public static void DisbandCommand(Player player, String label, String[] args) {
         if (args.length != 1) {

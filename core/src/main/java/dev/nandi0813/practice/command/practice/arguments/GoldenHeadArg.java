@@ -8,8 +8,9 @@ import dev.nandi0813.practice.util.StringUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public enum GoldenHeadArg {
-    ;
+public final class GoldenHeadArg {
+
+    private GoldenHeadArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.setup")) {

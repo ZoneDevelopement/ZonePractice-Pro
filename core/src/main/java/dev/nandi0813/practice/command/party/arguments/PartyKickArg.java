@@ -11,8 +11,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum PartyKickArg {
-    ;
+public final class PartyKickArg {
+
+    private PartyKickArg() {}
 
     public static void KickCommand(Player player, String label, String[] args) {
         if (args.length != 2) {

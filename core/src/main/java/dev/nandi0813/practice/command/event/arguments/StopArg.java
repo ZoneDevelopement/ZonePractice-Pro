@@ -11,8 +11,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum StopArg {
-    ;
+public final class StopArg {
+
+    private StopArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.event.stop.collecting") && !player.hasPermission("zpp.event.stop.live")) {

@@ -12,8 +12,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum DeleteArg {
-    ;
+public final class DeleteArg {
+
+    private DeleteArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.setup")) {

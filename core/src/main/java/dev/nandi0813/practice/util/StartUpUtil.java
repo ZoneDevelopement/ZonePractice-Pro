@@ -2,8 +2,9 @@ package dev.nandi0813.practice.util;
 
 import dev.nandi0813.practice.ZonePractice;
 
-public enum StartUpUtil {
-    ;
+public final class StartUpUtil {
+
+    private StartUpUtil() {}
 
     public static void loadStartUpProgressMap() {
         for (StartUpTypes startUpType : StartUpTypes.values())

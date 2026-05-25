@@ -38,7 +38,6 @@ public enum AdapterUtil {
         return Math.max(0, SidebarManager.getInstance().getConfig().getInt("MATCH.ROUND-SYMBOL-MAX-ROUNDS"));
     }
 
-    // ==================== Helper Methods ====================
 
     /**
      * Creates a text replacement config for a simple string replacement
@@ -136,7 +135,6 @@ public enum AdapterUtil {
         return NameFormatUtil.resolveFullName(profile, player, player.getName());
     }
 
-    // ==================== Public Methods ====================
 
     public static Component getRoundString(int rounds, int wonRounds) {
         return getRoundString(rounds, wonRounds, null);

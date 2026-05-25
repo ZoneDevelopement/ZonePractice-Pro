@@ -4,8 +4,9 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 
-public enum PartyHelpArg {
-    ;
+public final class PartyHelpArg {
+
+    private PartyHelpArg() {}
 
     public static void HelpCommand(Player player, String label) {
         for (String line : LanguageManager.getList("COMMAND.PARTY.ARGUMENTS.HELP"))

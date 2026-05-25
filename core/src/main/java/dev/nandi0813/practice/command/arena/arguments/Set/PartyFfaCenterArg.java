@@ -13,8 +13,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum PartyFfaCenterArg {
-    ;
+public final class PartyFfaCenterArg {
+
+    private PartyFfaCenterArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.setup")) {

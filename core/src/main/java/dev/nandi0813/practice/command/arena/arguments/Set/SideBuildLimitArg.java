@@ -12,8 +12,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum SideBuildLimitArg {
-    ;
+public final class SideBuildLimitArg {
+
+    private SideBuildLimitArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.setup")) {

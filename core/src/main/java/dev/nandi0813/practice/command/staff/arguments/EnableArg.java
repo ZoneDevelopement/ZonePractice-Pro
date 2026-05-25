@@ -8,8 +8,9 @@ import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 
-public enum EnableArg {
-    ;
+public final class EnableArg {
+
+    private EnableArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.staff")) {

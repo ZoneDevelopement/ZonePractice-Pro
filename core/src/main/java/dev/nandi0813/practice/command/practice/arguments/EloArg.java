@@ -16,8 +16,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum EloArg {
-    ;
+public final class EloArg {
+
+    private EloArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (args.length < 2) {

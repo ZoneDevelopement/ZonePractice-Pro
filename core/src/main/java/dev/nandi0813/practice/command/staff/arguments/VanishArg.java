@@ -9,8 +9,9 @@ import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import org.bukkit.entity.Player;
 
-public enum VanishArg {
-    ;
+public final class VanishArg {
+
+    private VanishArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.staffmode")) {

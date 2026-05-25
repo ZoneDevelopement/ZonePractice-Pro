@@ -4,8 +4,9 @@ import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 
-public enum HelpArg {
-    ;
+public final class HelpArg {
+
+    private HelpArg() {}
 
     public static void run(Player player, String label) {
         if (player.hasPermission("zpp.setup")) {

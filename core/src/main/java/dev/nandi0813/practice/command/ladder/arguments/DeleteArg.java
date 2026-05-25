@@ -19,8 +19,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-public enum DeleteArg {
-    ;
+public final class DeleteArg {
+
+    private DeleteArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.setup")) {

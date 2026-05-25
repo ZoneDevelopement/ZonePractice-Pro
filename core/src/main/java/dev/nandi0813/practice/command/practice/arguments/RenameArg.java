@@ -11,8 +11,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 import java.util.List;
 
-public enum RenameArg {
-    ;
+public final class RenameArg {
+
+    private RenameArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.practice.rename")) {

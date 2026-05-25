@@ -62,7 +62,6 @@ public class LadderTypeListener implements Listener {
     private static final int SKYWARS_KILLER_EXP_LEVEL_REWARD = 5;
     private static final int SKYWARS_ENCHANT_LAPIS_AMOUNT = 3;
 
-    // ========== HELPER METHODS ==========
 
     /**
      * Gets the match for a player if they are in MATCH status.
@@ -151,7 +150,7 @@ public class LadderTypeListener implements Listener {
         return null;
     }
 
-    // ========== EVENT HANDLERS ==========
+    // EVENT HANDLERS
 
     protected static void arrowDisplayHearth(Player shooter, Player target, double finalDamage, EntityDamageByEntityEvent event) {
         if (!PermanentConfig.DISPLAY_ARROW_HIT) return;

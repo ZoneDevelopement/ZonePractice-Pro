@@ -1,7 +1,8 @@
 package dev.nandi0813.practice.util;
 
-public enum StatisticUtil {
-    ;
+public final class StatisticUtil {
+
+    private StatisticUtil() {}
 
     public static String getProgressBar(final double progress) {
         int numberOfColoredBars = (int) Math.floor(progress / 10.0);

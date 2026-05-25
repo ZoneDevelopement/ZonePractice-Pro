@@ -2,8 +2,9 @@ package dev.nandi0813.practice.util;
 
 import java.text.DecimalFormat;
 
-public enum NumberUtil {
-    ;
+public final class NumberUtil {
+
+    private NumberUtil() {}
 
     public static double roundDouble(double value) {
         DecimalFormat df = new DecimalFormat("0.00");

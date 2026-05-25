@@ -14,8 +14,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum NametagArg {
-    ;
+public final class NametagArg {
+
+    private NametagArg() {}
 
     private static String joinArgs(String[] args, int start) {
         StringBuilder builder = new StringBuilder();

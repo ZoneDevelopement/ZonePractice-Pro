@@ -10,8 +10,9 @@ import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 
-public enum HostArg {
-    ;
+public final class HostArg {
+
+    private HostArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (args.length != 1) {

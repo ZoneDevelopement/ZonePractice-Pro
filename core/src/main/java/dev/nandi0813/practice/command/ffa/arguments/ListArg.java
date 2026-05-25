@@ -9,8 +9,9 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum ListArg {
-    ;
+public final class ListArg {
+
+    private ListArg() {}
 
     public static void run(Player player) {
         List<String> ffas = new ArrayList<>();

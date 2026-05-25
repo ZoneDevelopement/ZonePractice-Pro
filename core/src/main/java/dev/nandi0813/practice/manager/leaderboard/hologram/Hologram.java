@@ -67,7 +67,6 @@ public abstract class Hologram {
     private final AtomicBoolean isUpdating = new AtomicBoolean(false);
     private HologramState currentState = HologramState.UNINITIALIZED;
 
-    // ==================== CONSTRUCTORS ====================
 
     protected Hologram(String name, Location baseLocation, HologramType hologramType) {
         this.name = name;
@@ -90,14 +89,14 @@ public abstract class Hologram {
         }
     }
 
-    // ==================== ABSTRACT METHODS ====================
+    //  ABSTRACT METHODS
 
     public abstract void getAbstractData(YamlConfiguration config);
     public abstract void setAbstractData(YamlConfiguration config);
     public abstract boolean isReadyToEnable();
     public abstract Leaderboard getNextLeaderboard();
 
-    // ==================== DATA PERSISTENCE ====================
+    //  DATA PERSISTENCE
 
     public void getData() {
         enabled = config.getBoolean("holograms." + name + ".enabled", false);
@@ -144,7 +143,7 @@ public abstract class Hologram {
         this.baseLocation = location.clone().subtract(0, 2, 0);
     }
 
-    // ==================== CORE MANAGEMENT ====================
+    //  CORE MANAGEMENT
 
     /**
      * Despawns all hologram lines and clears state.
@@ -237,7 +236,7 @@ public abstract class Hologram {
         }
     }
 
-    // ==================== UPDATE LOGIC ====================
+    //  UPDATE LOGIC
 
     /**
      * Main update method - handles leaderboard changes and content updates.
@@ -292,7 +291,7 @@ public abstract class Hologram {
         }
     }
 
-    // ==================== TEXT BUILDING ====================
+    //  TEXT BUILDING
 
     private List<String> buildTextLines(@NotNull Leaderboard leaderboard) {
         List<String> configLines = getConfigLines(leaderboard);
@@ -386,7 +385,7 @@ public abstract class Hologram {
                 .replace("%group%", group != null ? group.getDisplayName() : ""));
     }
 
-    // ==================== SETUP HOLOGRAMS ====================
+    //  SETUP HOLOGRAMS
 
     /**
      * Shows a setup/placeholder hologram.
@@ -421,7 +420,7 @@ public abstract class Hologram {
         updateSmartly(setupLines, spacings);
     }
 
-    // ==================== DELETION ====================
+    //  DELETION
 
     /**
      * Deletes the hologram completely.
@@ -438,7 +437,7 @@ public abstract class Hologram {
         }
     }
 
-    // ==================== ENABLE/DISABLE ====================
+    //  ENABLE/DISABLE
 
     public void setEnabled(boolean enabled) {
         if (enabled && isReadyToEnable()) {

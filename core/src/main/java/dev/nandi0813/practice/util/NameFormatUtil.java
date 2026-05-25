@@ -12,8 +12,9 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
 
-public enum NameFormatUtil {
-    ;
+public final class NameFormatUtil {
+
+    private NameFormatUtil() {}
 
     private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
 

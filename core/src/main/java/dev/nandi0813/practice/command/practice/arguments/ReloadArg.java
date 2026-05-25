@@ -5,8 +5,9 @@ import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 
-public enum ReloadArg {
-    ;
+public final class ReloadArg {
+
+    private ReloadArg() {}
 
     private static String message(String path, String fallback) {
         String value = LanguageManager.getString(path);

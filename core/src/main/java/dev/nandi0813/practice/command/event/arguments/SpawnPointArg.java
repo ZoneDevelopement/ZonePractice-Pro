@@ -6,8 +6,9 @@ import dev.nandi0813.practice.util.Common;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public enum SpawnPointArg {
-    ;
+public final class SpawnPointArg {
+
+    private SpawnPointArg() {}
 
     public static void spawnPointCommand(Player player, String label1, EventData eventData, String[] args) {
         if (args.length == 3) {

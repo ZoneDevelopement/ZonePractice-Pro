@@ -24,8 +24,9 @@ import java.util.logging.Level;
  * <p>The check runs asynchronously so it never blocks the main thread.
  * Results are cached for the lifetime of the server session.
  */
-public enum UpdateChecker {
-    ;
+public final class UpdateChecker {
+
+    private UpdateChecker() {}
 
     /** Permission required to receive the update notification on join. */
     public static final String NOTIFY_PERMISSION = "zpp.update.notify";

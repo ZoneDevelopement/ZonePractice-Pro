@@ -5,8 +5,9 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
-public enum PAPIUtil {
-    ;
+public final class PAPIUtil {
+
+    private PAPIUtil() {}
 
     public static Component runThroughFormat(Player player, String line) {
         if (line == null || line.isEmpty()) {

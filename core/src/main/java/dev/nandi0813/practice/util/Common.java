@@ -22,8 +22,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public enum Common {
-    ;
+public final class Common {
+
+    private Common() {}
 
     public static void send(CommandSender sender, Component component) {
         if (sender == null) return;

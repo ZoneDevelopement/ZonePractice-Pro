@@ -16,8 +16,9 @@ import org.bukkit.potion.PotionEffect;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public enum PlayerUtil {
-    ;
+public final class PlayerUtil {
+
+    private PlayerUtil() {}
 
     private static final double DEFAULT_FIGHT_MAX_HEALTH = 20.0D;
 

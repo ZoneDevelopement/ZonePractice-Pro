@@ -2,8 +2,9 @@ package dev.nandi0813.practice.util;
 
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 
-public enum PermanentConfig {
-    ;
+public final class PermanentConfig {
+
+    private PermanentConfig() {}
 
     public static final boolean ARENA_FAST_COPY_ENABLED = ConfigManager.getBoolean("ARENA.FAST-COPY.ENABLED");
     public static final boolean ARENA_COPY_FAWE_ENABLED = ConfigManager.getBoolean("ARENA.FAST-COPY.USE-FAWE");

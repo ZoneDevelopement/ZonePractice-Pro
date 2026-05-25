@@ -3,8 +3,9 @@ package dev.nandi0813.practice.command.staff.arguments;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 
-public enum FollowArg {
-    ;
+public final class FollowArg {
+
+    private FollowArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.staffmode.follow")) {

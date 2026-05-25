@@ -70,9 +70,6 @@ import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
  */
 public class BuildListener implements Listener {
 
-    // =========================================================================
-    // HELPERS — shared by all subclasses
-    // =========================================================================
 
     private final Map<String, Integer> setFuseTick = new HashMap<>();
 
@@ -251,9 +248,7 @@ public class BuildListener implements Listener {
         }
     }
 
-    // =========================================================================
     // PLAYER-DRIVEN BLOCK EVENTS (merged from BuildBlockListener)
-    // =========================================================================
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
@@ -392,9 +387,7 @@ public class BuildListener implements Listener {
         spectatable.getFightChange().trackFirePosition(target);
     }
 
-    // =========================================================================
     // EXPLOSIONS
-    // =========================================================================
 
     /**
      * Tracks every block stacked directly above {@code base} that requires solid
@@ -484,9 +477,6 @@ public class BuildListener implements Listener {
         handleExplosion(e, e.blockList(), spectatable);
     }
 
-    // =========================================================================
-    // TNT ENTITY SPAWN (fallback — used as-is on 1.8.8; still fires on modern)
-    // =========================================================================
 
     /**
      * Tracks a newly spawned {@link TNTPrimed} entity for rollback and applies
@@ -577,9 +567,7 @@ public class BuildListener implements Listener {
         return true;
     }
 
-    // =========================================================================
     // PISTONS
-    // =========================================================================
 
     @EventHandler
     public void onBlockPistonExtend(BlockPistonExtendEvent e) {
@@ -609,9 +597,6 @@ public class BuildListener implements Listener {
         }
     }
 
-    // =========================================================================
-    // BLOCK FORM (cobblestone / obsidian generators, ice, etc.)
-    // =========================================================================
 
     /**
      * Tracks blocks that turn to dirt when another block forms on top (e.g., grass
@@ -648,9 +633,7 @@ public class BuildListener implements Listener {
         }
     }
 
-    // =========================================================================
     // LIQUID SOURCE — bucket placement
-    // =========================================================================
 
     /**
      * Captures the block that will become the liquid source BEFORE the bucket is emptied.
@@ -676,9 +659,7 @@ public class BuildListener implements Listener {
         BlockUtil.setMetadata(liquidSourceBlock, PLACED_IN_FIGHT, spectatable);
     }
 
-    // =========================================================================
     // LIQUID FLOW
-    // =========================================================================
 
     /**
      * Tracks blocks that turn to dirt when lava flows on top (e.g., grass
@@ -755,9 +736,6 @@ public class BuildListener implements Listener {
         }
     }
 
-    // =========================================================================
-    // BLOCK SPREAD (fire, mushrooms, etc.)
-    // =========================================================================
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockSpread(BlockSpreadEvent e) {
@@ -794,9 +772,6 @@ public class BuildListener implements Listener {
         });
     }
 
-    // =========================================================================
-    // BLOCK FADE (grass → dirt, ice melt, etc.)
-    // =========================================================================
 
     /**
      * Tracks blocks that fade to another type (e.g. grass/mycelium turning to dirt when
@@ -816,9 +791,6 @@ public class BuildListener implements Listener {
                 new ChangedBlock(block, block.getType()));
     }
 
-    // =========================================================================
-    // BLOCK BURN (fire destroying blocks)
-    // =========================================================================
 
     /**
      * Tracks blocks destroyed by fire so they are restored during rollback.
@@ -904,9 +876,7 @@ public class BuildListener implements Listener {
         }
     }
 
-    // =========================================================================
     // FALLING BLOCKS (sand, gravel, concrete powder, anvils, etc.)
-    // =========================================================================
 
     /**
      * Tracks falling blocks for rollback. Runs at LOWEST so the block in the world

@@ -12,8 +12,9 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum ChatFormatUtil {
-    ;
+public final class ChatFormatUtil {
+
+    private ChatFormatUtil() {}
 
     private static String normalizeStaticSpacing(String formattedWithoutMessage) {
         if (formattedWithoutMessage == null || formattedWithoutMessage.isEmpty()) {

@@ -8,8 +8,9 @@ import org.bukkit.entity.Player;
 
 import java.text.Normalizer;
 
-public enum CreateArg {
-    ;
+public final class CreateArg {
+
+    private CreateArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.setup")) {

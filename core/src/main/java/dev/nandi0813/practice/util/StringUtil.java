@@ -10,8 +10,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public enum StringUtil {
-    ;
+public final class StringUtil {
+
+    private StringUtil() {}
 
     public static String CC(String string) {
         if (string == null) {

@@ -9,8 +9,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
-public enum ItemSerializationUtil {
-    ;
+public final class ItemSerializationUtil {
+
+    private ItemSerializationUtil() {}
 
     @Nullable
     public static String itemStackArrayToBase64(ItemStack[] items) {

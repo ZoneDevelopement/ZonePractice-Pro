@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public enum SetArg {
-    ;
+public final class SetArg {
+
+    private SetArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (args.length > 1) {

@@ -11,8 +11,9 @@ import java.util.regex.Pattern;
  * Utility for detecting the running Bukkit/MC version.
  * Replaces the previous empty-enum pattern with a normal utility class.
  */
-public enum VersionChecker {
-    ;
+public final class VersionChecker {
+
+    private VersionChecker() {}
 
     private static volatile BukkitVersion bukkitVersion;
 

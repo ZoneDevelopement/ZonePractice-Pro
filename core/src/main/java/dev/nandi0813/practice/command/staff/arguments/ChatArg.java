@@ -8,8 +8,9 @@ import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import org.bukkit.entity.Player;
 
-public enum ChatArg {
-    ;
+public final class ChatArg {
+
+    private ChatArg() {}
 
     public static void run(Player player, String[] args) {
         if (!player.hasPermission("zpp.staffmode.chat")) {

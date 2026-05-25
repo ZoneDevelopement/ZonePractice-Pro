@@ -5,8 +5,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum PageUtil {
-    ;
+public final class PageUtil {
+
+    private PageUtil() {}
 
     public static List<ItemStack> getPageItems(List<ItemStack> items, int page, int spaces) {
         int upperBound = page * spaces;

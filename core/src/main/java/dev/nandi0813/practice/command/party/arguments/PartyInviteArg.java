@@ -13,8 +13,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum PartyInviteArg {
-    ;
+public final class PartyInviteArg {
+
+    private PartyInviteArg() {}
 
     public static void InviteCommand(Player player, String label, String[] args) {
         if (args.length != 2) {

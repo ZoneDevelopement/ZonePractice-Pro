@@ -13,8 +13,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum Exp {
-    ;
+public final class Exp {
+
+    private Exp() {}
 
     public static void run(Player player, String label, String[] args) {
         if (args.length < 2) {

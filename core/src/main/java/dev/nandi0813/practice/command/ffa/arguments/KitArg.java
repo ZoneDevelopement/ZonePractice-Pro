@@ -6,8 +6,9 @@ import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.util.Common;
 import org.bukkit.entity.Player;
 
-public enum KitArg {
-    ;
+public final class KitArg {
+
+    private KitArg() {}
 
     public static void run(Player player) {
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);

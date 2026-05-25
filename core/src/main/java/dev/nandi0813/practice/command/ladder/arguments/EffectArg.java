@@ -12,8 +12,9 @@ import org.bukkit.potion.PotionEffect;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum EffectArg {
-    ;
+public final class EffectArg {
+
+    private EffectArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.setup")) {

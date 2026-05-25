@@ -7,8 +7,9 @@ import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public enum PartyInfoArg {
-    ;
+public final class PartyInfoArg {
+
+    private PartyInfoArg() {}
 
     public static void InfoCommand(Player player, String label, String[] args) {
         if (args.length != 1 && args.length != 2) {

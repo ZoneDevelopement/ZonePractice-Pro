@@ -8,8 +8,9 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum PlayerCooldown {
-    ;
+public final class PlayerCooldown {
+
+    private PlayerCooldown() {}
 
     @Getter
     private static final Map<Player, Map<CooldownObject, Long>> cooldowns = new HashMap<>();

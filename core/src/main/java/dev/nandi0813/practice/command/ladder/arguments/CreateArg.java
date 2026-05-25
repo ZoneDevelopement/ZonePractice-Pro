@@ -9,8 +9,9 @@ import org.bukkit.entity.Player;
 
 import java.text.Normalizer;
 
-public enum CreateArg {
-    ;
+public final class CreateArg {
+
+    private CreateArg() {}
 
     private static final int MAX_LADDERS = ConfigManager.getInt("SETUP.MAX-LADDERS");
 

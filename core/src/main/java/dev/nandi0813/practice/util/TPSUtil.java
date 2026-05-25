@@ -7,8 +7,9 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public enum TPSUtil {
-    ;
+public final class TPSUtil {
+
+    private TPSUtil() {}
 
     private static Object minecraftServer;
     private static Field recentTps;

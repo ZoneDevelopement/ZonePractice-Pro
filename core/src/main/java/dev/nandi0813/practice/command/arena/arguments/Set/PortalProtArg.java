@@ -10,8 +10,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum PortalProtArg {
-    ;
+public final class PortalProtArg {
+
+    private PortalProtArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (!player.hasPermission("zpp.setup")) {

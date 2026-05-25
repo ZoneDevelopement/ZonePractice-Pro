@@ -14,8 +14,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum UnrankedArg {
-    ;
+public final class UnrankedArg {
+
+    private UnrankedArg() {}
 
     public static void run(Player player, String label, String[] args) {
         if (args.length == 3 && args[1].equalsIgnoreCase("reset")) {

@@ -10,8 +10,9 @@ import dev.nandi0813.practice.util.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public enum PartyAcceptArg {
-    ;
+public final class PartyAcceptArg {
+
+    private PartyAcceptArg() {}
 
     public static void AcceptCommand(Player player, String label, String[] args) {
         if (args.length != 2) {

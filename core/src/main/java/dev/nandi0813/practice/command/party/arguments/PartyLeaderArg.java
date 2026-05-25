@@ -11,8 +11,9 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum PartyLeaderArg {
-    ;
+public final class PartyLeaderArg {
+
+    private PartyLeaderArg() {}
 
     public static void LeaderCommand(Player player, String label, String[] args) {
         if (args.length != 2) {

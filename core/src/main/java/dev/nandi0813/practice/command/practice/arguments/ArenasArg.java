@@ -7,8 +7,9 @@ import dev.nandi0813.practice.util.Common;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
-public enum ArenasArg {
-    ;
+public final class ArenasArg {
+
+    private ArenasArg() {}
 
     public static void run(Player player) {
         if (!player.hasPermission("zpp.practice.arenas")) {
