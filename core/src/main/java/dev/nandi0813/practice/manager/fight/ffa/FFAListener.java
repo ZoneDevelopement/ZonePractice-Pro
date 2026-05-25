@@ -398,7 +398,7 @@ public class FFAListener implements Listener {
         DeathCause cause = FightUtil.convert(damageSource.getDamageType());
         ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
-        if (killer != null) {
+        if (killer != null && !killer.equals(player)) {
             Statistic statistic = ffa.getStatistics().computeIfAbsent(
                     killer,
                     p -> new Statistic(ProfileManager.getInstance().getUuids().get(p))

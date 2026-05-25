@@ -224,7 +224,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         // check whether a recent attacker should be credited instead.
         if (killer == null) {
             Player lastAttacker = getLastAttacker(player);
-            if (lastAttacker != null && deathMessage != null
+            if (lastAttacker != null && !lastAttacker.equals(player) && deathMessage != null
                     && deathMessage.equals(dev.nandi0813.practice.manager.fight.util.DeathCause.VOID.getMessage())) {
                 killer = lastAttacker;
                 deathMessage = dev.nandi0813.practice.manager.fight.util.DeathCause.VOID_BY_PLAYER
@@ -237,7 +237,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         Profile deadProfile = fightPlayers.get(player).getProfile();
         deadProfile.getStats().getLadderStat(players.get(player)).increaseDeaths();
 
-        if (killer != null) {
+        if (killer != null && !killer.equals(player)) {
             Profile killerProfile = fightPlayers.get(killer).getProfile();
             killerProfile.getStats().getLadderStat(players.get(killer)).increaseKills();
 
