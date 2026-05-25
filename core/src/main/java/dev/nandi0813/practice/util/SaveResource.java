@@ -115,20 +115,25 @@ public class SaveResource {
         File file = new File(practice.getDataFolder(), "config.yml");
         if (!file.exists()) return;
 
+        YamlConfiguration config = new YamlConfiguration();
         try {
-            YamlConfiguration config = new YamlConfiguration();
             config.load(file);
-
-            boolean changed = false;
-            for (Map.Entry<String, Object> entry : backup.entrySet()) {
-                if (!config.isSet(entry.getKey())) {
-                    config.set(entry.getKey(), fixTimeStrings(entry.getValue()));
-                    changed = true;
-                }
-            }
-
-            if (changed) config.save(file);
         } catch (IOException | InvalidConfigurationException e) {
+            return;
+        }
+
+        boolean changed = false;
+        for (Map.Entry<String, Object> entry : backup.entrySet()) {
+            if (config.isSet(entry.getKey())) continue;
+            config.set(entry.getKey(), fixTimeStrings(entry.getValue()));
+            changed = true;
+        }
+
+        if (!changed) return;
+
+        try {
+            config.save(file);
+        } catch (IOException e) {
             Common.sendConsoleMMMessage("<red>Couldn't restore custom config keys.");
         }
     }
