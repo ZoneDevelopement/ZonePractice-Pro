@@ -128,6 +128,10 @@ public class Profile {
     // Data persistence
 
     public void saveData() {
+        if (!fullDataLoaded) {
+            return;
+        }
+
         rankedBan.saveToConfig(file.getConfig(), "ranked-ban");
 
         saveCustomLadders();
