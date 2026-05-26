@@ -691,8 +691,12 @@ public class LadderTypeListener implements Listener {
         }
 
         DeathCause cause = FightUtil.convert(damageSource.getDamageType());
+        if (cause == DeathCause.EXPLOSION && killer != null && !killer.equals(player)) {
+            cause = DeathCause.EXPLOSION_BY_PLAYER;
+        }
+        DeathCause finalCause = cause;
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                match.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown")), 1L);
+                match.killPlayer(player, killer, finalCause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown")), 1L);
 
         if (killer != null) {
             Statistic statistic = match.getCurrentStat(killer);

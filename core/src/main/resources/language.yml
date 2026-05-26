@@ -1,4 +1,4 @@
-VERSION: 42
+VERSION: 43
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1765,6 +1765,7 @@ FIGHT:
     FIRE: "<red>%player% <yellow>burned to death."
     FALL: "<red>%player% <yellow>fell to their death."
     EXPLOSION: "<red>%player% <yellow>blew up."
+    EXPLOSION-BY-PLAYER: "<red>%player% <yellow>was blown up by <gold>%killer%<yellow>."
     PLAYER: "<red>%player% <yellow>was killed by <gold>%killer%<yellow>."
     PROJECTILE: "<red>%player% <yellow>was shot by <gold>%killer%<yellow>."
     SUMO-FALL: "<red>%player% <yellow>fell out of the sumo circle."

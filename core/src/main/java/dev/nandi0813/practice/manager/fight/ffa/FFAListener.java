@@ -79,14 +79,14 @@ public class FFAListener implements Listener {
 
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
-        
+
         // Prevent interaction while waiting for kit selection
         if (ffa.isPlayerWaitingForKitSelection(player)) {
             ffa.playerSelectKit(player, player.getInventory().getHeldItemSlot());
             e.setCancelled(true);
             return;
         }
-        
+
         if (!action.equals(Action.RIGHT_CLICK_AIR) && !action.equals(Action.RIGHT_CLICK_BLOCK)) return;
 
         Block clickedBlock = e.getClickedBlock();
@@ -389,6 +389,9 @@ public class FFAListener implements Listener {
         Player killer = resolveKiller(player, ffa, damageSource);
 
         DeathCause cause = FightUtil.convert(damageSource.getDamageType());
+        if (cause == DeathCause.EXPLOSION && killer != null && !killer.equals(player)) {
+            cause = DeathCause.EXPLOSION_BY_PLAYER;
+        }
         ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
         if (killer != null && !killer.equals(player)) {

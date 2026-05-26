@@ -14,6 +14,7 @@ public enum DeathCause {
     FIRE(LanguageManager.getString("FIGHT.DEATH-MESSAGES.FIRE")),
     FALL(LanguageManager.getString("FIGHT.DEATH-MESSAGES.FALL")),
     EXPLOSION(LanguageManager.getString("FIGHT.DEATH-MESSAGES.EXPLOSION")),
+    EXPLOSION_BY_PLAYER(LanguageManager.getString("FIGHT.DEATH-MESSAGES.EXPLOSION-BY-PLAYER")),
     PLAYER_ATTACK(LanguageManager.getString("FIGHT.DEATH-MESSAGES.PLAYER")),
     PLAYER_PROJECTILE(LanguageManager.getString("FIGHT.DEATH-MESSAGES.PROJECTILE")),
     SUMO(LanguageManager.getString("FIGHT.DEATH-MESSAGES.SUMO-FALL")),
