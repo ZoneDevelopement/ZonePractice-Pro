@@ -338,28 +338,29 @@ public class BuildListener implements Listener {
     }
 
     /**
-     * Captures support-dependent blocks (vines, torches, saplings, etc.) for rollback
-     * BEFORE physics removes them when a neighboring block changes.
+     * Captures support-dependent blocks for rollback before physics removes them.
      * <p>
-     * Without this handler, when a player places a block next to a "hanging in the air"
-     * vine, the vine breaks due to physics <em>during</em> the block placement — before
-     * {@link #onBlockPlace} runs — so the vine's state is never recorded and rollback
-     * cannot restore it. The same applies to any block that {@link ArenaUtil#requiresSupport}.
+     * Uses the <b>source block</b> of the physics event (the block that changed,
+     * triggering neighbor physics) to look up the owning fight — O(1) check instead
+     * of scanning all active fights for every affected neighbor.
      * <p>
-     * Runs at LOWEST so the block still holds its original material when we snapshot it.
+     * At LOWEST priority the affected block still holds its original material,
+     * so we snapshot it before physics turns it to air.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBlockPhysics(BlockPhysicsEvent e) {
         Block block = e.getBlock();
 
         if (!ArenaUtil.requiresSupport(block)) return;
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return;
 
-        Spectatable spectatable = getByBlock(block);
+        Block source = e.getSourceBlock();
+        if (source == null) return;
+
+        Spectatable spectatable = getByBlock(source);
         if (spectatable == null || !spectatable.isBuild()) return;
 
-        if (!BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
-            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
-        }
+        spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
