@@ -1,33 +1,29 @@
 ---
-description: Welcome and thank you for using ZonePractice.
+description: Official documentation for ZonePractice Pro.
 ---
 
-# ✌️ ZonePractice Pro
+# ZonePractice Pro
 
-## Why ZonePractice?
+ZonePractice Pro is a modular Minecraft practice plugin with ladders, arenas, events, FFA, party modes, match history, cosmetics, and PlaceholderAPI support.
 
-ZonePractice is a new generational practice plugin. It is powerful, effective and provides flawless performance.&#x20;
+<figure><img src=".gitbook/assets/zonepractice-features.jpg" alt="ZonePractice features"><figcaption><p>Main systems overview</p></figcaption></figure>
 
-I started developing the plugin in December 2021. Since then I have put a lot of time into making it the best possible practice plugin for you guys. I tried to make the work process as simple as possible for admins, from setting up arenas to day-to-day moderation tasks. Of course, all this happens with impressive performance, even when running 20+ matches and events multiple at the same time.
+## Start here (new server owners)
 
-Players can play competitive and non-competitive duel games or they can create a party and play with each other in party free for all, party split or party vs party game modes. Ladder customization is limited only by your imagination. There is also 7 events which can be started automatically or by a player. Every game can be spectated by the players. Every setting, sidebar line, tablist slot, gui and language item is configurable. Overall it is the perfect practice plugin for a very affordable price.
+1. [Getting Started](overview/getting-started.md)
+2. [Ladder Setup](setup-guides/ladder-setup.md)
+3. [Arena Setup](setup-guides/arena-setup.md)
+4. [Event Setup](setup-guides/event-setup.md)
+5. [Hologram Setup](setup-guides/hologram-setup.md)
 
-## Get Started
+## Reference pages
 
-I have put together some helpful guides for you to get setup with the plugin quickly and easily.
+- [Configuration Files](informations/configuration-files.md)
+- [Commands](informations/commands.md)
+- [Permissions](informations/permissions.md)
+- [Placeholder API](extra/placeholder-api.md)
+- [For Developers](extra/for-developers.md)
 
-{% content-ref url="overview/getting-started.md" %}
-[getting-started.md](overview/getting-started.md)
-{% endcontent-ref %}
+## Official support
 
-{% content-ref url="setup-guides/ladder-setup.md" %}
-[ladder-setup.md](setup-guides/ladder-setup.md)
-{% endcontent-ref %}
-
-{% content-ref url="setup-guides/arena-setup.md" %}
-[arena-setup.md](setup-guides/arena-setup.md)
-{% endcontent-ref %}
-
-{% content-ref url="setup-guides/event-setup.md" %}
-[event-setup.md](setup-guides/event-setup.md)
-{% endcontent-ref %}
+- Discord: [https://discord.gg/XFUhvJR9eN](https://discord.gg/XFUhvJR9eN)

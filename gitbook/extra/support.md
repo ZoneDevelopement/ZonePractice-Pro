@@ -1,5 +1,5 @@
-# ❔ Support
+# Support
 
-You can get official support from our discord server.
+Official support is available on Discord:
 
-[https://discord.gg/XFUhvJR9eN](https://discord.gg/XFUhvJR9eN)
+- [https://discord.gg/XFUhvJR9eN](https://discord.gg/XFUhvJR9eN)

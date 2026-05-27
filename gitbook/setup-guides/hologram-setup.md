@@ -1,29 +1,52 @@
 ---
-description: Here you can find a detailed description about hologram setup.
+description: Hologram setup for global and ladder leaderboards.
 ---
 
-# ✡️ Hologram Setup
+# Hologram Setup
 
-### Step 1: Set the hologram settings in the config
+Holograms are created and managed with `/practice hologram`.
 
-You can configure the title, appearance, update time and line spacing of the holograms in the config.yml file.
+## Step 1: Review hologram settings in `config.yml`
 
-### Step 2: Create a hologram
+Check hologram update timing and visual settings.
 
-You have to create a new hologram by using the **/hologram create \<name>**.
+## Step 2: Create hologram
 
-### Step 3: Set up the hologram
+Command:
 
-<figure><img src="../.gitbook/assets/ezgif.com-reverse-10.gif" alt=""><figcaption><p>Setting up a hologram</p></figcaption></figure>
+- `/practice hologram create <name> <type>`
 
-### Showcase
+Types:
 
-<figure><img src="../.gitbook/assets/ezgif.com-gif-maker.gif" alt=""><figcaption><p>Dynamic hologram</p></figcaption></figure>
+- `global`
+- `ladder_static`
+- `ladder_dynamic`
 
-<div><figure><img src="../.gitbook/assets/Képernyőfotó 2023-03-27 - 15.08.49.png" alt=""><figcaption><p>Elo leaderboard</p></figcaption></figure> <figure><img src="../.gitbook/assets/Képernyőfotó 2023-03-27 - 15.25.11.png" alt=""><figcaption><p>Win leaderboard</p></figcaption></figure></div>
+## Step 3: Position and configure
 
-{% hint style="info" %}
-When the server first starts and you join, the hologram won't display any information. That's because they need to be updated to the latest statistics. This happens when you play an unranked/ranked game with certain ladders, or restart the server.
-{% endhint %}
+Move an existing hologram to your location:
 
-The holograms are updating the leaderboards dynamically. You don't have to do anything with after enabling.
+- `/practice hologram teleport <name>`
+
+Then finish setup in the hologram GUI.
+
+<figure><img src="../.gitbook/assets/ezgif.com-reverse-10.gif" alt="Hologram setup walkthrough"><figcaption><p>Hologram setup walkthrough</p></figcaption></figure>
+
+## Showcase
+
+<figure><img src="../.gitbook/assets/ezgif.com-gif-maker.gif" alt="Dynamic hologram example"><figcaption><p>Dynamic hologram updates</p></figcaption></figure>
+
+<div><figure><img src="../.gitbook/assets/Képernyőfotó 2023-03-27 - 15.08.49.png" alt="Elo hologram example"><figcaption><p>Elo leaderboard</p></figcaption></figure> <figure><img src="../.gitbook/assets/Képernyőfotó 2023-03-27 - 15.25.11.png" alt="Wins hologram example"><figcaption><p>Win leaderboard</p></figcaption></figure></div>
+
+## Notes
+
+- On fresh servers, holograms may show placeholder/empty data until stats exist.
+- Data updates automatically as matches are played and saved.
+
+## Troubleshooting
+
+If hologram shows no values:
+
+- Make sure ladders/matches are active
+- Wait for leaderboard update cycle
+- Restart once if data was just imported

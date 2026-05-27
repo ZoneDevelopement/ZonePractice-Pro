@@ -1,84 +1,119 @@
 ---
-description: Here you can find a detailed description about ladder creation and setup.
+description: Detailed ladder creation and setup workflow.
 ---
 
-# ⚔️ Ladder Setup
+# Ladder Setup
 
-<mark style="color:red;">**Note:**</mark> The plugin automatically generates the following ladders: archer, axe, bedwars, boxing, builduhc, combo, debuff, gapple, nodebuff, pearlfight, fireball, sg, skywars, soup, spleef, sumo, vanilla, battlerush and bridges.
+This guide is written as a safe step-by-step flow for first-time admins.
 
-### Step 1: Create a ladder.
+## Before you begin
 
-First of all you have to create a new ladder by using the **/ladder create \<name>**.
+Make sure:
 
-If you give the command an acceptable ladder name the type selector GUI shows up.
+- You can run `/setup`
+- You already set lobby with `/practice lobby set`
 
-<figure><img src="../.gitbook/assets/ezgif.com-reverse-2.gif" alt=""><figcaption><p>Ladder types</p></figcaption></figure>
+## Default ladders created automatically
 
-The following ladder types are currently available:
+These are generated in `plugins/ZonePracticePro/ladders/`:
 
-* **Basic:** This type doesn't really have any special property. It has normal PVP rules and building is disabled, so in the same arena multiple matches can happen at the same time.
-* **Build:** Same as basic but building is enabled.
-* **Sumo:** Damage is disabled, and players die if they touch water or fall out of the arena. Building is disabled.
-* **Boxing:** Damage is disabled, players compete to see who can get the damage points they need to win the game first. Building is disabled.
-* **Temporary Build:** This type allows you to create very unique ladders. The blocks that players place will be returned to the player after a few seconds.
-* **Spleef:** Players have to destroy the blocks bellow other players with their shovel. They can only destory snow block INSIDE the match arena.
-* **SkyWars:** Players can loot chest from which they receive a random number of loots which you have to set up beforehand. Building is enabled.
-* **BedWars:** Players can only die permanently if their bed is destroyed. Building is enabled.
-* **Fireball Fight:** Players can jump between islands using their fireballs and break blocks with their TNTs. The main objective is to protect their beds.
-* **Bridges:** In order to win the rounds players have to jump in the other team's portal which is in the other side of the bridge. Building is enabled.
-* **BattleRush:** In this gamemode there is no damage. The goal is to jump in the other player's portal. Players can build and there is a respawn cooldown.
+`archer`, `axe`, `battlerush`, `bedwars`, `boxing`, `bridges`, `builduhc`, `crystal`, `debuff`, `fireball`, `gapple`, `mace`, `mlgrush`, `nodebuff`, `pearlfight`, `sg`, `skywars`, `soup`, `spear`, `spleef`, `sumo`, `sword`, `tntsumo`, `vanilla`.
 
-{% hint style="info" %}
-Every type has a special property that cannot be changed, but there are other settings which allows the creation of customized ladders.&#x20;
+You can edit these or create new ladders.
 
-A few ladder types like boxing, skywars and bedwars have a unique setting that can be set from the settings GUI of the ladder.
-{% endhint %}
+## Step 1: Create a ladder
 
-After you select the type, the ladder's setup GUI shows up.
+Run:
 
-<figure><img src="../.gitbook/assets/ezgif.com-reverse-5.gif" alt=""><figcaption><p>Ladder setup GUI</p></figcaption></figure>
+- `/ladder create <name>`
 
-Here you can set up everything there is for the ladder.
+A ladder type selector GUI opens.
 
-### Step 2: Set the icon & displayname
+<figure><img src="../.gitbook/assets/ezgif.com-reverse-2.gif" alt="Ladder type selector"><figcaption><p>Ladder type selector</p></figcaption></figure>
 
-You have to create an item that is going to be the ladder's icon. There is a command to help you do this. You can rename items with the **/practice rename \<name>** command if you hold an item in your hand. \
-Then you can set the ladder's icon by using the **/ladder set icon \<arena>** command.
+## Step 2: Choose a ladder type
 
-{% hint style="warning" %}
-The icon's name is going to be the ladder's display name, that is going to be shown everywhere for players and administrators. This is for the sake of customizability.
-{% endhint %}
+Available types include:
 
-### Step 3: Adjust the settings
+- `BASIC`
+- `BUILD`
+- `SUMO`
+- `TNT_SUMO`
+- `BOXING`
+- `PEARL_FIGHT`
+- `SPLEEF`
+- `SKYWARS`
+- `BEDWARS`
+- `FIREBALL_FIGHT`
+- `MLG_RUSH`
+- `BRIDGES`
+- `BATTLE_RUSH`
 
-Open the settings GUI and customise the settings that are right for you.
+After choosing type, the ladder setup GUI opens.
 
-<figure><img src="../.gitbook/assets/ezgif.com-reverse-6.gif" alt=""><figcaption><p>Settings GUI</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/ezgif.com-reverse-5.gif" alt="Ladder setup main GUI"><figcaption><p>Ladder setup GUI</p></figcaption></figure>
 
-### Step 4: Set the inventory
+## Step 3: Set icon and display name
 
-You can use the **/ladder set inventory \<ladder>** command to set the ladder's inventory. This set's the effect as well but you can change this seperately with the **/ladder set effects \<ladder>** command. You can change the inventory content from the GUI as well.\
-If the ladder is editable you can add extra items that players can use for their custom kits, separately for unranked and ranked.
+1. Hold the item you want as icon.
+2. (Optional) Rename it with `/practice rename <name>`.
+3. Run `/ladder set icon <ladder>`.
 
-### Step 5: Assign match types
+Tip: the item display name becomes the ladder display name in menus.
 
-Before enabling you need to assign at least one match type for the ladder. This means that for example if you assign duel to the ladder, players will be able to play duels (unranked, ranked, etc.) with the ladder. This setting allows you to create different game modes or set unique game settings for team games.
+## Step 4: Set inventory and effects
 
-### Comment:
+Set inventory:
 
-{% hint style="danger" %}
-You can only customize **disabled** ladders!
-{% endhint %}
+- `/ladder set inventory <ladder>`
 
-There are several requirements for the enabling of a ladder:
+Set effects:
 
-* Set an icon.
-* Set the inventory.
-* Assign at least one match type.
-* If the arena is skywars, set the skywars loot.
+- `/ladder set effect <ladder>`
 
-Only ladders with duel enabled as match type will contain match statistics like unranked and ranked wins, elo etc.
+Then adjust ladder settings in GUI.
 
-If a ladder is deactivated, it's statistics are deleted from the mysql database. If it is reactivated, the data will be reloaded into the database the next time it is automatically saved. If a player's data is deleted due to inactivity, the mysql data is also deleted.
+<figure><img src="../.gitbook/assets/ezgif.com-reverse-6.gif" alt="Ladder settings GUI"><figcaption><p>Ladder settings</p></figcaption></figure>
 
-If you want to edit an enabled ladder but there are ongoing matches with it you can force stop all of them by using the **/ladder stop \<ladder>** command or you can <mark style="color:blue;">**freeze**</mark> the ladder, which means new matches cannot start with it, and wait for the ongoing matches to end.
+## Step 5: Assign match types and final settings
+
+In ladder settings GUI:
+
+- Enable at least one match type
+- Configure ranked/unranked behavior
+- Configure type-specific options (for example SkyWars loot, Boxing hit goal)
+
+## Step 6: Enable and test
+
+Before enabling, verify:
+
+- Icon is set
+- Inventory is set
+- Match type is set
+- Type-specific required options are complete
+
+Then run test fights.
+
+## Management commands
+
+- `/ladder info <ladder>`
+- `/ladder freeze <ladder>`
+- `/ladder stop <ladder>`
+- `/ladder delete <ladder>`
+
+## Important safety notes
+
+- Edit ladders while disabled whenever possible.
+- If players are currently fighting, use `/ladder stop <ladder>` before major edits.
+
+## Troubleshooting
+
+If `/ladder set icon` fails:
+
+- Hold a real item (not air)
+- Make sure it has a display name
+
+If inventory does not save:
+
+- Confirm ladder is not enabled
+- Re-run `/ladder set inventory <ladder>` and save properly
