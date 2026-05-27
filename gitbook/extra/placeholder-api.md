@@ -13,65 +13,94 @@ So `%zpp_x%` and `%zppro_x%` both work.
 
 ## General placeholders
 
-- `%zpp_in_queue%`
-- `%zpp_in_queue_<ladder>%`
-- `%zpp_in_fight%`
-- `%zpp_in_fight_<ladder>%`
+| Placeholder | Description |
+| --- | --- |
+| `%zpp_in_queue%` | Whether player is in any queue |
+| `%zpp_in_queue_<ladder>%` | Whether player is in queue for a specific ladder |
+| `%zpp_in_fight%` | Whether player is in a match |
+| `%zpp_in_fight_<ladder>%` | Whether player is in a match for a specific ladder |
 
 ## Group placeholders
 
-- `%zpp_group_name%`
-- `%zpp_group_prefix%`
-- `%zpp_group_suffix%`
-- `%zpp_group_limit_u%`
-- `%zpp_group_limit_r%`
+| Placeholder | Description |
+| --- | --- |
+| `%zpp_group_name%` | Player's group name |
+| `%zpp_group_prefix%` | Player's group prefix |
+| `%zpp_group_suffix%` | Player's group suffix |
+| `%zpp_group_limit_u%` | Player's daily unranked limit |
+| `%zpp_group_limit_r%` | Player's daily ranked limit |
 
 ## Division placeholders
 
-- `%zpp_division_short%`
-- `%zpp_division_full%`
+| Placeholder | Description |
+| --- | --- |
+| `%zpp_division_short%` | Short division name (e.g. B1, S2) |
+| `%zpp_division_full%` | Full division name (e.g. Bronze I, Silver II) |
 
 ## Win/loss placeholders
 
-- `%zpp_wins_global%`
-- `%zpp_wins_global_u%`
-- `%zpp_wins_global_r%`
-- `%zpp_wins_ladder_<ladder>_u%`
-- `%zpp_wins_ladder_<ladder>_r%`
-- `%zpp_losses_global%`
-- `%zpp_losses_global_u%`
-- `%zpp_losses_global_r%`
-- `%zpp_losses_ladder_<ladder>_u%`
-- `%zpp_losses_ladder_<ladder>_r%`
+| Placeholder | Description |
+| --- | --- |
+| `%zpp_wins_global%` | Total global wins |
+| `%zpp_wins_global_u%` | Global unranked wins |
+| `%zpp_wins_global_r%` | Global ranked wins |
+| `%zpp_wins_ladder_<ladder>_u%` | Unranked wins on a specific ladder |
+| `%zpp_wins_ladder_<ladder>_r%` | Ranked wins on a specific ladder |
+| `%zpp_losses_global%` | Total global losses |
+| `%zpp_losses_global_u%` | Global unranked losses |
+| `%zpp_losses_global_r%` | Global ranked losses |
+| `%zpp_losses_ladder_<ladder>_u%` | Unranked losses on a specific ladder |
+| `%zpp_losses_ladder_<ladder>_r%` | Ranked losses on a specific ladder |
+| `%zpp_kills_ladder_<ladder>%` | Kills on a specific ladder |
+| `%zpp_deaths_ladder_<ladder>%` | Deaths on a specific ladder |
 
 ## Elo placeholders
 
-- `%zpp_elo_global%`
-- `%zpp_elo_ladder_<ladder>%`
+| Placeholder | Description |
+| --- | --- |
+| `%zpp_elo_global%` | Global elo rating (sum of all ladders) |
+| `%zpp_elo_ladder_<ladder>%` | Elo rating on a specific ladder |
+
+## Experience placeholder
+
+| Placeholder | Description |
+| --- | --- |
+| `%zpp_exp%` | Player experience |
 
 ## Leaderboard placeholders
 
-Global:
+Global leaderboards:
 
-- `%zpp_lb_global_wins_<1-10>_k%`
-- `%zpp_lb_global_wins_<1-10>_v%`
-- `%zpp_lb_global_elo_<1-10>_k%`
-- `%zpp_lb_global_elo_<1-10>_v%`
+- `%zpp_lb_global_wins_<1-10>_k%` — player name at position
+- `%zpp_lb_global_wins_<1-10>_v%` — win count at position
+- `%zpp_lb_global_elo_<1-10>_k%` — player name at position
+- `%zpp_lb_global_elo_<1-10>_v%` — elo at position
 
 Per ladder:
 
-- `%zpp_lb_ladder_<ladder>_wins_<1-10>_k%`
-- `%zpp_lb_ladder_<ladder>_wins_<1-10>_v%`
-- `%zpp_lb_ladder_<ladder>_elo_<1-10>_k%`
-- `%zpp_lb_ladder_<ladder>_elo_<1-10>_v%`
+- `%zpp_lb_ladder_<ladder>_wins_<1-10>_k%` — player name at position
+- `%zpp_lb_ladder_<ladder>_wins_<1-10>_v%` — win count at position
+- `%zpp_lb_ladder_<ladder>_elo_<1-10>_k%` — player name at position
+- `%zpp_lb_ladder_<ladder>_elo_<1-10>_v%` — elo at position
 
 ## FFA placeholders
 
-- `%zpp_ffa_<arena>_players%`
-- `%zpp_ffa_<arena>_spectators%`
+| Placeholder | Description |
+| --- | --- |
+| `%zpp_ffa_<arena>_players%` | Player count in an FFA arena |
+| `%zpp_ffa_<arena>_spectators%` | Spectator count in an FFA arena |
 
 ## Nametag color placeholder
 
-- `%zpp_nametag_color%`
+| Placeholder | Description |
+| --- | --- |
+| `%zpp_nametag_color%` | MiniMessage color tag (e.g. `<red>`) based on match team or lobby nametag |
 
-This returns MiniMessage color tag output (for example `<red>`) based on match team color or lobby nametag color.
+## Kill/death streak placeholders
+
+| Placeholder | Description |
+| --- | --- |
+| `%zpp_kill_streak%` | Current kill streak |
+| `%zpp_best_kill_streak%` | Best ever kill streak |
+| `%zpp_death_streak%` | Current death streak |
+| `%zpp_best_death_streak%` | Best ever death streak |

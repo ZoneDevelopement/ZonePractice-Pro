@@ -4,19 +4,26 @@ description: Detailed event setup and hosting workflow.
 
 # Event Setup
 
-Supported event setup commands:
+ZonePractice supports 7 event modes:
 
-- `/event lms ...`
-- `/event oitc ...`
-- `/event tnttag ...`
-- `/event brackets ...`
-- `/event sumo ...`
-- `/event splegg ...`
-- `/event juggernaut ...` (alias: `jn`)
+| Event | Command | Type | Description |
+| --- | --- | --- | --- |
+| LMS | `/event lms` | FFA | Last Man Standing — drop inventory on death |
+| OITC | `/event oitc` | FFA | One In The Chamber — 5 lives per player |
+| TNT Tag | `/event tnttag` | One-vs-All | Tagged player explodes |
+| Brackets | `/event brackets` | 1v1 | Tournament-style bracket elimination |
+| Sumo | `/event sumo` | 1v1 | Knockback-only sumo elimination |
+| Splegg | `/event splegg` | FFA | Shoot eggs to break blocks under players |
+| Juggernaut | `/event juggernaut` (alias: `jn`) | One-vs-All | One player is the juggernaut |
 
 ## Step 1: Configure event settings in `config.yml`
 
-Review the `EVENT` section and per-event blocks. For major edits, restart server after saving.
+Review the `EVENT` section and per-event blocks (LMS, OITC, TNTTAG, BRACKETS, SUMO, SPLEGG, JUGGERNAUT). For major edits, restart server after saving.
+
+Key settings per event:
+- `WINNER-COMMAND` — commands run on winner (placeholders: `%player%`)
+- `AUTO-EVENTS` — scheduled start times (e.g. `"18:30"`)
+- Per-event settings (OITC `PLAYER-LIFE`, Splegg `BREAKABLE-MATERIALS`, etc.)
 
 ## Step 2: Set event icon in setup GUI
 
@@ -32,11 +39,17 @@ Use event setup GUI to set core options.
 
 ## Step 4: Configure event-specific options
 
-Use event commands (example):
+Each event type has its own required options. Some events need a kit (items/armor), others use effects. Access these options through the event setup GUI or commands:
 
-- `/event lms ...`
+- `/event lms` — configure LMS settings
+- `/event oitc` — set player lives, kit
+- `/event tnttag` — configure tagged item, explosion behavior
+- `/event brackets` — set kit, rounds
+- `/event sumo` — set effects, arena
+- `/event splegg` — configure breakable blocks, egg launcher item
+- `/event juggernaut` — set juggernaut effects, kit
 
-Each event has specific required options (kits, effects, behavior).
+Run the command without arguments to see available options.
 
 ## Step 5: Set event map area
 
@@ -70,12 +83,34 @@ Host flow:
 
 ## Automatic events
 
-You can define per-event schedule times in each event block under `AUTO-EVENTS`, for example:
+Define per-event schedule times in `config.yml` under each event block's `AUTO-EVENTS`:
 
 ```yaml
 LMS:
   AUTO-EVENTS:
     - "18:30"
+JUGGERNAUT:
+  AUTO-EVENTS:
+    - "19:00"
+```
+
+Set `EVENT.AUTO-EVENTS: true` to enable the auto-event system globally.
+
+## Configuration highlights
+
+```yaml
+EVENT:
+  MULTIPLE: false              # Allow simultaneous events
+  DUEL:
+    POST-KILL-DELAY: 3         # Seconds between duel-event eliminations
+  ENDERPEARL-COOLDOWN: 10       # Ender pearl cooldown in events
+  BROADCAST:
+    ENABLE: true
+    MESSAGE-TO:
+      IN-PARTY: true
+      IN-UNRANKED-MATCH: true
+      IN-RANKED-MATCH: false
+      IN-EVENT: true
 ```
 
 ## Beginner troubleshooting

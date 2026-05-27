@@ -83,6 +83,29 @@ In ladder settings GUI:
 - Configure ranked/unranked behavior
 - Configure type-specific options (for example SkyWars loot, Boxing hit goal)
 
+### Per-ladder configurable settings
+
+- **Hearts / Max Health** — custom health per ladder (`ladder max health`)
+- **Match types** — select which match types are available (Duel, Party FFA, etc.)
+- **Ender pearl cooldown** — override the global cooldown per ladder
+- **Wind charge cooldown** — override per ladder
+- **Golden apple cooldown** — override per ladder
+- **Firework rocket cooldown** — override per ladder
+- **Ranked/unranked** — enable or disable per weight class
+- **Build limit** — override default arena build limit
+
+Ladder type-specific options:
+
+| Type | Extra options |
+| --- | --- |
+| BOXING | Custom attack cooldown, hit goal |
+| SKYWARS | Chest loot configuration |
+| BEDWARS | Bed break mechanics |
+| BRIDGES | Regenerating arrow settings |
+| AXE | Shield stun mechanics |
+| TNT_SUMO | Explosion physics (radius, multipliers, falloff) |
+| FIREBALL_FIGHT | Fireball speed, yield, explosion knockback |
+
 ## Step 6: Enable and test
 
 Before enabling, verify:

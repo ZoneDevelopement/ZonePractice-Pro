@@ -78,6 +78,23 @@ If your arena is portal-based:
 - Side build limit: `/arena set sidebuildlimit <arena> <value>`
 - Party FFA center: `/arena set partyffacenter <arena>`
 
+### Making arena copying faster
+
+By default, ZonePractice copies arenas using its own built-in method. For large maps, you can speed this up significantly:
+
+1. **Enable fast copy** — set `ARENA.FAST-COPY.ENABLED: true` in config.yml. This uses more server resources but copies much faster.
+2. **With FAWE** — if you have FastAsyncWorldEdit installed, set `ARENA.FAST-COPY.USE-FAWE: true` for even faster performance.
+
+```yaml
+ARENA:
+  FAST-COPY:
+    USE-FAWE: true      # requires FAWE plugin
+    ENABLED: true       # enables fast copy mode
+    MULTIPLIER: 10      # speed multiplier (higher = faster but more lag)
+```
+
+Start with `MULTIPLIER: 10` and increase carefully if your server can handle it.
+
 ## Step 8: Enable and test
 
 Enable only after:
@@ -92,7 +109,7 @@ Then run test matches.
 
 ## Build arena copies
 
-Build arenas can use async copy generation in `arenas_copy`.
+Build arenas use async copy generation in `arenas_copy`.
 
 <figure><img src="../.gitbook/assets/ezgif.com-reverse.gif" alt="Arena asynchronous copy creation"><figcaption><p>Asynchronous arena copy creation</p></figcaption></figure>
 

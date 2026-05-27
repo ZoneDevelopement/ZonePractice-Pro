@@ -6,14 +6,15 @@ This page is a beginner-safe checklist. Follow it in order, and do not skip step
 
 You need:
 
-- A Paper-based server
+- A Paper 1.21.x server (1.21.11+ recommended, 26.x also supported)
 - Java 25
-- `PacketEvents` plugin installed in `plugins/`
+- `PacketEvents` 2.x plugin installed in `plugins/`
 
 Optional but recommended:
 
 - LuckPerms (for permissions)
-- PlaceholderAPI
+- PlaceholderAPI (for placeholders)
+- FastAsyncWorldEdit (for fast arena copying)
 
 ## Step 1: Install ZonePractice Pro
 
@@ -35,7 +36,8 @@ If startup succeeds, ZonePractice creates:
   - `divisions.yml`
   - `playerkit.yml`
   - `backend.yml`
-  - default ladder files under `ladders/`
+  - `ladders/*.yml` (default ladder files)
+  - `match-history/` (player match history)
 
 ## Step 2: Set the lobby first
 
@@ -59,7 +61,7 @@ Run:
 
 - `/setup`
 
-This opens the main setup GUI where you manage ladders, arenas, events, and more.
+This opens the main setup GUI where you manage ladders, arenas, events, holograms, and more.
 
 <div align="center"><figure><img src="../.gitbook/assets/ezgif.com-reverse-7.gif" alt="Server Manager walkthrough"><figcaption><p>Server Manager setup GUI</p></figcaption></figure></div>
 
@@ -84,16 +86,16 @@ Then test with real players.
 
 If `/setup` does not open:
 
-- Check you are OP or have `zpp.setup`
-- Check plugin loaded in console
+- Make sure you are OP or have `zpp.setup` permission
+- Check the plugin loaded successfully in the server console
 
 If players cannot use normal features:
 
-- Confirm they have `zpp.group.default`
-- Confirm lobby was set using `/practice lobby set`
+- Make sure they have `zpp.group.default` permission
+- Make sure the lobby was set with `/practice lobby set`
 
 If plugin disables on startup:
 
-- Check Java version (`25`)
-- Check server version compatibility
-- Check PacketEvents is installed and loaded
+- Check Java version (requires Java 25)
+- Check your server version (1.21.x and 26.x are supported — see [Compatibility Notes](../extra/modern-version-support-informations.md))
+- Check that PacketEvents 2.x is in your plugins folder and loaded
