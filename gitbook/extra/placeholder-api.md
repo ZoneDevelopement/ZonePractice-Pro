@@ -15,10 +15,10 @@ So `%zpp_x%` and `%zppro_x%` both work.
 
 | Placeholder | Description |
 | --- | --- |
-| `%zpp_in_queue%` | Whether player is in any queue |
-| `%zpp_in_queue_<ladder>%` | Whether player is in queue for a specific ladder |
-| `%zpp_in_fight%` | Whether player is in a match |
-| `%zpp_in_fight_<ladder>%` | Whether player is in a match for a specific ladder |
+| `%zpp_in_queue%` | Total number of queues |
+| `%zpp_in_queue_<ladder>%` | Number of players in queue for a specific ladder |
+| `%zpp_in_fight%` | Total number of players in matches |
+| `%zpp_in_fight_<ladder>%` | Number of players in matches for a specific ladder |
 
 ## Group placeholders
 
@@ -51,8 +51,6 @@ So `%zpp_x%` and `%zppro_x%` both work.
 | `%zpp_losses_global_r%` | Global ranked losses |
 | `%zpp_losses_ladder_<ladder>_u%` | Unranked losses on a specific ladder |
 | `%zpp_losses_ladder_<ladder>_r%` | Ranked losses on a specific ladder |
-| `%zpp_kills_ladder_<ladder>%` | Kills on a specific ladder |
-| `%zpp_deaths_ladder_<ladder>%` | Deaths on a specific ladder |
 
 ## Elo placeholders
 
@@ -61,11 +59,6 @@ So `%zpp_x%` and `%zppro_x%` both work.
 | `%zpp_elo_global%` | Global elo rating (sum of all ladders) |
 | `%zpp_elo_ladder_<ladder>%` | Elo rating on a specific ladder |
 
-## Experience placeholder
-
-| Placeholder | Description |
-| --- | --- |
-| `%zpp_exp%` | Player experience |
 
 ## Leaderboard placeholders
 
@@ -96,11 +89,4 @@ Per ladder:
 | --- | --- |
 | `%zpp_nametag_color%` | MiniMessage color tag (e.g. `<red>`) based on match team or lobby nametag |
 
-## Kill/death streak placeholders
 
-| Placeholder | Description |
-| --- | --- |
-| `%zpp_kill_streak%` | Current kill streak |
-| `%zpp_best_kill_streak%` | Best ever kill streak |
-| `%zpp_death_streak%` | Current death streak |
-| `%zpp_best_death_streak%` | Best ever death streak |
