@@ -19,7 +19,7 @@ For detailed guides on setup, configuration, and feature usage, please visit our
 
 ## Supported Versions
 
-- Primary targets: **1.20.6 / 1.21.X**
+- Primary targets: **1.21.11 / 26.1.2**
 - Actual supported versions are detected at runtime via the `VersionChecker`
 - The plugin automatically disables itself on unsupported versions
 
