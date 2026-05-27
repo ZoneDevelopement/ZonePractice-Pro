@@ -23,7 +23,7 @@ This page documents all current commands, aliases, and major subcommands.
 | `/duel <player>` | | Send duel request | `zpp.duel` |
 | `/accept` | | Accept duel/party requests | default |
 | `/party` | `p` | Party management (create, invite, kick, disband, etc.) | mixed |
-| `/ffa ...` | | FFA join/leave/kit/spectate | default |
+| `/ffa` | | FFA join/leave/kit/spectate (see subcommands below) | default |
 | `/spectate <player>` | `spec` | Spectate a match | `zpp.spectate` |
 | `/preview <ladder>` | | Preview ladder kit | default |
 | `/customqueue` | `cqueue`, `customkitqueue` | Custom kit queue (join, host, leave, open) | `zpp.playerkit.queue.use` |
@@ -60,12 +60,22 @@ These are registered only when enabled in `config.yml`:
 | `teleport <world>` | Teleport to a world |
 | `rename <name>` | Rename held item |
 | `info <player>` | View player info GUI |
-| `elo ...` | Manage player elo |
-| `ranked ...` | Manage daily ranked limits |
-| `unranked ...` | Manage daily unranked limits |
-| `exp ...` | Manage player experience |
+| `elo reset <player> <ladder\|*>` | Reset a player's elo on a ladder (or `*` for all) |
+| `elo set <player> <ladder\|*> <number>` | Set a player's elo on a ladder |
+| `ranked reset <player>` | Reset daily ranked match limit |
+| `ranked add <player> <number>` | Add extra ranked matches |
+| `ranked ban <player> [reason...]` | Ban a player from ranked |
+| `ranked unban <player>` | Unban a player from ranked |
+| `unranked reset <player>` | Reset daily unranked limit |
+| `unranked add <player> <number>` | Add extra unranked matches |
+| `exp reset <player>` | Reset experience to 0 |
+| `exp add <player> <number>` | Add experience |
+| `exp set <player> <number>` | Set experience to a value |
 | `reset <player>` | Fully reset a player |
-| `nametag ...` | Manage player nametag formatting |
+| `nametag prefix <player> <prefix...>` | Set a player's nametag prefix |
+| `nametag suffix <player> <suffix...>` | Set a player's nametag suffix |
+| `nametag name <player> <name...>` | Set a player's display name format |
+| `nametag reset <player>` | Reset all nametag changes |
 | `hologram create <name> <global\|ladder_static\|ladder_dynamic>` | Create a hologram |
 | `hologram teleport <name>` | Move hologram to your position |
 | `hologram list` | List all holograms |
@@ -111,13 +121,13 @@ These are registered only when enabled in `config.yml`:
 | `host` | Open event host GUI |
 | `join` | Join an event |
 | `stop <event_name>` | Stop an event |
-| `lms [...]` | LMS event options |
-| `oitc [...]` | OITC event options |
-| `tnttag [...]` | TNT Tag event options |
-| `brackets [...]` | Brackets event options |
-| `sumo [...]` | Sumo event options |
-| `splegg [...]` | Splegg event options |
-| `juggernaut [...]` | Juggernaut event options (alias: `jn`) |
+| `lms` | Open LMS event options |
+| `oitc` | Open OITC event options |
+| `tnttag` | Open TNT Tag event options |
+| `brackets` | Open Brackets event options |
+| `sumo` | Open Sumo event options |
+| `splegg` | Open Splegg event options |
+| `juggernaut` | Open Juggernaut event options (alias: `jn`) |
 
 ## Important `/ffa` subcommands
 
