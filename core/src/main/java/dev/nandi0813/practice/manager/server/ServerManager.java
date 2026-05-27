@@ -11,6 +11,7 @@ import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
+import dev.nandi0813.practice.manager.queue.QueueManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.GoldenHead;
@@ -211,6 +212,10 @@ public class ServerManager implements Listener {
             if (from != null && !from.equals(WorldEnum.OTHER)) {
                 if (profile.getStatus().equals(ProfileStatus.LOBBY)) {
                     ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.OFFLINE);
+                    SidebarManager.getInstance().unLoadSidebar(player);
+                } else if (profile.getStatus().equals(ProfileStatus.QUEUE)) {
+                    QueueManager.getInstance().endAllQueuesForPlayer(player, true, null);
+                    profile.setStatus(ProfileStatus.OFFLINE);
                     SidebarManager.getInstance().unLoadSidebar(player);
                 }
             }

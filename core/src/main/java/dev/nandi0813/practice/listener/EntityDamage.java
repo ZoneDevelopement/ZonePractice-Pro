@@ -21,9 +21,8 @@ public class EntityDamage implements Listener {
             Location lobbyLocation = ServerManager.getLobby();
             if (lobbyLocation != null)
                 player.teleport(lobbyLocation);
+            e.setCancelled(true);
         }
-
-        e.setCancelled(true);
     }
 
 }
