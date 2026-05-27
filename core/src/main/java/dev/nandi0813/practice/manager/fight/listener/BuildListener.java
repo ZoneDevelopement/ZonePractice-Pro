@@ -337,6 +337,31 @@ public class BuildListener implements Listener {
         }
     }
 
+    /**
+     * Captures support-dependent blocks (vines, torches, saplings, etc.) for rollback
+     * BEFORE physics removes them when a neighboring block changes.
+     * <p>
+     * Without this handler, when a player places a block next to a "hanging in the air"
+     * vine, the vine breaks due to physics <em>during</em> the block placement — before
+     * {@link #onBlockPlace} runs — so the vine's state is never recorded and rollback
+     * cannot restore it. The same applies to any block that {@link ArenaUtil#requiresSupport}.
+     * <p>
+     * Runs at LOWEST so the block still holds its original material when we snapshot it.
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBlockPhysics(BlockPhysicsEvent e) {
+        Block block = e.getBlock();
+
+        if (!ArenaUtil.requiresSupport(block)) return;
+
+        Spectatable spectatable = getByBlock(block);
+        if (spectatable == null || !spectatable.isBuild()) return;
+
+        if (!BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockIgnite(BlockIgniteEvent event) {
         Block ignitedBlock = event.getBlock();

@@ -233,16 +233,16 @@ public enum ArenaUtil {
 
     public static boolean requiresSupport(Block block) {
         Material type = block.getType();
-        return org.bukkit.Tag.FLOWERS.isTagged(type)
-                || org.bukkit.Tag.SAPLINGS.isTagged(type)
-                || org.bukkit.Tag.CROPS.isTagged(type)
-                || org.bukkit.Tag.WALL_POST_OVERRIDE.isTagged(type)   // torches, signs on walls, etc.
+        return Tag.FLOWERS.isTagged(type)
+                || Tag.SAPLINGS.isTagged(type)
+                || Tag.CROPS.isTagged(type)
+                || Tag.WALL_POST_OVERRIDE.isTagged(type)   // torches, signs on walls, etc.
                 || type == Material.DEAD_BUSH
                 || type == Material.SHORT_GRASS
                 || type == Material.TALL_GRASS
                 || type == Material.FERN
                 || type == Material.LARGE_FERN
-                || type == Material.VINE
+                || type.name().equals("VINE") || type.name().contains("_VINE") || type.name().contains("_VINES")
                 || type == Material.SUGAR_CANE
                 || type == Material.CACTUS
                 || type == Material.SNOW
