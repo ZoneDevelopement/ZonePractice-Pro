@@ -111,34 +111,31 @@ public class ChangedBlock {
         if (location == null) return;
 
         if (bedFace != null) {
-            BedUtil.placeBed(location, bedFace);
+            BedUtil.placeBed(location, material, bedFace);
             return;
         }
 
         Block currentBlock = location.getBlock();
 
         try {
-            // Set the block data directly - this is the primary method
-            currentBlock.setBlockData(blockData, false);
-
+            BlockState state = currentBlock.getState();
+            state.setBlockData(blockData);
+            state.update(true, false);
             // Handle chest inventory if present
             if (chestInventory != null) {
-                BlockState state = currentBlock.getState();
-                if (state instanceof Chest chest) {
+                BlockState chestState = crrentBlock.getState);
+                if (chestState instanceof Chest chest) {
                     chest.getInventory().setContents(chestInventory);
                     chest.update(true, false);
                 }
             }
         } catch (Exception e) {
-            // Handle BlockData compatibility issues
-            // Just set the block type without the problematic block data
             try {
                 currentBlock.setBlockData(material.createBlockData(), false);
             } catch (Exception ex) {
-                // Ultimate fallback - just set material
                 currentBlock.setType(material, false);
             }
         }
     }
 
-}
+                }
