@@ -32,16 +32,24 @@ public class BedUtil {
         return new BedLocation(bedLoc.getWorld(), bedLoc.getX(), bedLoc.getY(), bedLoc.getZ(), bed.getFacing());
     }
 
-    public static void placeBed(Location loc, BlockFace face) {
+    /**
+     * Places a bed at {@code loc} with the given {@code facing}.
+     * Uses {@code bedMaterial} so the correct bed colour is restored rather than
+     * always defaulting to RED_BED.
+     */
+    public static void placeBed(Location loc, Material bedMaterial, BlockFace face) {
+        if (bedMaterial == null || !bedMaterial.name().endsWith("_BED")) {
+            bedMaterial = Material.RED_BED;
+        }
+
         Block bedFoot = loc.getBlock();
-        bedFoot.setBlockData(Material.RED_BED.createBlockData());
-        Bed bedFootData = (Bed) Bukkit.createBlockData(Material.RED_BED);
+
+        Bed bedFootData = (Bed) Bukkit.createBlockData(bedMaterial);
         bedFootData.setPart(Bed.Part.FOOT);
         bedFootData.setFacing(face);
 
         Block bedHead = bedFoot.getRelative(face);
-        bedHead.setBlockData(Material.RED_BED.createBlockData());
-        Bed bedHeadData = (Bed) Bukkit.createBlockData(Material.RED_BED);
+        Bed bedHeadData = (Bed) Bukkit.createBlockData(bedMaterial);
         bedHeadData.setPart(Bed.Part.HEAD);
         bedHeadData.setFacing(face);
 
