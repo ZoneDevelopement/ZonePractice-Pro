@@ -111,7 +111,7 @@ public class ChangedBlock {
         if (location == null) return;
 
         if (bedFace != null) {
-            BedUtil.placeBed(location, material, bedFace);
+            BedUtil.placeBed(location, bedFace);
             return;
         }
 
