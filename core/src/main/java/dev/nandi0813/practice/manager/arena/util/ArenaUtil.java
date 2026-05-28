@@ -256,7 +256,9 @@ public enum ArenaUtil {
                 || type == Material.TRIPWIRE_HOOK
                 || type == Material.TRIPWIRE
                 || type == Material.LILY_PAD
-                || type == Material.NETHER_WART;
+                || type == Material.NETHER_WART
+                || type == Material.NETHER_PORTAL // Portal blocks are destroyed by physics when their obsidian frame is broken.
+                || type == Material.END_GATEWAY;
     }
 
     public static void loadArenaChunks(BasicArena arena) {
@@ -306,4 +308,4 @@ public enum ArenaUtil {
         mannequin.setPersistent(false);
     }
 
-}
+    }
