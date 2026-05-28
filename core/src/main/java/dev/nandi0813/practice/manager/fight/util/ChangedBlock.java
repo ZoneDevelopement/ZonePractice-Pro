@@ -123,7 +123,7 @@ public class ChangedBlock {
             state.update(true, false);
             // Handle chest inventory if present
             if (chestInventory != null) {
-                BlockState chestState = crrentBlock.getState);
+                BlockState chestState = currentBlock.getState();
                 if (chestState instanceof Chest chest) {
                     chest.getInventory().setContents(chestInventory);
                     chest.update(true, false);
@@ -138,4 +138,4 @@ public class ChangedBlock {
         }
     }
 
-                }
+}
