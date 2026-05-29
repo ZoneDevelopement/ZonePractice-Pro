@@ -48,6 +48,12 @@ public class PlayerQuit implements Listener {
 
         MatchManager.getInstance().invalidateRematchByPlayer(player);
 
+        dev.nandi0813.practice.manager.fight.match.Match playerMatch =
+                MatchManager.getInstance().getPlayerMatches().get(player);
+        if (playerMatch != null) {
+            playerMatch.removePlayer(player, true);
+        }
+
         if (profile != null) {
             profile.getActionBar().resetForReconnect();
 
@@ -86,6 +92,13 @@ public class PlayerQuit implements Listener {
         ProfileManager.getInstance().clearPlayerReference(player);
 
         MatchManager.getInstance().invalidateRematchByPlayer(player);
+
+        // Same fix
+        dev.nandi0813.practice.manager.fight.match.Match playerMatch =
+                MatchManager.getInstance().getPlayerMatches().get(player);
+        if (playerMatch != null) {
+            playerMatch.removePlayer(player, true);
+        }
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile != null) {
