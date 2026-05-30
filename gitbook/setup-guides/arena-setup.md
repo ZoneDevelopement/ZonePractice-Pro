@@ -74,7 +74,23 @@ If your arena is portal-based:
 
 ## Step 7: Optional advanced settings
 
-- Portal protection: `/arena set portalprot <arena> <radius>`
+### Portal Protection
+
+**Command:** `/arena set portalprot <arena> <radius>`
+
+Protects the area around portals (goal zones) on Portal-type maps (Bridge, Pit, etc.).
+
+**Radius:** 0–20 blocks from the portal center.
+
+**What it prevents inside the protected zone:**
+- Block placing and breaking
+- Bucket emptying (lava/water)
+- Liquid flow into the area
+
+This stops players from blocking the opponent's portal or griefing it with lava/water.
+
+### Other settings
+
 - Side build limit: `/arena set sidebuildlimit <arena> <value>`
 - Party FFA center: `/arena set partyffacenter <arena>`
 

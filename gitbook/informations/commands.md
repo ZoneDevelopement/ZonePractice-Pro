@@ -89,7 +89,7 @@ These are registered only when enabled in `config.yml`:
 | `create <name>` | Create a new arena |
 | `setup <arena>` | Enter setup wand mode |
 | `set icon <arena>` | Set arena icon from held item |
-| `set portalprot <arena> <radius>` | Set portal protection radius |
+| `set portalprot <arena> <radius>` | Protect portal area (blocks placing/breaking/liquids near portal on Portal-type maps) |
 | `set sidebuildlimit <arena> <value>` | Set side build limit |
 | `set partyffacenter <arena>` | Set party FFA center point |
 | `enable <arena>` | Enable an arena (make it available for matches) |
