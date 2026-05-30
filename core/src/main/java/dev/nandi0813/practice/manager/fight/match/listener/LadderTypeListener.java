@@ -877,9 +877,13 @@ public class LadderTypeListener implements Listener {
         switch (profile.getStatus()) {
             case MATCH -> {
                 Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
-                if (match != null && !match.getLadder().isBuild()) {
-                    Common.sendMMMessage(player, LanguageManager.getString("MATCH.ONLY-CHARGE-WIND"));
-                    e.setCancelled(true);
+                if (match != null) {
+                    if (!BlockUtil.hasMetadata(e.getEntity(), FIGHT_ENTITY)) {
+                        BlockUtil.setMetadata(e.getEntity(), FIGHT_ENTITY, match);
+                    }
+                    if (!match.getFightChange().containsEntity(e.getEntity())) {
+                        match.addEntityChange(e.getEntity());
+                    }
                 }
             }
             case EVENT -> {

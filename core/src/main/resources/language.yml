@@ -1456,7 +1456,7 @@ MATCH:
   ARROW-HIT-PLAYER: "<red>%player% is now at %health% ♥"
   EXP-RECEIVED: "<yellow><bold>(EXP) <reset><white>You received <yellow>%exp% <white>experience!"
   ONLY-THROW-EXP-BOTTLES: "<red>You can only throw EXP bottles in build ladders."
-  ONLY-CHARGE-WIND: "<red>You can only use wind charge in build ladders."
+  ONLY-CHARGE-WIND: "<red>You can't use wind charge in brackets events."
   REACHED-NEW-DIVISION: "<green>Congratulations! <yellow>You have reached %newDivision_fullName% <yellow>division." # %oldDivision_fullName% & %newDivision_fullName%
   MATCH-OVER-IN-30: "<yellow>Match is over in <red>30 <yellow>seconds."
   ARENA-ROLLING-BACK: "<yellow>Rolling back arena... <gray>Waiting for next round to start."
