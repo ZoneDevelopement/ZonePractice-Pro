@@ -642,6 +642,10 @@ public class FightChangeOptimized {
                 rollingBack = false;
                 removeRollbackChunkTickets();
                 Common.sendConsoleMMMessage("<red>Rollback error at block " + processedBlocks + "/" + totalBlocks + ": " + e.getMessage());
+
+                if (onComplete != null) {
+                    onComplete.run();
+                }
             }
         }
     }

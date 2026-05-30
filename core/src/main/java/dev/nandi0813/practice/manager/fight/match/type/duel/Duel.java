@@ -190,6 +190,7 @@ public class Duel extends Match implements Team {
         if (!players.contains(player)) return;
 
         players.remove(player);
+        matchPlayers.remove(player);
         MatchManager.getInstance().getPlayerMatches().remove(player);
 
         // Only process quit logic if the match hasn't ended yet
