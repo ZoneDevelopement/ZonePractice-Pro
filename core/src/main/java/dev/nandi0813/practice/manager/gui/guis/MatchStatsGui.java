@@ -69,10 +69,11 @@ public class MatchStatsGui extends GUI {
                 Inventory inventory = gui.get(round);
 
                 // Inventory Content
-                List<ItemStack> inventoryContent = Arrays.asList(roundStatistic.getEndInventory());
+                ItemStack[] endInv = roundStatistic.getEndInventory();
+                List<ItemStack> inventoryContent = endInv != null ? Arrays.asList(endInv) : Collections.emptyList();
                 List<ItemStack> firstLine = new ArrayList<>();
                 int healthPotionsLeft = 0;
-                for (int i = 0; i < 36; i++) {
+                for (int i = 0; i < 36 && i < inventoryContent.size(); i++) {
                     if (i < 9)
                         firstLine.add(inventoryContent.get(i));
 
@@ -84,8 +85,9 @@ public class MatchStatsGui extends GUI {
                 }
 
                 // Armor Content
-                List<ItemStack> armor = Arrays.asList(roundStatistic.getEndArmor());
-                for (int i = 36; i <= 39; i++)
+                ItemStack[] endArmorArray = roundStatistic.getEndArmor();
+                List<ItemStack> armor = endArmorArray != null ? Arrays.asList(endArmorArray) : Collections.emptyList();
+                for (int i = 36; i <= 39 && (i - 36) < armor.size(); i++)
                     inventory.setItem(i, armor.get(i - 36));
 
                 if (roundStatistic.getPotionThrown() != 0)
