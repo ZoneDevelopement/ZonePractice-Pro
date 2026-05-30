@@ -15,7 +15,6 @@ import java.util.List;
 @Setter
 public abstract class NormalArena extends BasicArena implements DisplayName {
 
-    // Not used yet
     protected boolean portalProtection = false;
     protected int portalProtectionValue;
 
