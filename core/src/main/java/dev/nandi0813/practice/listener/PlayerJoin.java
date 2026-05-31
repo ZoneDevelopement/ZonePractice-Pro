@@ -30,9 +30,12 @@ public class PlayerJoin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         final Player player = e.getPlayer();
         final UUID uuid = player.getUniqueId();
-        e.joinMessage(Component.empty());
-
         Profile profile = ProfileManager.getInstance().getProfile(player);
+
+        // Suppress default join message if disabled in config
+        if (!ConfigManager.getBoolean("PLAYER.JOIN-MESSAGE"))
+            e.joinMessage(Component.empty());
+
         if (profile == null)
             profile = ProfileManager.getInstance().newProfile(player, uuid);
 

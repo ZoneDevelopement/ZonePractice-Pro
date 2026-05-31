@@ -211,9 +211,9 @@ public class ProfileManager {
         }
 
         profile.saveData();
-        MysqlManager.saveProfileAsync(profile);
         profile.loadStatsOnlyData();
         profile.demoteToStatsOnly();
+        MysqlManager.saveProfileAsync(profile);
     }
 
     public void clearPlayerReference(Player player) {

@@ -1,4 +1,4 @@
-VERSION: 60
+VERSION: 61
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -307,7 +307,7 @@ MATCH-SETTINGS:
       SECONDS: 0 # Cooldown in seconds for using golden apples. Default is 0 seconds (no cooldown).
   FIREBALL-FIGHT: # These are multiplier values, so please test what is optimal for you and don't change them too much at once or the difference will multiply.
     FIREBALL-SPEED: 1.0
-    FIREBALL-YIELD: 1.8
+    FIREBALL-YIELD: 2.8
     EXPLOSION:
       TNT:
         HORIZONTAL: 1.4
@@ -672,6 +672,7 @@ PLAYER:
   NAMETAG-MANAGEMENT:
     ENABLED: true # If false, ZonePractice will not manage nametags (above-head prefix/suffix/color) or the tab-list at all.
   JOIN-TELEPORT-LOBBY: true # If true, the player will be teleported to the lobby when they join the server.
+  JOIN-MESSAGE: false # If true, the default Minecraft join message will be shown when a player joins.
   GROUP-CHAT:
     ENABLED: true # If enabled, the player's chat will be formatted by their group. It is only viable if "SERVER-CHAT" is also enabled.
   DEFAULT-SETTINGS:
