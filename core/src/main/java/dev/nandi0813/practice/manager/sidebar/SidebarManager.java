@@ -113,10 +113,12 @@ public class SidebarManager extends ConfigFile implements Listener {
             if (!isSidebarGloballyEnabled()) return;
 
             Profile profile = ProfileManager.getInstance().getProfile(player);
+
+            profile.ensureFullDataLoaded();
+
             if (!profile.isSidebar()) return;
 
-            if (PermanentConfig.JOIN_TELEPORT_LOBBY)
-                loadSidebar(player);
+            loadSidebar(player);
         }, 10L);
     }
 
