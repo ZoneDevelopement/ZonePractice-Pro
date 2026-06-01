@@ -118,7 +118,8 @@ public class SidebarManager extends ConfigFile implements Listener {
 
             if (!profile.isSidebar()) return;
 
-            loadSidebar(player);
+            if (PermanentConfig.JOIN_TELEPORT_LOBBY)
+                loadSidebar(player);
         }, 10L);
     }
 
