@@ -48,6 +48,7 @@ public class PlayerHider implements Listener {
                 if (player == online) continue;
 
                 Profile onlineProfile = ProfileManager.getInstance().getProfile(online);
+                if (onlineProfile == null) continue;
                 ProfileStatus onlineStatus = onlineProfile.getStatus();
 
                 /*
@@ -81,6 +82,7 @@ public class PlayerHider implements Listener {
 
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) return;
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
@@ -90,6 +92,7 @@ public class PlayerHider implements Listener {
                 if (player == online) continue;
 
                 Profile onlineProfile = ProfileManager.getInstance().getProfile(online);
+                if (onlineProfile == null) continue;
 
                 // Handle the teleported player
                 if (profile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online) == WorldEnum.LOBBY) {
