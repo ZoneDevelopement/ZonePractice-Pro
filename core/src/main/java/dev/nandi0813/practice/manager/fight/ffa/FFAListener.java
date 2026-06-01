@@ -220,7 +220,7 @@ public class FFAListener implements Listener {
         if (ListenerUtil.handlePlacedInFightBlock(block, e)) return;
 
         // For natural arena blocks or destroyable blocks, check build limits
-        if (e.getBlock().getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(ffa.getArena())) {
+        if (ffa.getArena().isBuildMax() && e.getBlock().getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(ffa.getArena())) {
             Common.sendMMMessage(player, LanguageManager.getString("FFA.GAME.CANT-BUILD-OVER-LIMIT"));
             e.setCancelled(true);
             return;
@@ -272,7 +272,7 @@ public class FFAListener implements Listener {
             return;
         }
 
-        if (block.getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(arena)) {
+        if (arena.isBuildMax() && block.getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(arena)) {
             Common.sendMMMessage(player, LanguageManager.getString("FFA.GAME.CANT-BUILD-OVER-LIMIT"));
             e.setCancelled(true);
         }
@@ -302,7 +302,7 @@ public class FFAListener implements Listener {
             return;
         }
 
-        if (block.getRelative(e.getBlockFace()).getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(ffa.getArena())) {
+        if (ffa.getArena().isBuildMax() && block.getRelative(e.getBlockFace()).getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(ffa.getArena())) {
             Common.sendMMMessage(player, LanguageManager.getString("FFA.GAME.CANT-BUILD-OVER-LIMIT"));
             e.setCancelled(true);
         }

@@ -330,7 +330,9 @@ public class ArenaSetupListener implements Listener {
         if (action.name().contains("LEFT")) {
             arena.setBuildMax(false);
             arena.setBuildMaxValue(ConfigManager.getInt("MATCH-SETTINGS.BUILD-LIMIT-DEFAULT"));
-            Common.sendMMMessage(player, "<red>Build Height Limit disabled for " + arena.getName());
+            arena.setData();
+            Common.sendMMMessage(player, "<red>Build Height Limit disabled for " + arena.getName() +
+                    " <gray>(now relative: spawn Y + " + ConfigManager.getInt("MATCH-SETTINGS.BUILD-LIMIT-DEFAULT") + " blocks — use right-click to set an absolute limit)");
             return;
         }
 
@@ -341,6 +343,7 @@ public class ArenaSetupListener implements Listener {
 
         arena.setBuildMaxValue(pos.getBlockY());
         arena.setBuildMax(true);
+        arena.setData();
 
         Common.sendMMMessage(player, LanguageManager.getString("COMMAND.ARENA.ARGUMENTS.SETBUILDMAX.SET-BUILDMAX")
                 .replace("%arena%", arena.getName())
