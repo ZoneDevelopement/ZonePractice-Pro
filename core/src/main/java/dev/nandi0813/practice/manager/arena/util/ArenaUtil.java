@@ -151,19 +151,21 @@ public enum ArenaUtil {
             }
         }
 
+        arena.setEnabled(!arena.isEnabled());
+        arena.setData();
+
         if (arena instanceof FFAArena) {
             FFA ffa = ((FFAArena) arena).getFfa();
 
             if (ffa != null) {
                 if (arena.isEnabled()) {
-                    ffa.close("");
-                } else {
                     ffa.open();
+                } else {
+                    ffa.close("");
                 }
             }
         }
 
-        arena.setEnabled(!arena.isEnabled());
         return true;
     }
 
