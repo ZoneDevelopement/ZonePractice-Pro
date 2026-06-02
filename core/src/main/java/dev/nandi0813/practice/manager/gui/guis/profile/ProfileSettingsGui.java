@@ -122,6 +122,7 @@ public class ProfileSettingsGui extends GUI {
                         else
                             SidebarManager.getInstance().unLoadSidebar(player);
 
+                        profile.getFile().saveSidebarSetting();
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
                             PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));

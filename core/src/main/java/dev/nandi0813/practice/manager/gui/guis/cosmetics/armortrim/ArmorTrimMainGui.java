@@ -277,7 +277,7 @@ public class ArmorTrimMainGui extends GUI {
         for (int i = 0; i < ArmorTrimTier.values().length; i++) {
             if (player.hasPermission(nextTier.getPermissionNode())) {
                 profile.getCosmeticsData().setActiveTier(nextTier);
-                profile.saveData();
+                profile.save();
                 update(true);
                 return;
             }
@@ -308,7 +308,7 @@ public class ArmorTrimMainGui extends GUI {
             }
         }
 
-        profile.saveData();
+        profile.save();
         update(true);
 
         String successMessage = GUIFile.getConfig().getString(

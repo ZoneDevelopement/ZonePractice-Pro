@@ -8,7 +8,6 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.sidebar.adapter.PracticeAdapter;
 import dev.nandi0813.practice.manager.sidebar.adapter.SidebarAdapter;
 import dev.nandi0813.practice.util.Common;
-import dev.nandi0813.practice.util.PermanentConfig;
 import lombok.Getter;
 import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
 import net.megavex.scoreboardlibrary.api.exception.NoPacketAdapterAvailableException;
@@ -112,13 +111,12 @@ public class SidebarManager extends ConfigFile implements Listener {
         {
             if (!isSidebarGloballyEnabled()) return;
 
+            // Don't call profile.load() here — the profile is already loaded,
+            // and reloading from disk would overwrite an unsaved toggle.
             Profile profile = ProfileManager.getInstance().getProfile(player);
+            if (profile == null) return;
 
-            profile.ensureFullDataLoaded();
-
-            if (!profile.isSidebar()) return;
-
-            if (PermanentConfig.JOIN_TELEPORT_LOBBY)
+            if (profile.isSidebar())
                 loadSidebar(player);
         }, 10L);
     }

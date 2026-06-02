@@ -91,6 +91,11 @@ public class ProfileFile extends ConfigFile {
         if (customKitPerm > 0) config.set("allowed-custom-kits", customKitPerm);
     }
 
+    public void saveSidebarSetting() {
+        config.set("settings.sidebar", profile.isSidebar());
+        saveFile();
+    }
+
     private void setSettings() {
         config.set("settings.duelrequest", profile.isDuelRequest());
         config.set("settings.sidebar", profile.isSidebar());
@@ -168,8 +173,7 @@ public class ProfileFile extends ConfigFile {
         config.set("uuid", profile.getUuid().toString());
         config.set("join.first", System.currentTimeMillis());
 
-        int customKitPerm = profile.getCustomKitPerm();
-        if (customKitPerm > 0) config.set("allowed-custom-kits", customKitPerm);
+        setCustomKitPerm();
 
         config.set("settings.duelrequest", ConfigManager.getBoolean("PLAYER.DEFAULT-SETTINGS.DUELREQUEST"));
         config.set("settings.sidebar", ConfigManager.getBoolean("PLAYER.DEFAULT-SETTINGS.SIDEBAR"));
@@ -195,8 +199,11 @@ public class ProfileFile extends ConfigFile {
         saveFile();
     }
 
-    @Override
-    public void getData() {
+    /**
+     * Loads lightweight profile data: timestamps, group, display info, and settings.
+     * Does NOT load heavy data (cosmetics, custom kits).
+     */
+    public void loadLightData() {
         loadJoinTimestamps();
         loadGroup();
         loadPrefix();
@@ -204,6 +211,11 @@ public class ProfileFile extends ConfigFile {
         loadNameTemplate();
         loadCustomKitPerm();
         loadSettings();
+    }
+
+    @Override
+    public void getData() {
+        loadLightData();
         loadCosmetics();
         loadCustomKits();
     }
@@ -349,13 +361,13 @@ public class ProfileFile extends ConfigFile {
         for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
             String name = ladder.getName().toLowerCase();
 
-            profile.getUnrankedCustomKits().put(ladder, loadCustomKitSet(ladder, name, "unranked"));
+            profile.getUnrankedCustomKits().put(ladder, loadCustomKitSet(name, "unranked"));
             if (ladder.isRanked())
-                profile.getRankedCustomKits().put(ladder, loadCustomKitSet(ladder, name, "ranked"));
+                profile.getRankedCustomKits().put(ladder, loadCustomKitSet(name, "ranked"));
         }
     }
 
-    private Map<Integer, CustomKit> loadCustomKitSet(NormalLadder ladder, String name, String type) {
+    private Map<Integer, CustomKit> loadCustomKitSet(String name, String type) {
         Map<Integer, CustomKit> result = new HashMap<>();
 
         for (int i = 1; i <= 4; i++) {
@@ -386,22 +398,16 @@ public class ProfileFile extends ConfigFile {
 
     private TrimPattern getTrimPatternByName(String name) {
         if (name == null || name.isBlank()) return null;
-        String normalized = normalizeKey(name);
-        return RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_PATTERN).get(Key.key(normalized));
+        return RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_PATTERN).get(Key.key(normalizeKey(name)));
     }
 
     private TrimMaterial getTrimMaterialByName(String name) {
         if (name == null || name.isBlank()) return null;
-        String normalized = normalizeKey(name);
-        return RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_MATERIAL).get(Key.key(normalized));
+        return RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_MATERIAL).get(Key.key(normalizeKey(name)));
     }
 
     private String normalizeKey(String key) {
-        String normalized = key.trim().toLowerCase();
-        if (!normalized.contains(":")) {
-            return "minecraft:" + normalized;
-        }
-        return normalized;
+        final String normalized = key.trim().toLowerCase();
+        return normalized.contains(":") ? normalized : "minecraft:" + normalized;
     }
-
 }

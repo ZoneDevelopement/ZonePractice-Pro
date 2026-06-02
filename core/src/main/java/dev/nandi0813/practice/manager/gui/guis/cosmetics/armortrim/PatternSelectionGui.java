@@ -118,7 +118,7 @@ public class PatternSelectionGui extends GUI {
         }
 
         profile.getCosmeticsData().setPattern(tier, armorSlot, pattern);
-        profile.saveData();
+        profile.save();
         update(true);
     }
 
