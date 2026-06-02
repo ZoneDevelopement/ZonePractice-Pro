@@ -91,6 +91,11 @@ public class ProfileFile extends ConfigFile {
         if (customKitPerm > 0) config.set("allowed-custom-kits", customKitPerm);
     }
 
+    public void saveSidebarSetting() {
+        config.set("settings.sidebar", profile.isSidebar());
+        saveFile();
+    }
+
     private void setSettings() {
         config.set("settings.duelrequest", profile.isDuelRequest());
         config.set("settings.sidebar", profile.isSidebar());

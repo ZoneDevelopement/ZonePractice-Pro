@@ -101,7 +101,6 @@ public class ProfileSettingsGui extends GUI {
                     if (player.hasPermission("zpp.settings.duelrequest")) {
                         profile.setDuelRequest(!profile.isDuelRequest());
 
-                        profile.save();
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
                             PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));
@@ -123,7 +122,7 @@ public class ProfileSettingsGui extends GUI {
                         else
                             SidebarManager.getInstance().unLoadSidebar(player);
 
-                        profile.save();
+                        profile.getFile().saveSidebarSetting();
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
                             PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));
@@ -135,7 +134,6 @@ public class ProfileSettingsGui extends GUI {
                     if (player.hasPermission("zpp.settings.partyinvite")) {
                         profile.setPartyInvites(!profile.isPartyInvites());
 
-                        profile.save();
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
                             PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));
@@ -148,7 +146,6 @@ public class ProfileSettingsGui extends GUI {
                         if (player.hasPermission("zpp.settings.privatemessage")) {
                             profile.setPrivateMessages(!profile.isPrivateMessages());
 
-                            profile.save();
                             update();
                             if (!player.hasPermission("zpp.bypass.cooldown"))
                                 PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));
@@ -163,7 +160,6 @@ public class ProfileSettingsGui extends GUI {
                         profile.setHidePlayers(!profile.isHidePlayers());
                         PlayerHider.getInstance().toggleLobbyVisibility(player);
 
-                        profile.save();
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
                             PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));
@@ -175,7 +171,6 @@ public class ProfileSettingsGui extends GUI {
                     if (player.hasPermission("zpp.settings.allowspectate")) {
                         profile.setAllowSpectate(!profile.isAllowSpectate());
 
-                        profile.save();
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
                             PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));
@@ -189,7 +184,6 @@ public class ProfileSettingsGui extends GUI {
                         profile.setWorldTime(newTime);
                         PlayerUtil.setPlayerWorldTime(player);
 
-                        profile.save();
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
                             PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));
@@ -209,7 +203,6 @@ public class ProfileSettingsGui extends GUI {
                             player.setAllowFlight(false);
                         }
 
-                        profile.save();
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
                             PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));
@@ -222,7 +215,6 @@ public class ProfileSettingsGui extends GUI {
                         profile.setPrefixVisibility(newVisibility);
                         dev.nandi0813.practice.manager.inventory.InventoryUtil.setLobbyNametag(player, profile);
 
-                        profile.save();
                         update();
                         if (!player.hasPermission("zpp.bypass.cooldown"))
                             PlayerCooldown.addCooldown(player, CooldownObject.PLAYER_SETTINGS, ConfigManager.getInt("PLAYER.SETTINGS-DELAY"));

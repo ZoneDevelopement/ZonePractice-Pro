@@ -111,6 +111,8 @@ public class SidebarManager extends ConfigFile implements Listener {
         {
             if (!isSidebarGloballyEnabled()) return;
 
+            // Don't call profile.load() here — the profile is already loaded,
+            // and reloading from disk would overwrite an unsaved toggle.
             Profile profile = ProfileManager.getInstance().getProfile(player);
             if (profile == null) return;
 
