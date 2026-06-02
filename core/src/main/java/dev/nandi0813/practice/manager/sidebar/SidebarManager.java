@@ -114,7 +114,7 @@ public class SidebarManager extends ConfigFile implements Listener {
 
             Profile profile = ProfileManager.getInstance().getProfile(player);
 
-            profile.ensureFullDataLoaded();
+            profile.load();
 
             if (!profile.isSidebar()) return;
 

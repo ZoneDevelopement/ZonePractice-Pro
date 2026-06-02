@@ -110,7 +110,7 @@ public enum CosmeticsPermissionSanitizer {
         }
 
         if (changed) {
-            profile.saveData();
+            profile.save();
         }
 
     }

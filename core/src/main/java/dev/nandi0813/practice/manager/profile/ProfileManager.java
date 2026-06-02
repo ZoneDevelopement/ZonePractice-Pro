@@ -10,13 +10,11 @@ import dev.nandi0813.practice.util.StartUpCallback;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ProfileManager {
@@ -50,7 +48,7 @@ public class ProfileManager {
             return cached;
         }
 
-        return loadProfileIfExists(uuid, Bukkit.getOfflinePlayer(uuid), false);
+        return loadProfileIfExists(uuid, Bukkit.getOfflinePlayer(uuid));
     }
 
     public Profile getProfile(Player player) {
@@ -61,12 +59,9 @@ public class ProfileManager {
         uuids.put(player, uuid);
         Profile profile = profiles.get(uuid);
         if (profile == null) {
-            return loadProfileIfExists(uuid, player, true);
+            profile = loadProfileIfExists(uuid, player);
         }
-        if (!profile.isFullDataLoaded()) {
-            profile.ensureFullDataLoaded();
-            loadProfileInfo(profile);
-        }
+        loadProfileInfo(profile);
         return profile;
     }
 
@@ -79,8 +74,7 @@ public class ProfileManager {
             return profile;
         }
 
-        boolean loadFull = player.isOnline();
-        return loadProfileIfExists(uuid, player, loadFull);
+        return loadProfileIfExists(uuid, player);
     }
 
     public Profile getProfile(Entity entity) {
@@ -94,8 +88,7 @@ public class ProfileManager {
         Profile profile = new Profile(uuid);
 
         profile.getFile().setDefaultData();
-        profile.getData();
-        profile.getStats().setDivision(DivisionManager.getInstance().getDivision(profile));
+        profile.load();
 
         profiles.put(uuid, profile);
         loadProfileInfo(profile);
@@ -106,21 +99,24 @@ public class ProfileManager {
         return profile;
     }
 
-    public void loadProfiles(final StartUpCallback startUpCallback) {
+    public void loadProfiles(final StartUpCallback callback) {
         Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
         {
+            // 1. Load YAML profiles: settings, kits, cosmetics, timestamps
             loadProfilesFromDisk();
 
+            // 2. Load MySQL stats: elo, wins, losses per ladder
             Collection<Profile> loadedProfiles = profiles.values();
             MysqlManager.loadProfilesAsync(loadedProfiles).whenComplete((ignored, throwable) -> {
                 if (throwable != null) {
                     Common.sendConsoleMMMessage("<red>Error: " + throwable.getMessage());
                 }
-                Bukkit.getScheduler().runTask(ZonePractice.getInstance(), startUpCallback::onLoadingDone);
+                Bukkit.getScheduler().runTask(ZonePractice.getInstance(), callback::onLoadingDone);
             });
         });
     }
 
+    /** Iterates all .yml files in /profiles/ and loads each into the cache. */
     private void loadProfilesFromDisk() {
         if (!folder.exists() && !folder.mkdirs()) {
             Common.sendConsoleMMMessage("<red>Error: Could not create profiles folder.");
@@ -134,29 +130,23 @@ public class ProfileManager {
         for (File profileFile : files) {
             if (!profileFile.isFile() || !profileFile.getName().endsWith(".yml")) continue;
 
-            YamlConfiguration config = YamlConfiguration.loadConfiguration(profileFile);
-            String uuidString = config.getString("uuid");
-            UUID uuid = parseUuid(uuidString);
-
-            if (uuid == null) {
-                Common.sendConsoleMMMessage("<yellow>Warning: Skipping corrupted profile file <white>" + profileFile.getName() + "<yellow> (invalid or missing uuid: <white>" + uuidString + "<yellow>)");
-                continue;
-            }
+            UUID uuid = parseUuidFromFilename(profileFile.getName());
+            if (uuid == null) continue;
 
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
             Profile profile = new Profile(uuid, offlinePlayer);
-            profile.loadStatsOnlyData();
+            profile.load();
             profile.getStats().setDivision(DivisionManager.getInstance().getDivision(profile));
             profiles.put(uuid, profile);
         }
     }
 
-    private UUID parseUuid(String uuidString) {
-        if (uuidString == null || uuidString.isBlank()) return null;
-
+    private UUID parseUuidFromFilename(String filename) {
+        String uuidString = filename.substring(0, filename.length() - 4);
         try {
-            return UUID.fromString(uuidString.trim());
+            return UUID.fromString(uuidString);
         } catch (IllegalArgumentException ignored) {
+            Common.sendConsoleMMMessage("<yellow>Warning: Skipping corrupted profile file <white>" + filename + "<yellow> (invalid uuid in filename)");
             return null;
         }
     }
@@ -190,7 +180,7 @@ public class ProfileManager {
         // when autosave overlaps joins/quits/profile updates.
         for (Profile profile : new ArrayList<>(profiles.values())) {
             if (profile != null) {
-                profile.saveData();
+                profile.save();
             }
         }
     }
@@ -210,9 +200,8 @@ public class ProfileManager {
             return;
         }
 
-        profile.saveData();
-        profile.loadStatsOnlyData();
-        profile.demoteToStatsOnly();
+        profile.save();
+        profile.onQuit();
         MysqlManager.saveProfileAsync(profile);
     }
 
@@ -224,22 +213,17 @@ public class ProfileManager {
         uuids.remove(player);
     }
 
-    private Profile loadProfileIfExists(UUID uuid, OfflinePlayer offlinePlayer, boolean loadFull) {
+    private Profile loadProfileIfExists(UUID uuid, OfflinePlayer offlinePlayer) {
         File profileFile = new File(folder, uuid.toString().toLowerCase() + ".yml");
         if (!profileFile.exists()) {
             return null;
         }
 
-        Profile loaded = profiles.computeIfAbsent(uuid, id -> new Profile(id, offlinePlayer));
-        if (loadFull) {
-            loaded.ensureFullDataLoaded();
-            loadProfileInfo(loaded);
-        } else if (!loaded.isFullDataLoaded() && loaded.getStats().getLadderStats().isEmpty()) {
-            loaded.loadStatsOnlyData();
+        return profiles.computeIfAbsent(uuid, id -> {
+            Profile loaded = new Profile(id, offlinePlayer);
+            loaded.load();
             loaded.getStats().setDivision(DivisionManager.getInstance().getDivision(loaded));
-        }
-
-        return loaded;
+            return loaded;
+        });
     }
-
 }

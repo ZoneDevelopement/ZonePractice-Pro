@@ -155,7 +155,7 @@ public class ShieldPatternPickerGui extends GUI {
             }
         }
 
-        profile.saveData();
+        profile.save();
 
         // Apply live if this layout is active
         if (profile.getCosmeticsData().getActiveShieldLayoutIndex() == layoutIndex) {

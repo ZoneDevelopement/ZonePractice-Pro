@@ -104,7 +104,7 @@ public class ShieldColorPickerGui extends GUI {
         if (layerIndex == -1) {
             // Base color
             layout.setBaseColor(color);
-            profile.saveData();
+            profile.save();
             if (profile.getCosmeticsData().getActiveShieldLayoutIndex() == layoutIndex) {
                 ShieldCosmeticsUtil.applyShieldToPlayer(player);
             }

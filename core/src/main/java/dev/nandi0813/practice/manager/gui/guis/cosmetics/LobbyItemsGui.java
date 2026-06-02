@@ -99,7 +99,7 @@ public class LobbyItemsGui extends GUI {
 
         CosmeticsData.LobbyItemType current = profile.getCosmeticsData().getLobbyItemType();
         profile.getCosmeticsData().setLobbyItemType(current == clicked ? CosmeticsData.LobbyItemType.NONE : clicked);
-        profile.saveData();
+        profile.save();
         InventoryManager.getInstance().applyLobbyCosmetics(player);
 
         update(true);
