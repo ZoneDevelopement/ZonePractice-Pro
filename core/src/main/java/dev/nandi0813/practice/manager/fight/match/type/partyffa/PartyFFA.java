@@ -165,6 +165,10 @@ public class PartyFFA extends Match {
                 PartyFfaRound round = this.getCurrentRound();
                 round.setRoundWinner(winnerPlayer);
                 round.endRound();
+            } else if (this.players.isEmpty() || getAlivePlayers().isEmpty()) {
+                this.setStatus(MatchStatus.END);
+                PartyFfaRound round = this.getCurrentRound();
+                round.endRound();
             }
         }
 
@@ -181,8 +185,8 @@ public class PartyFFA extends Match {
         if (this.getStatus().equals(MatchStatus.END))
             return true;
 
-        if (this.players.size() == 1) {
-            if (status.equals(MatchStatus.START))
+        if (this.players.size() <= 1) {
+            if (status.equals(MatchStatus.START) || this.players.isEmpty())
                 this.matchWinner = null;
             else
                 this.matchWinner = this.players.stream().findAny().get();
