@@ -84,6 +84,8 @@ public class MatchEventListener implements Listener {
         if (match == null) return;
 
         MatchFightPlayer matchFightPlayer = match.getMatchPlayers().get(player);
+        if (matchFightPlayer == null) return;
+
         if (!matchFightPlayer.isHasChosenKit()) {
             e.setCancelled(true);
 
@@ -108,6 +110,8 @@ public class MatchEventListener implements Listener {
         if (match == null) return;
 
         MatchFightPlayer matchFightPlayer = match.getMatchPlayers().get(player);
+        if (matchFightPlayer == null) return;
+
         if (!matchFightPlayer.isHasChosenKit()) {
             e.setCancelled(true);
         }
