@@ -14,6 +14,7 @@ import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
@@ -61,6 +62,10 @@ public class Duel extends Match implements Team {
         } else {
             this.player2 = null;
         }
+
+        NametagManager.getInstance().setNametag(player1, TeamEnum.TEAM1.getPrefix(), TeamEnum.TEAM1.getNameColor(), TeamEnum.TEAM1.getSuffix(), 20);
+        if (player2 != null)
+            NametagManager.getInstance().setNametag(player2, TeamEnum.TEAM2.getPrefix(), TeamEnum.TEAM2.getNameColor(), TeamEnum.TEAM2.getSuffix(), 21);
     }
 
     @Override

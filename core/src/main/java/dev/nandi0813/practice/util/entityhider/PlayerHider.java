@@ -260,6 +260,14 @@ public class PlayerHider implements Listener {
 
     public void showPlayer(Player observer, Player target) {
         observer.showPlayer(ZonePractice.getInstance(), target);
+
+        WrapperPlayServerPlayerInfoUpdate.PlayerInfo playerInfo = new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId());
+        playerInfo.setListed(true);
+        WrapperPlayServerPlayerInfoUpdate playerInfoUpdate = new WrapperPlayServerPlayerInfoUpdate(
+                WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED,
+                playerInfo
+        );
+        PacketEvents.getAPI().getPlayerManager().sendPacket(observer, playerInfoUpdate);
     }
 
     /*
