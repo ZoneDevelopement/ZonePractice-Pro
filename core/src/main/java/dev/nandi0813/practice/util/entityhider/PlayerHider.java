@@ -109,6 +109,7 @@ public class PlayerHider implements Listener {
                         hidePlayer(online, player, false);
                     } else if (!profile.isHideFromPlayers() || online.hasPermission("zpp.staffmode.see")) {
                         showPlayer(online, player);
+                        showTabEntry(online, player);
                     } else if (profile.isHideFromPlayers() || !online.hasPermission("zpp.staffmode.see")) {
                         hidePlayer(online, player, true);
                     }
@@ -249,9 +250,11 @@ public class PlayerHider implements Listener {
             observer.hidePlayer(ZonePractice.getInstance(), target);
 
         if (!fullHide) {
+            WrapperPlayServerPlayerInfoUpdate.PlayerInfo playerInfo = new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId());
+            playerInfo.setListed(false);
             WrapperPlayServerPlayerInfoUpdate playerInfoUpdate = new WrapperPlayServerPlayerInfoUpdate(
                     WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED,
-                    new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId())
+                    playerInfo
             );
 
             PacketEvents.getAPI().getPlayerManager().sendPacket(observer, playerInfoUpdate);
@@ -260,7 +263,9 @@ public class PlayerHider implements Listener {
 
     public void showPlayer(Player observer, Player target) {
         observer.showPlayer(ZonePractice.getInstance(), target);
+    }
 
+    public void showTabEntry(Player observer, Player target) {
         WrapperPlayServerPlayerInfoUpdate.PlayerInfo playerInfo = new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId());
         playerInfo.setListed(true);
         WrapperPlayServerPlayerInfoUpdate playerInfoUpdate = new WrapperPlayServerPlayerInfoUpdate(
