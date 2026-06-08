@@ -1,4 +1,4 @@
-VERSION: 61
+VERSION: 62
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -218,8 +218,7 @@ MATCH-SETTINGS:
         NAME-COLOR: RED
         SUFFIX: ""
     FFA:
-      COLOR:
-        "<yellow>"
+      COLOR: "<yellow>"
   MATCH-TYPE-NAMES:
     DUEL: "<yellow><bold>Duel"
     PARTY_FFA: "<yellow><bold>Party FFA"
