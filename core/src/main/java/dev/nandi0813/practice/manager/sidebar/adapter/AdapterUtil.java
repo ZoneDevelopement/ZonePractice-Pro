@@ -43,14 +43,14 @@ public enum AdapterUtil {
      * Creates a text replacement config for a simple string replacement
      */
     private static TextReplacementConfig replace(@RegExp String placeholder, String value) {
-        return TextReplacementConfig.builder().match(placeholder).replacement(value).build();
+        return TextReplacementConfig.builder().match("(?i)" + placeholder).replacement(value).build();
     }
 
     /**
      * Creates a text replacement config for a component replacement
      */
     private static TextReplacementConfig replace(@RegExp String placeholder, Component value) {
-        return TextReplacementConfig.builder().match(placeholder).replacement(value).build();
+        return TextReplacementConfig.builder().match("(?i)" + placeholder).replacement(value).build();
     }
 
     /**
