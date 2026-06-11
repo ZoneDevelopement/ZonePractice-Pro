@@ -62,7 +62,7 @@ public class FFASettingsGui extends GUI {
         }
 
         if (ffaArena.isReKitAfterKill()) {
-            inventory.setItem(13, REKIT_ENABLED_ITEM);
+            inventory.setItem(12, REKIT_ENABLED_ITEM);
         } else {
             inventory.setItem(12, REKIT_DISABLED_ITEM);
         }
