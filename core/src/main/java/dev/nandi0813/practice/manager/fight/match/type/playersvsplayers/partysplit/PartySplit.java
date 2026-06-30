@@ -13,16 +13,49 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class PartySplit extends PlayersVsPlayers {
 
+    /**
+     * Creates a party split match with randomly shuffled teams.
+     */
     public PartySplit(Ladder ladder, Arena arena, Party party, int winsNeeded) {
+        this(ladder, arena, party, winsNeeded, null);
+    }
+
+    /**
+     * Creates a party split match.
+     *
+     * @param presetTeams If non-null, uses this manual team assignment (e.g. chosen by the
+     *                    party owner through the team selector GUI) instead of randomly
+     *                    shuffling the party members into teams.
+     */
+    public PartySplit(Ladder ladder, Arena arena, Party party, int winsNeeded, Map<TeamEnum, List<Player>> presetTeams) {
         super(ladder, arena, new ArrayList<>(party.getMembers()), winsNeeded);
 
         this.type = MatchType.PARTY_SPLIT;
 
+        if (presetTeams != null) {
+            /*
+             * Use the manual team assignment chosen by the party owner
+             */
+            for (Player player : presetTeams.getOrDefault(TeamEnum.TEAM1, List.of())) {
+                this.teams.get(TeamEnum.TEAM1).add(player);
+                this.originalTeams.get(TeamEnum.TEAM1).add(player);
+                NametagManager.getInstance().setNametag(player, TeamEnum.TEAM1.getPrefix(), TeamEnum.TEAM1.getNameColor(), TeamEnum.TEAM1.getSuffix(), 20);
+            }
+            for (Player player : presetTeams.getOrDefault(TeamEnum.TEAM2, List.of())) {
+                this.teams.get(TeamEnum.TEAM2).add(player);
+                this.originalTeams.get(TeamEnum.TEAM2).add(player);
+                NametagManager.getInstance().setNametag(player, TeamEnum.TEAM2.getPrefix(), TeamEnum.TEAM2.getNameColor(), TeamEnum.TEAM2.getSuffix(), 21);
+            }
+            return;
+        }
+
         /*
-         * Split the players into teams
+         * Split the players into teams randomly
          */
         Collections.shuffle(this.players);
         int team1PlayerCount = 0;

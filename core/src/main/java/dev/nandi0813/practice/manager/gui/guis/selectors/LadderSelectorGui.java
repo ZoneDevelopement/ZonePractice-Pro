@@ -264,6 +264,11 @@ public class LadderSelectorGui extends GUI {
 
         player.closeInventory();
 
+        if (matchType.equals(MatchType.PARTY_SPLIT) && party.getMembers().size() > 2) {
+            new PartySplitTeamSelectorGui(ladder, arena, rounds, party, this).open(player);
+            return;
+        }
+
         Match match = getMatch(party, ladder, arena, rounds);
         if (match == null) {
             Common.sendMMMessage(player, LanguageManager.getString("LADDER.SELECTOR.PARTY.ERROR"));
@@ -274,4 +279,4 @@ public class LadderSelectorGui extends GUI {
         match.startMatch();
     }
 
-}
+            }

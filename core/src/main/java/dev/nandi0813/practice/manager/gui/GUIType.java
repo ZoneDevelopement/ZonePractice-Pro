@@ -85,6 +85,7 @@ public enum GUIType {
     Arena_Selector,
     Ladder_Selector,
     DuelRound_Selector,
+    PartySplit_TeamSelector,
 
     Ladder_Preview,
 

@@ -178,6 +178,12 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
                         return;
                     }
 
+                    if (matchType.equals(MatchType.PARTY_SPLIT) && party.getMembers().size() > 2) {
+                        player.closeInventory();
+                        new PartySplitTeamSelectorGui(ladder, arena, rounds, party, this).open(player);
+                        return;
+                    }
+
                     Match match = getMatch(party, arena, rounds);
                     if (match == null) {
                         Common.sendMMMessage(player, LanguageManager.getString("PARTY.NO-AVAILABLE-ARENA"));

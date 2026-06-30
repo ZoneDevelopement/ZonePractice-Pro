@@ -1020,6 +1020,57 @@ GUIS:
             - "<gray>Click here to play"
             - "<gray>with your own custom kit."
             - "<dark_gray><st>------------------------"
+    PARTY-SPLIT-TEAM-SELECTOR:
+      TITLE: "<dark_gray>Select Teams"
+      ICONS:
+        FILLER-ITEM:
+          MATERIAL: GRAY_STAINED_GLASS_PANE
+        BACK-TO-SELECTOR:
+          NAME: "<yellow>Back to kit selector"
+          MATERIAL: ARROW
+        UNASSIGNED-PLAYER:
+          NAME: "<white>%player%"
+          LORE:
+            - "<dark_gray><st>------------------------"
+            - "<gray>Team: <white>Unassigned"
+            - ""
+            - "<gray>Left click to assign"
+            - "<gray>this player a team."
+            - "<dark_gray><st>------------------------"
+        TEAM1-PLAYER:
+          NAME: "%teamColor%%player%"
+          LORE:
+            - "<dark_gray><st>------------------------"
+            - "<gray>Team: %teamColor%%team%"
+            - ""
+            - "<gray>Left click to switch"
+            - "<gray>this player's team."
+            - "<dark_gray><st>------------------------"
+        TEAM2-PLAYER:
+          NAME: "%teamColor%%player%"
+          LORE:
+            - "<dark_gray><st>------------------------"
+            - "<gray>Team: %teamColor%%team%"
+            - ""
+            - "<gray>Left click to switch"
+            - "<gray>this player's team."
+            - "<dark_gray><st>------------------------"
+        CONFIRM-INCOMPLETE:
+          NAME: "<red>Confirm Teams"
+          MATERIAL: RED_STAINED_GLASS_PANE
+          LORE:
+            - "<dark_gray><st>------------------------"
+            - "<gray>Both teams need at least"
+            - "<gray>one player to start."
+            - "<dark_gray><st>------------------------"
+        CONFIRM-READY:
+          NAME: "<green>Confirm Teams"
+          MATERIAL: LIME_STAINED_GLASS_PANE
+          LORE:
+            - "<dark_gray><st>------------------------"
+            - "<gray>Click here to start the"
+            - "<gray>match with these teams."
+            - "<dark_gray><st>------------------------"
   EVENT-HOST: # You can set each event icon in the game.
     TITLE: "<dark_red>Host Event"
   BRACKETS-KIT-SELECTOR:

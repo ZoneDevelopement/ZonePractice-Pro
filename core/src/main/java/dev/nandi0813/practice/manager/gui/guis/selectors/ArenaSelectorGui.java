@@ -183,6 +183,147 @@ public class ArenaSelectorGui extends MatchStarterGui {
                 if (player.hasPermission("zpp.party.selectrounds") && ladder instanceof NormalLadder) {
                     new DuelRoundSelectorGui(matchType, ladder, arena, this).open(player);
                 } else {
+                    if (matchType.equals(MatchType.PARTY_SPLIT) && party.getMembers().size() > 2) {
+                        new PartySplitTeamSelectorGui(ladder, arena, ladder.getRounds(), party, this).open(player);
+                        return;
+                    }
+
+                    Match match = getMatch(party, arena, ladder.getRounds());
+                    if (match == null) {
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.PARTY.ERROR"));
+                        return;
+                    }
+
+                    party.setMatch(match);
+                    match.startMatch();
+                }
+            }
+            /*
+             * Party vs party game arena selector
+             */
+            else {
+                Party target = PartyManager.getInstance().getRequestManager().getPendingRequestTarget().get(party);
+
+                if (!PartyManager.getInstance().getParties().contains(target)) {
+                    Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.PARTY.TARGET-PARTY-DISBANDED"));
+                    GUIManager.getInstance().searchGUI(GUIType.Party_OtherParties).open(player);
+                    return;
+                }
+
+                if (slot == 49) {
+                    player.closeInventory();
+
+                    if (player.hasPermission("zpp.party.selectrounds") && ladder instanceof NormalLadder) {
+                        new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
+                    } else {
+                        PartyRequest partyRequest = new PartyRequest(party, target, ladder, null, ladder.getRounds());
+                        partyRequest.sendRequest();
+                    }
+                } else {
+                    if (!arenaIcons.containsKey(slot)) return;
+
+                    Arena arena = arenaIcons.get(slot);
+
+                    if (arena.getAvailableArena() == null) {
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.PARTY.ARENA-CURRENTLY-NOT-AVAILABLE"));
+                        update();
+                        return;
+                    }
+
+                    if (player.hasPermission("zpp.party.selectrounds") && ladder instanceof NormalLadder) {
+                        new DuelRoundSelectorGui(matchType, ladder, arena, this).open(player);
+                    } else {
+                        PartyRequest partyRequest = new PartyRequest(party, target, ladder, arena, ladder.getRounds());
+                        partyRequest.sendRequest();
+                    }
+                }
+            }
+        }
+    }
+
+                    }            return;
+        }
+
+        if (ladder instanceof NormalLadder && ((NormalLadder) ladder).isFrozen()) {
+            Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.LADDER-FROZEN"));
+            backTo.open(player);
+            return;
+        }
+
+        /*
+         * Duel games arena selector
+         */
+        if (party == null) {
+            Player target = DuelManager.getInstance().getPendingRequestTarget().get(player);
+
+            if (!target.isOnline()) {
+                Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.DUEL.TARGET-LEFT"));
+                player.closeInventory();
+                return;
+            }
+
+            if (slot == 49) {
+                if (player.hasPermission("zpp.duel.selectrounds") && ladder instanceof NormalLadder) {
+                    new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
+                } else {
+                    // Send the duel request
+                    DuelManager.getInstance().sendRequest(new DuelRequest(player, target, ladder, null, ladder.getRounds()));
+                    player.closeInventory();
+                }
+            } else {
+                if (!arenaIcons.containsKey(slot)) return;
+
+                Arena arena = arenaIcons.get(slot);
+                if (arena.getAvailableArena() == null) {
+                    Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.DUEL.ARENA-NOT-AVAILABLE"));
+                    update();
+                    return;
+                }
+
+                if (player.hasPermission("zpp.duel.selectrounds") && ladder instanceof NormalLadder) {
+                    new DuelRoundSelectorGui(matchType, ladder, arena, this).open(player);
+                } else {
+                    // Send the duel request
+                    DuelManager.getInstance().sendRequest(new DuelRequest(player, target, ladder, arena, ladder.getRounds()));
+                }
+            }
+        }
+        /*
+         * Party games arena selector
+         */
+        else {
+            /*
+             * Own party game arena selector
+             */
+            if (!this.matchType.equals(MatchType.PARTY_VS_PARTY)) {
+                if (party.getMembers().size() < 2) {
+                    player.closeInventory();
+                    Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.PARTY.NOT-ENOUGH-PLAYERS"));
+                    return;
+                }
+
+                Arena arena;
+                if (slot == 49) {
+                    arena = LadderUtil.getAvailableArena(ladder);
+
+                    if (arena == null) {
+                        Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.PARTY.NO-AVAILABLE-ARENA"));
+                        return;
+                    }
+                } else if (arenaIcons.containsKey(slot)) {
+                    arena = arenaIcons.get(slot);
+                } else
+                    return;
+
+                if (arena.getAvailableArena() == null) {
+                    Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.PARTY.ARENA-NOT-AVAILABLE"));
+                    update();
+                    return;
+                }
+
+                if (player.hasPermission("zpp.party.selectrounds") && ladder instanceof NormalLadder) {
+                    new DuelRoundSelectorGui(matchType, ladder, arena, this).open(player);
+                } else {
                     Match match = getMatch(party, arena, ladder.getRounds());
                     if (match == null) {
                         Common.sendMMMessage(player, LanguageManager.getString("ARENA.SELECTOR.PARTY.ERROR"));
