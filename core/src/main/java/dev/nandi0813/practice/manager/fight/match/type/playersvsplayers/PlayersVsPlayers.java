@@ -252,7 +252,8 @@ public abstract class PlayersVsPlayers extends Match implements Team {
         List<Player> alive = new ArrayList<>();
 
         for (Player player : this.getTeamPlayers(team)) {
-            if (!this.getCurrentStat(player).isSet()) {
+            Statistic stat = this.getCurrentStat(player);
+            if (stat == null || !stat.isSet()) {
                 alive.add(player);
             }
         }

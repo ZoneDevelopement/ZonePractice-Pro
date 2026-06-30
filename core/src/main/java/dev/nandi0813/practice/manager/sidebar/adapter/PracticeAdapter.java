@@ -297,7 +297,7 @@ public class PracticeAdapter implements SidebarAdapter {
                     Component playerName = topPlayer != null
                             ? displayName(topPlayer)
                             : ZonePractice.getMiniMessage().deserialize("<red>N/A");
-                    Component playerHits = topPlayer != null ? Component.text(match.getCurrentStat(topPlayer).getHit()) : ZonePractice.getMiniMessage().deserialize("<red>N/A");
+                    Component playerHits = topPlayer != null && match.getCurrentStat(topPlayer) != null ? Component.text(match.getCurrentStat(topPlayer).getHit()) : ZonePractice.getMiniMessage().deserialize("<red>N/A");
 
                     component = component
                             .replaceText(TextReplacementConfig.builder().matchLiteral("%player" + i + "boxing%").replacement(playerName).build())
