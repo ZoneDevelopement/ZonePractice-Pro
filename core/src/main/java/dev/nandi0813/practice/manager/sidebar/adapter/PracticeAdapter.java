@@ -68,6 +68,7 @@ public class PracticeAdapter implements SidebarAdapter {
         return NameFormatUtil.resolveFullName(targetProfile, target, target.getName());
     }
 
+
     private static Component parseColoredText(String text) {
         if (text == null || text.isEmpty()) {
             return Component.empty();
@@ -120,6 +121,7 @@ public class PracticeAdapter implements SidebarAdapter {
                         .replaceText(TextReplacementConfig.builder().match("%inFightPlayers%").replacement(String.valueOf(MatchManager.getInstance().getPlayerInMatchSize())).build())
                         .replaceText(TextReplacementConfig.builder().match("%inQueuePlayer%").replacement(String.valueOf(QueueManager.getInstance().getQueues().size())).build())
                         .replaceText(TextReplacementConfig.builder().match("%partyLeader%").replacement(displayName(party.getLeader())).build())
+                        .replaceText(TextReplacementConfig.builder().match("%partyLeaderNameOnly%").replacement(AdapterUtil.getSidebarNameOnly(party.getLeader())).build())
                         .replaceText(TextReplacementConfig.builder().match("%maxMember%").replacement(String.valueOf(party.getMaxPlayerLimit())).build())
                         .replaceText(TextReplacementConfig.builder().match("%members%").replacement(String.valueOf(party.getMembers().size())).build())
                         .replaceText(TextReplacementConfig.builder().match("%division%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentFullName() : Component.empty()).build())
@@ -297,7 +299,7 @@ public class PracticeAdapter implements SidebarAdapter {
                     Component playerName = topPlayer != null
                             ? displayName(topPlayer)
                             : ZonePractice.getMiniMessage().deserialize("<red>N/A");
-                    Component playerHits = topPlayer != null ? Component.text(match.getCurrentStat(topPlayer).getHit()) : ZonePractice.getMiniMessage().deserialize("<red>N/A");
+                    Component playerHits = topPlayer != null && match.getCurrentStat(topPlayer) != null ? Component.text(match.getCurrentStat(topPlayer).getHit()) : ZonePractice.getMiniMessage().deserialize("<red>N/A");
 
                     component = component
                             .replaceText(TextReplacementConfig.builder().matchLiteral("%player" + i + "boxing%").replacement(playerName).build())

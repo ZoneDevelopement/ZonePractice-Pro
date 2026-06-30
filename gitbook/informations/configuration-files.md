@@ -53,4 +53,23 @@ ZonePractice uses versioned config updates (config version key). Unknown custom 
 
 ## Sidebar placeholders
 
-Match and spectator placeholders are documented in the sidebar file and on the Placeholder API page.
+These placeholders are available in `sidebar.yml`:
+
+| Placeholder | Description |
+| --- | --- |
+| `%player%` / `%playerNameOnly%` | Your name (with/without prefix) |
+| `%enemyName%` / `%enemyNameOnly%` | Enemy name (with/without prefix) |
+| `%partyLeader%` / `%partyLeaderNameOnly%` | Party leader name (with/without prefix) |
+| `%player1%` / `%player1NameOnly%` | Player 1 name (with/without prefix) |
+| `%player2%` / `%player2NameOnly%` | Player 2 name (with/without prefix) |
+| `%playerTeamName%` / `%playerTeamColor%` | Your team display name / color |
+| `%enemyTeamName%` / `%enemyTeamColor%` | Enemy team display name / color |
+| `%team%` / `%teamColor%` | Your team name / color |
+| `%rounds%` / `%roundsNumber%` | Your round progress / won count |
+| `%enemyRounds%` / `%enemyRoundsNumber%` | Enemy round progress / won count |
+| `%enemyPing%` | Enemy ping |
+| `%onlinePlayers%` | Total online players |
+| `%inFightPlayers%` | Players in matches |
+| `%inQueuePlayer%` | Players in queue |
+| `%division%` / `%division_short%` | Your division (full / short) |
+| `%maxMember%` / `%members%` | Party max members / current members |

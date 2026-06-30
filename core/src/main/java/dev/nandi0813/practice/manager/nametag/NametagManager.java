@@ -572,7 +572,10 @@ public class NametagManager {
             Component suffix = override != null && override.suffix() != null ? override.suffix() : lobbyNametag.getSuffix();
 
             Component tabListName = prefix.append(name).append(suffix);
-            PlayerUtil.setPlayerListName(player, tabListName);
+            TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
+            if (tabIntegration == null || !tabIntegration.setTabListName(player, prefix, name, suffix)) {
+                PlayerUtil.setPlayerListName(player, tabListName);
+            }
         } catch (Exception ignored) {
         }
     }
