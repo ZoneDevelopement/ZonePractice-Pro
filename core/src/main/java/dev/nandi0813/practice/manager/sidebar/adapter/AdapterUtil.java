@@ -135,7 +135,7 @@ public enum AdapterUtil {
         return NameFormatUtil.resolveFullName(profile, player, player.getName());
     }
 
-    private static Component getSidebarNameOnly(Player player) {
+    static Component getSidebarNameOnly(Player player) {
         Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile == null) {
             return Component.text(player.getName());

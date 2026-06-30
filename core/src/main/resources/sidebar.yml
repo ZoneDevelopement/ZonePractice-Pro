@@ -21,7 +21,7 @@ LOBBY:
     - "<gold>play.zonepractice.com"
     - "<gray><st>---------------------"
     - "<gold>Party"
-    - "<white>Leader: <gold>%partyLeader%"
+    - "<white>Leader: <gold>%partyLeaderNameOnly%"
     - "<white>Members: <gold>%maxMember%<gray>/<yellow>%members%"
     - "<gray><st>---------------------"
   DUEL-QUEUE:
