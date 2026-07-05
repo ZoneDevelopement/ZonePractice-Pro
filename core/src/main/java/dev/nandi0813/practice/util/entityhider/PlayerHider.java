@@ -48,6 +48,7 @@ public class PlayerHider implements Listener {
                 if (player == online) continue;
 
                 Profile onlineProfile = ProfileManager.getInstance().getProfile(online);
+                if (onlineProfile == null) continue;
                 ProfileStatus onlineStatus = onlineProfile.getStatus();
 
                 /*
@@ -81,6 +82,7 @@ public class PlayerHider implements Listener {
 
         Player player = e.getPlayer();
         Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) return;
 
         Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
         {
@@ -90,6 +92,7 @@ public class PlayerHider implements Listener {
                 if (player == online) continue;
 
                 Profile onlineProfile = ProfileManager.getInstance().getProfile(online);
+                if (onlineProfile == null) continue;
 
                 // Handle the teleported player
                 if (profile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online) == WorldEnum.LOBBY) {
@@ -106,6 +109,7 @@ public class PlayerHider implements Listener {
                         hidePlayer(online, player, false);
                     } else if (!profile.isHideFromPlayers() || online.hasPermission("zpp.staffmode.see")) {
                         showPlayer(online, player);
+                        showTabEntry(online, player);
                     } else if (profile.isHideFromPlayers() || !online.hasPermission("zpp.staffmode.see")) {
                         hidePlayer(online, player, true);
                     }
@@ -246,9 +250,11 @@ public class PlayerHider implements Listener {
             observer.hidePlayer(ZonePractice.getInstance(), target);
 
         if (!fullHide) {
+            WrapperPlayServerPlayerInfoUpdate.PlayerInfo playerInfo = new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId());
+            playerInfo.setListed(false);
             WrapperPlayServerPlayerInfoUpdate playerInfoUpdate = new WrapperPlayServerPlayerInfoUpdate(
                     WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED,
-                    new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId())
+                    playerInfo
             );
 
             PacketEvents.getAPI().getPlayerManager().sendPacket(observer, playerInfoUpdate);
@@ -257,6 +263,16 @@ public class PlayerHider implements Listener {
 
     public void showPlayer(Player observer, Player target) {
         observer.showPlayer(ZonePractice.getInstance(), target);
+    }
+
+    public void showTabEntry(Player observer, Player target) {
+        WrapperPlayServerPlayerInfoUpdate.PlayerInfo playerInfo = new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId());
+        playerInfo.setListed(true);
+        WrapperPlayServerPlayerInfoUpdate playerInfoUpdate = new WrapperPlayServerPlayerInfoUpdate(
+                WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED,
+                playerInfo
+        );
+        PacketEvents.getAPI().getPlayerManager().sendPacket(observer, playerInfoUpdate);
     }
 
     /*

@@ -21,7 +21,7 @@ LOBBY:
     - "<gold>play.zonepractice.com"
     - "<gray><st>---------------------"
     - "<gold>Party"
-    - "<white>Leader: <gold>%partyLeader%"
+    - "<white>Leader: <gold>%partyLeaderNameOnly%"
     - "<white>Members: <gold>%maxMember%<gray>/<yellow>%members%"
     - "<gray><st>---------------------"
   DUEL-QUEUE:
@@ -109,7 +109,7 @@ MATCH:
   DUEL:
     - "<gray><st>---------------------"
     - "<gold><b>Info"
-    - "  <white>Fighting: <yellow>%enemyName%"
+    - "  <white>Fighting: <yellow>%enemyNameOnly%"
     - "  <white>Duration: <yellow>%roundDuration%"
     - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
     - ""
@@ -155,7 +155,7 @@ MATCH:
       DUEL:
         - "<gray><st>---------------------"
         - "<gold><b>Info"
-        - "  <white>Fighting: <yellow>%enemyName%"
+        - "  <white>Fighting: <yellow>%enemyNameOnly%"
         - "  <white>Duration: <yellow>%roundDuration%"
         - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
         - ""
@@ -168,7 +168,7 @@ MATCH:
       DUEL:
         - "<gray><st>---------------------"
         - "<gold><b>Info"
-        - "  <white>Fighting: <yellow>%enemyName%"
+        - "  <white>Fighting: <yellow>%enemyNameOnly%"
         - "  <white>Duration: <yellow>%roundDuration%"
         - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
         - ""
@@ -216,7 +216,7 @@ MATCH:
       DUEL:
         - "<gray><st>---------------------"
         - "<gold><b>Info"
-        - "  <white>Fighting: <yellow>%enemyName%"
+        - "  <white>Fighting: <yellow>%enemyNameOnly%"
         - "  <white>Duration: <yellow>%roundDuration%"
         - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
         - ""
@@ -265,7 +265,7 @@ MATCH:
       DUEL:
         - "<gray><st>---------------------"
         - "<gold><b>Info"
-        - "  <white>Fighting: <yellow>%enemyName%"
+        - "  <white>Fighting: <yellow>%enemyNameOnly%"
         - "  <white>Duration: <yellow>%roundDuration%"
         - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
         - ""
@@ -300,7 +300,7 @@ MATCH:
       DUEL:
         - "<gray><st>---------------------"
         - "<gold><b>Info"
-        - "  <white>Fighting: <yellow>%enemyName%"
+        - "  <white>Fighting: <yellow>%enemyNameOnly%"
         - "  <white>Duration: <yellow>%roundDuration%"
         - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
         - ""
@@ -335,7 +335,7 @@ MATCH:
       DUEL:
         - "<gray><st>---------------------"
         - "<gold><b>Info"
-        - "  <white>Fighting: <yellow>%enemyName%"
+        - "  <white>Fighting: <yellow>%enemyNameOnly%"
         - "  <white>Duration: <yellow>%roundDuration%"
         - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
         - ""
@@ -370,7 +370,7 @@ MATCH:
       DUEL:
         - "<gray><st>---------------------"
         - "<gold><b>Info"
-        - "  <white>Fighting: <yellow>%enemyName%"
+        - "  <white>Fighting: <yellow>%enemyNameOnly%"
         - "  <white>Duration: <yellow>%roundDuration%"
         - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
         - ""
@@ -405,7 +405,7 @@ MATCH:
       DUEL:
         - "<gray><st>---------------------"
         - "<gold><b>Info"
-        - "  <white>Fighting: <yellow>%enemyName%"
+        - "  <white>Fighting: <yellow>%enemyNameOnly%"
         - "  <white>Duration: <yellow>%roundDuration%"
         - "  <white>Ping: <green>%ping%<gray>ms | <red>%enemyPing%<gray>ms"
         - ""
@@ -721,8 +721,8 @@ SPECTATE:
           - "  <white>Arena: <yellow>%arena%"
           - "  <white>Duration: <yellow>%roundDuration%"
           - ""
-          - " %player1%: %player1BedStatus%"
-          - " %player2%: %player2BedStatus%"
+          - " %player1NameOnly%: %player1BedStatus%"
+          - " %player2NameOnly%: %player2BedStatus%"
           - ""
           - "<gold>play.zonepractice.com"
           - "<gray><st>---------------------"
@@ -758,8 +758,8 @@ SPECTATE:
           - "  <white>Arena: <yellow>%arena%"
           - "  <white>Duration: <yellow>%roundDuration%"
           - ""
-          - " %player1%: %player1BedStatus%"
-          - " %player2%: %player2BedStatus%"
+          - " %player1NameOnly%: %player1BedStatus%"
+          - " %player2NameOnly%: %player2BedStatus%"
           - ""
           - "<gold>play.zonepractice.com"
           - "<gray><st>---------------------"

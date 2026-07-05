@@ -96,7 +96,6 @@ public class Profile {
     private PlayerCustomKitSelector playerCustomKitSelector;
     private final List<CustomLadder> customLadders = new ArrayList<>();
     private CustomLadder selectedCustomLadder;
-    private boolean fullDataLoaded;
 
     public Profile(UUID uuid, OfflinePlayer player) {
         this.uuid = uuid;
@@ -110,11 +109,7 @@ public class Profile {
     }
 
     public Profile(UUID uuid) {
-        this.uuid = uuid;
-        this.player = Bukkit.getOfflinePlayer(uuid);
-        this.status = ProfileStatus.OFFLINE;
-        this.file = new ProfileFile(this);
-        this.stats = new ProfileStat(this);
+        this(uuid, Bukkit.getOfflinePlayer(uuid));
     }
 
     /**
@@ -127,11 +122,9 @@ public class Profile {
 
     // Data persistence
 
-    public void saveData() {
+    public void save() {
         rankedBan.saveToConfig(file.getConfig(), "ranked-ban");
-
         saveCustomLadders();
-
         stats.setData(false);
         file.setData();
     }
@@ -145,7 +138,7 @@ public class Profile {
         }
     }
 
-    public void getData() {
+    public synchronized void load() {
         stats.getLadderStats().clear();
         file.getData();
         stats.getData();
@@ -153,8 +146,6 @@ public class Profile {
         rankedBan.loadFromConfig(file.getConfig(), "ranked-ban");
 
         loadCustomLadders();
-
-        fullDataLoaded = true;
     }
 
     private void loadCustomLadders() {
@@ -197,37 +188,14 @@ public class Profile {
         }
     }
 
-    public synchronized void loadStatsOnlyData() {
-        file.reloadFile();
-        stats.getLadderStats().clear();
-
-        if (file.getConfig().isLong("join.first"))
-            setFirstJoin(file.getConfig().getLong("join.first"));
-
-        if (file.getConfig().isLong("join.latest"))
-            setLastJoin(file.getConfig().getLong("join.latest"));
-
-        stats.getData();
-        fullDataLoaded = false;
-    }
-
-    public synchronized void ensureFullDataLoaded() {
-        if (fullDataLoaded) return;
-
-        getData();
-    }
-
-    public synchronized void demoteToStatsOnly() {
+    /**
+     * Called when a player disconnects. Clears ephemeral references but keeps loaded data in memory.
+     */
+    public synchronized void onQuit() {
         settingsGui = null;
         playerCustomKitSelector = null;
-        selectedCustomLadder = null;
-        customLadders.clear();
-        unrankedCustomKits.clear();
-        rankedCustomKits.clear();
-        ignoredPlayers.clear();
         followTarget = null;
         actionBar = null;
-        fullDataLoaded = false;
     }
 
     // Group management
@@ -343,5 +311,4 @@ public class Profile {
             MatchManager.getInstance().invalidateRematchByPlayer(online);
         }
     }
-
 }

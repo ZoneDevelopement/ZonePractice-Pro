@@ -381,8 +381,7 @@ public class NametagManager {
 
             Component name = baseName;
             if (override.nameColor() != null) {
-                // Keep template/placeholder output, only provide a fallback tint for the name segment.
-                name = name.colorIfAbsent(override.nameColor());
+                name = name.color(override.nameColor());
             }
 
             composed = prefix.append(name).append(suffix);
@@ -563,17 +562,22 @@ public class NametagManager {
             }
 
             InventoryUtil.LobbyNametag lobbyNametag = InventoryUtil.getLobbyNametag(profile, player.getName(), player);
-            Component tabListName = lobbyNametag.getPrefix()
-                    .append(lobbyNametag.getName())
-                    .append(lobbyNametag.getSuffix());
 
-            PlayerUtil.setPlayerListName(player, tabListName);
+            NametagOverride override = customNametags.get(player.getUniqueId());
+            Component prefix = override != null && override.prefix() != null ? override.prefix() : lobbyNametag.getPrefix();
+            Component name = lobbyNametag.getName();
+            if (override != null && override.nameColor() != null) {
+                name = name.color(override.nameColor());
+            }
+            Component suffix = override != null && override.suffix() != null ? override.suffix() : lobbyNametag.getSuffix();
+
+            Component tabListName = prefix.append(name).append(suffix);
+            TabIntegration tabIntegration = TeamPacketBlocker.getInstance().getTabIntegration();
+            if (tabIntegration == null || !tabIntegration.setTabListName(player, prefix, name, suffix)) {
+                PlayerUtil.setPlayerListName(player, tabListName);
+            }
         } catch (Exception ignored) {
         }
-    }
-
-    public static String generateUUID() {
-        return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
     private void startRefreshTask() {

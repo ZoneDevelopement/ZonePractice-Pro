@@ -293,6 +293,9 @@ public class ArenaCopyUtilListener implements Listener {
     }
 
     protected void deleteNormal(final String arena, final Cuboid cuboid) {
+        // Remove all non-player entities before deleting blocks
+        removeNonPlayerEntities(cuboid);
+
         // OPTIMIZATION: Use iterator directly instead of creating a full list in memory
         final Iterator<Block> iterator = cuboid.iterator();
 

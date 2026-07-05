@@ -65,9 +65,9 @@ public class CustomKitSearchRunnable extends Runnable {
                 CustomKitQueueManager.getInstance().cancelHostedQueue(player, false, true);
             }
 
-            CustomKitQueueManager.getInstance().cancelJoinSearch(player, false, false);
+            CustomKitQueueManager.getInstance().cancelJoinSearch(player, false, true);
             Common.sendMMMessage(player, LanguageManager.getString("QUEUES.NO-MATCH-IN-TIME")
-                    .replace("%maxTime%", String.valueOf(MAX_JOIN_SEARCH_TIME)));
+                    .replace("%maxTime%", String.valueOf(MAX_JOIN_SEARCH_TIME / 60)));
             return;
         }
 

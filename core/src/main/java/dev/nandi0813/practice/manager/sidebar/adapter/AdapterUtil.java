@@ -43,14 +43,14 @@ public enum AdapterUtil {
      * Creates a text replacement config for a simple string replacement
      */
     private static TextReplacementConfig replace(@RegExp String placeholder, String value) {
-        return TextReplacementConfig.builder().match(placeholder).replacement(value).build();
+        return TextReplacementConfig.builder().match("(?i)" + placeholder).replacement(value).build();
     }
 
     /**
      * Creates a text replacement config for a component replacement
      */
     private static TextReplacementConfig replace(@RegExp String placeholder, Component value) {
-        return TextReplacementConfig.builder().match(placeholder).replacement(value).build();
+        return TextReplacementConfig.builder().match("(?i)" + placeholder).replacement(value).build();
     }
 
     /**
@@ -135,6 +135,17 @@ public enum AdapterUtil {
         return NameFormatUtil.resolveFullName(profile, player, player.getName());
     }
 
+    static Component getSidebarNameOnly(Player player) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) {
+            return Component.text(player.getName());
+        }
+
+        // Resolves the name using groups.yml nameFormat/nameTemplate (colors and formatting preserved)
+        // but WITHOUT the surrounding prefix and suffix.
+        return NameFormatUtil.resolveName(profile, player.getName(), player, null);
+    }
+
 
     public static Component getRoundString(int rounds, int wonRounds) {
         return getRoundString(rounds, wonRounds, null);
@@ -205,7 +216,9 @@ public enum AdapterUtil {
         // Replace individual placeholders
         line = line
                 .replaceText(replace("%player%", getSidebarName(player)))
-                .replaceText(replace("%enemyName%", enemy == null ? Component.empty() : getSidebarName(enemy)));
+                .replaceText(replace("%playerNameOnly%", getSidebarNameOnly(player)))
+                .replaceText(replace("%enemyName%", enemy == null ? Component.empty() : getSidebarName(enemy)))
+                .replaceText(replace("%enemyNameOnly%", enemy == null ? Component.empty() : getSidebarNameOnly(enemy)));
 
         // Replace team and round info
         return line
@@ -315,10 +328,12 @@ public enum AdapterUtil {
         // Replace individual player info
         return line
                 .replaceText(replace("%player1%", getSidebarName(player1)))
+                .replaceText(replace("%player1NameOnly%", getSidebarNameOnly(player1)))
                 .replaceText(replace("%player1ping%", getPingString(player1)))
                 .replaceText(replace("%player1rounds%", getRoundString(duel.getWinsNeeded(), duel.getWonRounds(player1))))
                 .replaceText(replace("%player1roundsNumber%", String.valueOf(duel.getWonRounds(player1))))
                 .replaceText(replace("%player2%", getSidebarName(player2)))
+                .replaceText(replace("%player2NameOnly%", getSidebarNameOnly(player2)))
                 .replaceText(replace("%player2ping%", getPingString(player2)))
                 .replaceText(replace("%player2rounds%", getRoundString(duel.getWinsNeeded(), duel.getWonRounds(player2))))
                 .replaceText(replace("%player2roundsNumber%", String.valueOf(duel.getWonRounds(player2))));

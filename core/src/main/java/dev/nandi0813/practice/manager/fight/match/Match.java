@@ -143,6 +143,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!this.players.contains(online)) {
                     PlayerHider.getInstance().hidePlayer(player, online, true);
+                    PlayerHider.getInstance().hidePlayer(online, player, false);
                 }
             }
 
@@ -332,7 +333,9 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
      * Statistics methods
      */
     public Statistic getCurrentStat(Player player) {
-        return this.getCurrentRound().getStatistics().getOrDefault(
+        Round currentRound = this.getCurrentRound();
+        if (currentRound == null) return null;
+        return currentRound.getStatistics().getOrDefault(
                 ProfileManager.getInstance().getUuids().get(player), null);
     }
 

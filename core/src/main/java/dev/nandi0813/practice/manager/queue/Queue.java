@@ -282,7 +282,7 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
         }
 
         if (seconds >= maxQueueTime) {
-            this.endQueue(false, LanguageManager.getString("QUEUES.NO-MATCH-IN-TIME").replace("%maxTime%", String.valueOf(maxQueueTime)));
+            this.endQueue(false, LanguageManager.getString("QUEUES.NO-MATCH-IN-TIME").replace("%maxTime%", String.valueOf(maxQueueTime / 60)));
             return;
         }
 

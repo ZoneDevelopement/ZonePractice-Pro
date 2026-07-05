@@ -81,6 +81,7 @@ public class Statistic {
         }
 
         StatisticListener.getCURRENT_CPS().remove(player);
+        StatisticListener.getCPS().remove(player);
         StatisticListener.getCURRENT_COMBO().remove(player);
     }
 

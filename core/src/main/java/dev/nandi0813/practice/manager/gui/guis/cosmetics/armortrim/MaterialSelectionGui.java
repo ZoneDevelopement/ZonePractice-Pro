@@ -121,7 +121,7 @@ public class MaterialSelectionGui extends GUI {
         }
 
         profile.getCosmeticsData().setMaterial(tier, armorSlot, material);
-        profile.saveData();
+        profile.save();
         update(true);
     }
 

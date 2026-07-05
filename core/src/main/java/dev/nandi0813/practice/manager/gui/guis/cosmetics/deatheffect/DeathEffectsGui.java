@@ -128,7 +128,7 @@ public class DeathEffectsGui extends GUI {
             } catch (Exception ignored) {}
         }
 
-        profile.saveData();
+        profile.save();
         update(true);
     }
 

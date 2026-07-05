@@ -472,6 +472,10 @@ public class FightChangeOptimized {
      * Used when server is shutting down.
      */
     public void quickRollback() {
+        // Remove all entities before restoring blocks so entities (end crystals, etc.)
+        // don't leak into the next server session.
+        removeAllEntities();
+
         List<Map.Entry<Long, BlockChangeEntry>> sorted = new ArrayList<>(blocks.entrySet());
         sorted.sort(rollbackComparator());
 
@@ -638,6 +642,10 @@ public class FightChangeOptimized {
                 rollingBack = false;
                 removeRollbackChunkTickets();
                 Common.sendConsoleMMMessage("<red>Rollback error at block " + processedBlocks + "/" + totalBlocks + ": " + e.getMessage());
+
+                if (onComplete != null) {
+                    onComplete.run();
+                }
             }
         }
     }

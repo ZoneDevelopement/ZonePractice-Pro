@@ -161,7 +161,7 @@ public class ShieldLayoutListGui extends GUI {
                     ShieldLayout newLayout = new ShieldLayout(name, DyeColor.WHITE);
                     profile.getCosmeticsData().getShieldLayouts().add(newLayout);
                     int newIndex = layouts.size() - 1;
-                    profile.saveData();
+                    profile.save();
                     final int finalIndex = newIndex;
                     org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(),
                             () -> new ShieldEditorGui(profile, finalIndex, this).open(player));
@@ -185,7 +185,7 @@ public class ShieldLayoutListGui extends GUI {
         } else if (active > index) {
             profile.getCosmeticsData().setActiveShieldLayoutIndex(active - 1);
         }
-        profile.saveData();
+        profile.save();
         Common.sendMMMessage(player, GUIFile.getConfig().getString(
                 "GUIS.COSMETICS.SHIELD.LAYOUTS.DELETED-MESSAGE", "<green>Layout deleted."));
         update(true);
@@ -204,7 +204,7 @@ public class ShieldLayoutListGui extends GUI {
                     if (name.isEmpty()) name = currentName;
                     if (name.length() > 24) name = name.substring(0, 24);
                     layouts.get(index).setName(name);
-                    profile.saveData();
+                    profile.save();
                     org.bukkit.Bukkit.getScheduler().runTask(ZonePractice.getInstance(),
                             () -> update(true));
                     return List.of(AnvilGUI.ResponseAction.close());

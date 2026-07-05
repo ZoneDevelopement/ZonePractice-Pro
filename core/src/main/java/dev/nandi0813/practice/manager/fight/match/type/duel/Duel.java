@@ -14,6 +14,7 @@ import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.match.util.TempKillPlayer;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.interfaces.DeathResult;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
@@ -190,6 +191,7 @@ public class Duel extends Match implements Team {
         if (!players.contains(player)) return;
 
         players.remove(player);
+        matchPlayers.remove(player);
         MatchManager.getInstance().getPlayerMatches().remove(player);
 
         // Only process quit logic if the match hasn't ended yet

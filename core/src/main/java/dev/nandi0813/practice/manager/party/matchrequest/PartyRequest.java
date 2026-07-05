@@ -128,6 +128,8 @@ public class PartyRequest {
                 match = new PartyVsParty(ladder, arena, sender, target, matchPlayers, rounds);
             }
 
+            sender.setMatch(match);
+            target.setMatch(match);
             match.startMatch();
         } else {
             sender.sendMessage(LanguageManager.getString("PARTY.NO-AVAILABLE-ARENA"));

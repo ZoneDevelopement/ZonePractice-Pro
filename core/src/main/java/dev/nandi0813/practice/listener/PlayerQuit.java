@@ -38,7 +38,6 @@ public class PlayerQuit implements Listener {
 
         MessageCommand.latestMessage.remove(player);
         MessageCommand.latestMessage.values().removeIf(target -> target.equals(player));
-        ProfileManager.getInstance().clearPlayerReference(player);
 
         final Profile profile = ProfileManager.getInstance().getProfile(player);
         final Party party = PartyManager.getInstance().getParty(player);
@@ -68,6 +67,8 @@ public class PlayerQuit implements Listener {
                         ProfileManager.getInstance().demoteOfflineProfile(uuid), 40L);
             }
         }
+
+        ProfileManager.getInstance().clearPlayerReference(player);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -83,20 +84,24 @@ public class PlayerQuit implements Listener {
 
         MessageCommand.latestMessage.remove(player);
         MessageCommand.latestMessage.values().removeIf(target -> target.equals(player));
-        ProfileManager.getInstance().clearPlayerReference(player);
 
         MatchManager.getInstance().invalidateRematchByPlayer(player);
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile != null) {
             profile.getActionBar().resetForReconnect();
+            profile.setLastJoin(System.currentTimeMillis());
 
             if (ZonePractice.getInstance().isEnabled()) {
                 UUID uuid = player.getUniqueId();
-                Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                        ProfileManager.getInstance().demoteOfflineProfile(uuid), 40L);
+                Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+                    profile.setStatus(ProfileStatus.OFFLINE);
+                    ProfileManager.getInstance().demoteOfflineProfile(uuid);
+                }, 40L);
             }
         }
+
+        ProfileManager.getInstance().clearPlayerReference(player);
     }
 
 }

@@ -337,6 +337,32 @@ public class BuildListener implements Listener {
         }
     }
 
+    /**
+     * Captures support-dependent blocks for rollback before physics removes them.
+     * <p>
+     * Uses the <b>source block</b> of the physics event (the block that changed,
+     * triggering neighbor physics) to look up the owning fight — O(1) check instead
+     * of scanning all active fights for every affected neighbor.
+     * <p>
+     * At LOWEST priority the affected block still holds its original material,
+     * so we snapshot it before physics turns it to air.
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBlockPhysics(BlockPhysicsEvent e) {
+        Block block = e.getBlock();
+
+        if (!ArenaUtil.requiresSupport(block)) return;
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return;
+
+        Block source = e.getSourceBlock();
+        if (source == null) return;
+
+        Spectatable spectatable = getByBlock(source);
+        if (spectatable == null || !spectatable.isBuild()) return;
+
+        spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockIgnite(BlockIgniteEvent event) {
         Block ignitedBlock = event.getBlock();

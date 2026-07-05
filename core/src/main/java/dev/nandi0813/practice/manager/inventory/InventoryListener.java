@@ -313,13 +313,15 @@ public class InventoryListener implements Listener {
     public void onPlayerDropItem(PlayerDropItemEvent e) {
         Player player = e.getPlayer();
 
-        if (isTaggedCosmetic(e.getItemDrop().getItemStack())) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        ProfileStatus profileStatus = profile != null ? profile.getStatus() : null;
+
+        if (profileStatus != ProfileStatus.OFFLINE && isTaggedCosmetic(e.getItemDrop().getItemStack())) {
             e.setCancelled(true);
             return;
         }
 
-        Profile profile = ProfileManager.getInstance().getProfile(player);
-        ProfileStatus profileStatus = profile.getStatus();
+        if (profileStatus == null) return;
 
         switch (profileStatus) {
             case LOBBY:

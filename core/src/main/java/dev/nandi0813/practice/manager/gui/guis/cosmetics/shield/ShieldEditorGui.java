@@ -164,7 +164,7 @@ public class ShieldEditorGui extends GUI {
 
         if (slot == REMOVE_LAYER_SLOT) {
             if (layout.removeTopLayer()) {
-                profile.saveData();
+                profile.save();
                 if (profile.getCosmeticsData().getActiveShieldLayoutIndex() == layoutIndex) {
                     ShieldCosmeticsUtil.applyShieldToPlayer(player);
                 }
@@ -199,7 +199,7 @@ public class ShieldEditorGui extends GUI {
                     "GUIS.COSMETICS.SHIELD.EDITOR.APPLIED-MESSAGE",
                     "<green>Shield layout applied!"));
         }
-        profile.saveData();
+        profile.save();
         update(true);
     }
 

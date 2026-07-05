@@ -40,8 +40,11 @@ public final class VersionChecker {
                     if (mcVersion.startsWith("1.21")) {
                         bukkitVersion = BukkitVersion.v1_21_R3;
                     }
-                    else if (mcVersion.startsWith("26")) {
+                    else if (mcVersion.startsWith("26.1")) {
                         bukkitVersion = BukkitVersion.v_26_1_R1;
+                    }
+                    else if (mcVersion.startsWith("26.2")) {
+                        bukkitVersion = BukkitVersion.v_26_2_R1;
                     }
                     else {
                         ZonePractice.getInstance().getLogger().warning("Unsupported MC version: " + mcVersion);
@@ -64,6 +67,7 @@ public final class VersionChecker {
     public enum BukkitVersion {
         v1_21_R3, // 1.21.11
         v_26_1_R1, // 26.1
+        v_26_2_R1, // 26.2
     }
 
 }
