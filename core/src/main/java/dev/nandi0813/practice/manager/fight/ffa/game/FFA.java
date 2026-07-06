@@ -118,7 +118,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             return;
 
         players.put(player, ladder);
-        
+
         // Use FFAFightPlayer to handle custom kit selection
         FFAFightPlayer ffaFightPlayer = new FFAFightPlayer(player, this, ladder);
         fightPlayers.put(player, ffaFightPlayer);
@@ -146,7 +146,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
         // Show kit chooser or apply default kit
         ffaFightPlayer.showKitChooserOrApplyKit();
-        
+
         dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, ladder.getAttackCooldownModifier());
 
         ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.FFA);
@@ -161,6 +161,11 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         PlayerUtil.setFightPlayer(player, ladder);
         KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, ladder);
         dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, ladder.getAttackCooldownModifier());
+
+        FFAFightPlayer ffaFightPlayer = fightPlayers.get(player);
+        if (ffaFightPlayer != null) {
+            ffaFightPlayer.resetForNewLadder(ladder);
+        }
     }
 
     /**
@@ -264,7 +269,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     private void applySelectedOrDefaultKit(Player player) {
         FFAFightPlayer ffaFightPlayer = fightPlayers.get(player);
         if (ffaFightPlayer != null) {
-            ffaFightPlayer.showKitChooserOrApplyKit();
+            ffaFightPlayer.restoreKitOnDeath();
             return;
         }
 

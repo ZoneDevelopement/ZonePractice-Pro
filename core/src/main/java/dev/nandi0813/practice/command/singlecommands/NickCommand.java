@@ -20,11 +20,13 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class NickCommand implements CommandExecutor, TabCompleter {
 
     private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
     private static final String DIFFERENT_NAME_PERMISSION = "zpp.nick.different-name";
+    private static final Pattern VALID_NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]{3,16}$");
 
     private static String joinArgs(String[] args, int start) {
         StringBuilder builder = new StringBuilder();
@@ -61,6 +63,21 @@ public class NickCommand implements CommandExecutor, TabCompleter {
                         target.getName()
                 )
         );
+    }
+
+    private static String getPlainName(String rawTemplate, String playerName) {
+        String normalizedTemplate = NameFormatUtil.normalizePlayerNameTemplate(rawTemplate);
+        return PLAIN_TEXT_SERIALIZER.serialize(
+                NameFormatUtil.applyPlayerPlaceholders(
+                        NameFormatUtil.parseConfiguredComponent(normalizedTemplate),
+                        playerName
+                )
+        ).trim();
+    }
+
+    private static boolean isValidNickname(String rawTemplate, String playerName) {
+        String plainName = getPlainName(rawTemplate, playerName);
+        return VALID_NICKNAME_PATTERN.matcher(plainName).matches();
     }
 
     @Override
@@ -135,6 +152,11 @@ public class NickCommand implements CommandExecutor, TabCompleter {
 
         if (!player.hasPermission(DIFFERENT_NAME_PERMISSION) && !isTemplateKeepingRealName(target, nameTemplate)) {
             Common.sendMMMessage(player, LanguageManager.getString("COMMAND.NICK.DIFFERENT-NAME-NO-PERM"));
+            return false;
+        }
+
+        if (!isValidNickname(nameTemplate, target.getName())) {
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.NICK.INVALID-NAME"));
             return false;
         }
 
