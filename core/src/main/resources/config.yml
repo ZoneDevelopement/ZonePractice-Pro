@@ -681,6 +681,8 @@ PLAYER:
     allow-block-break: false
     allow-block-place: false
     allow-lobby-interact: false
+  NICKNAME:
+    VALIDATION-PATTERN: "^[a-zA-Z0-9_]{3,16}$"
   LOBBY-NAMETAG:
     ENABLED: true
   NAMETAG-MANAGEMENT:
