@@ -16,7 +16,6 @@ import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.damage.DamageSource;
@@ -198,8 +197,6 @@ public class FFAListener implements Listener {
                 .replace("%health%", String.valueOf(health)));
     }
 
-    private static final String FFA_DEATH_ANIMATION_ENABLED_PATH = "FFA.DEATH-ANIMATION.ENABLED";
-
     private static final boolean ALLOW_DESTROYABLE_BLOCK = ConfigManager.getBoolean("FFA.ALLOW-DESTROYABLE-BLOCK");
 
     /**
@@ -379,10 +376,7 @@ public class FFAListener implements Listener {
         e.setDroppedExp(0);
         e.setKeepInventory(true);
         e.setKeepLevel(true);
-        e.setDeathMessage(null);
-
-        boolean playVanillaDeathAnimation = ConfigManager.getConfig().getBoolean(FFA_DEATH_ANIMATION_ENABLED_PATH, true);
-        e.setCancelled(!playVanillaDeathAnimation);
+        e.setCancelled(true);
 
         DamageSource damageSource = e.getDamageSource();
 
@@ -398,41 +392,15 @@ public class FFAListener implements Listener {
         if (cause == DeathCause.EXPLOSION && killer != null && !killer.equals(player)) {
             cause = DeathCause.EXPLOSION_BY_PLAYER;
         }
+        ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
-        Player finalKiller = killer;
-        DeathCause finalCause = cause;
-
-        Runnable deathTask = () -> {
-            if (playVanillaDeathAnimation && player.isOnline() && player.isDead()) {
-                player.spigot().respawn();
-            }
-            ffa.killPlayer(player, finalKiller, finalCause.getMessage().replace("%killer%", finalKiller != null ? finalKiller.getName() : "Unknown"));
-
-            if (finalKiller != null && !finalKiller.equals(player)) {
-                Statistic statistic = ffa.getStatistics().computeIfAbsent(
-                        finalKiller,
-                        p -> new Statistic(ProfileManager.getInstance().getUuids().get(p))
-                );
-                statistic.setKills(statistic.getKills() + 1);
-            }
-        };
-
-        if (playVanillaDeathAnimation) {
-            long delayTicks = 15L;
-            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), deathTask, delayTicks);
-        } else {
-            deathTask.run();
+        if (killer != null && !killer.equals(player)) {
+            Statistic statistic = ffa.getStatistics().computeIfAbsent(
+                    killer,
+                    p -> new Statistic(ProfileManager.getInstance().getUuids().get(p))
+            );
+            statistic.setKills(statistic.getKills() + 1);
         }
-    }
-
-    @EventHandler
-    public void onFFARespawn(PlayerRespawnEvent e) {
-        Player player = e.getPlayer();
-
-        FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
-        if (ffa == null) return;
-
-        e.setRespawnLocation(player.getLocation());
     }
 
     private Player resolveKiller(Player victim, FFA ffa, DamageSource damageSource) {

@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.fight.match.listener;
 
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.fight.match.enums.MatchStatus;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.match.interfaces.Team;
 import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
@@ -58,6 +59,9 @@ public class MatchEventListener implements Listener {
     public void onPlayerTeleport(PlayerTeleportEvent e) {
         Match match = MatchManager.getInstance().getLiveMatchByPlayer(e.getPlayer());
         if (match == null) return;
+
+        if (match.getStatus().equals(MatchStatus.END) || match.getStatus().equals(MatchStatus.OVER))
+            return;
 
         if (!match.getArena().getCuboid().contains(e.getTo()))
             e.setCancelled(true);
