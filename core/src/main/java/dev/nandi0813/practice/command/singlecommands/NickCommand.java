@@ -26,7 +26,6 @@ public class NickCommand implements CommandExecutor, TabCompleter {
 
     private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
     private static final String DIFFERENT_NAME_PERMISSION = "zpp.nick.different-name";
-    private static final Pattern VALID_NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]{3,16}$");
 
     private static String joinArgs(String[] args, int start) {
         StringBuilder builder = new StringBuilder();
@@ -77,7 +76,7 @@ public class NickCommand implements CommandExecutor, TabCompleter {
 
     private static boolean isValidNickname(String rawTemplate, String playerName) {
         String plainName = getPlainName(rawTemplate, playerName);
-        return VALID_NICKNAME_PATTERN.matcher(plainName).matches();
+        return Pattern.compile(ConfigManager.getString("PLAYER.NICKNAME.VALIDATION-PATTERN")).matcher(plainName).matches();
     }
 
     @Override
