@@ -1073,6 +1073,8 @@ GUIS:
           NAME: "<dark_purple>Ladder Effects"
           MATERIAL: POTION
           DAMAGE: 8233
+          FLAGS:
+          - HIDE_POTION_EFFECTS
           LORE:
             - "<dark_gray><st>------------------------"
             - "<yellow>You will get these effects,"
