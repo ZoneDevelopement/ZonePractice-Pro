@@ -122,13 +122,8 @@ public abstract class Hologram {
         config.set(path + ".lb-type", leaderboardType.name());
         config.set(path + ".showStat", showStat);
 
-        if (baseLocation != null && baseLocation.getWorld() != null) {
-            config.set(path + ".location.world", baseLocation.getWorld().getName());
-            config.set(path + ".location.x", baseLocation.getX());
-            config.set(path + ".location.y", baseLocation.getY());
-            config.set(path + ".location.z", baseLocation.getZ());
-            config.set(path + ".location.yaw", (double) baseLocation.getYaw());
-            config.set(path + ".location.pitch", (double) baseLocation.getPitch());
+        if (baseLocation != null) {
+            config.set(path + ".location", baseLocation);
         }
 
         setAbstractData(config);
@@ -312,7 +307,7 @@ public abstract class Hologram {
     }
 
     private List<String> getConfigLines(Leaderboard leaderboard) {
-        return switch (leaderboard.getMainType()) {
+        List<String> lines = switch (leaderboard.getMainType()) {
             case GLOBAL -> new ArrayList<>(leaderboard.getSecondaryType().getGlobalLines());
             case LADDER -> {
                 List<String> ladderLines = new ArrayList<>(leaderboard.getSecondaryType().getLadderLines());
@@ -326,6 +321,7 @@ public abstract class Hologram {
                 yield ladderLines;
             }
         };
+        return lines;
     }
 
     private List<Double> buildSpacings(int lineCount, Leaderboard leaderboard) {
@@ -342,7 +338,7 @@ public abstract class Hologram {
         List<OfflinePlayer> topPlayers = playerStats.keySet().stream()
                 .filter(p -> p.getName() != null && ProfileManager.getInstance().getProfile(p) != null)
                 .limit(showStat)
-                .toList();
+                .collect(Collectors.toList());
 
         List<String> placements = new ArrayList<>();
 
@@ -373,7 +369,7 @@ public abstract class Hologram {
         return StringUtil.CC(leaderboardType.getFormat()
                 .replace("%placement%", String.valueOf(rank))
                 .replace("%score%", String.valueOf(stats.get(player)))
-                .replace("%player%",  player.getName() != null ? player.getName() : "?")
+                .replace("%player%", player.getName())
                 .replace("%division%", division != null ? Common.mmToNormal(division.getFullName()) : "")
                 .replace("%division_short%", division != null ? Common.mmToNormal(division.getShortName()) : "")
                 .replace("%group%", group != null ? group.getDisplayName() : ""));
@@ -408,7 +404,7 @@ public abstract class Hologram {
             }
         };
 
-        List<Double> spacings = setupLines.stream().map(_ -> DEFAULT_SPACING).collect(Collectors.toList());
+        List<Double> spacings = setupLines.stream().map(l -> DEFAULT_SPACING).collect(Collectors.toList());
         updateSmartly(setupLines, spacings);
     }
 
