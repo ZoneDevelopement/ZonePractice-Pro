@@ -89,14 +89,10 @@ public abstract class Hologram {
         }
     }
 
-    //  ABSTRACT METHODS
-
     public abstract void getAbstractData(YamlConfiguration config);
     public abstract void setAbstractData(YamlConfiguration config);
     public abstract boolean isReadyToEnable();
     public abstract Leaderboard getNextLeaderboard();
-
-    //  DATA PERSISTENCE
 
     public void getData() {
         enabled = config.getBoolean("holograms." + name + ".enabled", false);
@@ -126,8 +122,13 @@ public abstract class Hologram {
         config.set(path + ".lb-type", leaderboardType.name());
         config.set(path + ".showStat", showStat);
 
-        if (baseLocation != null) {
-            config.set(path + ".location", baseLocation);
+        if (baseLocation != null && baseLocation.getWorld() != null) {
+            config.set(path + ".location.world", baseLocation.getWorld().getName());
+            config.set(path + ".location.x", baseLocation.getX());
+            config.set(path + ".location.y", baseLocation.getY());
+            config.set(path + ".location.z", baseLocation.getZ());
+            config.set(path + ".location.yaw", (double) baseLocation.getYaw());
+            config.set(path + ".location.pitch", (double) baseLocation.getPitch());
         }
 
         setAbstractData(config);
@@ -142,8 +143,6 @@ public abstract class Hologram {
     public void moveTo(@NotNull Location location) {
         this.baseLocation = location.clone().subtract(0, 2, 0);
     }
-
-    //  CORE MANAGEMENT
 
     /**
      * Despawns all hologram lines and clears state.
@@ -236,8 +235,6 @@ public abstract class Hologram {
         }
     }
 
-    //  UPDATE LOGIC
-
     /**
      * Main update method - handles leaderboard changes and content updates.
      */
@@ -291,8 +288,6 @@ public abstract class Hologram {
         }
     }
 
-    //  TEXT BUILDING
-
     private List<String> buildTextLines(@NotNull Leaderboard leaderboard) {
         List<String> configLines = getConfigLines(leaderboard);
 
@@ -317,7 +312,7 @@ public abstract class Hologram {
     }
 
     private List<String> getConfigLines(Leaderboard leaderboard) {
-        List<String> lines = switch (leaderboard.getMainType()) {
+        return switch (leaderboard.getMainType()) {
             case GLOBAL -> new ArrayList<>(leaderboard.getSecondaryType().getGlobalLines());
             case LADDER -> {
                 List<String> ladderLines = new ArrayList<>(leaderboard.getSecondaryType().getLadderLines());
@@ -331,7 +326,6 @@ public abstract class Hologram {
                 yield ladderLines;
             }
         };
-        return lines;
     }
 
     private List<Double> buildSpacings(int lineCount, Leaderboard leaderboard) {
@@ -348,7 +342,7 @@ public abstract class Hologram {
         List<OfflinePlayer> topPlayers = playerStats.keySet().stream()
                 .filter(p -> p.getName() != null && ProfileManager.getInstance().getProfile(p) != null)
                 .limit(showStat)
-                .collect(Collectors.toList());
+                .toList();
 
         List<String> placements = new ArrayList<>();
 
@@ -379,13 +373,11 @@ public abstract class Hologram {
         return StringUtil.CC(leaderboardType.getFormat()
                 .replace("%placement%", String.valueOf(rank))
                 .replace("%score%", String.valueOf(stats.get(player)))
-                .replace("%player%", player.getName())
+                .replace("%player%",  player.getName() != null ? player.getName() : "?")
                 .replace("%division%", division != null ? Common.mmToNormal(division.getFullName()) : "")
                 .replace("%division_short%", division != null ? Common.mmToNormal(division.getShortName()) : "")
                 .replace("%group%", group != null ? group.getDisplayName() : ""));
     }
-
-    //  SETUP HOLOGRAMS
 
     /**
      * Shows a setup/placeholder hologram.
@@ -416,11 +408,9 @@ public abstract class Hologram {
             }
         };
 
-        List<Double> spacings = setupLines.stream().map(l -> DEFAULT_SPACING).collect(Collectors.toList());
+        List<Double> spacings = setupLines.stream().map(_ -> DEFAULT_SPACING).collect(Collectors.toList());
         updateSmartly(setupLines, spacings);
     }
-
-    //  DELETION
 
     /**
      * Deletes the hologram completely.
@@ -436,8 +426,6 @@ public abstract class Hologram {
             BackendManager.save();
         }
     }
-
-    //  ENABLE/DISABLE
 
     public void setEnabled(boolean enabled) {
         if (enabled && isReadyToEnable()) {
