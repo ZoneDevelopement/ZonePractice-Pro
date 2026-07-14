@@ -1,4 +1,4 @@
-VERSION: 65
+VERSION: 66
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -91,6 +91,7 @@ QUEUE:
           DISPLAY-NAME: "PVP"
           ICON-MATERIAL: "DIAMOND_SWORD"
           SELECTED-ICON-MATERIAL: "NETHERITE_SWORD"
+          ICON-DISABLED: false
           LADDERS:
             - "SPEARMACE"
             - "MACE"
@@ -111,6 +112,7 @@ QUEUE:
           DISPLAY-NAME: "MINIGAMES"
           ICON-MATERIAL: "SLIME_BALL"
           SELECTED-ICON-MATERIAL: "TNT"
+          ICON-DISABLED: false
           LADDERS:
             - "SUMO"
             - "TNTSUMO"
@@ -162,6 +164,7 @@ QUEUE:
           DISPLAY-NAME: "PVP"
           ICON-MATERIAL: "DIAMOND_SWORD"
           SELECTED-ICON-MATERIAL: "NETHERITE_SWORD"
+          ICON-DISABLED: false
           LADDERS:
             - "SPEARMACE"
             - "MACE"
@@ -182,6 +185,7 @@ QUEUE:
           DISPLAY-NAME: "MINIGAMES"
           ICON-MATERIAL: "SLIME_BALL"
           SELECTED-ICON-MATERIAL: "TNT"
+          ICON-DISABLED: false
           LADDERS:
             - "SUMO"
             - "TNTSUMO"
