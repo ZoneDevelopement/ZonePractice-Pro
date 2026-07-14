@@ -9,7 +9,6 @@ import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
@@ -69,31 +68,23 @@ public class DuelRequest {
     public void acceptRequest() {
         DuelManager.getInstance().getRequests().get(target).remove(this);
 
-        // Resolve current online Player objects by UUID to avoid stale references
-        // when the sender disconnected and rejoined since the request was created.
-        Player currentSender = Bukkit.getPlayer(sender.getUniqueId());
-        Player currentTarget = Bukkit.getPlayer(target.getUniqueId());
-
-        if (currentSender == null || currentTarget == null)
-            return;
-
         Arena arena;
         if (this.getArena() != null) {
             arena = this.getArena();
 
             if (arena.getAvailableArena() == null) {
-                Common.sendMMMessage(currentSender, LanguageManager.getString("COMMAND.DUEL.ARENA-BUSY").replace("%arena%", this.getArena().getDisplayName()));
+                Common.sendMMMessage(sender, LanguageManager.getString("COMMAND.DUEL.ARENA-BUSY").replace("%arena%", this.getArena().getDisplayName()));
                 arena = LadderUtil.getAvailableArena(ladder);
             }
         } else
             arena = LadderUtil.getAvailableArena(ladder);
 
         if (arena != null) {
-            Duel duel = new Duel(ladder, arena, Arrays.asList(currentSender, currentTarget), false, rounds);
+            Duel duel = new Duel(ladder, arena, Arrays.asList(sender, target), false, rounds);
             duel.startMatch();
         } else {
-            Common.sendMMMessage(currentSender, LanguageManager.getString("COMMAND.DUEL.NO-AVAILABLE-ARENA"));
-            Common.sendMMMessage(currentTarget, LanguageManager.getString("COMMAND.DUEL.NO-AVAILABLE-ARENA"));
+            Common.sendMMMessage(sender, LanguageManager.getString("COMMAND.DUEL.NO-AVAILABLE-ARENA"));
+            Common.sendMMMessage(target, LanguageManager.getString("COMMAND.DUEL.NO-AVAILABLE-ARENA"));
         }
     }
 
