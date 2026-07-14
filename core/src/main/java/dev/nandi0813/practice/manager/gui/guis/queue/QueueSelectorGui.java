@@ -391,6 +391,10 @@ public abstract class QueueSelectorGui extends GUI {
     private void placeCategorySelectors(Inventory inventory, CategoryConfig currentCategory,
                                         List<CategoryConfig> allCategories, int actualSize, String guiPath) {
         for (CategoryConfig category : allCategories) {
+            if (category.iconDisabled()) {
+                continue;
+            }
+
             int selectorSlot = category.selectorSlot();
             if (selectorSlot < 0 || selectorSlot >= actualSize) {
                 continue;
@@ -690,6 +694,7 @@ public abstract class QueueSelectorGui extends GUI {
 
             String iconMaterial = ConfigManager.getString(categoryPath + ".ICON-MATERIAL");
             String selectedIconMaterial = ConfigManager.getString(categoryPath + ".SELECTED-ICON-MATERIAL");
+            boolean iconDisabled = ConfigManager.getBoolean(categoryPath + ".ICON-DISABLED");
 
             categories.add(new CategoryConfig(
                     categoryKey,
@@ -698,7 +703,8 @@ public abstract class QueueSelectorGui extends GUI {
                     iconMaterial,
                     selectedIconMaterial,
                     ladders,
-                    new ArrayList<>(ladderSlots)
+                    new ArrayList<>(ladderSlots),
+                    iconDisabled
             ));
         }
 
@@ -769,7 +775,8 @@ public abstract class QueueSelectorGui extends GUI {
 
     private record CategoryConfig(String key, String displayName, int selectorSlot,
                                   String iconMaterial, String selectedIconMaterial,
-                                  List<String> ladderNames, List<Integer> ladderSlots) {
+                                  List<String> ladderNames, List<Integer> ladderSlots,
+                                  boolean iconDisabled) {
     }
     /**
      * Replaces %in_queue% and %in_fight% in a Component using Adventure's

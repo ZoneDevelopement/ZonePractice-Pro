@@ -1,4 +1,4 @@
-VERSION: 64
+VERSION: 66
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -91,6 +91,7 @@ QUEUE:
           DISPLAY-NAME: "PVP"
           ICON-MATERIAL: "DIAMOND_SWORD"
           SELECTED-ICON-MATERIAL: "NETHERITE_SWORD"
+          ICON-DISABLED: false
           LADDERS:
             - "SPEARMACE"
             - "MACE"
@@ -111,6 +112,7 @@ QUEUE:
           DISPLAY-NAME: "MINIGAMES"
           ICON-MATERIAL: "SLIME_BALL"
           SELECTED-ICON-MATERIAL: "TNT"
+          ICON-DISABLED: false
           LADDERS:
             - "SUMO"
             - "TNTSUMO"
@@ -162,6 +164,7 @@ QUEUE:
           DISPLAY-NAME: "PVP"
           ICON-MATERIAL: "DIAMOND_SWORD"
           SELECTED-ICON-MATERIAL: "NETHERITE_SWORD"
+          ICON-DISABLED: false
           LADDERS:
             - "SPEARMACE"
             - "MACE"
@@ -182,6 +185,7 @@ QUEUE:
           DISPLAY-NAME: "MINIGAMES"
           ICON-MATERIAL: "SLIME_BALL"
           SELECTED-ICON-MATERIAL: "TNT"
+          ICON-DISABLED: false
           LADDERS:
             - "SUMO"
             - "TNTSUMO"
@@ -386,8 +390,6 @@ MATCH-SETTINGS:
         ENABLED: true
         DURATION-TICKS: 100
         REQUIRE-AXE: true
-  DEATH-ANIMATION:
-    ENABLED: false # If true, plays the vanilla death animation before respawning the player.
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
 #
 # FFA settings
@@ -399,8 +401,6 @@ FFA:
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
   ALLOW-DESTROYABLE-BLOCK: true # If true, player can destroy the fixed blocks in the arena that their ladder has.
   ENABLE_TNT: true # If true, players can use TNT in the arena (ONLY IN BUILD MODE).
-  DEATH-ANIMATION:
-    ENABLED: false # If true, plays the vanilla death animation before respawning in FFA.
 #
 # Spectator settings
 SPECTATOR-SETTINGS:

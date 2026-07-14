@@ -91,6 +91,9 @@ public class AcceptCommand implements CommandExecutor, TabCompleter {
                             SpectatorManager.getInstance().getSpectators().get(player).removeSpectator(player);
                         }
 
+                        // Update sender reference to the current online Player instance
+                        // in case the original sender disconnected and rejoined since the request was sent.
+                        request.setSender(target);
                         request.acceptRequest();
                     } else
                         Common.sendMMMessage(player, LanguageManager.getString("command.accept.player-not-available").replace("%target%", target.getName()));
