@@ -20,6 +20,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
@@ -186,6 +187,19 @@ public class BuildListener implements Listener {
                 : block.getRelative(0, 1, 0);
     }
 
+    private static boolean isBedMaterial(Material material) {
+        return material != null && material.name().endsWith("_BED");
+    }
+
+    private static Block getOtherBedHalf(Block block) {
+        if (block == null || !isBedMaterial(block.getType()) || !(block.getBlockData() instanceof Bed bedData)) {
+            return null;
+        }
+        return bedData.getPart() == Bed.Part.HEAD
+                ? block.getRelative(bedData.getFacing().getOppositeFace())
+                : block.getRelative(bedData.getFacing());
+    }
+
     private static void trackOpenableInteraction(Spectatable spectatable, Block clickedBlock) {
         if (spectatable == null || !spectatable.isBuild() || spectatable.getFightChange() == null || spectatable.getCuboid() == null) {
             return;
@@ -266,6 +280,11 @@ public class BuildListener implements Listener {
             if (otherHalf != null) {
                 spectatable.addBlockChange(new ChangedBlock(otherHalf));
             }
+
+            Block bedOtherHalf = getOtherBedHalf(block);
+            if (bedOtherHalf != null) {
+                spectatable.addBlockChange(new ChangedBlock(bedOtherHalf));
+            }
             return;
         }
 
@@ -324,6 +343,14 @@ public class BuildListener implements Listener {
                 BlockUtil.setMetadata(otherHalf, PLACED_IN_FIGHT, spectatable);
             }
             spectatable.getFightChange().addBlockChange(new ChangedBlock(otherHalf, Material.AIR));
+        }
+
+        Block bedOtherHalf = getOtherBedHalf(block);
+        if (bedOtherHalf != null && spectatable.getCuboid().contains(bedOtherHalf.getLocation())) {
+            if (!BlockUtil.hasMetadata(bedOtherHalf, PLACED_IN_FIGHT)) {
+                BlockUtil.setMetadata(bedOtherHalf, PLACED_IN_FIGHT, spectatable);
+            }
+            spectatable.addBlockChange(new ChangedBlock(bedOtherHalf, replacedState.getType(), false));
         }
 
         Material placedType = block.getType();
