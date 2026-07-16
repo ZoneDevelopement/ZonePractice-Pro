@@ -1,4 +1,4 @@
-VERSION: 66
+VERSION: 67
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -383,9 +383,6 @@ MATCH-SETTINGS:
         EXP-BAR: true
         TIME: 5 # In sec.
     AXE:
-      # Re-applies no-damage-tick reset after a blocked shield hit to avoid vanilla
-      # immunity interfering with custom stun/chain-hit behavior.
-      SKIP-VANILLA-DAMAGE-TICK-WHEN-SHIELD-BLOCKED: true
       SHIELD-STUN:
         ENABLED: true
         DURATION-TICKS: 100
