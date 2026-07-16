@@ -14,6 +14,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -399,6 +400,7 @@ public class FightChangeOptimized {
                 // Skip hologram text displays
                 if (isHologramTextDisplay(entity)) continue;
                 BlockUtil.clearAllMetadata(entity);
+                if (entity instanceof InventoryHolder holder) holder.getInventory().clear();
                 entity.remove();
             }
         }
@@ -420,11 +422,13 @@ public class FightChangeOptimized {
                     if (isHologramTextDisplay(entity)) continue;
                     if (entity.isValid()) {
                         BlockUtil.clearAllMetadata(entity);
+                        if (entity instanceof InventoryHolder holder) holder.getInventory().clear();
                         entity.remove();
                     }
                 }
             }
         }
+
     }
 
     private void addRollbackChunkTickets() {
