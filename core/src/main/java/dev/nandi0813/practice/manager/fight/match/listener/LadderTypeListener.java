@@ -58,7 +58,6 @@ public class LadderTypeListener implements Listener {
     private static final String SHIELD_STUN_ENABLED_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.ENABLED";
     private static final String SHIELD_STUN_DURATION_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.DURATION-TICKS";
     private static final String SHIELD_STUN_REQUIRE_AXE_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.REQUIRE-AXE";
-    private static final String SHIELD_SKIP_VANILLA_TICK_PATH = AXE_LADDER_SETTINGS_PATH + ".SKIP-VANILLA-DAMAGE-TICK-WHEN-SHIELD-BLOCKED";
     private static final int SKYWARS_KILLER_EXP_LEVEL_REWARD = 5;
     private static final int SKYWARS_ENCHANT_LAPIS_AMOUNT = 3;
 
@@ -185,19 +184,6 @@ public class LadderTypeListener implements Listener {
 
         // A blocked shield hit should not deal HP damage.
         return e.getFinalDamage() <= 0.0D;
-    }
-
-    private static void enforceShieldDamageTickBypass(Player target) {
-        if (!ConfigManager.getConfig().getBoolean(SHIELD_SKIP_VANILLA_TICK_PATH, true)) {
-            return;
-        }
-
-        // Run one tick later so vanilla cannot restore the damage immunity window.
-        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
-            if (!target.isOnline() || target.isDead()) {
-                return;
-            }
-        });
     }
 
     private static void applyCustomShieldStunIfNeeded(EntityDamageByEntityEvent e, Player attacker, Player target) {
@@ -769,7 +755,6 @@ public class LadderTypeListener implements Listener {
 
         boolean shieldBlocked = isShieldBlockedHit(e, target);
         if (shieldBlocked) {
-            enforceShieldDamageTickBypass(target);
             applyCustomShieldStunIfNeeded(e, attacker, target);
         }
 
