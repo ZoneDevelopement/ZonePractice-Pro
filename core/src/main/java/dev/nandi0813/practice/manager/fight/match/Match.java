@@ -64,6 +64,9 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     protected final Ladder ladder;
     protected final Cuboid sideBuildLimit;
 
+    @Setter
+    private boolean playerSelectedArena = false;
+
     // Duration
     protected int duration = 0;
 
