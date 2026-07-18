@@ -620,8 +620,6 @@ public class BuildListener implements Listener {
         return true;
     }
 
-    // PISTONS
-
     @EventHandler
     public void onBlockPistonExtend(BlockPistonExtendEvent e) {
         Spectatable spectatable = getByBlock(e.getBlock());
@@ -633,6 +631,10 @@ public class BuildListener implements Listener {
         for (Block block : e.getBlocks()) {
             tagAndTrack(block, spectatable);
             tagAndTrack(block.getRelative(e.getDirection()), spectatable);
+        }
+        Block pistonHead = e.getBlock().getRelative(e.getDirection());
+        if (!BlockUtil.hasMetadata(pistonHead, PLACED_IN_FIGHT)) {
+            tagAndTrack(pistonHead, spectatable);
         }
     }
 
@@ -647,6 +649,11 @@ public class BuildListener implements Listener {
         for (Block block : e.getBlocks()) {
             tagAndTrack(block, spectatable);
             tagAndTrack(block.getRelative(e.getDirection()), spectatable);
+        }
+        Block headPos = e.getBlock().getRelative(e.getDirection());
+        if (BlockUtil.hasMetadata(headPos, PLACED_IN_FIGHT)) {
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(headPos, Material.AIR));
+            BlockUtil.clearMetadata(headPos, PLACED_IN_FIGHT);
         }
     }
 
