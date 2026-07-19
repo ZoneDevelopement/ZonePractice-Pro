@@ -16,6 +16,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -65,6 +66,9 @@ public class Bridges extends PortalFight implements LadderHandle, RespawnableLad
             return true;
         } else if (e instanceof EntityDamageEvent) {
             onDamage((EntityDamageEvent) e);
+            return true;
+        } else if (e instanceof ProjectileHitEvent hitEvent) {
+            hitEvent.getEntity().remove();
             return true;
         }
         return false;
