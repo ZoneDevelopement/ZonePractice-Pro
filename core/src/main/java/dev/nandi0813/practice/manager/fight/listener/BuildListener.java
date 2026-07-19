@@ -273,6 +273,13 @@ public class BuildListener implements Listener {
             if (ListenerUtil.checkMetaData(spectatable)) return;
             if (!spectatable.isBuild()) return;
 
+            // Ensure the fight is still active (not a stale tag from an ended match).
+            if (!FightUtil.getActiveBuildSpectatables().contains(spectatable)) {
+                BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
+                e.setCancelled(true);
+                return;
+            }
+
             spectatable.addBlockChange(new ChangedBlock(block));
 
             Block otherHalf = getOtherDoorHalf(block);
@@ -620,13 +627,17 @@ public class BuildListener implements Listener {
     @EventHandler
     public void onBlockPistonExtend(BlockPistonExtendEvent e) {
         Spectatable spectatable = getByBlock(e.getBlock());
+        if (spectatable == null && BlockUtil.hasMetadata(e.getBlock(), PLACED_IN_FIGHT)) {
+            spectatable = BlockUtil.getMetadata(e.getBlock(), PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(spectatable)) return;
+        }
         if (spectatable == null) return;
         if (!spectatable.isBuild()) {
             e.setCancelled(true);
             return;
         }
         for (Block block : e.getBlocks()) {
-            tagAndTrack(block, spectatable);
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
             tagAndTrack(block.getRelative(e.getDirection()), spectatable);
         }
         Block pistonHead = e.getBlock().getRelative(e.getDirection());
@@ -638,13 +649,17 @@ public class BuildListener implements Listener {
     @EventHandler
     public void onBlockPistonRetract(BlockPistonRetractEvent e) {
         Spectatable spectatable = getByBlock(e.getBlock());
+        if (spectatable == null && BlockUtil.hasMetadata(e.getBlock(), PLACED_IN_FIGHT)) {
+            spectatable = BlockUtil.getMetadata(e.getBlock(), PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(spectatable)) return;
+        }
         if (spectatable == null) return;
         if (!spectatable.isBuild()) {
             e.setCancelled(true);
             return;
         }
         for (Block block : e.getBlocks()) {
-            tagAndTrack(block, spectatable);
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
             tagAndTrack(block.getRelative(e.getDirection()), spectatable);
         }
         Block headPos = e.getBlock().getRelative(e.getDirection());
