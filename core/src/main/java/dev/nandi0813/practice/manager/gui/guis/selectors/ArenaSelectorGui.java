@@ -122,7 +122,7 @@ public class ArenaSelectorGui extends MatchStarterGui {
             }
 
             if (slot == 49) {
-                if (player.hasPermission("zpp.duel.selectrounds") && ladder instanceof NormalLadder) {
+                if (player.hasPermission("zpp.duel.selectrounds")) {
                     new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
                 } else {
                     // Send the duel request
@@ -139,7 +139,7 @@ public class ArenaSelectorGui extends MatchStarterGui {
                     return;
                 }
 
-                if (player.hasPermission("zpp.duel.selectrounds") && ladder instanceof NormalLadder) {
+                if (player.hasPermission("zpp.duel.selectrounds")) {
                     new DuelRoundSelectorGui(matchType, ladder, arena, this).open(player);
                 } else {
                     // Send the duel request
@@ -180,7 +180,7 @@ public class ArenaSelectorGui extends MatchStarterGui {
                     return;
                 }
 
-                if (player.hasPermission("zpp.party.selectrounds") && ladder instanceof NormalLadder) {
+                if (player.hasPermission("zpp.party.selectrounds")) {
                     new DuelRoundSelectorGui(matchType, ladder, arena, this).open(player);
                 } else {
                     Match match = getMatch(party, arena, ladder.getRounds());
@@ -208,7 +208,7 @@ public class ArenaSelectorGui extends MatchStarterGui {
                 if (slot == 49) {
                     player.closeInventory();
 
-                    if (player.hasPermission("zpp.party.selectrounds") && ladder instanceof NormalLadder) {
+                    if (player.hasPermission("zpp.party.selectrounds")) {
                         new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
                     } else {
                         PartyRequest partyRequest = new PartyRequest(party, target, ladder, null, ladder.getRounds());
@@ -225,7 +225,7 @@ public class ArenaSelectorGui extends MatchStarterGui {
                         return;
                     }
 
-                    if (player.hasPermission("zpp.party.selectrounds") && ladder instanceof NormalLadder) {
+                    if (player.hasPermission("zpp.party.selectrounds")) {
                         new DuelRoundSelectorGui(matchType, ladder, arena, this).open(player);
                     } else {
                         PartyRequest partyRequest = new PartyRequest(party, target, ladder, arena, ladder.getRounds());

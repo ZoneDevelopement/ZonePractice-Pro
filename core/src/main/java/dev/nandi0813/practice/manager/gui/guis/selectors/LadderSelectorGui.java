@@ -158,7 +158,7 @@ public class LadderSelectorGui extends GUI {
         if (party == null) {
             if (player.hasPermission("zpp.duel.selectarena")) {
                 new ArenaSelectorGui(ladder, matchType, this).open(player);
-            } else if (player.hasPermission("zpp.duel.selectrounds") && ladder instanceof NormalLadder) {
+            } else if (player.hasPermission("zpp.duel.selectrounds")) {
                 new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
             } else {
                 Player target = DuelManager.getInstance().getPendingRequestTarget().get(player);
@@ -193,7 +193,7 @@ public class LadderSelectorGui extends GUI {
 
                 if (player.hasPermission("zpp.party.selectarena")) {
                     new ArenaSelectorGui(ladder, matchType, this).open(player);
-                } else if (player.hasPermission("zpp.party.selectrounds") && ladder instanceof NormalLadder) {
+                } else if (player.hasPermission("zpp.party.selectrounds")) {
                     new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
                 } else {
                     startPartyMatch(player, party, ladder, ladder.getRounds());
@@ -213,7 +213,7 @@ public class LadderSelectorGui extends GUI {
 
                 if (player.hasPermission("zpp.party.selectarena")) {
                     new ArenaSelectorGui(ladder, matchType, this).open(player);
-                } else if (player.hasPermission("zpp.party.selectrounds") && ladder instanceof NormalLadder) {
+                } else if (player.hasPermission("zpp.party.selectrounds")) {
                     new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
                 } else {
                     player.closeInventory();
