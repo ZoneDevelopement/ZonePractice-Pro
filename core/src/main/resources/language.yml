@@ -1093,7 +1093,7 @@ LADDER:
     ONLY-ALPHANUMERIC: "<red>You can only use alphanumeric characters."
     NO-ACCENTS: "<red>You cannot use accents in the name."
     FEW-CHAR: "<red>The name must have at least 2 letters."
-    MANY-CHAR: "<red>The name cannot be longer than 10 letters."
+    MANY-CHAR: "<red>The name cannot be longer than 20 letters."
     NAME-TAKEN: "<red>Ladder name is already in use."
   STATUS-CHANGE:
     NO-ICON: "<red>You have to set the ladders icon before enabling."
