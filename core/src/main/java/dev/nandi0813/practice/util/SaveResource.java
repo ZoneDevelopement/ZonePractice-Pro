@@ -38,23 +38,24 @@ public class SaveResource {
             "boxing.yml",
             "bridges.yml",
             "builduhc.yml",
+            "cart.yml",
             "crystal.yml",
-            "debuff.yml",
+            "diamondpotion.yml",
             "fireball.yml",
             "gapple.yml",
             "mace.yml",
-            "nodebuff.yml",
             "mlgrush.yml",
+            "netheritepotion.yml",
             "pearlfight.yml",
             "sg.yml",
             "skywars.yml",
             "soup.yml",
-            "spear.yml",
+            "spearelytra.yml",
+            "spearmace.yml",
             "spleef.yml",
             "sumo.yml",
-            "tntsumo.yml",
-            "vanilla.yml",
-            "sword.yml"
+            "sword.yml",
+            "tntsumo.yml"
     };
 
     public void saveResources(ZonePractice practice) {

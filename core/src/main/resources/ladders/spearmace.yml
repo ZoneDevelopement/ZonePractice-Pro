@@ -12,7 +12,7 @@ settings:
   rounds: 1
   hearts: 10
   maxduration: 1800
-  epcooldown: 0.0
+  epcooldown: 1.0
   gacooldown: 0.0
   fireworkcooldown: 1.0
   windchargecooldown: 0.0
@@ -40,7 +40,7 @@ icon:
   id: minecraft:netherite_spear
   count: 1
   components:
-    minecraft:custom_name: '{color:"dark_purple",text:"Spear Mace"}'
+    minecraft:custom_name: '{color:"gold",text:"Spear Mace"}'
   schema_version: 1
 effects:
 - ==: PotionEffect

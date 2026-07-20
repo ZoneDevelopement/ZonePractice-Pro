@@ -51,8 +51,8 @@ public final class CreateArg {
             return LanguageManager.getString("LADDER.CREATE.NO-ACCENTS");
         else if (input.length() < 2)
             return LanguageManager.getString("LADDER.CREATE.FEW-CHAR");
-        else if (input.length() > 10)
-            return LanguageManager.getString("LADDER.CREATE.MANY-CHAR");
+    else if (input.length() > 20)
+        return LanguageManager.getString("LADDER.CREATE.MANY-CHAR");
         else if (LadderManager.getInstance().getLadder(input) != null)
             return LanguageManager.getString("LADDER.CREATE.NAME-TAKEN");
         else
