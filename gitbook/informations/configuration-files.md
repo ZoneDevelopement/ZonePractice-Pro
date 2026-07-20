@@ -31,7 +31,7 @@ On startup, ZonePractice maintains these files in `plugins/ZonePracticePro/`:
 - `divisions.yml`: Division progression — thresholds, names, colors, and ranked queue requirements.
 - `playerkit.yml`: Custom player kit slot limits, shared kit settings.
 - `backend.yml`: Runtime backend state — do not edit manually.
-- `ladders/*.yml`: Individual ladder definitions — type, icon, inventory, effects, settings, match types.
+- `ladders/*.yml`: Individual ladder definitions — type, icon, inventory, effects, settings, match types. Defaults: `archer`, `axe`, `battlerush`, `bedwars`, `boxing`, `bridges`, `builduhc`, `cart`, `crystal`, `diamondpotion`, `fireball`, `gapple`, `mace`, `mlgrush`, `netheritepotion`, `pearlfight`, `sg`, `skywars`, `soup`, `spearelytra`, `spearmace`, `spleef`, `sumo`, `sword`, `tntsumo`.
 - `match-history/<uuid>.yml`: Per-player recent match records (also stored in MySQL if enabled).
 
 ## Item configuration format
