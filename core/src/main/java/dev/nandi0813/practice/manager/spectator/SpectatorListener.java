@@ -141,7 +141,6 @@ public class SpectatorListener implements Listener {
     @EventHandler
     public void onLeaveCuboid(PlayerMoveEvent e) {
         Player player = e.getPlayer();
-        ensureSpectatorFlight(player);
 
         Profile profile = ProfileManager.getInstance().getProfile(player);
 
