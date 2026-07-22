@@ -129,10 +129,16 @@ public enum AdapterUtil {
             return Component.text(player.getName());
         }
 
-        // Sidebar placeholders follow the player's own prefix/suffix visibility setting.
-        // Pass the Player instance so PlaceholderAPI expansions (e.g. %luckperms_prefix%)
-        // are resolved at render time rather than left as raw placeholder text.
-        return NameFormatUtil.resolveFullName(profile, player, player.getName());
+        // Read the SIDEBAR-NAME-FORMAT config option to determine how names should be displayed.
+        String format = SidebarManager.getInstance().getConfig().getString("SIDEBAR-NAME-FORMAT", "PREFIX_NAME_SUFFIX");
+        return switch (format.toUpperCase()) {
+            case "NAME_ONLY" -> NameFormatUtil.resolveName(profile, player.getName(), player, null);
+            case "PREFIX_NAME" -> NameFormatUtil.resolvePrefix(profile, player)
+                    .append(NameFormatUtil.resolveName(profile, player.getName(), player, NameFormatUtil.extractTrailingColor(NameFormatUtil.resolvePrefix(profile, player))));
+            case "NAME_SUFFIX" -> NameFormatUtil.resolveName(profile, player.getName(), player, null)
+                    .append(NameFormatUtil.resolveSuffix(profile, player));
+            default -> NameFormatUtil.resolveFullName(profile, player, player.getName());
+        };
     }
 
     static Component getSidebarNameOnly(Player player) {
