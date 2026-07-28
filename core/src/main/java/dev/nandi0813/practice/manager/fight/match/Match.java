@@ -40,6 +40,7 @@ import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
+import static dev.nandi0813.practice.manager.fight.util.PlayerUtil.isPlayerStuck;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -561,7 +562,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
                 continue;
             }
 
-            if (!dev.nandi0813.practice.manager.fight.util.PlayerUtil.isPlayerStuck(spectator)) {
+            if (!isPlayerStuck(spectator)) {
                 continue;
             }
 

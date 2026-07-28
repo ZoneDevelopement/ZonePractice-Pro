@@ -17,6 +17,8 @@ public class FFASettingsGui extends GUI {
     private static final ItemStack FILLER_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.FILLER").get();
     private static final ItemStack BUILD_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.BUILD.ENABLED").get();
     private static final ItemStack BUILD_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.BUILD.DISABLED").get();
+    private static final ItemStack TNT_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.MAP-BLOWABLE.ENABLED").get();
+    private static final ItemStack TNT_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.MAP-BLOWABLE.DISABLED").get();
     private static final ItemStack REKIT_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.RE-KIT-AFTER-KILL.ENABLED").get();
     private static final ItemStack REKIT_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.RE-KIT-AFTER-KILL.DISABLED").get();
     private static final ItemStack HEALTH_BELOW_NAME_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.HEALTH-BELOW-NAME.ENABLED").get();
@@ -61,6 +63,12 @@ public class FFASettingsGui extends GUI {
             inventory.setItem(10, BUILD_DISABLED_ITEM);
         }
 
+        if (ffaArena.isMapBlowable()) {
+            inventory.setItem(11, TNT_ENABLED_ITEM);
+        } else {
+            inventory.setItem(11, TNT_DISABLED_ITEM);
+        }
+
         if (ffaArena.isReKitAfterKill()) {
             inventory.setItem(12, REKIT_ENABLED_ITEM);
         } else {
@@ -98,6 +106,10 @@ public class FFASettingsGui extends GUI {
             switch (e.getRawSlot()) {
                 case 10:
                     ffaArena.setBuild(!ffaArena.isBuild());
+                    this.update();
+                    break;
+                case 11:
+                    ffaArena.setMapBlowable(!ffaArena.isMapBlowable());
                     this.update();
                     break;
                 case 12:

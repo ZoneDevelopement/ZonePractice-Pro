@@ -30,6 +30,7 @@ public class FFAArena extends DisplayArena {
     private boolean lobbyAfterDeath;
     private boolean healthResetOnKill;
     private boolean healthBelowName;
+    private boolean mapBlowable;
 
     public FFAArena(String name) {
         super(name, ArenaType.FFA);
@@ -64,6 +65,7 @@ public class FFAArena extends DisplayArena {
         config.set("lobbyAfterDeath", this.lobbyAfterDeath);
         config.set("healthResetOnKill", this.healthResetOnKill);
         config.set("healthBelowName", this.healthBelowName);
+        config.set("mapBlowable", this.mapBlowable);
 
         config.set("ladders", ArenaUtil.getLadderNames(this));
 
@@ -93,6 +95,9 @@ public class FFAArena extends DisplayArena {
 
         if (config.isBoolean("healthBelowName"))
             this.setHealthBelowName(config.getBoolean("healthBelowName"));
+
+        if (config.isBoolean("mapBlowable"))
+            this.setMapBlowable(config.getBoolean("mapBlowable"));
 
         if (config.isList("ladders")) {
             for (String ladderName : config.getStringList("ladders")) {
@@ -167,6 +172,14 @@ public class FFAArena extends DisplayArena {
         }
 
         this.healthBelowName = healthBelowName;
+    }
+
+    public void setMapBlowable(boolean mapBlowable) {
+        if (this.enabled) {
+            throw new IllegalStateException("Cannot edit while arena is enabled.");
+        }
+
+        this.mapBlowable = mapBlowable;
     }
 
     public void setBuild(boolean build) {

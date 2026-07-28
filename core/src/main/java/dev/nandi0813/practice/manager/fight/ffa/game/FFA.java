@@ -27,6 +27,7 @@ import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
+import static dev.nandi0813.practice.manager.fight.util.PlayerUtil.isPlayerStuck;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
@@ -51,6 +52,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     private final LadderSelector ladderSelectorGui;
 
     private boolean build;
+    private boolean mapBlowable;
     private BuildRollback buildRollback;
 
     private boolean open;
@@ -61,6 +63,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     public FFA(FFAArena arena) {
         this.arena = arena;
         this.build = arena.isBuild();
+        this.mapBlowable = arena.isMapBlowable();
         this.ladderSelectorGui = new LadderSelector(this);
         this.open = false;
     }
@@ -75,10 +78,11 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         }
 
         this.build = this.arena.isBuild();
+        this.mapBlowable = this.arena.isMapBlowable();
         this.open = true;
 
         if (this.build) {
-            this.buildRollback = new BuildRollback(new FightChangeOptimized(this), this::teleportStuckSpectatorsAfterRollback);
+            this.buildRollback = new BuildRollback(new FightChangeOptimized(this), this::teleportStuckPlayersAfterRollback);
             this.buildRollback.begin();
         }
 
@@ -325,8 +329,8 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         Common.sendMessage(players.keySet(), spectators, message, spectator);
     }
 
-    private void teleportStuckSpectatorsAfterRollback() {
-        if (!this.open || !this.build || this.spectators.isEmpty()) {
+    private void teleportStuckPlayersAfterRollback() {
+        if (!this.open || !this.build) {
             return;
         }
 
@@ -337,7 +341,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
                 continue;
             }
 
-            if (!dev.nandi0813.practice.manager.fight.util.PlayerUtil.isPlayerStuck(spectator)) {
+            if (!isPlayerStuck(spectator)) {
                 continue;
             }
 
@@ -348,6 +352,18 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             } else {
                 spectator.teleport(this.arena.getCuboid().getCenter().add(0, 1, 0));
             }
+        }
+
+        for (Player player : activePlayers) {
+            if (player == null || !player.isOnline()) {
+                continue;
+            }
+
+            if (!isPlayerStuck(player)) {
+                continue;
+            }
+
+            player.teleport(player.getWorld().getHighestBlockAt(player.getLocation()).getLocation().add(0, 1, 0));
         }
     }
 
@@ -467,6 +483,11 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     @Override
     public boolean isBuild() {
         return this.build;
+    }
+
+    @Override
+    public boolean isMapBlowable() {
+        return this.mapBlowable;
     }
 
     @Override

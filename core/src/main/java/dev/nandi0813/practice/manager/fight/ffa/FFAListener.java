@@ -70,8 +70,6 @@ public class FFAListener implements Listener {
         }
     }
 
-    private static final boolean ENABLE_TNT = ConfigManager.getBoolean("FFA.ENABLE_TNT");
-
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         Player player = e.getPlayer();
@@ -96,7 +94,7 @@ public class FFAListener implements Listener {
             }
 
             if (clickedBlock.getType().equals(Material.TNT)) {
-                if (!ffa.isBuild() || !ENABLE_TNT) {
+                if (!ffa.isBuild() || !ffa.isMapBlowable()) {
                     e.setCancelled(true);
                     return;
                 }

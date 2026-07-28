@@ -171,6 +171,9 @@ public class BuildListener implements Listener {
             return;
         }
 
+        if (!BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
+        }
         spectatable.getFightChange().trackFirePosition(block);
     }
 
@@ -240,12 +243,14 @@ public class BuildListener implements Listener {
     private static void filterAndTrackExplosionBlocks(List<Block> blockList, Spectatable spectatable) {
         final Ladder l = ladderOf(spectatable);
         final boolean breakAll = spectatable.isBreakAllBlocks();
+        final boolean mapBlowable = spectatable.isMapBlowable();
 
         blockList.removeIf(block -> {
             if (block.getType().equals(Material.TNT)) return false;                    // keep -> chain-explodes
             if (ArenaUtil.containsDestroyableBlock(l, block)) return false;            // keep -> destroyable
             if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return false;           // keep -> player placed
             if (breakAll) return false;                                                 // keep -> break-all-blocks active
+            if (mapBlowable) return false;                                              // keep -> map blowable, explosions destroy all blocks
             if (BlockUtil.hasMetadata(block.getRelative(0, 1, 0), PLACED_IN_FIGHT)) return true; // remove -> support block protected
             return true;                                                                // remove -> pure arena block
         });
