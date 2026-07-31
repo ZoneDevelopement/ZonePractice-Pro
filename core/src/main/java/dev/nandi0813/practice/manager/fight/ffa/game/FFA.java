@@ -16,6 +16,8 @@ import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.inventory.Inventory;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
+import dev.nandi0813.practice.manager.party.Party;
+import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
@@ -122,6 +124,14 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             return;
 
         players.put(player, ladder);
+
+        // A player who joins an FFA while in a party must leave that party, so that
+        // they are not pulled into the party's game when it starts (which would
+        // otherwise kill them and leave them in an inconsistent flight state).
+        Party party = PartyManager.getInstance().getParty(player);
+        if (party != null) {
+            party.removeMember(player, false);
+        }
 
         // Use FFAFightPlayer to handle custom kit selection
         FFAFightPlayer ffaFightPlayer = new FFAFightPlayer(player, this, ladder);
