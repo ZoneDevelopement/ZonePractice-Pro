@@ -397,7 +397,6 @@ FFA:
   HEALTH-BELOW-NAME: false # Default for newly created FFA arenas. If enabled, players see heart indicators below names.
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
   ALLOW-DESTROYABLE-BLOCK: true # If true, player can destroy the fixed blocks in the arena that their ladder has.
-  ENABLE_TNT: true # If true, players can use TNT in the arena (ONLY IN BUILD MODE).
 #
 # Spectator settings
 SPECTATOR-SETTINGS:
