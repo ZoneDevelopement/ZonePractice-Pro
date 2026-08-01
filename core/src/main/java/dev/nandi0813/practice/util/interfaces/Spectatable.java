@@ -38,6 +38,19 @@ public interface Spectatable {
     boolean isBuild();
 
     /**
+     * Returns {@code true} if explosions are allowed to destroy any arena
+     * block in this fight context — not just player-placed or ladder-defined
+     * destroyable blocks.
+     * <p>
+     * For a {@link Match} this always returns {@code false} (matches use
+     * ladder-specific destroyable blocks only).
+     * For an {@link FFA} this returns the per-arena map destroyable toggle.
+     */
+    default boolean isMapBlowable() {
+        return false;
+    }
+
+    /**
      * Returns {@code true} if the "break all blocks" setting is active for this
      * fight context, meaning explosions (and player breaks) may destroy any arena
      * block — not just player-placed ones.

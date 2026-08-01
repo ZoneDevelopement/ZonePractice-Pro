@@ -1,4 +1,4 @@
-VERSION: 38
+VERSION: 39
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1618,6 +1618,27 @@ GUIS:
                 - ""
                 - "<red><bold>Note: <gray>This will remove all the"
                 - "<gray>assigned ladders from the arena."
+          MAP-BLOWABLE:
+            ENABLED:
+              NAME: "<gray>Blowable: <green>Enabled"
+              MATERIAL: TNT
+              LORE:
+                - ""
+                - "<yellow><bold>Click here <gray>to <red>disable <gray>map"
+                - "<dark_green>blowable <gray>in the arena."
+                - ""
+                - "<gray>When enabled, explosions can"
+                - "<gray>blow up the entire arena map."
+            DISABLED:
+              NAME: "<gray>Blowable: <red>Disabled"
+              MATERIAL: RED_STAINED_GLASS_PANE
+              LORE:
+                - ""
+                - "<yellow><bold>Click here <gray>to <green>enable <gray>map"
+                - "<dark_green>blowable <gray>in the arena."
+                - ""
+                - "<gray>When enabled, explosions can"
+                - "<gray>blow up the entire arena map."
           RE-KIT-AFTER-KILL:
             ENABLED:
               NAME: "<gray>Re-Kit After Kill: <green>Enabled"

@@ -16,70 +16,50 @@ public final class ChatFormatUtil {
 
     private ChatFormatUtil() {}
 
-    private static String normalizeStaticSpacing(String formattedWithoutMessage) {
-        if (formattedWithoutMessage == null || formattedWithoutMessage.isEmpty()) {
-            return formattedWithoutMessage;
+    private static String normalizeStaticSpacing(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
         }
 
-        // Prevent accidental duplicate spaces in static template text.
-        return formattedWithoutMessage.replaceAll(" {2,}", " ");
+        return text.replaceAll(" {2,}", " ");
     }
 
-    /**
-     * Builds the fully-replaced party chat format string.
-     */
-    public static String buildPartyChatMessage(Player player, String rawMessage) {
+    public static String buildPartyChatMessage(Player player) {
         Profile profile = ProfileManager.getInstance().getProfile(player);
+
         String playerName = profile != null
-                ? ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveFullName(profile, player.getName()))
+                ? ZonePractice.getMiniMessage().serialize(
+                NameFormatUtil.resolveFullName(profile, player.getName())
+        )
                 : player.getName();
 
-        String template = LanguageManager.getString("GENERAL-CHAT.PARTY-CHAT")
-                .replace("%%player%%", playerName)
-                .replace("%%message%%", "%%message%%");
-
-        return normalizeStaticSpacing(template)
-                .replace("%%message%%", rawMessage.replaceFirst("@", ""));
+        return normalizeStaticSpacing(
+                LanguageManager.getString("GENERAL-CHAT.PARTY-CHAT")
+                        .replace("%%player%%", playerName)
+        );
     }
 
-    /**
-     * Builds the fully-replaced staff chat format string.
-     */
-    public static String buildStaffChatMessage(Player player, String rawMessage) {
+    public static String buildStaffChatMessage(Player player) {
         Profile profile = ProfileManager.getInstance().getProfile(player);
+
         String playerName = profile != null
-                ? ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveFullName(profile, player.getName()))
+                ? ZonePractice.getMiniMessage().serialize(
+                NameFormatUtil.resolveFullName(profile, player.getName())
+        )
                 : player.getName();
 
-        String template = LanguageManager.getString("GENERAL-CHAT.STAFF-CHAT")
-                .replace("%%player%%", playerName)
-                .replace("%%message%%", "%%message%%");
-
-        return normalizeStaticSpacing(template)
-                .replace("%%message%%", rawMessage);
+        return normalizeStaticSpacing(
+                LanguageManager.getString("GENERAL-CHAT.STAFF-CHAT")
+                        .replace("%%player%%", playerName)
+        );
     }
 
-    /**
-     * Collects all online players with the staff chat permission.
-     */
-    public static List<Player> getStaffRecipients() {
-        List<Player> staff = new ArrayList<>();
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            if (online.hasPermission("zpp.staffmode.chat")) {
-                staff.add(online);
-            }
-        }
-        return staff;
-    }
+    public static String buildServerChatMessage(Profile profile, Player player) {
+        String format;
 
-    /**
-     * Resolves the server chat format string (group format or default),
-     * then replaces all static placeholders (division, player, message).
-     */
-    public static String buildServerChatMessage(Profile profile, Player player, String message) {
-        final String format;
         if (ConfigManager.getBoolean("PLAYER.GROUP-CHAT.ENABLED")) {
             Group group = profile.getGroup();
+
             if (group != null && group.getChatFormat() != null) {
                 format = group.getChatFormat();
             } else {
@@ -89,13 +69,23 @@ public final class ChatFormatUtil {
             format = LanguageManager.getString("GENERAL-CHAT.SERVER-CHAT");
         }
 
-        String decoratedPlayer = ZonePractice.getMiniMessage().serialize(NameFormatUtil.resolveFullName(profile, player.getName()));
+        String decoratedPlayer = ZonePractice.getMiniMessage()
+                .serialize(NameFormatUtil.resolveFullName(profile, player.getName()));
 
-        String template = format
-                .replace("%%player%%", decoratedPlayer)
-                .replace("%%message%%", "%%message%%");
+        return normalizeStaticSpacing(
+                format.replace("%%player%%", decoratedPlayer)
+        );
+    }
 
-        return normalizeStaticSpacing(template)
-                .replace("%%message%%", message);
+    public static List<Player> getStaffRecipients() {
+        List<Player> staff = new ArrayList<>();
+
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (online.hasPermission("zpp.staffmode.chat")) {
+                staff.add(online);
+            }
+        }
+
+        return staff;
     }
 }
