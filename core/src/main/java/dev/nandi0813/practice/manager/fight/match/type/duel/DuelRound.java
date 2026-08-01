@@ -11,6 +11,7 @@ import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.statistics.LadderStats;
+import dev.nandi0813.practice.util.Pair;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
@@ -51,19 +52,23 @@ public class DuelRound extends Round implements PlayerWinner {
                     loserProfile.getStats().increaseLoseStreak(normalLadder, duel.isRanked());
 
                     if (duel.isRanked()) {
-                        int eloChange = MatchUtil.getRandomElo();
+                        Pair<Integer, Integer> eloChanges = MatchUtil.getEloChange(wLadderStats.getElo(), lLadderStats.getElo());
+                        int winnerEloChange = eloChanges.getFirst();
+                        int loserEloChange = Math.abs(eloChanges.getSecond());
 
                         int winnerOldElo = wLadderStats.getElo();
-                        wLadderStats.increaseElo(eloChange);
+                        wLadderStats.increaseElo(winnerEloChange);
 
                         int loserOldElo = lLadderStats.getElo();
-                        lLadderStats.decreaseElo(eloChange);
+                        lLadderStats.decreaseElo(loserEloChange);
 
                         for (String reLine : LanguageManager.getList("MATCH.DUEL.MATCH-END.RANKED-EXTENSION")) {
                             rankedExtension.add(reLine
                                     .replace("%winner%", matchWinner.getName())
                                     .replace("%loser%", duel.getOppositePlayer(matchWinner).getName())
-                                    .replace("%eloChange%", String.valueOf(eloChange))
+                                    .replace("%eloChange%", String.valueOf(winnerEloChange))
+                                    .replace("%winnerEloChange%", String.valueOf(winnerEloChange))
+                                    .replace("%loserEloChange%", String.valueOf(loserEloChange))
                                     .replace("%winnerNewElo%", String.valueOf(wLadderStats.getElo()))
                                     .replace("%loserNewElo%", String.valueOf(lLadderStats.getElo()))
                                     .replace("%winnerOldElo%", String.valueOf(winnerOldElo))
