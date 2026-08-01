@@ -28,6 +28,7 @@ import dev.nandi0813.practice.manager.fight.listener.BuildListener;
 import dev.nandi0813.practice.manager.fight.listener.EPCountdownListener;
 import dev.nandi0813.practice.manager.fight.listener.FireworkRocketCooldownListener;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.fight.match.util.EloMode;
 import dev.nandi0813.practice.manager.fight.util.EntityHider;
 import dev.nandi0813.practice.manager.fight.util.EntityHiderListener;
 import dev.nandi0813.practice.manager.gui.setup.arena.ArenaGUISetupManager;
@@ -114,6 +115,7 @@ public final class ZonePractice extends JavaPlugin {
         new SaveResource().saveResources(this);
 
         ConfigManager.createFile();
+        EloMode.validateConfig();
         BackendManager.createFile(this);
         LanguageManager.createFile(this);
         GUIFile.createFile(this);

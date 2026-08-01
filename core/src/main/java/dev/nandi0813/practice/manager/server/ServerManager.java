@@ -7,6 +7,7 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.division.DivisionManager;
+import dev.nandi0813.practice.manager.fight.match.util.EloMode;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -247,6 +248,7 @@ public class ServerManager implements Listener {
     public boolean reloadFiles() {
         try {
             ConfigManager.reload();
+            EloMode.validateConfig();
             LanguageManager.reload();
             GUIFile.reload();
             InventoryManager.getInstance().reloadFile();

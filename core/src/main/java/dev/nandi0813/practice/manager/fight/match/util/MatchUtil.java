@@ -13,6 +13,7 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
+import dev.nandi0813.practice.util.Pair;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -52,36 +53,6 @@ public final class MatchUtil {
         return baseCube.expand(Cuboid.CuboidDirection.East, -limit);
     }
 
-    /*
-    public static HashMap<Integer, RoundStatistic> getOldMatchStatistics(UUID uuid, YamlConfiguration config)
-    {
-            HashMap<Integer, RoundStatistic> playerStat = new HashMap<>();
-
-            for (int i = 1; i < 100; i++)
-            {
-                if (config.isConfigurationSection("stats." + i + "." + uuid))
-                {
-                    RoundStatistic roundStat = new RoundStatistic(uuid);
-                    roundStat.setSet(true);
-                    roundStat.setAverageCPS(config.getDouble("stats." + i + "." + uuid + ".averagecps"));
-                    roundStat.setHit(config.getInt("stats." + i + "." + uuid + ".hit"));
-                    roundStat.setGetHit(config.getInt("stats." + i + "." + uuid + ".gethit"));
-                    roundStat.setLongestCombo(config.getInt("stats." + i + "." + uuid + ".longestcombo"));
-                    roundStat.setEndHeart(config.getDouble("stats." + i + "." + uuid + ".heart"));
-                    roundStat.setEndHunger(config.getDouble("stats." + i + "." + uuid + ".hunger"));
-                    roundStat.setEndPotionEffects((List<PotionEffect>) config.getList("stats." + i + "." + uuid + ".potions"));
-                    roundStat.setEndArmor(ItemSerializationUtil.itemStackArrayFromBase64(config.getString("stats." + i + "." + uuid + ".armor")));
-                    roundStat.setEndInventory(ItemSerializationUtil.itemStackArrayFromBase64(config.getString("stats." + i + "." + uuid + ".inventory")));
-
-                    playerStat.put(i, roundStat);
-                }
-                else
-                    break;
-            }
-
-            return playerStat;
-    }
-     */
     public static List<ItemStack> getRandomSkyWarsLoot(SkyWars ladder) {
         if (ladder.getSkyWarsLoot() == null) return Collections.emptyList();
 
@@ -96,7 +67,57 @@ public final class MatchUtil {
         return actualLoot;
     }
 
-    public static int getRandomElo() {
+    /**
+     * Computes the Elo change for both players of a ranked duel.
+     * <p>
+     * In {@code RANDOM} mode both players change by the same magnitude (winner gains,
+     * loser loses) using the random {@code QUEUE.RANKED.ELO-CHANGE} interval.
+     * In {@code SKILL} mode (default) the standard Elo formula is used:
+     * {@code newElo = oldElo + K * (result - expected)}, where {@code expected} is
+     * derived from the rating difference between the two players.
+     * <p>
+     * The absolute change of each player is capped by {@code QUEUE.RANKED.ELO-SYSTEM.MAX-CHANGE}
+     * (if greater than 0).
+     *
+     * @param winnerElo the winner's Elo before the match
+     * @param loserElo  the loser's Elo before the match
+     * @return the winner's Elo change and the loser's Elo change (loser change is negative or zero)
+     */
+    public static Pair<Integer, Integer> getEloChange(int winnerElo, int loserElo) {
+        int winnerChange;
+        int loserChange;
+
+        if (EloMode.getActiveMode() == EloMode.SKILL) {
+            final int kFactor = Math.max(1, ConfigManager.getInt("QUEUE.RANKED.ELO-SYSTEM.K-FACTOR", 32));
+            double expectedWinner = expectedScore(winnerElo, loserElo);
+
+            winnerChange = (int) Math.round(kFactor * (1 - expectedWinner));
+            loserChange = (int) Math.round(kFactor * (0 - expectedScore(loserElo, winnerElo)));
+        } else {
+            winnerChange = getRandomElo();
+            loserChange = -winnerChange;
+        }
+
+        int maxChange = ConfigManager.getInt("QUEUE.RANKED.ELO-SYSTEM.MAX-CHANGE", 0);
+        if (maxChange > 0) {
+            winnerChange = Math.clamp(winnerChange, -maxChange, maxChange);
+            loserChange = Math.clamp(loserChange, -maxChange, maxChange);
+        }
+
+        return new Pair<>(winnerChange, loserChange);
+    }
+
+    /**
+     * Standard Elo expected score for a player against an opponent.
+     */
+    private static double expectedScore(int rating, int opponentRating) {
+        return 1.0 / (1.0 + Math.pow(10, (opponentRating - rating) / 400.0));
+    }
+
+    /**
+     * Random Elo change from the configured {@code QUEUE.RANKED.ELO-CHANGE} interval.
+     */
+    private static int getRandomElo() {
         String[] changeInterval = ConfigManager.getString("QUEUE.RANKED.ELO-CHANGE").split("-");
         int min = Integer.parseInt(changeInterval[0]);
         int max = Integer.parseInt(changeInterval[1]);

@@ -1527,8 +1527,8 @@ MATCH:
     MATCH-END:
       SPECTATOR-EXTENSION:
         - "<aqua>Spectators (%size%): <gray>%spectators%"
-      RANKED-EXTENSION: # Also usable: %winnerOldElo% and %loserOldElo%
-        - "<yellow>Elo Changes: <green>%winner% +%eloChange% (%winnerNewElo%) <red>%loser% -%eloChange% (%loserNewElo%)"
+      RANKED-EXTENSION: # Also usable: %winnerOldElo%, %loserOldElo%, %winnerEloChange% and %loserEloChange%
+        - "<yellow>Elo Changes: <green>%winner% +%winnerEloChange% (%winnerNewElo%) <red>%loser% -%loserEloChange% (%loserNewElo%)"
         - "<gray><st>----------------------------------------"
       MESSAGE:
         - "<gray><st>----------------------------------------"
