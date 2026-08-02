@@ -3,6 +3,7 @@ package dev.nandi0813.practice.util.placeholderapi;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.ArenaManager;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
+import dev.nandi0813.practice.manager.division.DivisionManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
@@ -129,6 +130,11 @@ public class PlayerExpansion extends PlaceholderExpansion implements Relational 
                 break;
             case "division":
                 if (input.length == 1) return null;
+
+                // division_weight (works even without a division, returns 0)
+                if (input[1].equals("weight"))
+                    return String.valueOf(DivisionManager.getInstance().getDivisionWeight(profile.getStats().getDivision()));
+
                 if (profile.getStats().getDivision() == null) return null;
 
                 switch (input[1]) {

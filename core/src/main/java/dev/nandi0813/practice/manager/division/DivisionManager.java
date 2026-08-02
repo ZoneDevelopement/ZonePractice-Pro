@@ -135,6 +135,19 @@ public class DivisionManager extends ConfigFile implements Listener {
         return this.divisions.get(index - 1);
     }
 
+    public int getDivisionWeight(final Division division) {
+        if (division == null) return 0;
+
+        if (division.getWeight() != -1) {
+            return division.getWeight();
+        }
+
+        int index = this.divisions.indexOf(division);
+        if (index == -1) return 0;
+
+        return index + 1;
+    }
+
     public boolean meetsMinimumForRanked(final Profile profile) {
         if (profile == null || this.minimumForRanked == null) {
             return true;

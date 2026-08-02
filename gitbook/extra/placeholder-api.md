@@ -36,6 +36,7 @@ So `%zpp_x%` and `%zppro_x%` both work.
 | --- | --- |
 | `%zpp_division_short%` | Short division name (e.g. B1, S2) |
 | `%zpp_division_full%` | Full division name (e.g. Bronze I, Silver II) |
+| `%zpp_division_weight%` | Division numerical weight for tablist sorting (e.g. 1, 2, 3) |
 
 ## Win/loss placeholders
 

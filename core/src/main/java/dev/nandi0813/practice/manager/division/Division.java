@@ -18,6 +18,7 @@ public class Division {
 
     private final Material iconMaterial;
     private short iconDamage;
+    private final int weight;
 
     private final int experience;
     private final int win;
@@ -38,6 +39,8 @@ public class Division {
             } catch (NumberFormatException ignored) {
             }
         }
+
+        this.weight = section.isInt("DATA.WEIGHT") ? section.getInt("DATA.WEIGHT") : -1;
 
         this.experience = section.getInt("REQUIREMENTS.EXPERIENCE");
         this.win = section.getInt("REQUIREMENTS.WINS");
