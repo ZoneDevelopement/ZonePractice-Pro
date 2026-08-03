@@ -1,9 +1,9 @@
-VERSION: 3
+VERSION: 4
 
 ##############################
 # You can only create maximum 28 divisions. Anything above that the server is going to ignore.
 ##############################
-# Placeholders: %division%, %division_short%
+# Placeholders: %division%, %division_short%, %division_weight%
 ##############################
 REQUIRE: # if both are false wins will be set to true in the backend
   WINS: true
@@ -17,6 +17,7 @@ DIVISIONS:
         SHORT: "%color%R"
       COLOR: "<gray>"
       ICON-MATERIAL: IRON_INGOT
+      WEIGHT: 1
     REQUIREMENTS:
       EXPERIENCE: 0
       WINS: 0
