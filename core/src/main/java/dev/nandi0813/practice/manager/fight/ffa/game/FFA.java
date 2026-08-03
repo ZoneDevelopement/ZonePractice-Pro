@@ -372,7 +372,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     public void handleFfaCombatLogQuit(Player player) {
         if (!isFfaKillOnQuit())
             return;
-        if (!players.containsKey(player) || !isFfaInCombat(player))
+        if (!players.containsKey(player))
             return;
 
         Player attacker = getFfaCombatLastAttacker(player);
@@ -387,8 +387,26 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
         increaseFfaSessionKills(attacker);
 
+        // Finalize the quitter's session stats.
+        Statistic deadStatistic = statistics.get(player);
+        if (deadStatistic != null)
+            deadStatistic.end(true);
+
         playDeathEffect(attacker, player);
+
+        if (arena.isReKitAfterKill()) {
+            applySelectedOrDefaultKit(attacker);
+        }
+
+        if (arena.isHealthResetOnKill()) {
+            applyHealthResetOnKill(attacker);
+        }
+
         SidebarManager.getInstance().updatePlayerSidebar(attacker);
+
+        // Clear the attacker's combat tag now that the fight is over.
+        this.clearFfaCombat(attacker);
+
         this.sendMessage(LanguageManager.getString("FIGHT.DEATH-MESSAGES.COMBAT-LOG-QUIT")
                 .replace("%player%", player.getName())
                 .replace("%killer%", attacker.getName()), true);

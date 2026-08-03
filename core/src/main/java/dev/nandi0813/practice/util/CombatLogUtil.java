@@ -7,6 +7,7 @@ import dev.nandi0813.practice.util.actionbar.ActionBarPriority;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,11 +24,12 @@ public class CombatLogUtil {
 
     private static final String CONFIG_PATH = "FFA.COMBAT-LOG";
 
-    private static final boolean ENABLED = ConfigManager.getBoolean(CONFIG_PATH + ".ENABLED");
-    private static final int TAG_DURATION = ConfigManager.getInt(CONFIG_PATH + ".TAG-DURATION", 10);
-    private static final boolean COUNT_AS_KILL_ON_QUIT = ConfigManager.getBoolean(CONFIG_PATH + ".COUNT-AS-KILL-ON-QUIT");
-    private static final boolean ACTION_BAR = ConfigManager.getBoolean(CONFIG_PATH + ".ACTION-BAR");
-    private static final String ACTION_BAR_MSG = ConfigManager.getString(CONFIG_PATH + ".ACTION-BAR-MSG");
+    @Getter
+    private boolean enabled;
+    private int tagDuration;
+    private boolean countAsKillOnQuit;
+    private boolean actionBar;
+    private String actionBarMsg;
 
     private static CombatLogUtil instance;
 
@@ -42,14 +44,32 @@ public class CombatLogUtil {
     private final Map<UUID, BukkitTask> actionBarTasks = new HashMap<>();
 
     private CombatLogUtil() {
+        reload();
     }
 
-    public boolean isEnabled() {
-        return ENABLED;
+    /**
+     * Re-reads the combat-log config section. Call this after a {@code /zpa reload}
+     * so toggles, durations and messages reflect the latest values.
+     */
+    public void reload() {
+        enabled = ConfigManager.getBoolean(CONFIG_PATH + ".ENABLED");
+        tagDuration = ConfigManager.getInt(CONFIG_PATH + ".TAG-DURATION", 10);
+        countAsKillOnQuit = ConfigManager.getBoolean(CONFIG_PATH + ".COUNT-AS-KILL-ON-QUIT");
+        actionBar = ConfigManager.getBoolean(CONFIG_PATH + ".ACTION-BAR");
+        actionBarMsg = ConfigManager.getString(CONFIG_PATH + ".ACTION-BAR-MSG");
+
+        // If combat-logging is turned off, drop any leftover combat state so
+        // players aren't stuck kit/leave-blocked by stale tags.
+        if (!enabled) {
+            combatTags.clear();
+            lastAttackers.clear();
+            actionBarTasks.values().forEach(BukkitTask::cancel);
+            actionBarTasks.clear();
+        }
     }
 
     public boolean isKillOnQuit() {
-        return isEnabled() && COUNT_AS_KILL_ON_QUIT;
+        return isEnabled() && countAsKillOnQuit;
     }
 
     /**
@@ -62,7 +82,7 @@ public class CombatLogUtil {
         if (!isEnabled())
             return;
 
-        long expiry = System.currentTimeMillis() + TAG_DURATION * 1000L;
+        long expiry = System.currentTimeMillis() + tagDuration * 1000L;
         combatTags.put(victim.getUniqueId(), expiry);
         if (attacker != null) {
             combatTags.put(attacker.getUniqueId(), expiry);
@@ -70,7 +90,7 @@ public class CombatLogUtil {
             lastAttackers.put(attacker.getUniqueId(), victim.getUniqueId());
         }
 
-        if (ACTION_BAR) {
+        if (actionBar) {
             startActionBarTask(victim);
             if (attacker != null && !attacker.getUniqueId().equals(victim.getUniqueId()))
                 startActionBarTask(attacker);
@@ -93,7 +113,7 @@ public class CombatLogUtil {
             }
 
             int seconds = getRemainingSeconds(online);
-            String text = ACTION_BAR_MSG.replace("%remaining%", String.valueOf(seconds));
+            String text = actionBarMsg.replace("%remaining%", String.valueOf(seconds));
             ProfileManager.getInstance().getProfile(online).getActionBar().setMessage(
                     "combat_log",
                     text,
@@ -119,22 +139,31 @@ public class CombatLogUtil {
     }
 
     /**
+     * Returns the unexpired combat-tag expiry for {@code player}, cleaning up
+     * the maps if it has already lapsed, or {@code null} if not tagged.
+     */
+    private Long getUnexpiredExpiry(Player player) {
+        UUID playerId = player.getUniqueId();
+        Long expiry = combatTags.get(playerId);
+        if (expiry == null)
+            return null;
+
+        if (System.currentTimeMillis() > expiry) {
+            combatTags.remove(playerId);
+            lastAttackers.remove(playerId);
+            return null;
+        }
+        return expiry;
+    }
+
+    /**
      * Returns whether {@code player} is currently in combat.
      */
     public boolean isInCombat(Player player) {
         if (!isEnabled())
             return false;
 
-        Long expiry = combatTags.get(player.getUniqueId());
-        if (expiry == null)
-            return false;
-
-        if (System.currentTimeMillis() > expiry) {
-            combatTags.remove(player.getUniqueId());
-            lastAttackers.remove(player.getUniqueId());
-            return false;
-        }
-        return true;
+        return getUnexpiredExpiry(player) != null;
     }
 
     /**
@@ -157,16 +186,11 @@ public class CombatLogUtil {
      * rounded up, or {@code 0} if not in combat.
      */
     public int getRemainingSeconds(Player player) {
-        Long expiry = combatTags.get(player.getUniqueId());
+        Long expiry = getUnexpiredExpiry(player);
         if (expiry == null)
             return 0;
 
         long millis = expiry - System.currentTimeMillis();
-        if (millis <= 0) {
-            combatTags.remove(player.getUniqueId());
-            lastAttackers.remove(player.getUniqueId());
-            return 0;
-        }
         return (int) Math.ceil(millis / 1000.0);
     }
 

@@ -15,6 +15,7 @@ import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.queue.QueueManager;
 import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.util.Common;
+import dev.nandi0813.practice.util.CombatLogUtil;
 import dev.nandi0813.practice.util.GoldenHead;
 import dev.nandi0813.practice.util.StartUpTypes;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
@@ -254,6 +255,7 @@ public class ServerManager implements Listener {
             InventoryManager.getInstance().reloadFile();
             DivisionManager.getInstance().reloadRanks();
             BackendManager.reload();
+            CombatLogUtil.getInstance().reload();
             loadLobby();
             SidebarManager.getInstance().reloadSidebarConfig();
             goldenHead.reload();
