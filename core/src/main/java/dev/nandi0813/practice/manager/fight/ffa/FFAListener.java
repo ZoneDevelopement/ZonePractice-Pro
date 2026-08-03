@@ -421,7 +421,7 @@ public class FFAListener implements Listener {
         return killer;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof Player target)) {
             return;
@@ -455,6 +455,12 @@ public class FFAListener implements Listener {
                     arrowDisplayHearth(shooter, target, e.getFinalDamage(), e);
                 }
             }
+        }
+
+        // Skip combat tag (anti-relog) if the damage was cancelled, e.g. by a
+        // WorldGuard-protected region, so players aren't tagged when no damage landed.
+        if (e.isCancelled()) {
+            return;
         }
 
         // Record the attacker for void-kill attribution
