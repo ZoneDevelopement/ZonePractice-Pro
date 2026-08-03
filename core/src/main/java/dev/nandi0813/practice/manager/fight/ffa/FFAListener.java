@@ -17,6 +17,7 @@ import dev.nandi0813.practice.util.NumberUtil;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
@@ -31,7 +32,6 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.*;
 
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
-import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
 /**
  * FFA-specific event listener.
@@ -90,6 +90,13 @@ public class FFAListener implements Listener {
         if (action.equals(Action.RIGHT_CLICK_BLOCK) && clickedBlock != null) {
             if (ffa.isBuild()) {
                 SpectatorCrystalPlacementUtil.clearSpectatorsBlockingCrystalPlacement(e, ffa.getArena().getCuboid());
+            }
+
+            boolean isCrystalPlacement = e.getItem() != null && e.getItem().getType() == Material.END_CRYSTAL;
+            boolean isAnchor = clickedBlock.getType() == Material.RESPAWN_ANCHOR;
+
+            if (isCrystalPlacement || isAnchor) {
+                BlockUtil.setMetadata(clickedBlock, "FFA_COMBAT_OWNER", player);
             }
 
             if (clickedBlock.getType().equals(Material.TNT)) {
@@ -273,6 +280,11 @@ public class FFAListener implements Listener {
         if (arena.isBuildMax() && block.getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(arena)) {
             Common.sendMMMessage(player, LanguageManager.getString("FFA.GAME.CANT-BUILD-OVER-LIMIT"));
             e.setCancelled(true);
+            return;
+        }
+
+        if (block.getType() == Material.RESPAWN_ANCHOR) {
+            BlockUtil.setMetadata(block, "FFA_COMBAT_OWNER", player);
         }
         // Tagging and tracking handled by BuildListener at MONITOR priority
     }
@@ -439,7 +451,7 @@ public class FFAListener implements Listener {
             return;
         }
 
-        Player attacker = null;
+        Player attacker;
         Entity damager = e.getDamager();
 
         // Resolve the owner of ANY damaging entity (melee, arrows, fireballs,
@@ -461,11 +473,11 @@ public class FFAListener implements Listener {
             return;
         }
 
-        if (attacker != null && damager instanceof Arrow arrow) {
+        if (attacker != null && damager instanceof Arrow) {
             arrowDisplayHearth(attacker, target, e.getFinalDamage(), e);
         }
 
-        // Skip combat tag (anti-relog) if the damage was cancelled, e.g. by a
+        // Skip combat tag (anti-relog) if the damage was canceled, e.g. by a
         // WorldGuard-protected region, so players aren't tagged when no damage landed.
         if (e.isCancelled()) {
             return;
@@ -492,7 +504,33 @@ public class FFAListener implements Listener {
 
         if (ffa.isPlayerWaitingForKitSelection(target)) {
             e.setCancelled(true);
+            return;
         }
+
+        if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
+                && e.getCause() != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {
+            return;
+        }
+
+        Player attacker = null;
+
+        // The crystal owner is saved on the block it's placed on.
+        if (e instanceof EntityDamageByEntityEvent entityDamage
+                && entityDamage.getDamager() instanceof EnderCrystal crystal) {
+            attacker = BlockUtil.getMetadata(
+                    crystal.getLocation().getBlock().getRelative(BlockFace.DOWN),
+                    "FFA_COMBAT_OWNER", Player.class);
+        }
+
+        // Respawn anchors destroy their block on explosion, so getDamager() is null
+        // and the owner can't be read from the event. Fall back to the last recorded
+        // attacker so the tag still applies.
+        if (attacker == null) {
+            attacker = ffa.getLastAttacker(target);
+        }
+
+        // Tag the victim (and attacker if known) so neither can relog mid-fight.
+        ffa.tagFfaCombat(target, attacker);
     }
 
 }
