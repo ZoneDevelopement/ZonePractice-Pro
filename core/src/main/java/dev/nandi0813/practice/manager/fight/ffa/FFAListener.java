@@ -7,7 +7,6 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.util.*;
-import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -174,6 +173,7 @@ public class FFAListener implements Listener {
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
 
+        ffa.handleFfaCombatLogQuit(player);
         ffa.removePlayer(player);
     }
 
@@ -393,11 +393,7 @@ public class FFAListener implements Listener {
         ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
         if (killer != null && !killer.equals(player)) {
-            Statistic statistic = ffa.getStatistics().computeIfAbsent(
-                    killer,
-                    p -> new Statistic(ProfileManager.getInstance().getUuids().get(p))
-            );
-            statistic.setKills(statistic.getKills() + 1);
+            ffa.increaseFfaSessionKills(killer);
         }
     }
 
@@ -443,7 +439,6 @@ public class FFAListener implements Listener {
             return;
         }
 
-        // ...existing code...
         Player attacker = null;
         if (e.getDamager() instanceof Player damager) {
             attacker = damager;
@@ -465,6 +460,7 @@ public class FFAListener implements Listener {
         // Record the attacker for void-kill attribution
         if (attacker != null) {
             ffa.recordAttack(target, attacker);
+            ffa.tagFfaCombat(target, attacker);
         }
     }
 
