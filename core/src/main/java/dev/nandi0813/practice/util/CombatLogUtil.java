@@ -67,6 +67,7 @@ public class CombatLogUtil {
         if (attacker != null) {
             combatTags.put(attacker.getUniqueId(), expiry);
             lastAttackers.put(victim.getUniqueId(), attacker.getUniqueId());
+            lastAttackers.put(attacker.getUniqueId(), victim.getUniqueId());
         }
 
         if (ACTION_BAR) {
