@@ -440,21 +440,29 @@ public class FFAListener implements Listener {
         }
 
         Player attacker = null;
-        if (e.getDamager() instanceof Player damager) {
-            attacker = damager;
+        Entity damager = e.getDamager();
 
-            if (ffa.isPlayerWaitingForKitSelection(damager)) {
-                e.setCancelled(true);
-                return;
-            }
-        } else if (e.getDamager() instanceof Projectile projectile) {
-            if (projectile.getShooter() instanceof Player shooter) {
-                attacker = shooter;
+        // Resolve the owner of ANY damaging entity (melee, arrows, fireballs,
+        // wind charges, snowballs, TNT, etc.) to a player.
+        attacker = FightUtil.getKiller(damager);
 
-                if (projectile instanceof Arrow) {
-                    arrowDisplayHearth(shooter, target, e.getFinalDamage(), e);
-                }
-            }
+        // Fallback for damage without a resolvable owner (end crystals, creepers,
+        // environmental knockback, etc.): prefer Bukkit's killer attribution, then
+        // the last player that damaged the victim so the tag stays on the opponent.
+        if (attacker == null) {
+            attacker = target.getKiller();
+        }
+        if (attacker == null) {
+            attacker = ffa.getLastAttacker(target);
+        }
+
+        if (attacker != null && ffa.isPlayerWaitingForKitSelection(attacker)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if (attacker != null && damager instanceof Arrow arrow) {
+            arrowDisplayHearth(attacker, target, e.getFinalDamage(), e);
         }
 
         // Skip combat tag (anti-relog) if the damage was cancelled, e.g. by a
