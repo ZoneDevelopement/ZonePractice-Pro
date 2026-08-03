@@ -130,14 +130,12 @@ public class PlayerExpansion extends PlaceholderExpansion implements Relational 
                 break;
             case "division":
                 if (input.length == 1) return null;
-
-                // division_weight (works even without a division, returns 0)
-                if (input[1].equals("weight"))
-                    return String.valueOf(DivisionManager.getInstance().getDivisionWeight(profile.getStats().getDivision()));
-
                 if (profile.getStats().getDivision() == null) return null;
 
                 switch (input[1]) {
+                    // division_weight
+                    case "weight":
+                        return String.valueOf(DivisionManager.getInstance().getDivisionWeight(profile.getStats().getDivision()));
                     // division_short
                     case "short":
                         return profile.getStats().getDivision().getShortName();
