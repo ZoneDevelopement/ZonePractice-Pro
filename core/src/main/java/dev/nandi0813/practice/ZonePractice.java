@@ -62,7 +62,7 @@ import java.util.Map;
 public final class ZonePractice extends JavaPlugin {
 
     @Getter
-    private Map<StartUpTypes, Boolean> startUpProgress = new EnumMap<>(StartUpTypes.class);
+    private final Map<StartUpTypes, Boolean> startUpProgress = new EnumMap<>(StartUpTypes.class);
 
     @Getter
     private static ZonePractice instance;

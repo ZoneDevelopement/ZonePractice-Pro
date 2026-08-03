@@ -15,6 +15,11 @@ public final class LeaveArg {
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
 
         if (ffa != null) {
+            if (ffa.isFfaLeaveBlocked() && ffa.isFfaInCombat(player)) {
+                Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.LEAVE.IN-COMBAT"));
+                return;
+            }
+
             ffa.removePlayer(player);
             return;
         }

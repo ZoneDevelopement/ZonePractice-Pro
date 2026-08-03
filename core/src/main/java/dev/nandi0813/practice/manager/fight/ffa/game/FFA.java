@@ -5,6 +5,7 @@ import dev.nandi0813.api.Event.Spectate.End.FFASpectateEndEvent;
 import dev.nandi0813.api.Event.Spectate.Start.FFASpectateStartEvent;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAFightPlayer;
@@ -21,7 +22,9 @@ import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
+import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
+import dev.nandi0813.practice.util.CombatLogUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.LastAttackerTracker;
@@ -37,6 +40,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -226,6 +230,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         fightPlayers.remove(player);
         statistics.remove(player);
         this.removePlayerFromBelowName(player);
+        this.clearFfaCombat(player);
         dev.nandi0813.practice.manager.fight.util.PlayerUtil.resetAttackSpeed(player);
 
         InventoryManager.getInstance().setLobbyInventory(player, true);
@@ -252,6 +257,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         fightPlayers.get(player).die(deathMessage, statistics.get(player));
         Profile deadProfile = fightPlayers.get(player).getProfile();
         deadProfile.getStats().getLadderStat(players.get(player)).increaseDeaths();
+        this.clearFfaCombat(player);
 
         if (killer != null && !killer.equals(player)) {
             Profile killerProfile = fightPlayers.get(killer).getProfile();
@@ -327,8 +333,95 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
      * Returns the last player who hit {@code victim} within the expiry window,
      * or {@code null} if there is none.
      */
-    public @org.jetbrains.annotations.Nullable Player getLastAttacker(Player victim) {
+    public @Nullable Player getLastAttacker(Player victim) {
         return lastAttackerTracker.getLastAttacker(victim, players.keySet());
+    }
+
+    public boolean isFfaKitBlocked() {
+        return CombatLogUtil.getInstance().isEnabled() && ConfigManager.getBoolean("FFA.COMBAT-LOG.BLOCK-KIT");
+    }
+
+    public boolean isFfaLeaveBlocked() {
+        return CombatLogUtil.getInstance().isEnabled() && ConfigManager.getBoolean("FFA.COMBAT-LOG.BLOCK-LEAVE");
+    }
+
+    public boolean isFfaKillOnQuit() {
+        return CombatLogUtil.getInstance().isKillOnQuit();
+    }
+
+    public void tagFfaCombat(Player victim, Player attacker) {
+        CombatLogUtil.getInstance().tag(victim, attacker);
+    }
+
+    public boolean isFfaInCombat(Player player) {
+        return CombatLogUtil.getInstance().isInCombat(player);
+    }
+
+    public void clearFfaCombat(Player player) {
+        CombatLogUtil.getInstance().clear(player);
+    }
+
+    public Player getFfaCombatLastAttacker(Player player) {
+        return CombatLogUtil.getInstance().getLastAttacker(player);
+    }
+
+    /**
+     * Handles a player disconnecting while in combat. If enabled, the disconnect
+     * counts as a kill for the player's most recent attacker.
+     */
+    public void handleFfaCombatLogQuit(Player player) {
+        if (!isFfaKillOnQuit())
+            return;
+        if (!players.containsKey(player))
+            return;
+
+        Player attacker = getFfaCombatLastAttacker(player);
+        if (attacker == null || attacker.equals(player) || !players.containsKey(attacker))
+            return;
+
+        Profile deadProfile = fightPlayers.get(player).getProfile();
+        deadProfile.getStats().getLadderStat(players.get(player)).increaseDeaths();
+
+        Profile killerProfile = fightPlayers.get(attacker).getProfile();
+        killerProfile.getStats().getLadderStat(players.get(attacker)).increaseKills();
+
+        increaseFfaSessionKills(attacker);
+
+        // Finalize the quitter's session stats.
+        Statistic deadStatistic = statistics.get(player);
+        if (deadStatistic != null)
+            deadStatistic.end(true);
+
+        playDeathEffect(attacker, player);
+
+        if (arena.isReKitAfterKill()) {
+            applySelectedOrDefaultKit(attacker);
+        }
+
+        if (arena.isHealthResetOnKill()) {
+            applyHealthResetOnKill(attacker);
+        }
+
+        SidebarManager.getInstance().updatePlayerSidebar(attacker);
+
+        // Clear the attacker's combat tag now that the fight is over.
+        this.clearFfaCombat(attacker);
+
+        this.sendMessage(LanguageManager.getString("FIGHT.DEATH-MESSAGES.COMBAT-LOG-QUIT")
+                .replace("%player%", player.getName())
+                .replace("%killer%", attacker.getName()), true);
+    }
+
+    /**
+     * Increments the FFA session kill counter for {@code killer}. This is the
+     * counter shown on the FFA sidebar ({@code %kills%}).
+     */
+    public void increaseFfaSessionKills(Player killer) {
+        Statistic statistic = statistics.computeIfAbsent(
+                killer,
+                p -> new Statistic(ProfileManager.getInstance().getUuids().get(p))
+        );
+        statistic.setKills(statistic.getKills() + 1);
     }
 
     public void teleportPlayer(Player player) {

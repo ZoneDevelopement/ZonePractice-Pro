@@ -19,6 +19,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -146,7 +148,7 @@ public class FightChangeOptimized {
      * Adds a temporary block change that will auto-remove after delay.
      * Tracks the hand used for smarter item return placement.
      */
-    public void addBlockChange(ChangedBlock change, Player player, int destroyTime, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
+    public void addBlockChange(ChangedBlock change, Player player, int destroyTime, @Nullable EquipmentSlot handUsed) {
         addBlockChange(change, player, destroyTime, handUsed, null);
     }
 
@@ -158,8 +160,8 @@ public class FightChangeOptimized {
             ChangedBlock change,
             Player player,
             int destroyTime,
-            @org.jetbrains.annotations.Nullable EquipmentSlot handUsed,
-            @org.jetbrains.annotations.Nullable ItemStack returnItem
+            @Nullable EquipmentSlot handUsed,
+            @Nullable ItemStack returnItem
     ) {
         if (change == null) return;
 
@@ -272,7 +274,7 @@ public class FightChangeOptimized {
         PlayerUtil.returnItemToCurrentSlotOrInventory(player, drop);
     }
 
-    private @org.jetbrains.annotations.Nullable ItemStack getStoredTempBuildItem(@org.jetbrains.annotations.NotNull Block block) {
+    private @Nullable ItemStack getStoredTempBuildItem(@NotNull Block block) {
         ItemStack storedItem = BlockUtil.getMetadata(block, TempBuild.TEMP_BUILD_BLOCK_ITEM, ItemStack.class);
         if (storedItem == null || storedItem.getType().isAir()) {
             return null;
@@ -336,7 +338,7 @@ public class FightChangeOptimized {
      * @param maxChange  Maximum blocks to restore per tick  (~100)
      * @param onComplete Called on the main thread when rollback finishes, or {@code null}
      */
-    public void rollback(int maxCheck, int maxChange, @org.jetbrains.annotations.Nullable Runnable onComplete) {
+    public void rollback(int maxCheck, int maxChange, @Nullable Runnable onComplete) {
         rollingBack = true;
 
         if (ZonePractice.getInstance().isEnabled()) {
@@ -563,10 +565,10 @@ public class FightChangeOptimized {
         private final int totalBlocks;
         private int processedBlocks = 0;
         private boolean isRunning = false;
-        @org.jetbrains.annotations.Nullable
+        @Nullable
         private final Runnable onComplete;
 
-        RollbackTask(int maxCheck, int maxChange, @org.jetbrains.annotations.Nullable Runnable onComplete) {
+        RollbackTask(int maxCheck, int maxChange, @Nullable Runnable onComplete) {
             // Default ordering is bottom-up (gravity support). Vine-like blocks are
             // restored top-down so hanging segments do not immediately break.
             List<Map.Entry<Long, BlockChangeEntry>> sorted = new ArrayList<>(blocks.entrySet());
@@ -670,8 +672,8 @@ public class FightChangeOptimized {
         void setTempData(
                 Player player,
                 int ticksRemaining,
-                @org.jetbrains.annotations.Nullable EquipmentSlot handUsed,
-                @org.jetbrains.annotations.Nullable ItemStack returnItem
+                @Nullable EquipmentSlot handUsed,
+                @Nullable ItemStack returnItem
         ) {
             this.tempData = new TempBlockData(player, ticksRemaining, handUsed, returnItem);
         }
@@ -685,9 +687,9 @@ public class FightChangeOptimized {
         @Getter
         final Player player;
         @Getter
-        @org.jetbrains.annotations.Nullable
+        @Nullable
         final EquipmentSlot handUsed;
-        @org.jetbrains.annotations.Nullable
+        @Nullable
         final ItemStack returnItemStack;
         int ticksRemaining;
         @Setter
@@ -696,8 +698,8 @@ public class FightChangeOptimized {
         TempBlockData(
                 Player player,
                 int ticksRemaining,
-                @org.jetbrains.annotations.Nullable EquipmentSlot handUsed,
-                @org.jetbrains.annotations.Nullable ItemStack returnItem
+                @Nullable EquipmentSlot handUsed,
+                @Nullable ItemStack returnItem
         ) {
             this.player = player;
             this.ticksRemaining = ticksRemaining;

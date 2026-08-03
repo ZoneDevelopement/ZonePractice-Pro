@@ -50,6 +50,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -204,7 +205,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
      * Returns the last player who hit {@code victim} within the expiry window,
      * or {@code null} if there is none.
      */
-    public @org.jetbrains.annotations.Nullable Player getLastAttacker(Player victim) {
+    public @Nullable Player getLastAttacker(Player victim) {
         return lastAttackerTracker.getLastAttacker(victim, players);
     }
 
@@ -515,7 +516,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
      *
      * @param afterRollback called when rollback is complete, or {@code null} to do nothing
      */
-    public void resetMap(@org.jetbrains.annotations.Nullable Runnable afterRollback) {
+    public void resetMap(@Nullable Runnable afterRollback) {
         // Make sure that the players can safely spawn back to the starting position.
         for (Location location : this.arena.getStandingLocations()) {
             MatchUtil.safePlayerTeleportBlock(location.getBlock().getRelative(BlockFace.DOWN));

@@ -107,6 +107,12 @@ public class LadderSelector extends GUI {
         }
 
         if (ffa.getPlayers().containsKey(player)) {
+            if (ffa.isFfaKitBlocked() && ffa.isFfaInCombat(player)) {
+                Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.KIT.IN-COMBAT"));
+                player.closeInventory();
+                return;
+            }
+
             Ladder oldLadder = ffa.getPlayers().get(player);
             if (oldLadder == ladder) {
                 Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.KIT.ALREADY-IN-KIT").replace("%ladder%", ladder.getDisplayName()));

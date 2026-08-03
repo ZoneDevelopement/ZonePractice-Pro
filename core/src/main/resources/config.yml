@@ -1,4 +1,4 @@
-VERSION: 67
+VERSION: 68
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -410,6 +410,14 @@ FFA:
   HEALTH-BELOW-NAME: false # Default for newly created FFA arenas. If enabled, players see heart indicators below names.
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
   ALLOW-DESTROYABLE-BLOCK: true # If true, player can destroy the fixed blocks in the arena that their ladder has.
+  COMBAT-LOG:
+    ENABLED: true # If true, combat log is enabled for FFA (tagging players in combat).
+    TAG-DURATION: 15 # In seconds. How long a player remains "in combat" after dealing or taking damage.
+    BLOCK-KIT: true # If true, players cannot use /ffa kit while in combat (prevents health restore).
+    BLOCK-LEAVE: true # If true, players cannot use /ffa leave while in combat (prevents escaping).
+    COUNT-AS-KILL-ON-QUIT: true # If true, disconnecting while in combat counts as a kill for their opponent.
+    ACTION-BAR: true # If true, shows a countdown action bar while the player is in combat.
+    ACTION-BAR-MSG: "<red><bold>In Combat: <yellow><bold>%remaining%s"
 #
 # Spectator settings
 SPECTATOR-SETTINGS:

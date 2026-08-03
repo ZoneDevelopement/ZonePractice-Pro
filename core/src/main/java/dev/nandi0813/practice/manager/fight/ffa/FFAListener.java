@@ -7,7 +7,6 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.util.*;
-import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -174,6 +173,7 @@ public class FFAListener implements Listener {
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
 
+        ffa.handleFfaCombatLogQuit(player);
         ffa.removePlayer(player);
     }
 
@@ -393,11 +393,7 @@ public class FFAListener implements Listener {
         ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
         if (killer != null && !killer.equals(player)) {
-            Statistic statistic = ffa.getStatistics().computeIfAbsent(
-                    killer,
-                    p -> new Statistic(ProfileManager.getInstance().getUuids().get(p))
-            );
-            statistic.setKills(statistic.getKills() + 1);
+            ffa.increaseFfaSessionKills(killer);
         }
     }
 
@@ -425,7 +421,7 @@ public class FFAListener implements Listener {
         return killer;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof Player target)) {
             return;
@@ -443,28 +439,42 @@ public class FFAListener implements Listener {
             return;
         }
 
-        // ...existing code...
         Player attacker = null;
-        if (e.getDamager() instanceof Player damager) {
-            attacker = damager;
+        Entity damager = e.getDamager();
 
-            if (ffa.isPlayerWaitingForKitSelection(damager)) {
-                e.setCancelled(true);
-                return;
-            }
-        } else if (e.getDamager() instanceof Projectile projectile) {
-            if (projectile.getShooter() instanceof Player shooter) {
-                attacker = shooter;
+        // Resolve the owner of ANY damaging entity (melee, arrows, fireballs,
+        // wind charges, snowballs, TNT, etc.) to a player.
+        attacker = FightUtil.getKiller(damager);
 
-                if (projectile instanceof Arrow) {
-                    arrowDisplayHearth(shooter, target, e.getFinalDamage(), e);
-                }
-            }
+        // Fallback for damage without a resolvable owner (end crystals, creepers,
+        // environmental knockback, etc.): prefer Bukkit's killer attribution, then
+        // the last player that damaged the victim so the tag stays on the opponent.
+        if (attacker == null) {
+            attacker = target.getKiller();
+        }
+        if (attacker == null) {
+            attacker = ffa.getLastAttacker(target);
+        }
+
+        if (attacker != null && ffa.isPlayerWaitingForKitSelection(attacker)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if (attacker != null && damager instanceof Arrow arrow) {
+            arrowDisplayHearth(attacker, target, e.getFinalDamage(), e);
+        }
+
+        // Skip combat tag (anti-relog) if the damage was cancelled, e.g. by a
+        // WorldGuard-protected region, so players aren't tagged when no damage landed.
+        if (e.isCancelled()) {
+            return;
         }
 
         // Record the attacker for void-kill attribution
         if (attacker != null) {
             ffa.recordAttack(target, attacker);
+            ffa.tagFfaCombat(target, attacker);
         }
     }
 

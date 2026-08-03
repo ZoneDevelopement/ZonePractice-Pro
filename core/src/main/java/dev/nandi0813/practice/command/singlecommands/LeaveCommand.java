@@ -46,6 +46,11 @@ public class LeaveCommand extends BukkitCommand {
         // First check if player is in an FFA as a participant
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa != null) {
+            if (ffa.isFfaLeaveBlocked() && ffa.isFfaInCombat(player)) {
+                Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.LEAVE.IN-COMBAT"));
+                return true;
+            }
+
             ffa.removePlayer(player);
             return true;
         }

@@ -1,4 +1,4 @@
-VERSION: 44
+VERSION: 45
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1724,9 +1724,11 @@ FFA:
       CANT-JOIN-FFA: "<red>You can't spectate the FFA right now."
     LEAVE:
       NOT-IN-FFA: "<red>You are not in a FFA."
+      IN-COMBAT: "<red>You can't leave the FFA while in combat."
     KIT:
       NOT-IN-FFA: "<red>You are not in a FFA."
       ALREADY-IN-KIT: "<red>You are already in this kit."
+      IN-COMBAT: "<red>You can't switch your kit while in combat."
     HELP:
       - "<gray><st>----------------------------------------"
       - "<dark_aqua><bold>FFA Commands"
@@ -1769,6 +1771,7 @@ FIGHT:
     EXPLOSION-BY-PLAYER: "<red>%player% <yellow>was blown up by <gold>%killer%<yellow>."
     PLAYER: "<red>%player% <yellow>was killed by <gold>%killer%<yellow>."
     PROJECTILE: "<red>%player% <yellow>was shot by <gold>%killer%<yellow>."
+    COMBAT-LOG-QUIT: "<red>%player% <yellow>was killed by <gold>%killer%<yellow> for logging out."
     SUMO-FALL: "<red>%player% <yellow>fell out of the sumo circle."
     SPLEEF-FALL: "<red>%player% <yellow>fell out of the spleef arena."
     OWN-PORTAL-JUMP: "<red>%player% <yellow>jumped into their own portal and died."
