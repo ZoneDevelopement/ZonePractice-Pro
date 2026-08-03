@@ -1,5 +1,7 @@
 package dev.nandi0813.practice.manager.fight.ffa;
 
+import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.match.enums.TeamEnum;
 import dev.nandi0813.practice.manager.fight.util.FightPlayer;
@@ -7,6 +9,7 @@ import dev.nandi0813.practice.manager.fight.util.KitSelectionHandler;
 import dev.nandi0813.practice.manager.fight.match.util.KitUtil;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -47,9 +50,30 @@ public class FFAFightPlayer extends FightPlayer {
     public void showKitChooserOrApplyKit() {
         if (this.kitSelectionHandler != null) {
             this.kitSelectionHandler.showKitChooserOrApplyKit(TeamEnum.FFA);
+
+            // If the kit chooser books are shown, auto-select the default kit after
+            // a timeout so the player doesn't stay invincible (unlimited HP) forever.
+            if (this.kitSelectionHandler.isWaitingForKitSelection()) {
+                scheduleDefaultKitFallback();
+            }
         } else {
             applyDefaultKit();
         }
+    }
+
+    /**
+     * Schedules the default kit fallback. If the player still hasn't selected a
+     * custom kit after {@code FFA.CUSTOM-KIT-SELECTION-TIME} seconds, the default ladder
+     * kit (slot 8) is applied so they become a full combatant.
+     */
+    private void scheduleDefaultKitFallback() {
+        int seconds = ConfigManager.getInt("FFA.CUSTOM-KIT-SELECTION-TIME", 15);
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+            // Only apply if the player is still in this FFA and hasn't chosen a kit.
+            if (ffa.getPlayers().containsKey(player) && isWaitingForKitSelection()) {
+                selectKit(8); // slot 8 = default ladder kit
+            }
+        }, seconds * 20L);
     }
 
     /**

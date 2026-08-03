@@ -1,4 +1,4 @@
-VERSION: 68
+VERSION: 69
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -410,6 +410,7 @@ FFA:
   HEALTH-BELOW-NAME: false # Default for newly created FFA arenas. If enabled, players see heart indicators below names.
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
   ALLOW-DESTROYABLE-BLOCK: true # If true, player can destroy the fixed blocks in the arena that their ladder has.
+  CUSTOM-KIT-SELECTION-TIME: 10 # In seconds. Only applies to players with custom kits. If a player doesn't select a custom kit within this time, the default kit is applied (prevents staying invincible forever).
   COMBAT-LOG:
     ENABLED: true # If true, combat log is enabled for FFA (tagging players in combat).
     TAG-DURATION: 15 # In seconds. How long a player remains "in combat" after dealing or taking damage.
