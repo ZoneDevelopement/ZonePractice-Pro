@@ -44,10 +44,6 @@ public class MatchHistoryManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, ZonePractice.getInstance());
     }
 
-    // -----------------------------------------------------------------------
-    // Public API
-    // -----------------------------------------------------------------------
-
     /**
      * Records a completed 1v1 duel match for both participants asynchronously.
      * Always writes to YAML; also writes to MySQL when connected (via MysqlManager).
@@ -72,7 +68,6 @@ public class MatchHistoryManager implements Listener {
                     kitName, arenaName, opponentScore, playerScore,
                     opponentFinalHealth, playerFinalHealth, winnerUuid, matchDuration, now);
 
-            // --- YAML (always) ---
             int assignedId = saveToYaml(playerUuid, playerPov);
             saveToYaml(opponentUuid, opponentPov);
 
@@ -90,7 +85,6 @@ public class MatchHistoryManager implements Listener {
             addToCache(playerUuid,   finalPlayerPov);
             addToCache(opponentUuid, finalOpponentPov);
 
-            // --- MySQL (delegated to MysqlManager) ---
             if (MysqlManager.isConnected(false)) {
                 MysqlManager.saveMatchHistoryAsync(
                         playerUuid, opponentUuid, playerName, opponentName,
@@ -121,20 +115,6 @@ public class MatchHistoryManager implements Listener {
         });
     }
 
-    /** Non-blocking cache read — returns empty list if not yet loaded. */
-    public List<MatchHistoryEntry> getCachedHistory(UUID playerUuid) {
-        return cache.getOrDefault(playerUuid, Collections.emptyList());
-    }
-
-    /** Drops the cache for a player so the next load re-reads from disk. */
-    public void invalidateCache(UUID playerUuid) {
-        cache.remove(playerUuid);
-    }
-
-    // -----------------------------------------------------------------------
-    // YAML helpers
-    // -----------------------------------------------------------------------
-
     private int saveToYaml(UUID uuid, MatchHistoryEntry entry) {
         try {
             return new MatchHistoryFile(uuid).saveEntry(entry);
@@ -152,10 +132,6 @@ public class MatchHistoryManager implements Listener {
             return Collections.emptyList();
         }
     }
-
-    // -----------------------------------------------------------------------
-    // Cache helpers
-    // -----------------------------------------------------------------------
 
     private void addToCache(UUID uuid, MatchHistoryEntry entry) {
         List<MatchHistoryEntry> list = cache.computeIfAbsent(uuid, k -> new ArrayList<>());
