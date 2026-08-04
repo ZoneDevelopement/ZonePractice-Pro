@@ -7,6 +7,7 @@ import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
@@ -15,8 +16,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum FightUtil {
-    ;
+public final class FightUtil {
+
+    private FightUtil() {
+    }
 
     public static @Nullable Player getKiller(Entity entity) {
         if (entity instanceof Player player) {
@@ -36,6 +39,12 @@ public enum FightUtil {
             if (source instanceof Player) {
                 return (Player) source;
             }
+        }
+
+        // TNT minecarts have no owner in the API, so attribute them to whoever
+        // ignited them (tracked at ignition time).
+        if (entity instanceof Minecart minecart) {
+            return ExplosiveOwnerTracker.getMinecartOwner(minecart);
         }
 
         return null;

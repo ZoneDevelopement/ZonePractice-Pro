@@ -10,8 +10,10 @@ import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 
-public enum BlockUtil {
-    ;
+public final class BlockUtil {
+
+    private BlockUtil() {
+    }
 
     public static void breakBlock(Match match, Block block) {
         if (match == null) return;

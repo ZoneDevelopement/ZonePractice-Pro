@@ -82,17 +82,21 @@ public class CombatLogUtil {
         if (!isEnabled())
             return;
 
+        // Anti-relog only applies to real opponent fights. Self-inflicted or
+        // unresolved damage (your own crystal/anchor/TNT, fall, etc.) must never
+        // tag the victim.
+        if (attacker == null || attacker.equals(victim))
+            return;
+
         long expiry = System.currentTimeMillis() + tagDuration * 1000L;
         combatTags.put(victim.getUniqueId(), expiry);
-        if (attacker != null) {
-            combatTags.put(attacker.getUniqueId(), expiry);
-            lastAttackers.put(victim.getUniqueId(), attacker.getUniqueId());
-            lastAttackers.put(attacker.getUniqueId(), victim.getUniqueId());
-        }
+        combatTags.put(attacker.getUniqueId(), expiry);
+        lastAttackers.put(victim.getUniqueId(), attacker.getUniqueId());
+        lastAttackers.put(attacker.getUniqueId(), victim.getUniqueId());
 
         if (actionBar) {
             startActionBarTask(victim);
-            if (attacker != null && !attacker.getUniqueId().equals(victim.getUniqueId()))
+            if (!attacker.getUniqueId().equals(victim.getUniqueId()))
                 startActionBarTask(attacker);
         }
     }

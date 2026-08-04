@@ -15,6 +15,7 @@ import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -99,6 +100,12 @@ public class FFAListener implements Listener {
                 BlockUtil.setMetadata(clickedBlock, "FFA_COMBAT_OWNER", player);
             }
 
+            // The anchor block is destroyed on explosion, so its owner is also kept
+            // in memory (by block coords) to attribute the blast to whoever set it off.
+            if (isAnchor) {
+                ExplosiveOwnerTracker.recordAnchorOwner(clickedBlock.getLocation(), player);
+            }
+
             if (clickedBlock.getType().equals(Material.TNT)) {
                 if (!ffa.isBuild() || !ffa.isMapBlowable()) {
                     e.setCancelled(true);
@@ -110,6 +117,20 @@ public class FFAListener implements Listener {
                 ffa.getFightChange().addBlockChange(new ChangedBlock(clickedBlock));
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
+        Player player = e.getPlayer();
+
+        if (!(e.getRightClicked() instanceof Minecart minecart)
+                || minecart.getMinecartMaterial() != Material.TNT) return;
+
+        FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
+        if (ffa == null || ffa.isPlayerWaitingForKitSelection(player)) return;
+
+        // Attribute the minecart blast to whoever ignited it.
+        ExplosiveOwnerTracker.recordMinecartOwner(minecart, player);
     }
 
     @EventHandler
@@ -520,6 +541,18 @@ public class FFAListener implements Listener {
             attacker = BlockUtil.getMetadata(
                     crystal.getLocation().getBlock().getRelative(BlockFace.DOWN),
                     "FFA_COMBAT_OWNER", Player.class);
+        }
+
+        // Attribute TNT-minecart blasts to whoever ignited them.
+        if (attacker == null) {
+            attacker = FightUtil.getKiller(e.getDamageSource().getCausingEntity());
+        }
+
+        // Respawn anchors destroy their block on explosion, so getDamager() is null
+        // and the owner can't be read from the event. Resolve it from the owner
+        // recorded at the anchor's location when it was set off.
+        if (attacker == null) {
+            attacker = ExplosiveOwnerTracker.getAnchorOwner(e.getDamageSource().getSourceLocation());
         }
 
         // Respawn anchors destroy their block on explosion, so getDamager() is null
