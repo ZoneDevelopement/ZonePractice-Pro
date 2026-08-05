@@ -7,6 +7,7 @@ import dev.nandi0813.api.Event.Spectate.Start.MatchSpectateStartEvent;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.NormalArena;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.enums.*;
@@ -148,7 +149,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!this.players.contains(online)) {
                     PlayerHider.getInstance().hidePlayer(player, online, true);
-                    PlayerHider.getInstance().hidePlayer(online, player, false);
+                    PlayerHider.getInstance().hidePlayer(online, player, ConfigManager.isShowMatchPlayersInTab());
                 }
             }
 
