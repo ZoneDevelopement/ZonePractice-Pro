@@ -4,6 +4,7 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfoUpdate;
 import dev.nandi0813.api.Event.Spectate.Start.MatchSpectateStartEvent;
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
@@ -55,7 +56,7 @@ public class PlayerHider implements Listener {
                  * Hide the player from the online.
                  */
                 if (onlineStatus.equals(ProfileStatus.MATCH) || onlineStatus.equals(ProfileStatus.EVENT) || onlineStatus.equals(ProfileStatus.FFA)) {
-                    hidePlayer(online, player, false);
+                    hidePlayer(online, player, ConfigManager.isShowMatchPlayersInTab());
                 } else if (!onlineStatus.equals(ProfileStatus.SPECTATE) && onlineProfile.isHidePlayers()) {
                     hidePlayer(online, player, false);
                 } else if (profile.isHideFromPlayers() && !online.hasPermission("zpp.staffmode.see")) {
