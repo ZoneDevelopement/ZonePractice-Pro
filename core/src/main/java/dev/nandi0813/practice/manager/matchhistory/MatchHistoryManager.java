@@ -19,11 +19,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Central manager for match history.
- *
+ * <p>
  * Storage strategy:
  *   1. YAML files  — always used (match-history/<uuid>.yml), same pattern as profiles/.
  *   2. MySQL        — also used when connected; logic lives in MysqlManager.
- *
+ * <p>
  * Both reads and writes are async. An in-memory cache avoids repeated disk access.
  */
 public class MatchHistoryManager implements Listener {
@@ -38,7 +38,15 @@ public class MatchHistoryManager implements Listener {
     private static final int MAX_HISTORY = 5;
 
     /** In-memory cache: player UUID → last MAX_HISTORY entries, newest-first. */
-    private final Map<UUID, List<MatchHistoryEntry>> cache = new ConcurrentHashMap<>();
+    private final Map<UUID, MatchHistory> matchHistories = new ConcurrentHashMap<>();
+
+    /**
+     * Returns the cached per-player {@link MatchHistory}, creating one on demand.
+     * Analogous to {@code ProfileManager#getProfile(UUID)}.
+     */
+    public MatchHistory getMatchHistory(UUID uuid) {
+        return matchHistories.computeIfAbsent(uuid, MatchHistory::new);
+    }
 
     private MatchHistoryManager() {
         Bukkit.getPluginManager().registerEvents(this, ZonePractice.getInstance());
@@ -82,8 +90,8 @@ public class MatchHistoryManager implements Listener {
                     kitName, arenaName, opponentScore, playerScore,
                     opponentFinalHealth, playerFinalHealth, winnerUuid, matchDuration, now);
 
-            addToCache(playerUuid,   finalPlayerPov);
-            addToCache(opponentUuid, finalOpponentPov);
+            getMatchHistory(playerUuid).add(finalPlayerPov);
+            getMatchHistory(opponentUuid).add(finalOpponentPov);
 
             if (MysqlManager.isConnected(false)) {
                 MysqlManager.saveMatchHistoryAsync(
@@ -99,44 +107,31 @@ public class MatchHistoryManager implements Listener {
      * Returns from cache if available; otherwise reads YAML (and MySQL as fallback if YAML empty).
      */
     public CompletableFuture<List<MatchHistoryEntry>> loadHistoryAsync(UUID playerUuid) {
-        if (cache.containsKey(playerUuid)) {
-            return CompletableFuture.completedFuture(new ArrayList<>(cache.get(playerUuid)));
+        MatchHistory history = matchHistories.get(playerUuid);
+        if (history != null && !history.getMatches().isEmpty()) {
+            return CompletableFuture.completedFuture(new ArrayList<>(history.getMatches()));
         }
 
         return CompletableFuture.supplyAsync(() -> {
-            List<MatchHistoryEntry> entries = loadFromYaml(playerUuid);
+            MatchHistory loaded = getMatchHistory(playerUuid);
+            List<MatchHistoryEntry> entries = loaded.load();
 
             if (entries.isEmpty() && MysqlManager.isConnected(false)) {
                 entries = MysqlManager.loadMatchHistorySync(playerUuid, MAX_HISTORY);
+                loaded.getMatches().addAll(entries);
             }
 
-            cache.put(playerUuid, new ArrayList<>(entries));
             return entries;
         });
     }
 
     private int saveToYaml(UUID uuid, MatchHistoryEntry entry) {
         try {
-            return new MatchHistoryFile(uuid).saveEntry(entry);
+            return getMatchHistory(uuid).getFile().saveMatch(entry);
         } catch (Exception e) {
             Common.sendConsoleMMMessage("<red>[MatchHistory] YAML save error for " + uuid + ": " + e.getMessage());
             return -1;
         }
-    }
-
-    private List<MatchHistoryEntry> loadFromYaml(UUID uuid) {
-        try {
-            return new MatchHistoryFile(uuid).loadEntries();
-        } catch (Exception e) {
-            Common.sendConsoleMMMessage("<red>[MatchHistory] YAML load error for " + uuid + ": " + e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
-    private void addToCache(UUID uuid, MatchHistoryEntry entry) {
-        List<MatchHistoryEntry> list = cache.computeIfAbsent(uuid, k -> new ArrayList<>());
-        list.add(0, entry); // prepend = newest first
-        if (list.size() > MAX_HISTORY) list.subList(MAX_HISTORY, list.size()).clear();
     }
 
     @EventHandler(priority = EventPriority.LOW)
