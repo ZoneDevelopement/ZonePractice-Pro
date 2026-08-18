@@ -559,25 +559,37 @@ public class FightChangeOptimized {
      * block at Y=69 hasn't been restored yet.
      */
     private class RollbackTask extends BukkitRunnable {
-        private final Iterator<Map.Entry<Long, BlockChangeEntry>> iterator;
+        private Iterator<Map.Entry<Long, BlockChangeEntry>> iterator;
         private final int maxCheck;
         private final int maxChange;
-        private final int totalBlocks;
+        private int totalBlocks;
         private int processedBlocks = 0;
         private boolean isRunning = false;
         @Nullable
         private final Runnable onComplete;
 
         RollbackTask(int maxCheck, int maxChange, @Nullable Runnable onComplete) {
+            this.maxCheck = maxCheck;
+            this.maxChange = maxChange;
+            this.onComplete = onComplete;
+            refreshSnapshot();
+        }
+
+        /**
+         * Takes a fresh snapshot of the {@link #blocks} map, ordered bottom-up.
+         * <p>
+         * A rollback spans multiple ticks. Blocks destroyed during that window (e.g. a
+         * crystal placed and exploded at the moment the rollback began) are recorded into
+         * {@link #blocks} AFTER the initial snapshot. Calling this again lets the task pick
+         * those up instead of losing them when the previous snapshot is exhausted.
+         */
+        private void refreshSnapshot() {
             // Default ordering is bottom-up (gravity support). Vine-like blocks are
             // restored top-down so hanging segments do not immediately break.
             List<Map.Entry<Long, BlockChangeEntry>> sorted = new ArrayList<>(blocks.entrySet());
             sorted.sort(rollbackComparator());
             this.iterator = sorted.iterator();
-            this.maxCheck = maxCheck;
-            this.maxChange = maxChange;
             this.totalBlocks = blocks.size();
-            this.onComplete = onComplete;
         }
 
         void start() {
@@ -620,9 +632,22 @@ public class FightChangeOptimized {
 
                 // Finished rolling back all blocks
                 if (!iterator.hasNext()) {
+                    // Blocks may have been recorded DURING this multi-tick rollback
+                    // (e.g. a crystal placed + exploded at the same moment the rollback
+                    // started). They are not part of the snapshot this task is iterating,
+                    // so re-snapshot and keep going until the live map is truly empty —
+                    // otherwise those holes would be silently lost.
+                    if (!blocks.isEmpty()) {
+                        refreshSnapshot();
+                        return;
+                    }
+
                     this.cancel();
                     isRunning = false;
-                    blocks.clear(); // Clear the map
+
+                    // Sweep again: entities (e.g. an end crystal placed mid-rollback)
+                    // spawned after the initial removeAllEntities() call are caught here.
+                    removeAllEntities();
 
                     // Extinguish any fire that spread during the multi-tick rollback
                     extinguishFire();
@@ -632,6 +657,7 @@ public class FightChangeOptimized {
                     if (onComplete != null) {
                         onComplete.run(); // already on main thread (runTaskTimer)
                     }
+                }
 
                     /*
                     // Log completion metrics
@@ -641,7 +667,6 @@ public class FightChangeOptimized {
                             processedBlocks, duration, (double) processedBlocks / Math.max(duration, 1), skippedUnloaded
                     ));
                      */
-                }
             } catch (Exception e) {
                 this.cancel();
                 isRunning = false;
