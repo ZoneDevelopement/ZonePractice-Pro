@@ -94,6 +94,7 @@ public final class NameFormatUtil {
 
     public static String normalizePlayerNameTemplate(String rawTemplate) {
         if (rawTemplate == null || rawTemplate.isEmpty()) return rawTemplate;
+        rawTemplate = StringUtil.stripObfuscationTags(rawTemplate);
         boolean hasPlayerPlaceholder = rawTemplate.contains("%player%") || rawTemplate.contains("%%player%%");
         if (hasPlayerPlaceholder) return rawTemplate;
         String plainText = PLAIN_TEXT_SERIALIZER.serialize(ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(rawTemplate))).trim();

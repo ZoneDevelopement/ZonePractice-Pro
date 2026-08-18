@@ -7,6 +7,7 @@ import dev.nandi0813.practice.manager.gui.setup.SetupHubGui;
 import dev.nandi0813.practice.manager.gui.setup.ladder.laddersettings.CustomKitGui;
 import dev.nandi0813.practice.manager.gui.setup.ladder.laddersettings.DestroyableBlocksGui;
 import dev.nandi0813.practice.manager.gui.setup.ladder.laddersettings.InventoryGui;
+import dev.nandi0813.practice.manager.gui.setup.ladder.laddersettings.SkyWarsLootGui;
 import dev.nandi0813.practice.manager.server.sound.SoundEffect;
 import dev.nandi0813.practice.manager.server.sound.SoundManager;
 import dev.nandi0813.practice.manager.server.sound.SoundType;
@@ -148,7 +149,8 @@ public class GUIManager implements Listener {
                 gui instanceof CustomLadderEditorGui ||
                 gui instanceof DestroyableBlocksGui ||
                 gui instanceof InventoryGui ||
-                gui instanceof CustomKitGui;
+                gui instanceof CustomKitGui ||
+                gui instanceof SkyWarsLootGui;
     }
 
     private GUIClickSoundIntent resolveClickSoundIntent(InventoryClickEvent e, GUI gui, Player player) {

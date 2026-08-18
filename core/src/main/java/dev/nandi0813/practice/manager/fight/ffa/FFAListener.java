@@ -7,7 +7,6 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.game.FFA;
 import dev.nandi0813.practice.manager.fight.util.*;
-import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
@@ -16,9 +15,10 @@ import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.NumberUtil;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
-import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
@@ -33,7 +33,6 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.*;
 
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
-import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
 /**
  * FFA-specific event listener.
@@ -71,8 +70,6 @@ public class FFAListener implements Listener {
         }
     }
 
-    private static final boolean ENABLE_TNT = ConfigManager.getBoolean("FFA.ENABLE_TNT");
-
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         Player player = e.getPlayer();
@@ -96,8 +93,21 @@ public class FFAListener implements Listener {
                 SpectatorCrystalPlacementUtil.clearSpectatorsBlockingCrystalPlacement(e, ffa.getArena().getCuboid());
             }
 
+            boolean isCrystalPlacement = e.getItem() != null && e.getItem().getType() == Material.END_CRYSTAL;
+            boolean isAnchor = clickedBlock.getType() == Material.RESPAWN_ANCHOR;
+
+            if (isCrystalPlacement || isAnchor) {
+                BlockUtil.setMetadata(clickedBlock, "FFA_COMBAT_OWNER", player);
+            }
+
+            // The anchor block is destroyed on explosion, so its owner is also kept
+            // in memory (by block coords) to attribute the blast to whoever set it off.
+            if (isAnchor) {
+                ExplosiveOwnerTracker.recordAnchorOwner(clickedBlock.getLocation(), player);
+            }
+
             if (clickedBlock.getType().equals(Material.TNT)) {
-                if (!ffa.isBuild() || !ENABLE_TNT) {
+                if (!ffa.isBuild() || !ffa.isMapBlowable()) {
                     e.setCancelled(true);
                     return;
                 }
@@ -107,6 +117,20 @@ public class FFAListener implements Listener {
                 ffa.getFightChange().addBlockChange(new ChangedBlock(clickedBlock));
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
+        Player player = e.getPlayer();
+
+        if (!(e.getRightClicked() instanceof Minecart minecart)
+                || minecart.getMinecartMaterial() != Material.TNT) return;
+
+        FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
+        if (ffa == null || ffa.isPlayerWaitingForKitSelection(player)) return;
+
+        // Attribute the minecart blast to whoever ignited it.
+        ExplosiveOwnerTracker.recordMinecartOwner(minecart, player);
     }
 
     @EventHandler
@@ -177,6 +201,7 @@ public class FFAListener implements Listener {
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
 
+        ffa.handleFfaCombatLogQuit(player);
         ffa.removePlayer(player);
     }
 
@@ -197,8 +222,6 @@ public class FFAListener implements Listener {
                 .replace("%player%", target.getName())
                 .replace("%health%", String.valueOf(health)));
     }
-
-    private static final String FFA_DEATH_ANIMATION_ENABLED_PATH = "FFA.DEATH-ANIMATION.ENABLED";
 
     private static final boolean ALLOW_DESTROYABLE_BLOCK = ConfigManager.getBoolean("FFA.ALLOW-DESTROYABLE-BLOCK");
 
@@ -278,6 +301,11 @@ public class FFAListener implements Listener {
         if (arena.isBuildMax() && block.getLocation().getY() >= ListenerUtil.getCalculatedBuildLimit(arena)) {
             Common.sendMMMessage(player, LanguageManager.getString("FFA.GAME.CANT-BUILD-OVER-LIMIT"));
             e.setCancelled(true);
+            return;
+        }
+
+        if (block.getType() == Material.RESPAWN_ANCHOR) {
+            BlockUtil.setMetadata(block, "FFA_COMBAT_OWNER", player);
         }
         // Tagging and tracking handled by BuildListener at MONITOR priority
     }
@@ -379,10 +407,7 @@ public class FFAListener implements Listener {
         e.setDroppedExp(0);
         e.setKeepInventory(true);
         e.setKeepLevel(true);
-        e.setDeathMessage(null);
-
-        boolean playVanillaDeathAnimation = ConfigManager.getConfig().getBoolean(FFA_DEATH_ANIMATION_ENABLED_PATH, true);
-        e.setCancelled(!playVanillaDeathAnimation);
+        e.setCancelled(true);
 
         DamageSource damageSource = e.getDamageSource();
 
@@ -398,41 +423,11 @@ public class FFAListener implements Listener {
         if (cause == DeathCause.EXPLOSION && killer != null && !killer.equals(player)) {
             cause = DeathCause.EXPLOSION_BY_PLAYER;
         }
+        ffa.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
 
-        Player finalKiller = killer;
-        DeathCause finalCause = cause;
-
-        Runnable deathTask = () -> {
-            if (playVanillaDeathAnimation && player.isOnline() && player.isDead()) {
-                player.spigot().respawn();
-            }
-            ffa.killPlayer(player, finalKiller, finalCause.getMessage().replace("%killer%", finalKiller != null ? finalKiller.getName() : "Unknown"));
-
-            if (finalKiller != null && !finalKiller.equals(player)) {
-                Statistic statistic = ffa.getStatistics().computeIfAbsent(
-                        finalKiller,
-                        p -> new Statistic(ProfileManager.getInstance().getUuids().get(p))
-                );
-                statistic.setKills(statistic.getKills() + 1);
-            }
-        };
-
-        if (playVanillaDeathAnimation) {
-            long delayTicks = 15L;
-            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), deathTask, delayTicks);
-        } else {
-            deathTask.run();
+        if (killer != null && !killer.equals(player)) {
+            ffa.increaseFfaSessionKills(killer);
         }
-    }
-
-    @EventHandler
-    public void onFFARespawn(PlayerRespawnEvent e) {
-        Player player = e.getPlayer();
-
-        FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
-        if (ffa == null) return;
-
-        e.setRespawnLocation(player.getLocation());
     }
 
     private Player resolveKiller(Player victim, FFA ffa, DamageSource damageSource) {
@@ -459,7 +454,7 @@ public class FFAListener implements Listener {
         return killer;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof Player target)) {
             return;
@@ -477,28 +472,42 @@ public class FFAListener implements Listener {
             return;
         }
 
-        // ...existing code...
-        Player attacker = null;
-        if (e.getDamager() instanceof Player damager) {
-            attacker = damager;
+        Player attacker;
+        Entity damager = e.getDamager();
 
-            if (ffa.isPlayerWaitingForKitSelection(damager)) {
-                e.setCancelled(true);
-                return;
-            }
-        } else if (e.getDamager() instanceof Projectile projectile) {
-            if (projectile.getShooter() instanceof Player shooter) {
-                attacker = shooter;
+        // Resolve the owner of ANY damaging entity (melee, arrows, fireballs,
+        // wind charges, snowballs, TNT, etc.) to a player.
+        attacker = FightUtil.getKiller(damager);
 
-                if (projectile instanceof Arrow) {
-                    arrowDisplayHearth(shooter, target, e.getFinalDamage(), e);
-                }
-            }
+        // Fallback for damage without a resolvable owner (end crystals, creepers,
+        // environmental knockback, etc.): prefer Bukkit's killer attribution, then
+        // the last player that damaged the victim so the tag stays on the opponent.
+        if (attacker == null) {
+            attacker = target.getKiller();
+        }
+        if (attacker == null) {
+            attacker = ffa.getLastAttacker(target);
+        }
+
+        if (attacker != null && ffa.isPlayerWaitingForKitSelection(attacker)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if (attacker != null && damager instanceof Arrow) {
+            arrowDisplayHearth(attacker, target, e.getFinalDamage(), e);
+        }
+
+        // Skip combat tag (anti-relog) if the damage was canceled, e.g. by a
+        // WorldGuard-protected region, so players aren't tagged when no damage landed.
+        if (e.isCancelled()) {
+            return;
         }
 
         // Record the attacker for void-kill attribution
         if (attacker != null) {
             ffa.recordAttack(target, attacker);
+            ffa.tagFfaCombat(target, attacker);
         }
     }
 
@@ -516,7 +525,45 @@ public class FFAListener implements Listener {
 
         if (ffa.isPlayerWaitingForKitSelection(target)) {
             e.setCancelled(true);
+            return;
         }
+
+        if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
+                && e.getCause() != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {
+            return;
+        }
+
+        Player attacker = null;
+
+        // The crystal owner is saved on the block it's placed on.
+        if (e instanceof EntityDamageByEntityEvent entityDamage
+                && entityDamage.getDamager() instanceof EnderCrystal crystal) {
+            attacker = BlockUtil.getMetadata(
+                    crystal.getLocation().getBlock().getRelative(BlockFace.DOWN),
+                    "FFA_COMBAT_OWNER", Player.class);
+        }
+
+        // Attribute TNT-minecart blasts to whoever ignited them.
+        if (attacker == null) {
+            attacker = FightUtil.getKiller(e.getDamageSource().getCausingEntity());
+        }
+
+        // Respawn anchors destroy their block on explosion, so getDamager() is null
+        // and the owner can't be read from the event. Resolve it from the owner
+        // recorded at the anchor's location when it was set off.
+        if (attacker == null) {
+            attacker = ExplosiveOwnerTracker.getAnchorOwner(e.getDamageSource().getSourceLocation());
+        }
+
+        // Respawn anchors destroy their block on explosion, so getDamager() is null
+        // and the owner can't be read from the event. Fall back to the last recorded
+        // attacker so the tag still applies.
+        if (attacker == null) {
+            attacker = ffa.getLastAttacker(target);
+        }
+
+        // Tag the victim (and attacker if known) so neither can relog mid-fight.
+        ffa.tagFfaCombat(target, attacker);
     }
 
 }

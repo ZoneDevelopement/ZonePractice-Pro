@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public final class StringUtil {
 
@@ -131,6 +132,13 @@ public final class StringUtil {
             if (Character.digit(s.charAt(i), radix) < 0) return false;
         }
         return true;
+    }
+
+    private static final Pattern OBFUSCATION_TAGS = Pattern.compile("(?i)</?obf(?:uscated)?[^>]*>|[&§]k");
+
+    public static String stripObfuscationTags(String text) {
+        if (text == null || text.isEmpty()) return text;
+        return OBFUSCATION_TAGS.matcher(text).replaceAll("");
     }
 
     public static String getNormalizedName(String name) {

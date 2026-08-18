@@ -14,7 +14,6 @@ import dev.nandi0813.practice.manager.fight.match.enums.RoundStatus;
 import dev.nandi0813.practice.manager.fight.match.runnable.game.BridgeArrowRunnable;
 import dev.nandi0813.practice.manager.fight.match.util.KnockbackUtil;
 import dev.nandi0813.practice.manager.fight.match.util.MatchFightPlayer;
-
 import dev.nandi0813.practice.manager.fight.match.util.TeamUtil;
 import dev.nandi0813.practice.manager.fight.util.*;
 import dev.nandi0813.practice.manager.fight.util.Stats.Statistic;
@@ -51,6 +50,7 @@ import org.bukkit.inventory.ItemStack;
 
 import static dev.nandi0813.practice.manager.arena.util.ArenaUtil.containsDestroyableBlock;
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
+import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
 public class LadderTypeListener implements Listener {
 
@@ -58,8 +58,6 @@ public class LadderTypeListener implements Listener {
     private static final String SHIELD_STUN_ENABLED_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.ENABLED";
     private static final String SHIELD_STUN_DURATION_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.DURATION-TICKS";
     private static final String SHIELD_STUN_REQUIRE_AXE_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.REQUIRE-AXE";
-    private static final String SHIELD_SKIP_VANILLA_TICK_PATH = AXE_LADDER_SETTINGS_PATH + ".SKIP-VANILLA-DAMAGE-TICK-WHEN-SHIELD-BLOCKED";
-    private static final String DEATH_ANIMATION_ENABLED_PATH = "MATCH-SETTINGS.DEATH-ANIMATION.ENABLED";
     private static final int SKYWARS_KILLER_EXP_LEVEL_REWARD = 5;
     private static final int SKYWARS_ENCHANT_LAPIS_AMOUNT = 3;
 
@@ -186,18 +184,6 @@ public class LadderTypeListener implements Listener {
 
         // A blocked shield hit should not deal HP damage.
         return e.getFinalDamage() <= 0.0D;
-    }
-
-    private static void enforceShieldDamageTickBypass(Player target) {
-        if (!ConfigManager.getConfig().getBoolean(SHIELD_SKIP_VANILLA_TICK_PATH, true)) {
-            return;
-        }
-
-        // Run one tick later so vanilla cannot restore the damage immunity window.
-        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
-            if (!target.isOnline() || target.isDead()) {
-            }
-        });
     }
 
     private static void applyCustomShieldStunIfNeeded(EntityDamageByEntityEvent e, Player attacker, Player target) {
@@ -680,10 +666,7 @@ public class LadderTypeListener implements Listener {
         e.setDroppedExp(0);
         e.setKeepInventory(true);
         e.setKeepLevel(true);
-        e.deathMessage(null);
-
-        boolean playVanillaDeathAnimation = ConfigManager.getConfig().getBoolean(DEATH_ANIMATION_ENABLED_PATH, true);
-        e.setCancelled(!playVanillaDeathAnimation);
+        e.setCancelled(true);
 
         DamageSource damageSource = e.getDamageSource();
         Player killer;
@@ -694,18 +677,8 @@ public class LadderTypeListener implements Listener {
         }
 
         DeathCause cause = FightUtil.convert(damageSource.getDamageType());
-        if (cause == DeathCause.EXPLOSION && killer != null && !killer.equals(player)) {
-            cause = DeathCause.EXPLOSION_BY_PLAYER;
-        }
-        DeathCause finalCause = cause;
-
-        long delayTicks = playVanillaDeathAnimation ? 15L : 1L;
-        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-            if (playVanillaDeathAnimation && player.isOnline() && player.isDead()) {
-                player.spigot().respawn();
-            }
-            match.killPlayer(player, killer, finalCause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown"));
-        }, delayTicks);
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
+                match.killPlayer(player, killer, cause.getMessage().replace("%killer%", killer != null ? killer.getName() : "Unknown")), 1L);
 
         if (killer != null) {
             Statistic statistic = match.getCurrentStat(killer);
@@ -717,16 +690,6 @@ public class LadderTypeListener implements Listener {
                 killer.giveExpLevels(SKYWARS_KILLER_EXP_LEVEL_REWARD);
             }
         }
-    }
-
-    @EventHandler
-    public void onMatchRespawn(PlayerRespawnEvent e) {
-        Player player = e.getPlayer();
-
-        Match match = MatchManager.getInstance().getLiveMatchByPlayer(player);
-        if (match == null) return;
-
-        e.setRespawnLocation(player.getLocation());
     }
 
     private static void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
@@ -792,7 +755,6 @@ public class LadderTypeListener implements Listener {
 
         boolean shieldBlocked = isShieldBlockedHit(e, target);
         if (shieldBlocked) {
-            enforceShieldDamageTickBypass(target);
             applyCustomShieldStunIfNeeded(e, attacker, target);
         }
 

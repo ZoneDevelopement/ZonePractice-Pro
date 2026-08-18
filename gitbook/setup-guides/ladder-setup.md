@@ -17,7 +17,7 @@ Make sure:
 
 These are generated in `plugins/ZonePracticePro/ladders/`:
 
-`archer`, `axe`, `battlerush`, `bedwars`, `boxing`, `bridges`, `builduhc`, `crystal`, `debuff`, `fireball`, `gapple`, `mace`, `mlgrush`, `nodebuff`, `pearlfight`, `sg`, `skywars`, `soup`, `spear`, `spleef`, `sumo`, `sword`, `tntsumo`, `vanilla`.
+`archer`, `axe`, `battlerush`, `bedwars`, `boxing`, `bridges`, `builduhc`, `cart`, `crystal`, `diamondpotion`, `fireball`, `gapple`, `mace`, `mlgrush`, `netheritepotion`, `pearlfight`, `sg`, `skywars`, `soup`, `spearelytra`, `spearmace`, `spleef`, `sumo`, `sword`, `tntsumo`.
 
 You can edit these or create new ladders.
 

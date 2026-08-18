@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.NameFormatUtil;
+import dev.nandi0813.practice.util.StringUtil;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -15,11 +16,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class NickCommand implements CommandExecutor, TabCompleter {
 
@@ -61,6 +62,21 @@ public class NickCommand implements CommandExecutor, TabCompleter {
                         target.getName()
                 )
         );
+    }
+
+    private static String getPlainName(String rawTemplate, String playerName) {
+        String normalizedTemplate = NameFormatUtil.normalizePlayerNameTemplate(StringUtil.stripObfuscationTags(rawTemplate));
+        return PLAIN_TEXT_SERIALIZER.serialize(
+                NameFormatUtil.applyPlayerPlaceholders(
+                        NameFormatUtil.parseConfiguredComponent(normalizedTemplate),
+                        playerName
+                )
+        ).trim();
+    }
+
+    private static boolean isValidNickname(String rawTemplate, String playerName) {
+        String plainName = getPlainName(rawTemplate, playerName);
+        return Pattern.compile(ConfigManager.getString("PLAYER.NICKNAME.VALIDATION-PATTERN")).matcher(plainName).matches();
     }
 
     @Override
@@ -138,6 +154,11 @@ public class NickCommand implements CommandExecutor, TabCompleter {
             return false;
         }
 
+        if (!isValidNickname(nameTemplate, target.getName())) {
+            Common.sendMMMessage(player, LanguageManager.getString("COMMAND.NICK.INVALID-NAME"));
+            return false;
+        }
+
         applyNameTemplate(target, nameTemplate);
         String formattedNamePreview = renderNamePreview(target, nameTemplate);
 
@@ -172,12 +193,12 @@ public class NickCommand implements CommandExecutor, TabCompleter {
                     arguments.add(online.getName());
                 }
             }
-            StringUtil.copyPartialMatches(args[0], arguments, completion);
+            org.bukkit.util.StringUtil.copyPartialMatches(args[0], arguments, completion);
         } else if (args.length == 2 && args[0].equalsIgnoreCase("reset") && player.hasPermission("zpp.nick.reset.others")) {
             for (Player online : Bukkit.getOnlinePlayers()) {
                 arguments.add(online.getName());
             }
-            StringUtil.copyPartialMatches(args[1], arguments, completion);
+            org.bukkit.util.StringUtil.copyPartialMatches(args[1], arguments, completion);
         }
 
         Collections.sort(completion);

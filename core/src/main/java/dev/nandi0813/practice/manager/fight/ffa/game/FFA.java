@@ -5,6 +5,7 @@ import dev.nandi0813.api.Event.Spectate.End.FFASpectateEndEvent;
 import dev.nandi0813.api.Event.Spectate.Start.FFASpectateStartEvent;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.FFAArena;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.ffa.FFAFightPlayer;
@@ -16,10 +17,14 @@ import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.inventory.Inventory;
 import dev.nandi0813.practice.manager.inventory.InventoryManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
+import dev.nandi0813.practice.manager.party.Party;
+import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
+import dev.nandi0813.practice.manager.sidebar.SidebarManager;
 import dev.nandi0813.practice.manager.spectator.SpectatorManager;
+import dev.nandi0813.practice.util.CombatLogUtil;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.LastAttackerTracker;
@@ -27,6 +32,7 @@ import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
+import static dev.nandi0813.practice.manager.fight.util.PlayerUtil.isPlayerStuck;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
@@ -34,6 +40,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -51,6 +58,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     private final LadderSelector ladderSelectorGui;
 
     private boolean build;
+    private boolean mapBlowable;
     private BuildRollback buildRollback;
 
     private boolean open;
@@ -61,6 +69,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     public FFA(FFAArena arena) {
         this.arena = arena;
         this.build = arena.isBuild();
+        this.mapBlowable = arena.isMapBlowable();
         this.ladderSelectorGui = new LadderSelector(this);
         this.open = false;
     }
@@ -75,10 +84,11 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         }
 
         this.build = this.arena.isBuild();
+        this.mapBlowable = this.arena.isMapBlowable();
         this.open = true;
 
         if (this.build) {
-            this.buildRollback = new BuildRollback(new FightChangeOptimized(this), this::teleportStuckSpectatorsAfterRollback);
+            this.buildRollback = new BuildRollback(new FightChangeOptimized(this), this::teleportStuckPlayersAfterRollback);
             this.buildRollback.begin();
         }
 
@@ -118,7 +128,15 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             return;
 
         players.put(player, ladder);
-        
+
+        // A player who joins an FFA while in a party must leave that party, so that
+        // they are not pulled into the party's game when it starts (which would
+        // otherwise kill them and leave them in an inconsistent flight state).
+        Party party = PartyManager.getInstance().getParty(player);
+        if (party != null) {
+            party.removeMember(player, false);
+        }
+
         // Use FFAFightPlayer to handle custom kit selection
         FFAFightPlayer ffaFightPlayer = new FFAFightPlayer(player, this, ladder);
         fightPlayers.put(player, ffaFightPlayer);
@@ -146,7 +164,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
         // Show kit chooser or apply default kit
         ffaFightPlayer.showKitChooserOrApplyKit();
-        
+
         dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, ladder.getAttackCooldownModifier());
 
         ProfileManager.getInstance().getProfile(player).setStatus(ProfileStatus.FFA);
@@ -161,6 +179,11 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         PlayerUtil.setFightPlayer(player, ladder);
         KitUtil.loadDefaultLadderKit(player, TeamEnum.FFA, ladder);
         dev.nandi0813.practice.manager.fight.util.PlayerUtil.setAttackSpeed(player, ladder.getAttackCooldownModifier());
+
+        FFAFightPlayer ffaFightPlayer = fightPlayers.get(player);
+        if (ffaFightPlayer != null) {
+            ffaFightPlayer.resetForNewLadder(ladder);
+        }
     }
 
     /**
@@ -207,6 +230,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         fightPlayers.remove(player);
         statistics.remove(player);
         this.removePlayerFromBelowName(player);
+        this.clearFfaCombat(player);
         dev.nandi0813.practice.manager.fight.util.PlayerUtil.resetAttackSpeed(player);
 
         InventoryManager.getInstance().setLobbyInventory(player, true);
@@ -233,6 +257,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         fightPlayers.get(player).die(deathMessage, statistics.get(player));
         Profile deadProfile = fightPlayers.get(player).getProfile();
         deadProfile.getStats().getLadderStat(players.get(player)).increaseDeaths();
+        this.clearFfaCombat(player);
 
         if (killer != null && !killer.equals(player)) {
             Profile killerProfile = fightPlayers.get(killer).getProfile();
@@ -264,7 +289,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     private void applySelectedOrDefaultKit(Player player) {
         FFAFightPlayer ffaFightPlayer = fightPlayers.get(player);
         if (ffaFightPlayer != null) {
-            ffaFightPlayer.showKitChooserOrApplyKit();
+            ffaFightPlayer.restoreKitOnDeath();
             return;
         }
 
@@ -308,8 +333,95 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
      * Returns the last player who hit {@code victim} within the expiry window,
      * or {@code null} if there is none.
      */
-    public @org.jetbrains.annotations.Nullable Player getLastAttacker(Player victim) {
+    public @Nullable Player getLastAttacker(Player victim) {
         return lastAttackerTracker.getLastAttacker(victim, players.keySet());
+    }
+
+    public boolean isFfaKitBlocked() {
+        return CombatLogUtil.getInstance().isEnabled() && ConfigManager.getBoolean("FFA.COMBAT-LOG.BLOCK-KIT");
+    }
+
+    public boolean isFfaLeaveBlocked() {
+        return CombatLogUtil.getInstance().isEnabled() && ConfigManager.getBoolean("FFA.COMBAT-LOG.BLOCK-LEAVE");
+    }
+
+    public boolean isFfaKillOnQuit() {
+        return CombatLogUtil.getInstance().isKillOnQuit();
+    }
+
+    public void tagFfaCombat(Player victim, Player attacker) {
+        CombatLogUtil.getInstance().tag(victim, attacker);
+    }
+
+    public boolean isFfaInCombat(Player player) {
+        return CombatLogUtil.getInstance().isInCombat(player);
+    }
+
+    public void clearFfaCombat(Player player) {
+        CombatLogUtil.getInstance().clear(player);
+    }
+
+    public Player getFfaCombatLastAttacker(Player player) {
+        return CombatLogUtil.getInstance().getLastAttacker(player);
+    }
+
+    /**
+     * Handles a player disconnecting while in combat. If enabled, the disconnect
+     * counts as a kill for the player's most recent attacker.
+     */
+    public void handleFfaCombatLogQuit(Player player) {
+        if (!isFfaKillOnQuit())
+            return;
+        if (!players.containsKey(player))
+            return;
+
+        Player attacker = getFfaCombatLastAttacker(player);
+        if (attacker == null || attacker.equals(player) || !players.containsKey(attacker))
+            return;
+
+        Profile deadProfile = fightPlayers.get(player).getProfile();
+        deadProfile.getStats().getLadderStat(players.get(player)).increaseDeaths();
+
+        Profile killerProfile = fightPlayers.get(attacker).getProfile();
+        killerProfile.getStats().getLadderStat(players.get(attacker)).increaseKills();
+
+        increaseFfaSessionKills(attacker);
+
+        // Finalize the quitter's session stats.
+        Statistic deadStatistic = statistics.get(player);
+        if (deadStatistic != null)
+            deadStatistic.end(true);
+
+        playDeathEffect(attacker, player);
+
+        if (arena.isReKitAfterKill()) {
+            applySelectedOrDefaultKit(attacker);
+        }
+
+        if (arena.isHealthResetOnKill()) {
+            applyHealthResetOnKill(attacker);
+        }
+
+        SidebarManager.getInstance().updatePlayerSidebar(attacker);
+
+        // Clear the attacker's combat tag now that the fight is over.
+        this.clearFfaCombat(attacker);
+
+        this.sendMessage(LanguageManager.getString("FIGHT.DEATH-MESSAGES.COMBAT-LOG-QUIT")
+                .replace("%player%", player.getName())
+                .replace("%killer%", attacker.getName()), true);
+    }
+
+    /**
+     * Increments the FFA session kill counter for {@code killer}. This is the
+     * counter shown on the FFA sidebar ({@code %kills%}).
+     */
+    public void increaseFfaSessionKills(Player killer) {
+        Statistic statistic = statistics.computeIfAbsent(
+                killer,
+                p -> new Statistic(ProfileManager.getInstance().getUuids().get(p))
+        );
+        statistic.setKills(statistic.getKills() + 1);
     }
 
     public void teleportPlayer(Player player) {
@@ -320,8 +432,8 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         Common.sendMessage(players.keySet(), spectators, message, spectator);
     }
 
-    private void teleportStuckSpectatorsAfterRollback() {
-        if (!this.open || !this.build || this.spectators.isEmpty()) {
+    private void teleportStuckPlayersAfterRollback() {
+        if (!this.open || !this.build) {
             return;
         }
 
@@ -332,7 +444,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
                 continue;
             }
 
-            if (!dev.nandi0813.practice.manager.fight.util.PlayerUtil.isPlayerStuck(spectator)) {
+            if (!isPlayerStuck(spectator)) {
                 continue;
             }
 
@@ -343,6 +455,18 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             } else {
                 spectator.teleport(this.arena.getCuboid().getCenter().add(0, 1, 0));
             }
+        }
+
+        for (Player player : activePlayers) {
+            if (player == null || !player.isOnline()) {
+                continue;
+            }
+
+            if (!isPlayerStuck(player)) {
+                continue;
+            }
+
+            player.teleport(player.getWorld().getHighestBlockAt(player.getLocation()).getLocation().add(0, 1, 0));
         }
     }
 
@@ -462,6 +586,11 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
     @Override
     public boolean isBuild() {
         return this.build;
+    }
+
+    @Override
+    public boolean isMapBlowable() {
+        return this.mapBlowable;
     }
 
     @Override

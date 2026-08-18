@@ -6,17 +6,21 @@ import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 
-public enum BlockUtil {
-    ;
+public final class BlockUtil {
+
+    private BlockUtil() {
+    }
 
     public static void breakBlock(Match match, Block block) {
         if (match == null) return;
 
         match.addBlockChange(new ChangedBlock(block));
         trackDoorOtherHalf(match, block);
+        trackBedOtherHalf(match, block);
         block.breakNaturally();
     }
 
@@ -25,6 +29,7 @@ public enum BlockUtil {
 
         ffa.getFightChange().addBlockChange(new ChangedBlock(block));
         trackDoorOtherHalf(ffa, block);
+        trackBedOtherHalf(ffa, block);
         block.breakNaturally();
     }
 
@@ -51,6 +56,33 @@ public enum BlockUtil {
 
     private static void trackDoorOtherHalf(FFA ffa, Block block) {
         Block otherHalf = getOtherDoorHalf(block);
+        if (otherHalf != null) {
+            ffa.getFightChange().addBlockChange(new ChangedBlock(otherHalf));
+        }
+    }
+
+    private static boolean isBedMaterial(Material material) {
+        return material != null && material.name().endsWith("_BED");
+    }
+
+    public static Block getOtherBedHalf(Block block) {
+        if (!isBedMaterial(block.getType()) || !(block.getBlockData() instanceof Bed bedData)) {
+            return null;
+        }
+        return bedData.getPart() == Bed.Part.HEAD
+                ? block.getRelative(bedData.getFacing().getOppositeFace())
+                : block.getRelative(bedData.getFacing());
+    }
+
+    private static void trackBedOtherHalf(Match match, Block block) {
+        Block otherHalf = getOtherBedHalf(block);
+        if (otherHalf != null) {
+            match.addBlockChange(new ChangedBlock(otherHalf));
+        }
+    }
+
+    private static void trackBedOtherHalf(FFA ffa, Block block) {
+        Block otherHalf = getOtherBedHalf(block);
         if (otherHalf != null) {
             ffa.getFightChange().addBlockChange(new ChangedBlock(otherHalf));
         }

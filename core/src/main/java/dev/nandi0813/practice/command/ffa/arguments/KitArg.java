@@ -17,6 +17,11 @@ public final class KitArg {
             return;
         }
 
+        if (ffa.isFfaKitBlocked() && ffa.isFfaInCombat(player)) {
+            Common.sendMMMessage(player, LanguageManager.getString("FFA.COMMAND.KIT.IN-COMBAT"));
+            return;
+        }
+
         ffa.getLadderSelectorGui().update();
         ffa.getLadderSelectorGui().open(player);
     }

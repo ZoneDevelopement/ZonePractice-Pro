@@ -62,6 +62,14 @@ public enum ConfigManager {
         return getBoolean("CHAT.ISOLATE-MATCH-CHAT");
     }
 
+    public static boolean isShowMatchPlayersInTab() {
+        return getBoolean("MATCH-SETTINGS.SHOW-PLAYERS-IN-TAB");
+    }
+
+    public static boolean isShowLobbyPlayersInMatch() {
+        return getBoolean("MATCH-SETTINGS.SHOW-LOBBY-PLAYERS-IN-MATCH");
+    }
+
     public static int getInt(String loc) {
         return getConfig().getInt(loc);
     }

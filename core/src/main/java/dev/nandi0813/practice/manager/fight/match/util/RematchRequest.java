@@ -1,6 +1,9 @@
 package dev.nandi0813.practice.manager.fight.match.util;
 
 import dev.nandi0813.practice.ZonePractice;
+import dev.nandi0813.practice.manager.arena.arenas.Arena;
+import dev.nandi0813.practice.manager.arena.arenas.ArenaCopy;
+import dev.nandi0813.practice.manager.arena.arenas.interfaces.NormalArena;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.duel.DuelManager;
@@ -29,6 +32,7 @@ public class RematchRequest {
     @Getter
     private final Ladder ladder;
     private final int rounds;
+    private final Arena arena;
 
     private boolean isRequested = false;
     private boolean invalidated = false;
@@ -37,6 +41,18 @@ public class RematchRequest {
         this.players.addAll(match.getPlayers());
         this.ladder = match.getLadder();
         this.rounds = match.getWinsNeeded();
+
+        boolean playerSelectedArena = match.isPlayerSelectedArena();
+        if (playerSelectedArena) {
+            NormalArena matchArena = match.getArena();
+            if (matchArena instanceof Arena selectedArena)
+                this.arena = selectedArena;
+            else if (matchArena instanceof ArenaCopy copy)
+                this.arena = copy.getMainArena();
+            else
+                this.arena = null;
+        } else
+            this.arena = null;
 
         setInventories();
         startRunnable();
@@ -68,7 +84,7 @@ public class RematchRequest {
                 return;
             }
 
-            DuelRequest request = new DuelRequest(sender, target, ladder, null, rounds,
+            DuelRequest request = new DuelRequest(sender, target, ladder, arena, rounds,
                     () -> MatchManager.getInstance().invalidateRematch(this));
             DuelManager.getInstance().sendRequest(request);
 
@@ -103,10 +119,8 @@ public class RematchRequest {
     }
 
     public void startRunnable() {
-        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () ->
-                {
-                    MatchManager.getInstance().invalidateRematch(this);
-                },
+        Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(),
+                () -> MatchManager.getInstance().invalidateRematch(this),
                 ConfigManager.getInt("MATCH-SETTINGS.REMATCH.EXPIRE-TIME") * 20L);
     }
 

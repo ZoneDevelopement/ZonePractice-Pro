@@ -7,6 +7,7 @@ import dev.nandi0813.api.Event.Spectate.Start.MatchSpectateStartEvent;
 import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.arena.arenas.interfaces.NormalArena;
+import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.enums.*;
@@ -40,6 +41,7 @@ import dev.nandi0813.practice.util.entityhider.PlayerHider;
 import dev.nandi0813.practice.util.fightmapchange.FightChangeOptimized;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
+import static dev.nandi0813.practice.manager.fight.util.PlayerUtil.isPlayerStuck;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -49,6 +51,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -63,6 +66,9 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     protected final NormalArena arena;
     protected final Ladder ladder;
     protected final Cuboid sideBuildLimit;
+
+    @Setter
+    private boolean playerSelectedArena = false;
 
     // Duration
     protected int duration = 0;
@@ -142,8 +148,13 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
 
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!this.players.contains(online)) {
-                    PlayerHider.getInstance().hidePlayer(player, online, true);
-                    PlayerHider.getInstance().hidePlayer(online, player, false);
+                    if (ConfigManager.isShowLobbyPlayersInMatch())
+                        PlayerHider.getInstance().showPlayer(player, online);
+                    else
+                        PlayerHider.getInstance().hidePlayer(player, online, true);
+
+                    if (!ConfigManager.isShowMatchPlayersInTab())
+                        PlayerHider.getInstance().hidePlayer(online, player, false);
                 }
             }
 
@@ -200,7 +211,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
      * Returns the last player who hit {@code victim} within the expiry window,
      * or {@code null} if there is none.
      */
-    public @org.jetbrains.annotations.Nullable Player getLastAttacker(Player victim) {
+    public @Nullable Player getLastAttacker(Player victim) {
         return lastAttackerTracker.getLastAttacker(victim, players);
     }
 
@@ -511,7 +522,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
      *
      * @param afterRollback called when rollback is complete, or {@code null} to do nothing
      */
-    public void resetMap(@org.jetbrains.annotations.Nullable Runnable afterRollback) {
+    public void resetMap(@Nullable Runnable afterRollback) {
         // Make sure that the players can safely spawn back to the starting position.
         for (Location location : this.arena.getStandingLocations()) {
             MatchUtil.safePlayerTeleportBlock(location.getBlock().getRelative(BlockFace.DOWN));
@@ -558,7 +569,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
                 continue;
             }
 
-            if (!dev.nandi0813.practice.manager.fight.util.PlayerUtil.isPlayerStuck(spectator)) {
+            if (!isPlayerStuck(spectator)) {
                 continue;
             }
 

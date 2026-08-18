@@ -14,10 +14,13 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -145,7 +148,7 @@ public class FightChangeOptimized {
      * Adds a temporary block change that will auto-remove after delay.
      * Tracks the hand used for smarter item return placement.
      */
-    public void addBlockChange(ChangedBlock change, Player player, int destroyTime, @org.jetbrains.annotations.Nullable EquipmentSlot handUsed) {
+    public void addBlockChange(ChangedBlock change, Player player, int destroyTime, @Nullable EquipmentSlot handUsed) {
         addBlockChange(change, player, destroyTime, handUsed, null);
     }
 
@@ -157,8 +160,8 @@ public class FightChangeOptimized {
             ChangedBlock change,
             Player player,
             int destroyTime,
-            @org.jetbrains.annotations.Nullable EquipmentSlot handUsed,
-            @org.jetbrains.annotations.Nullable ItemStack returnItem
+            @Nullable EquipmentSlot handUsed,
+            @Nullable ItemStack returnItem
     ) {
         if (change == null) return;
 
@@ -271,7 +274,7 @@ public class FightChangeOptimized {
         PlayerUtil.returnItemToCurrentSlotOrInventory(player, drop);
     }
 
-    private @org.jetbrains.annotations.Nullable ItemStack getStoredTempBuildItem(@org.jetbrains.annotations.NotNull Block block) {
+    private @Nullable ItemStack getStoredTempBuildItem(@NotNull Block block) {
         ItemStack storedItem = BlockUtil.getMetadata(block, TempBuild.TEMP_BUILD_BLOCK_ITEM, ItemStack.class);
         if (storedItem == null || storedItem.getType().isAir()) {
             return null;
@@ -335,7 +338,7 @@ public class FightChangeOptimized {
      * @param maxChange  Maximum blocks to restore per tick  (~100)
      * @param onComplete Called on the main thread when rollback finishes, or {@code null}
      */
-    public void rollback(int maxCheck, int maxChange, @org.jetbrains.annotations.Nullable Runnable onComplete) {
+    public void rollback(int maxCheck, int maxChange, @Nullable Runnable onComplete) {
         rollingBack = true;
 
         if (ZonePractice.getInstance().isEnabled()) {
@@ -399,6 +402,7 @@ public class FightChangeOptimized {
                 // Skip hologram text displays
                 if (isHologramTextDisplay(entity)) continue;
                 BlockUtil.clearAllMetadata(entity);
+                if (entity instanceof InventoryHolder holder) holder.getInventory().clear();
                 entity.remove();
             }
         }
@@ -420,11 +424,13 @@ public class FightChangeOptimized {
                     if (isHologramTextDisplay(entity)) continue;
                     if (entity.isValid()) {
                         BlockUtil.clearAllMetadata(entity);
+                        if (entity instanceof InventoryHolder holder) holder.getInventory().clear();
                         entity.remove();
                     }
                 }
             }
         }
+
     }
 
     private void addRollbackChunkTickets() {
@@ -553,25 +559,37 @@ public class FightChangeOptimized {
      * block at Y=69 hasn't been restored yet.
      */
     private class RollbackTask extends BukkitRunnable {
-        private final Iterator<Map.Entry<Long, BlockChangeEntry>> iterator;
+        private Iterator<Map.Entry<Long, BlockChangeEntry>> iterator;
         private final int maxCheck;
         private final int maxChange;
-        private final int totalBlocks;
+        private int totalBlocks;
         private int processedBlocks = 0;
         private boolean isRunning = false;
-        @org.jetbrains.annotations.Nullable
+        @Nullable
         private final Runnable onComplete;
 
-        RollbackTask(int maxCheck, int maxChange, @org.jetbrains.annotations.Nullable Runnable onComplete) {
+        RollbackTask(int maxCheck, int maxChange, @Nullable Runnable onComplete) {
+            this.maxCheck = maxCheck;
+            this.maxChange = maxChange;
+            this.onComplete = onComplete;
+            refreshSnapshot();
+        }
+
+        /**
+         * Takes a fresh snapshot of the {@link #blocks} map, ordered bottom-up.
+         * <p>
+         * A rollback spans multiple ticks. Blocks destroyed during that window (e.g. a
+         * crystal placed and exploded at the moment the rollback began) are recorded into
+         * {@link #blocks} AFTER the initial snapshot. Calling this again lets the task pick
+         * those up instead of losing them when the previous snapshot is exhausted.
+         */
+        private void refreshSnapshot() {
             // Default ordering is bottom-up (gravity support). Vine-like blocks are
             // restored top-down so hanging segments do not immediately break.
             List<Map.Entry<Long, BlockChangeEntry>> sorted = new ArrayList<>(blocks.entrySet());
             sorted.sort(rollbackComparator());
             this.iterator = sorted.iterator();
-            this.maxCheck = maxCheck;
-            this.maxChange = maxChange;
             this.totalBlocks = blocks.size();
-            this.onComplete = onComplete;
         }
 
         void start() {
@@ -614,9 +632,22 @@ public class FightChangeOptimized {
 
                 // Finished rolling back all blocks
                 if (!iterator.hasNext()) {
+                    // Blocks may have been recorded DURING this multi-tick rollback
+                    // (e.g. a crystal placed + exploded at the same moment the rollback
+                    // started). They are not part of the snapshot this task is iterating,
+                    // so re-snapshot and keep going until the live map is truly empty —
+                    // otherwise those holes would be silently lost.
+                    if (!blocks.isEmpty()) {
+                        refreshSnapshot();
+                        return;
+                    }
+
                     this.cancel();
                     isRunning = false;
-                    blocks.clear(); // Clear the map
+
+                    // Sweep again: entities (e.g. an end crystal placed mid-rollback)
+                    // spawned after the initial removeAllEntities() call are caught here.
+                    removeAllEntities();
 
                     // Extinguish any fire that spread during the multi-tick rollback
                     extinguishFire();
@@ -626,6 +657,7 @@ public class FightChangeOptimized {
                     if (onComplete != null) {
                         onComplete.run(); // already on main thread (runTaskTimer)
                     }
+                }
 
                     /*
                     // Log completion metrics
@@ -635,7 +667,6 @@ public class FightChangeOptimized {
                             processedBlocks, duration, (double) processedBlocks / Math.max(duration, 1), skippedUnloaded
                     ));
                      */
-                }
             } catch (Exception e) {
                 this.cancel();
                 isRunning = false;
@@ -666,8 +697,8 @@ public class FightChangeOptimized {
         void setTempData(
                 Player player,
                 int ticksRemaining,
-                @org.jetbrains.annotations.Nullable EquipmentSlot handUsed,
-                @org.jetbrains.annotations.Nullable ItemStack returnItem
+                @Nullable EquipmentSlot handUsed,
+                @Nullable ItemStack returnItem
         ) {
             this.tempData = new TempBlockData(player, ticksRemaining, handUsed, returnItem);
         }
@@ -681,9 +712,9 @@ public class FightChangeOptimized {
         @Getter
         final Player player;
         @Getter
-        @org.jetbrains.annotations.Nullable
+        @Nullable
         final EquipmentSlot handUsed;
-        @org.jetbrains.annotations.Nullable
+        @Nullable
         final ItemStack returnItemStack;
         int ticksRemaining;
         @Setter
@@ -692,8 +723,8 @@ public class FightChangeOptimized {
         TempBlockData(
                 Player player,
                 int ticksRemaining,
-                @org.jetbrains.annotations.Nullable EquipmentSlot handUsed,
-                @org.jetbrains.annotations.Nullable ItemStack returnItem
+                @Nullable EquipmentSlot handUsed,
+                @Nullable ItemStack returnItem
         ) {
             this.player = player;
             this.ticksRemaining = ticksRemaining;

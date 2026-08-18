@@ -5,32 +5,49 @@ import dev.nandi0813.practice.manager.fight.ffa.FFAManager;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
 import org.bukkit.damage.DamageType;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Fireball;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.TNTPrimed;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public enum FightUtil {
-    ;
+public final class FightUtil {
+
+    private FightUtil() {
+    }
 
     public static @Nullable Player getKiller(Entity entity) {
-        Player killer = null;
-        if (entity instanceof Player) {
-            killer = (Player) entity;
-        } else if (entity instanceof Arrow arrow) {
-            if (arrow.getShooter() instanceof Player) {
-                killer = (Player) arrow.getShooter();
-            }
-        } else if (entity instanceof Fireball fireball) {
-            if (fireball.getShooter() instanceof Player) {
-                killer = (Player) fireball.getShooter();
+        if (entity instanceof Player player) {
+            return player;
+        }
+
+        // Most ranged damage (arrows, fireballs, wind charges, snowballs, potions...).
+        if (entity instanceof Projectile projectile) {
+            if (projectile.getShooter() instanceof Player shooter) {
+                return shooter;
             }
         }
-        return killer;
+
+        // Explosive blocks (TNT): attribute to whoever ignited it.
+        if (entity instanceof TNTPrimed tnt) {
+            LivingEntity source = (LivingEntity) tnt.getSource();
+            if (source instanceof Player) {
+                return (Player) source;
+            }
+        }
+
+        // TNT minecarts have no owner in the API, so attribute them to whoever
+        // ignited them (tracked at ignition time).
+        if (entity instanceof Minecart minecart) {
+            return ExplosiveOwnerTracker.getMinecartOwner(minecart);
+        }
+
+        return null;
     }
 
     public static List<Spectatable> getSpectatables() {

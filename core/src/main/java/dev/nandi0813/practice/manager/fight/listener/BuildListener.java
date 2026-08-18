@@ -20,6 +20,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
@@ -34,6 +35,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -169,6 +171,9 @@ public class BuildListener implements Listener {
             return;
         }
 
+        if (!BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) {
+            BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
+        }
         spectatable.getFightChange().trackFirePosition(block);
     }
 
@@ -184,6 +189,19 @@ public class BuildListener implements Listener {
         return bisected.getHalf() == Bisected.Half.TOP
                 ? block.getRelative(0, -1, 0)
                 : block.getRelative(0, 1, 0);
+    }
+
+    private static boolean isBedMaterial(Material material) {
+        return material != null && material.name().endsWith("_BED");
+    }
+
+    private static Block getOtherBedHalf(Block block) {
+        if (block == null || !isBedMaterial(block.getType()) || !(block.getBlockData() instanceof Bed bedData)) {
+            return null;
+        }
+        return bedData.getPart() == Bed.Part.HEAD
+                ? block.getRelative(bedData.getFacing().getOppositeFace())
+                : block.getRelative(bedData.getFacing());
     }
 
     private static void trackOpenableInteraction(Spectatable spectatable, Block clickedBlock) {
@@ -225,12 +243,14 @@ public class BuildListener implements Listener {
     private static void filterAndTrackExplosionBlocks(List<Block> blockList, Spectatable spectatable) {
         final Ladder l = ladderOf(spectatable);
         final boolean breakAll = spectatable.isBreakAllBlocks();
+        final boolean mapBlowable = spectatable.isMapBlowable();
 
         blockList.removeIf(block -> {
             if (block.getType().equals(Material.TNT)) return false;                    // keep -> chain-explodes
             if (ArenaUtil.containsDestroyableBlock(l, block)) return false;            // keep -> destroyable
             if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return false;           // keep -> player placed
             if (breakAll) return false;                                                 // keep -> break-all-blocks active
+            if (mapBlowable) return false;                                              // keep -> map blowable, explosions destroy all blocks
             if (BlockUtil.hasMetadata(block.getRelative(0, 1, 0), PLACED_IN_FIGHT)) return true; // remove -> support block protected
             return true;                                                                // remove -> pure arena block
         });
@@ -248,8 +268,6 @@ public class BuildListener implements Listener {
         }
     }
 
-    // PLAYER-DRIVEN BLOCK EVENTS (merged from BuildBlockListener)
-
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
         Block block = e.getBlock();
@@ -260,11 +278,23 @@ public class BuildListener implements Listener {
             if (ListenerUtil.checkMetaData(spectatable)) return;
             if (!spectatable.isBuild()) return;
 
+            // Ensure the fight is still active (not a stale tag from an ended match).
+            if (!FightUtil.getActiveBuildSpectatables().contains(spectatable)) {
+                BlockUtil.clearMetadata(block, PLACED_IN_FIGHT);
+                e.setCancelled(true);
+                return;
+            }
+
             spectatable.addBlockChange(new ChangedBlock(block));
 
             Block otherHalf = getOtherDoorHalf(block);
             if (otherHalf != null) {
                 spectatable.addBlockChange(new ChangedBlock(otherHalf));
+            }
+
+            Block bedOtherHalf = getOtherBedHalf(block);
+            if (bedOtherHalf != null) {
+                spectatable.addBlockChange(new ChangedBlock(bedOtherHalf));
             }
             return;
         }
@@ -324,6 +354,14 @@ public class BuildListener implements Listener {
                 BlockUtil.setMetadata(otherHalf, PLACED_IN_FIGHT, spectatable);
             }
             spectatable.getFightChange().addBlockChange(new ChangedBlock(otherHalf, Material.AIR));
+        }
+
+        Block bedOtherHalf = getOtherBedHalf(block);
+        if (bedOtherHalf != null && spectatable.getCuboid().contains(bedOtherHalf.getLocation())) {
+            if (!BlockUtil.hasMetadata(bedOtherHalf, PLACED_IN_FIGHT)) {
+                BlockUtil.setMetadata(bedOtherHalf, PLACED_IN_FIGHT, spectatable);
+            }
+            spectatable.addBlockChange(new ChangedBlock(bedOtherHalf, replacedState.getType(), false));
         }
 
         Material placedType = block.getType();
@@ -412,8 +450,6 @@ public class BuildListener implements Listener {
 
         spectatable.getFightChange().trackFirePosition(target);
     }
-
-    // EXPLOSIONS
 
     /**
      * Tracks every block stacked directly above {@code base} that requires solid
@@ -593,33 +629,48 @@ public class BuildListener implements Listener {
         return true;
     }
 
-    // PISTONS
-
     @EventHandler
     public void onBlockPistonExtend(BlockPistonExtendEvent e) {
         Spectatable spectatable = getByBlock(e.getBlock());
+        if (spectatable == null && BlockUtil.hasMetadata(e.getBlock(), PLACED_IN_FIGHT)) {
+            spectatable = BlockUtil.getMetadata(e.getBlock(), PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(spectatable)) return;
+        }
         if (spectatable == null) return;
         if (!spectatable.isBuild()) {
             e.setCancelled(true);
             return;
         }
         for (Block block : e.getBlocks()) {
-            tagAndTrack(block, spectatable);
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
             tagAndTrack(block.getRelative(e.getDirection()), spectatable);
+        }
+        Block pistonHead = e.getBlock().getRelative(e.getDirection());
+        if (!BlockUtil.hasMetadata(pistonHead, PLACED_IN_FIGHT)) {
+            tagAndTrack(pistonHead, spectatable);
         }
     }
 
     @EventHandler
     public void onBlockPistonRetract(BlockPistonRetractEvent e) {
         Spectatable spectatable = getByBlock(e.getBlock());
+        if (spectatable == null && BlockUtil.hasMetadata(e.getBlock(), PLACED_IN_FIGHT)) {
+            spectatable = BlockUtil.getMetadata(e.getBlock(), PLACED_IN_FIGHT, Spectatable.class);
+            if (ListenerUtil.checkMetaData(spectatable)) return;
+        }
         if (spectatable == null) return;
         if (!spectatable.isBuild()) {
             e.setCancelled(true);
             return;
         }
         for (Block block : e.getBlocks()) {
-            tagAndTrack(block, spectatable);
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(block));
             tagAndTrack(block.getRelative(e.getDirection()), spectatable);
+        }
+        Block headPos = e.getBlock().getRelative(e.getDirection());
+        if (BlockUtil.hasMetadata(headPos, PLACED_IN_FIGHT)) {
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(headPos, Material.AIR));
+            BlockUtil.clearMetadata(headPos, PLACED_IN_FIGHT);
         }
     }
 
@@ -659,7 +710,88 @@ public class BuildListener implements Listener {
         }
     }
 
-    // LIQUID SOURCE — bucket placement
+    /**
+     * Tracks all blocks generated by structure growth (sapling → tree, mushroom → huge
+     * mushroom, chorus flower → chorus plant) for rollback.
+     * <p>
+     * Without this handler, a sapling placed during a match and grown with bonemeal (or
+     * naturally) would generate log and leaf blocks that are never added to the rollback
+     * map. Those blocks would remain in the arena permanently after the match ends.
+     * <p>
+     * Uses {@code addArenaBlockChange} so the generated blocks are tracked WITHOUT
+     * {@code PLACED_IN_FIGHT} metadata — meaning players cannot break them (they have no
+     * tag to trigger the break listener), but the rollback will still restore the original
+     * block state (typically air) at each position.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onStructureGrow(StructureGrowEvent event) {
+        Spectatable spectatable = getByLocation(event.getLocation());
+        if (spectatable == null || !spectatable.isBuild()) return;
+        if (spectatable.getCuboid() == null) return;
+
+        FightChangeOptimized fightChange = spectatable.getFightChange();
+        if (fightChange == null) return;
+
+        for (BlockState state : event.getBlocks()) {
+            Block block = state.getBlock();
+            if (!spectatable.getCuboid().contains(block.getLocation())) continue;
+            if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) continue;
+
+            fightChange.addArenaBlockChange(new ChangedBlock(block));
+            BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
+        }
+    }
+
+    /**
+     * Tracks all blocks generated by bonemeal use (e.g. bonemealing grass to produce tall
+     * grass, flowers, ferns) for rollback.
+     * <p>
+     * Without this handler, plants generated by bonemealing grass during a match would never
+     * be added to the rollback map and would remain in the arena permanently.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockFertilize(BlockFertilizeEvent event) {
+        Spectatable spectatable = getByLocation(event.getBlock().getLocation());
+        if (spectatable == null || !spectatable.isBuild()) return;
+        if (spectatable.getCuboid() == null) return;
+
+        FightChangeOptimized fightChange = spectatable.getFightChange();
+        if (fightChange == null) return;
+
+        for (BlockState state : event.getBlocks()) {
+            Block block = state.getBlock();
+            if (!spectatable.getCuboid().contains(block.getLocation())) continue;
+            if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) continue;
+
+            fightChange.addArenaBlockChange(new ChangedBlock(block));
+            BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
+        }
+    }
+
+    /**
+     * Tracks naturally-growing blocks (crops, sugar cane, cactus, kelp, bamboo, etc.)
+     * for rollback. At MONITOR priority the world still holds the original state, so
+     * {@code ChangedBlock(block)} captures the correct pre-growth state.
+     * <p>
+     * This complements {@link #onStructureGrow(StructureGrowEvent)} for single-block
+     * growth events that are not part of a larger structure.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockGrow(BlockGrowEvent event) {
+        Block block = event.getBlock();
+        Spectatable spectatable = getByBlock(block);
+        if (spectatable == null || !spectatable.isBuild()) return;
+        if (spectatable.getCuboid() == null) return;
+
+        FightChangeOptimized fightChange = spectatable.getFightChange();
+        if (fightChange == null) return;
+
+        if (!spectatable.getCuboid().contains(block.getLocation())) return;
+        if (BlockUtil.hasMetadata(block, PLACED_IN_FIGHT)) return;
+
+        fightChange.addArenaBlockChange(new ChangedBlock(block));
+        BlockUtil.setMetadata(block, PLACED_IN_FIGHT, spectatable);
+    }
 
     /**
      * Captures the block that will become the liquid source BEFORE the bucket is emptied.
@@ -684,8 +816,6 @@ public class BuildListener implements Listener {
         spectatable.getFightChange().addBlockChange(new ChangedBlock(liquidSourceBlock));
         BlockUtil.setMetadata(liquidSourceBlock, PLACED_IN_FIGHT, spectatable);
     }
-
-    // LIQUID FLOW
 
     /**
      * Tracks blocks that turn to dirt when lava flows on top (e.g., grass
@@ -901,8 +1031,6 @@ public class BuildListener implements Listener {
             }
         }
     }
-
-    // FALLING BLOCKS (sand, gravel, concrete powder, anvils, etc.)
 
     /**
      * Tracks falling blocks for rollback. Runs at LOWEST so the block in the world

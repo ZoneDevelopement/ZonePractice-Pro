@@ -4,43 +4,42 @@ type: SUMO
 settings:
   regen: false
   hunger: false
-  ranked: true
+  weightClass: UNRANKED_AND_RANKED
   editable: false
+  drop-inventory: false
+  multiRoundStartCountdown: true
   hitdelay: 1.0
   rounds: 3
-  epcooldown: 13.0
-  startcountdown: 3
-  knockback: DEFAULT
+  hearts: 10
+  maxduration: 600
+  epcooldown: 1.0
   gacooldown: 0.0
-  drop-inventory: false
+  fireworkcooldown: 1.0
+  windchargecooldown: 0.0
+  startcountdown: 3
+  startmove: false
   matchtypes:
   - DUEL
   - PARTY_FFA
   - PARTY_SPLIT
   - PARTY_VS_PARTY
-  weightClass: UNRANKED_AND_RANKED
-  multiRoundStartCountdown: true
-  maxduration: 600
-  fireworkcooldown: 1.0
-  startmove: false
+  knockback: DEFAULT
   tntfusetime: 4
   healthbelowname: false
   resetbuildafterround: false
   breakallblocks: false
-  hearts: 10
-  windchargecooldown: 0.0
   roundenddelay: 3
   roundstatustitles: true
   countdowntitles: true
 effects: []
 icon:
   ==: org.bukkit.inventory.ItemStack
-  DataVersion: 4790
+  DataVersion: 4903
   id: minecraft:stick
   count: 1
   components:
-    minecraft:custom_name: '{extra:[{bold:0b,color:"gold",italic:0b,obfuscated:0b,strikethrough:0b,text:"Sumo",underlined:0b}],text:""}'
+    minecraft:custom_name: '{color:"gold",text:"Sumo"}'
   schema_version: 1
 armor: rO0ABXcEAAAABHBwcHA=
-inventory: rO0ABXcEAAAAJHNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFwdAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFibGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAkwABGtleXN0ABJMamF2YS9sYW5nL09iamVjdDtMAAZ2YWx1ZXNxAH4ABHhwdXIAE1tMamF2YS5sYW5nLk9iamVjdDuQzlifEHMpbAIAAHhwAAAABnQAAj09dAALRGF0YVZlcnNpb250AAJpZHQABWNvdW50dAAKY29tcG9uZW50c3QADnNjaGVtYV92ZXJzaW9udXEAfgAGAAAABnQAHm9yZy5idWtraXQuaW52ZW50b3J5Lkl0ZW1TdGFja3NyABFqYXZhLmxhbmcuSW50ZWdlchLioKT3gYc4AgABSQAFdmFsdWV4cgAQamF2YS5sYW5nLk51bWJlcoaslR0LlOCLAgAAeHAAABK2dAAUbWluZWNyYWZ0OnB1ZmZlcmZpc2hzcQB+ABAAAAABc3IAF2phdmEudXRpbC5MaW5rZWRIYXNoTWFwNMBOXBBswPsCAAFaAAthY2Nlc3NPcmRlcnhyABFqYXZhLnV0aWwuSGFzaE1hcAUH2sHDFmDRAwACRgAKbG9hZEZhY3RvckkACXRocmVzaG9sZHhwP0AAAAAAAAx3CAAAABAAAAACdAAVbWluZWNyYWZ0OnJlcGFpcl9jb3N0dAABMXQAFm1pbmVjcmFmdDplbmNoYW50bWVudHN0ABl7Im1pbmVjcmFmdDprbm9ja2JhY2siOjF9eABxAH4AFHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBw
+inventory: rO0ABXcEAAAAJHNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFwdAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFibGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAkwABGtleXN0ABJMamF2YS9sYW5nL09iamVjdDtMAAZ2YWx1ZXNxAH4ABHhwdXIAE1tMamF2YS5sYW5nLk9iamVjdDuQzlifEHMpbAIAAHhwAAAABnQAAj09dAALRGF0YVZlcnNpb250AAJpZHQABWNvdW50dAAKY29tcG9uZW50c3QADnNjaGVtYV92ZXJzaW9udXEAfgAGAAAABnQAHm9yZy5idWtraXQuaW52ZW50b3J5Lkl0ZW1TdGFja3NyABFqYXZhLmxhbmcuSW50ZWdlchLioKT3gYc4AgABSQAFdmFsdWV4cgAQamF2YS5sYW5nLk51bWJlcoaslR0LlOCLAgAAeHAAABMndAAUbWluZWNyYWZ0OnB1ZmZlcmZpc2hzcQB+ABAAAAABc3IAF2phdmEudXRpbC5MaW5rZWRIYXNoTWFwNMBOXBBswPsCAAFaAAthY2Nlc3NPcmRlcnhyABFqYXZhLnV0aWwuSGFzaE1hcAUH2sHDFmDRAwACRgAKbG9hZEZhY3RvckkACXRocmVzaG9sZHhwP0AAAAAAAAx3CAAAABAAAAACdAAVbWluZWNyYWZ0OnJlcGFpcl9jb3N0dAABMXQAFm1pbmVjcmFmdDplbmNoYW50bWVudHN0ABl7Im1pbmVjcmFmdDprbm9ja2JhY2siOjF9eABxAH4AFHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBw
 extra: rO0ABXcEAAAAAXA=

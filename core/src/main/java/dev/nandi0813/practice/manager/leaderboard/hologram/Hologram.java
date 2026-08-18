@@ -89,14 +89,10 @@ public abstract class Hologram {
         }
     }
 
-    //  ABSTRACT METHODS
-
     public abstract void getAbstractData(YamlConfiguration config);
     public abstract void setAbstractData(YamlConfiguration config);
     public abstract boolean isReadyToEnable();
     public abstract Leaderboard getNextLeaderboard();
-
-    //  DATA PERSISTENCE
 
     public void getData() {
         enabled = config.getBoolean("holograms." + name + ".enabled", false);
@@ -142,8 +138,6 @@ public abstract class Hologram {
     public void moveTo(@NotNull Location location) {
         this.baseLocation = location.clone().subtract(0, 2, 0);
     }
-
-    //  CORE MANAGEMENT
 
     /**
      * Despawns all hologram lines and clears state.
@@ -236,8 +230,6 @@ public abstract class Hologram {
         }
     }
 
-    //  UPDATE LOGIC
-
     /**
      * Main update method - handles leaderboard changes and content updates.
      */
@@ -290,8 +282,6 @@ public abstract class Hologram {
             setSetupHologram(SetupHologramType.NO_DISPLAY);
         }
     }
-
-    //  TEXT BUILDING
 
     private List<String> buildTextLines(@NotNull Leaderboard leaderboard) {
         List<String> configLines = getConfigLines(leaderboard);
@@ -385,8 +375,6 @@ public abstract class Hologram {
                 .replace("%group%", group != null ? group.getDisplayName() : ""));
     }
 
-    //  SETUP HOLOGRAMS
-
     /**
      * Shows a setup/placeholder hologram.
      */
@@ -420,8 +408,6 @@ public abstract class Hologram {
         updateSmartly(setupLines, spacings);
     }
 
-    //  DELETION
-
     /**
      * Deletes the hologram completely.
      */
@@ -436,8 +422,6 @@ public abstract class Hologram {
             BackendManager.save();
         }
     }
-
-    //  ENABLE/DISABLE
 
     public void setEnabled(boolean enabled) {
         if (enabled && isReadyToEnable()) {

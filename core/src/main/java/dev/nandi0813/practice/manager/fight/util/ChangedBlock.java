@@ -3,7 +3,6 @@ package dev.nandi0813.practice.manager.fight.util;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.util.Common;
 import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -25,8 +24,8 @@ public class ChangedBlock {
     public Location location;
 
     public ItemStack[] chestInventory;
-    @Setter
-    public BlockFace bedFace;
+
+    private BlockFace bedFace;
 
     private final BlockData blockData;
 
@@ -52,6 +51,23 @@ public class ChangedBlock {
         this.blockData = org.bukkit.Bukkit.createBlockData(originalMaterial);
     }
 
+    /**
+     * Constructor with explicit bed-handling control.
+     * When {@code handleBed} is {@code false}, {@link #saveBed(Location)} is skipped,
+     * so the block's location is never adjusted to the foot position.
+     * Used in {@link dev.nandi0813.practice.manager.fight.listener.BuildListener}
+     * to track the head half of a placed bed at its own position.
+     */
+    public ChangedBlock(final Block block, final Material originalMaterial, final boolean handleBed) {
+        this.block = block;
+        this.location = block.getLocation();
+        this.material = originalMaterial;
+        this.blockData = org.bukkit.Bukkit.createBlockData(originalMaterial);
+        if (handleBed) {
+            saveBed(this.location);
+        }
+    }
+
     public ChangedBlock(final BlockState replacedState) {
         this.block = replacedState.getBlock();
         this.location = replacedState.getLocation();
@@ -64,14 +80,6 @@ public class ChangedBlock {
 
         if (snapshot instanceof Chest chest) {
             chestInventory = chest.getInventory().getContents().clone();
-        }
-
-        if (snapshot.getBlockData() instanceof Bed bed) {
-            bedFace = bed.getFacing();
-
-            if (bed.getPart().equals(Bed.Part.HEAD)) {
-                this.location = this.block.getRelative(bedFace.getOppositeFace(), 1).getLocation();
-            }
         }
 
         this.blockData = replacedState.getBlockData().clone();
@@ -96,30 +104,25 @@ public class ChangedBlock {
 
     private void saveBed(Location loc) {
         Block block = loc.getBlock();
-
-        if (block.getType().toString().contains("_BED")) {
-            Bed bed = (Bed) block.getBlockData();
-            bedFace = bed.getFacing();
-
-            if (bed.getPart().equals(Bed.Part.HEAD)) {
-                this.location = block.getRelative(bedFace.getOppositeFace(), 1).getLocation();
+        if (block.getBlockData() instanceof Bed bed) {
+            if (bed.getPart() == Bed.Part.HEAD) {
+                this.location = block.getRelative(bed.getFacing().getOppositeFace()).getLocation();
             }
+            bedFace = bed.getFacing();
         }
     }
 
     public void reset() {
         if (location == null) return;
 
-        if (bedFace != null) {
-            BedUtil.placeBed(location, bedFace);
-            return;
-        }
-
         Block currentBlock = location.getBlock();
 
         try {
-            // Set the block data directly - this is the primary method
-            currentBlock.setBlockData(blockData, false);
+            if (bedFace != null && material.name().contains("BED")) {
+                BedUtil.placeBed(currentBlock.getLocation(), bedFace);
+            } else {
+                currentBlock.setBlockData(blockData, false);
+            }
 
             // Handle chest inventory if present
             if (chestInventory != null) {

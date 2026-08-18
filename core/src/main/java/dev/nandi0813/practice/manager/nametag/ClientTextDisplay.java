@@ -3,6 +3,8 @@ package dev.nandi0813.practice.manager.nametag;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
 import com.github.retrooper.packetevents.util.Vector3f;
+import lombok.Getter;
+import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -21,11 +23,15 @@ public final class ClientTextDisplay {
     private static final Vector3f DEFAULT_SCALE = new Vector3f(1.0F, 1.0F, 1.0F);
 
     private final UUID ownerUuid;
+    @Getter
     private final UUID entityUuid;
+    @Getter
     private final int entityId;
     private final Set<UUID> viewers = ConcurrentHashMap.newKeySet();
 
+    @Getter
     private volatile Component text = Component.empty();
+    @Setter
     private volatile int background = -1;
     private volatile int textFlags = 0;
 
@@ -33,22 +39,6 @@ public final class ClientTextDisplay {
         this.ownerUuid = owner.getUniqueId();
         this.entityUuid = UUID.randomUUID();
         this.entityId = NEXT_ENTITY_ID.incrementAndGet();
-    }
-
-    public UUID getOwnerUuid() {
-        return ownerUuid;
-    }
-
-    public UUID getEntityUuid() {
-        return entityUuid;
-    }
-
-    public int getEntityId() {
-        return entityId;
-    }
-
-    public Component getText() {
-        return text;
     }
 
     public void setText(Component text) {
@@ -65,10 +55,6 @@ public final class ClientTextDisplay {
 
     public void setTextAlignmentCenter() {
         textFlags &= ~(0x08 | 0x10);
-    }
-
-    public void setBackground(int background) {
-        this.background = background;
     }
 
     public boolean isViewing(UUID viewerUuid) {
@@ -88,7 +74,7 @@ public final class ClientTextDisplay {
     }
 
     public Location getSpawnLocation(Player owner) {
-        Location location = owner.getLocation();
+        Location location = owner.getEyeLocation();
         location.setYaw(0.0F);
         location.setPitch(0.0F);
         return location;

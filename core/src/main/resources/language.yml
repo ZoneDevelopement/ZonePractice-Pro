@@ -1,4 +1,4 @@
-VERSION: 43
+VERSION: 45
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -40,6 +40,7 @@ COMMAND:
     RESET-SELF: "<green>Your display name has been reset to default."
     RESET-OTHER: "<green>You reset <yellow>%target%<green>'s display name."
     RESETED-BY: "<yellow>%player% <green>reset your display name."
+    INVALID-NAME: "<red>Invalid name format. The name must be 3-16 characters long and contain only letters, numbers, and underscores."
   QUEUES:
     UNRANKED:
       NO-UNRANKED-LEFT: "<red>You have already played all your allowed unranked matches."
@@ -1092,7 +1093,7 @@ LADDER:
     ONLY-ALPHANUMERIC: "<red>You can only use alphanumeric characters."
     NO-ACCENTS: "<red>You cannot use accents in the name."
     FEW-CHAR: "<red>The name must have at least 2 letters."
-    MANY-CHAR: "<red>The name cannot be longer than 10 letters."
+    MANY-CHAR: "<red>The name cannot be longer than 20 letters."
     NAME-TAKEN: "<red>Ladder name is already in use."
   STATUS-CHANGE:
     NO-ICON: "<red>You have to set the ladders icon before enabling."
@@ -1526,8 +1527,8 @@ MATCH:
     MATCH-END:
       SPECTATOR-EXTENSION:
         - "<aqua>Spectators (%size%): <gray>%spectators%"
-      RANKED-EXTENSION: # Also usable: %winnerOldElo% and %loserOldElo%
-        - "<yellow>Elo Changes: <green>%winner% +%eloChange% (%winnerNewElo%) <red>%loser% -%eloChange% (%loserNewElo%)"
+      RANKED-EXTENSION: # Also usable: %winnerOldElo%, %loserOldElo%, %winnerEloChange% and %loserEloChange%
+        - "<yellow>Elo Changes: <green>%winner% +%winnerEloChange% (%winnerNewElo%) <red>%loser% -%loserEloChange% (%loserNewElo%)"
         - "<gray><st>----------------------------------------"
       MESSAGE:
         - "<gray><st>----------------------------------------"
@@ -1723,9 +1724,11 @@ FFA:
       CANT-JOIN-FFA: "<red>You can't spectate the FFA right now."
     LEAVE:
       NOT-IN-FFA: "<red>You are not in a FFA."
+      IN-COMBAT: "<red>You can't leave the FFA while in combat."
     KIT:
       NOT-IN-FFA: "<red>You are not in a FFA."
       ALREADY-IN-KIT: "<red>You are already in this kit."
+      IN-COMBAT: "<red>You can't switch your kit while in combat."
     HELP:
       - "<gray><st>----------------------------------------"
       - "<dark_aqua><bold>FFA Commands"
@@ -1768,6 +1771,7 @@ FIGHT:
     EXPLOSION-BY-PLAYER: "<red>%player% <yellow>was blown up by <gold>%killer%<yellow>."
     PLAYER: "<red>%player% <yellow>was killed by <gold>%killer%<yellow>."
     PROJECTILE: "<red>%player% <yellow>was shot by <gold>%killer%<yellow>."
+    COMBAT-LOG-QUIT: "<red>%player% <yellow>was killed by <gold>%killer%<yellow> for logging out."
     SUMO-FALL: "<red>%player% <yellow>fell out of the sumo circle."
     SPLEEF-FALL: "<red>%player% <yellow>fell out of the spleef arena."
     OWN-PORTAL-JUMP: "<red>%player% <yellow>jumped into their own portal and died."

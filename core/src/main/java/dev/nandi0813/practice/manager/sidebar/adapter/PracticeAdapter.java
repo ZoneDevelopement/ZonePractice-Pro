@@ -34,7 +34,6 @@ import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.party.PartyManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
-import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.profile.group.Group;
 import dev.nandi0813.practice.manager.queue.CustomKitQueueManager;
 import dev.nandi0813.practice.manager.queue.Queue;
@@ -65,7 +64,17 @@ public class PracticeAdapter implements SidebarAdapter {
         if (targetProfile == null) {
             return Component.text(target.getName());
         }
-        return NameFormatUtil.resolveFullName(targetProfile, target, target.getName());
+
+        // Read the SIDEBAR-NAME-FORMAT config option to determine how names should be displayed.
+        String format = SidebarManager.getInstance().getConfig().getString("SIDEBAR-NAME-FORMAT", "PREFIX_NAME_SUFFIX");
+        return switch (format.toUpperCase()) {
+            case "NAME_ONLY" -> NameFormatUtil.resolveName(targetProfile, target.getName(), target, null);
+            case "PREFIX_NAME" -> NameFormatUtil.resolvePrefix(targetProfile, target)
+                    .append(NameFormatUtil.resolveName(targetProfile, target.getName(), target, NameFormatUtil.extractTrailingColor(NameFormatUtil.resolvePrefix(targetProfile, target))));
+            case "NAME_SUFFIX" -> NameFormatUtil.resolveName(targetProfile, target.getName(), target, null)
+                    .append(NameFormatUtil.resolveSuffix(targetProfile, target));
+            default -> NameFormatUtil.resolveFullName(targetProfile, target, target.getName());
+        };
     }
 
 

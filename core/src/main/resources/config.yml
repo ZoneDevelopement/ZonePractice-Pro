@@ -1,4 +1,4 @@
-VERSION: 63
+VERSION: 71
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -41,9 +41,9 @@ SETUP:
 # Queue settings
 QUEUE:
   COMBINED:
-    ENABLED: true # If true, lobby uses a single queue item instead of separate ranked and unranked items.
+    ENABLED: false # If true, lobby uses a single queue item instead of separate ranked and unranked items.
     DEFAULT-GUI: "UNRANKED" # Options: UNRANKED, RANKED
-    SWITCH-ENABLED: true
+    SWITCH-ENABLED: false
   MULTI:
     ENABLED: true
     PERMISSION: "zpp.queue.multi"
@@ -78,9 +78,11 @@ QUEUE:
         - 31
         - 32
         - 33
+        - 38
         - 39
         - 40
         - 41
+        - 42
       CATEGORY-SELECTOR-SLOTS:
         PVP: 3
         MINIGAMES: 5
@@ -89,24 +91,28 @@ QUEUE:
           DISPLAY-NAME: "PVP"
           ICON-MATERIAL: "DIAMOND_SWORD"
           SELECTED-ICON-MATERIAL: "NETHERITE_SWORD"
+          ICON-DISABLED: false
           LADDERS:
-            - "VANILLA"
-            - "SOUP"
-            - "GAPPLE"
-            - "NODEBUFF"
-            - "DEBUFF"
-            - "BOXING"
-            - "AXE"
+            - "SPEARMACE"
             - "MACE"
-            - "SPEAR"
-            - "ARCHER"
-            - "SG"
-            - "BUILDUHC"
+            - "SPEARELYTRA"
+            - "SWORD"
             - "CRYSTAL"
+            - "BOXING"
+            - "BUILDUHC"
+            - "AXE"
+            - "GAPPLE"
+            - "SG"
+            - "ARCHER"
+            - "SOUP"
+            - "CART"
+            - "NETHERITEPOTION"
+            - "DIAMONDPOTION"
         MINIGAMES:
           DISPLAY-NAME: "MINIGAMES"
           ICON-MATERIAL: "SLIME_BALL"
           SELECTED-ICON-MATERIAL: "TNT"
+          ICON-DISABLED: false
           LADDERS:
             - "SUMO"
             - "TNTSUMO"
@@ -120,13 +126,26 @@ QUEUE:
             - "SKYWARS"
   RANKED:
     CUSTOM-KIT:
-      ENTRY-ENABLED: true # If true, ranked selector also shows the custom-kit queue entry.
+      ENTRY-ENABLED: false # If true, ranked selector also shows the custom-kit queue entry.
     MAX-QUEUE-TIME: 300 # In sec.
     GUI-UPDATE-MINUTE: 1
     DEFAULT-ELO: 1000
     ELO-RANGE-TIME: 5 # Sec
     ELO-RANGE-INCREASE: 20 # Range
-    ELO-CHANGE: 5-12 # Players receive a random elo between these two numbers.
+    ELO-CHANGE: 5-12 # Players receive a random elo between these two numbers. Only used when ELO-SYSTEM.MODE is RANDOM.
+    # Elo system for ranked match Elo changes.
+    # MODE: SKILL (default) uses the standard Elo formula
+    #       (newElo = oldElo + K * (result - expected)) where expected is based on both players' ratings,
+    #       so beating a much higher-rated player rewards more points than beating a much lower-rated one.
+    #       RANDOM keeps the old behavior: both players receive the same random value from ELO-CHANGE above.
+    ELO-SYSTEM:
+      MODE: SKILL # Options: SKILL (rating-based formula, default), RANDOM (fixed random interval from ELO-CHANGE).
+      K-FACTOR: 32 # Only used in SKILL mode. The maximum base Elo points at stake in a single match (FIDE standard is 32).
+                   # Higher values make ratings move faster after each match; lower values keep ratings more stable. Recommended range: 16-40.
+      MAX-CHANGE: 25 # Hard cap on the absolute Elo points a player can gain OR lose in a single ranked match (applies to both modes).
+                     # In SKILL mode the formula never exceeds K-FACTOR, so setting MAX-CHANGE below K-FACTOR (e.g. 15) adds a stricter
+                     # guard against extreme rating swings and Elo farming. In RANDOM mode it caps the upper bound of ELO-CHANGE.
+                     # Set to 0 to disable the cap.
     MAX-PING: 300 # Maximum ping a player can join a ranked queue.
     SELECTOR-GUI:
       SHOW-DISABLED-LADDERS: true
@@ -145,9 +164,11 @@ QUEUE:
         - 31
         - 32
         - 33
+        - 38
         - 39
         - 40
         - 41
+        - 42
       CATEGORY-SELECTOR-SLOTS:
         PVP: 3
         MINIGAMES: 5
@@ -156,21 +177,28 @@ QUEUE:
           DISPLAY-NAME: "PVP"
           ICON-MATERIAL: "DIAMOND_SWORD"
           SELECTED-ICON-MATERIAL: "NETHERITE_SWORD"
+          ICON-DISABLED: false
           LADDERS:
-            - "SOUP"
-            - "GAPPLE"
-            - "NODEBUFF"
-            - "DEBUFF"
-            - "BOXING"
+            - "SPEARMACE"
             - "MACE"
-            - "SPEAR"
-            - "SG"
-            - "BUILDUHC"
+            - "SPEARELYTRA"
+            - "SWORD"
             - "CRYSTAL"
+            - "BOXING"
+            - "BUILDUHC"
+            - "AXE"
+            - "GAPPLE"
+            - "SG"
+            - "ARCHER"
+            - "SOUP"
+            - "CART"
+            - "NETHERITEPOTION"
+            - "DIAMONDPOTION"
         MINIGAMES:
           DISPLAY-NAME: "MINIGAMES"
           ICON-MATERIAL: "SLIME_BALL"
           SELECTED-ICON-MATERIAL: "TNT"
+          ICON-DISABLED: false
           LADDERS:
             - "SUMO"
             - "TNTSUMO"
@@ -202,6 +230,8 @@ AUTO-SAVE:
 #
 # Match settings
 MATCH-SETTINGS:
+  SHOW-PLAYERS-IN-TAB: false # If true, players currently in a match/FFA/event remain visible in the tab list for lobby players (otherwise they are hidden).
+  SHOW-LOBBY-PLAYERS-IN-MATCH: false # If true, players in a match/FFA/event can see the players in the lobby (otherwise lobby players are hidden from them).
   TEAMS:
     TEAM1:
       NAME: "<blue>[B]"
@@ -368,15 +398,10 @@ MATCH-SETTINGS:
         EXP-BAR: true
         TIME: 5 # In sec.
     AXE:
-      # Re-applies no-damage-tick reset after a blocked shield hit to avoid vanilla
-      # immunity interfering with custom stun/chain-hit behavior.
-      SKIP-VANILLA-DAMAGE-TICK-WHEN-SHIELD-BLOCKED: true
       SHIELD-STUN:
         ENABLED: true
         DURATION-TICKS: 100
         REQUIRE-AXE: true
-  DEATH-ANIMATION:
-    ENABLED: false # If true, plays the vanilla death animation before respawning the player.
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
 #
 # FFA settings
@@ -387,9 +412,15 @@ FFA:
   HEALTH-BELOW-NAME: false # Default for newly created FFA arenas. If enabled, players see heart indicators below names.
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
   ALLOW-DESTROYABLE-BLOCK: true # If true, player can destroy the fixed blocks in the arena that their ladder has.
-  ENABLE_TNT: true # If true, players can use TNT in the arena (ONLY IN BUILD MODE).
-  DEATH-ANIMATION:
-    ENABLED: false # If true, plays the vanilla death animation before respawning in FFA.
+  CUSTOM-KIT-SELECTION-TIME: 10 # In seconds. Only applies to players with custom kits. If a player doesn't select a custom kit within this time, the default kit is applied (prevents staying invincible forever).
+  COMBAT-LOG:
+    ENABLED: true # If true, combat log is enabled for FFA (tagging players in combat).
+    TAG-DURATION: 15 # In seconds. How long a player remains "in combat" after dealing or taking damage.
+    BLOCK-KIT: true # If true, players cannot use /ffa kit while in combat (prevents health restore).
+    BLOCK-LEAVE: true # If true, players cannot use /ffa leave while in combat (prevents escaping).
+    COUNT-AS-KILL-ON-QUIT: true # If true, disconnecting while in combat counts as a kill for their opponent.
+    ACTION-BAR: true # If true, shows a countdown action bar while the player is in combat.
+    ACTION-BAR-MSG: "<red><bold>In Combat: <yellow><bold>%remaining%s"
 #
 # Spectator settings
 SPECTATOR-SETTINGS:
@@ -670,6 +701,8 @@ PLAYER:
     allow-block-break: false
     allow-block-place: false
     allow-lobby-interact: false
+  NICKNAME:
+    VALIDATION-PATTERN: "^[a-zA-Z0-9_]{3,16}$"
   LOBBY-NAMETAG:
     ENABLED: true
   NAMETAG-MANAGEMENT:

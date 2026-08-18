@@ -68,6 +68,7 @@ public class DuelRequest {
     public void acceptRequest() {
         DuelManager.getInstance().getRequests().get(target).remove(this);
 
+        boolean playerSelected = this.getArena() != null;
         Arena arena;
         if (this.getArena() != null) {
             arena = this.getArena();
@@ -75,12 +76,14 @@ public class DuelRequest {
             if (arena.getAvailableArena() == null) {
                 Common.sendMMMessage(sender, LanguageManager.getString("COMMAND.DUEL.ARENA-BUSY").replace("%arena%", this.getArena().getDisplayName()));
                 arena = LadderUtil.getAvailableArena(ladder);
+                playerSelected = false;
             }
         } else
             arena = LadderUtil.getAvailableArena(ladder);
 
         if (arena != null) {
             Duel duel = new Duel(ladder, arena, Arrays.asList(sender, target), false, rounds);
+            duel.setPlayerSelectedArena(playerSelected);
             duel.startMatch();
         } else {
             Common.sendMMMessage(sender, LanguageManager.getString("COMMAND.DUEL.NO-AVAILABLE-ARENA"));

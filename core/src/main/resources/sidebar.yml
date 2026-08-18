@@ -1,6 +1,14 @@
-VERSION: 6
+VERSION: 7
 
 TITLE: "<gold><b>PRACTICE"
+
+# Controls how player names are displayed in the sidebar.
+# Options:
+#   NAME_ONLY            - Just the player name (no prefix, no suffix)
+#   PREFIX_NAME          - Prefix + Name (no suffix)
+#   NAME_SUFFIX          - Name + Suffix (no prefix)
+#   PREFIX_NAME_SUFFIX   - Full format: Prefix + Name + Suffix (default)
+SIDEBAR-NAME-FORMAT: NAME_SUFFIX
 LOBBY:
   NORMAL:
     - "<gray><st>---------------------"

@@ -1,6 +1,9 @@
 package dev.nandi0813.practice.manager.nametag;
 
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.inventory.InventoryUtil;
+import dev.nandi0813.practice.manager.profile.Profile;
+import dev.nandi0813.practice.manager.profile.ProfileManager;
 import lombok.Getter;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
@@ -121,13 +124,10 @@ public class TabIntegration {
     }
 
     private void syncPlayer(Player player) {
-        hideNametag(player);
-
-        dev.nandi0813.practice.manager.profile.Profile profile =
-                dev.nandi0813.practice.manager.profile.ProfileManager.getInstance().getProfile(player);
+        Profile profile = ProfileManager.getInstance().getProfile(player);
         if (profile != null) {
             // This reuses the normal lobby formatting path so TAB and vanilla fallback stay consistent.
-            InventoryUtil.setLobbyNametag(player, profile);
+            Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> InventoryUtil.setLobbyNametag(player, profile));
         }
     }
 
