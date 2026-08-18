@@ -148,7 +148,11 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
 
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!this.players.contains(online)) {
-                    PlayerHider.getInstance().hidePlayer(player, online, true);
+                    if (ConfigManager.isShowLobbyPlayersInMatch())
+                        PlayerHider.getInstance().showPlayer(player, online);
+                    else
+                        PlayerHider.getInstance().hidePlayer(player, online, true);
+
                     if (!ConfigManager.isShowMatchPlayersInTab())
                         PlayerHider.getInstance().hidePlayer(online, player, false);
                 }

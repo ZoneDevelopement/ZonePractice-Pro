@@ -1,4 +1,4 @@
-VERSION: 70
+VERSION: 71
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -231,6 +231,7 @@ AUTO-SAVE:
 # Match settings
 MATCH-SETTINGS:
   SHOW-PLAYERS-IN-TAB: false # If true, players currently in a match/FFA/event remain visible in the tab list for lobby players (otherwise they are hidden).
+  SHOW-LOBBY-PLAYERS-IN-MATCH: false # If true, players in a match/FFA/event can see the players in the lobby (otherwise lobby players are hidden from them).
   TEAMS:
     TEAM1:
       NAME: "<blue>[B]"
