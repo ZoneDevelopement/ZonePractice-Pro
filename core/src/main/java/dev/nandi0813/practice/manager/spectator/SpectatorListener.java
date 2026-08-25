@@ -10,6 +10,7 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -131,10 +132,18 @@ public class SpectatorListener implements Listener {
         Player player = e.getPlayer();
         ensureSpectatorFlight(player);
 
-        // Some teleports or server versions can drop flight state right after teleport.
+        // The client ignores ability packets sent during a teleport until it has
+        // acknowledged the new position, so the flight state has to be re-sent after it.
         ZonePractice plugin = ZonePractice.getInstance();
         if (plugin != null && plugin.isEnabled()) {
-            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> ensureSpectatorFlight(player));
+            Bukkit.getScheduler().runTask(plugin, () -> ensureSpectatorFlight(player));
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                // Skip if the player is no longer a spectator by the time this runs.
+                if (player.isOnline() && hasSpectatorRestrictions(player)) {
+                    player.setAllowFlight(false);
+                    ensureSpectatorFlight(player);
+                }
+            }, 2L);
         }
     }
 
