@@ -98,7 +98,7 @@ public class LadderSummaryGui extends GUI {
 
             gui.remove(entry.getKey());
             for (Player player : inGuiPlayers.keySet()) {
-                if (inGuiPlayers.get(player) == entry.getKey()) {
+                if (inGuiPlayers.get(player).equals(entry.getKey())) {
                     open(player, entry.getKey() - 1);
                 }
             }
