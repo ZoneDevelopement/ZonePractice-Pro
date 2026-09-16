@@ -7,6 +7,7 @@ import dev.nandi0813.practice.manager.gui.GUIType;
 import dev.nandi0813.practice.manager.leaderboard.hologram.Hologram;
 import dev.nandi0813.practice.manager.leaderboard.hologram.HologramManager;
 import dev.nandi0813.practice.util.InventoryUtil;
+import dev.nandi0813.practice.util.PageUtil;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -14,50 +15,102 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HologramSummaryGui extends GUI {
 
     @Getter
-    private final Map<Integer, Hologram> hologramSlots = new HashMap<>();
+    private final int spaces = 18;
+    private final Map<Integer, Map<Integer, Hologram>> hologramSlots = new HashMap<>();
 
     public HologramSummaryGui() {
         super(GUIType.Hologram_Summary);
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.TITLE"), 3));
 
         build();
     }
 
     @Override
     public void build() {
-        // Frame
-        for (int i : new int[]{19, 20, 21, 22, 23, 24, 25, 26})
-            gui.get(1).setItem(i, GUIManager.getFILLER_ITEM());
-
-        // Back to Manager Icon
-        gui.get(1).setItem(18, GUIFile.getGuiItem("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.BACK-TO").get());
-
         update();
     }
 
     @Override
     public void update() {
-        // Clear
+        List<Hologram> holograms = new ArrayList<>(HologramManager.getInstance().getHolograms());
+        holograms.sort(Comparator.comparing(Hologram::getName, String::compareToIgnoreCase));
+
+        Map<Integer, Inventory> existingInventories = new HashMap<>(gui);
+        Map<Integer, Inventory> newGui = new HashMap<>();
+        Map<Integer, Map<Integer, Hologram>> newHologramSlots = new HashMap<>();
+
+        for (int page = 1; PageUtil.isPageValid(holograms.size(), page, spaces) || page == 1; page++) {
+            Inventory inventory = existingInventories.get(page);
+            String title = GUIFile.getString("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.TITLE").replace("%page%", String.valueOf(page));
+            if (inventory == null || inventory.getSize() != 3 * 9) {
+                inventory = InventoryUtil.createInventory(title, 3);
+            } else {
+                inventory.clear();
+            }
+            newGui.put(page, inventory);
+
+            // Frame
+            for (int i = 18; i < 27; i++) {
+                inventory.setItem(i, GUIManager.getFILLER_ITEM());
+            }
+
+            Map<Integer, Hologram> pageSlots = new HashMap<>();
+            int startIndex = (page - 1) * spaces;
+            int endIndex = Math.min(startIndex + spaces, holograms.size());
+            for (int i = startIndex; i < endIndex; i++) {
+                int slot = inventory.firstEmpty();
+                if (slot == -1 || slot >= 18) {
+                    break;
+                }
+
+                Hologram hologram = holograms.get(i);
+                inventory.setItem(slot, this.getSummaryHologramMainItem(hologram));
+                pageSlots.put(slot, hologram);
+            }
+            newHologramSlots.put(page, pageSlots);
+
+            // Left navigation
+            ItemStack left;
+            if (page == 1)
+                left = GUIFile.getGuiItem("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.BACK-TO").get();
+            else
+                left = GUIFile.getGuiItem("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.PAGE-LEFT").replace("%page%", String.valueOf(page - 1)).get();
+            inventory.setItem(18, left);
+
+            // Right navigation
+            ItemStack right;
+            if (PageUtil.isPageValid(holograms.size(), page + 1, spaces))
+                right = GUIFile.getGuiItem("GUIS.SETUP.HOLOGRAM.HOLOGRAM-MANAGER.ICONS.PAGE-RIGHT").replace("%page%", String.valueOf(page + 1)).get();
+            else
+                right = GUIManager.getFILLER_ITEM();
+            inventory.setItem(26, right);
+        }
+
+        for (Map.Entry<Integer, Inventory> entry : new LinkedHashMap<>(gui).entrySet()) {
+            if (newGui.containsKey(entry.getKey())) {
+                continue;
+            }
+
+            gui.remove(entry.getKey());
+            for (Player player : inGuiPlayers.keySet()) {
+                if (inGuiPlayers.get(player) == entry.getKey()) {
+                    open(player, entry.getKey() - 1);
+                }
+            }
+        }
+
+        gui.putAll(newGui);
         hologramSlots.clear();
-        for (int i = 0; i < 18; i++) gui.get(1).setItem(i, null);
-
-        // Set the hologram icons - sort alphanumerically by internal name (case-insensitive)
-        HologramManager.getInstance().getHolograms()
-                .stream()
-                .sorted(Comparator.comparing(Hologram::getName, String::compareToIgnoreCase))
-                .forEach(hologram -> {
-                    int slot = gui.get(1).firstEmpty();
-
-                    gui.get(1).setItem(slot, this.getSummaryHologramMainItem(hologram));
-                    hologramSlots.put(slot, hologram);
-                });
+        hologramSlots.putAll(newHologramSlots);
 
         updatePlayers();
     }
@@ -73,17 +126,28 @@ public class HologramSummaryGui extends GUI {
 
         e.setCancelled(true);
 
-        if (inventory.getSize() > slot && currentItem != null && !currentItem.equals(GUIManager.getFILLER_ITEM())) {
-            if (slot == 18)
-                GUIManager.getInstance().searchGUI(GUIType.Setup_Hub).open(player);
-            else if (hologramSlots.containsKey(slot)) {
-                Hologram hologram = hologramSlots.get(slot);
+        if (inventory.getSize() <= slot) return;
+        if (currentItem == null) return;
+        if (currentItem.equals(GUIManager.getFILLER_ITEM())) return;
 
-                if (click.isRightClick())
-                    player.teleport(hologram.getBaseLocation().clone().subtract(0, -2, 0));
-                else
-                    HologramSetupManager.getInstance().getHologramSetupGUIs().get(hologram).get(GUIType.Hologram_Main).open(player);
+        int page = inGuiPlayers.getOrDefault(player, 1);
+        if (slot == 18) {
+            if (page == 1) {
+                GUIManager.getInstance().searchGUI(GUIType.Setup_Hub).open(player);
+            } else if (gui.containsKey(page - 1)) {
+                open(player, page - 1);
             }
+        } else if (slot == 26) {
+            if (gui.containsKey(page + 1)) {
+                open(player, page + 1);
+            }
+        } else if (hologramSlots.containsKey(page) && hologramSlots.get(page).containsKey(slot)) {
+            Hologram hologram = hologramSlots.get(page).get(slot);
+
+            if (click.isRightClick())
+                player.teleport(hologram.getBaseLocation().clone().subtract(0, -2, 0));
+            else
+                HologramSetupManager.getInstance().getHologramSetupGUIs().get(hologram).get(GUIType.Hologram_Main).open(player);
         }
     }
 
