@@ -18,9 +18,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.projectiles.ProjectileSource;
 
 public class SpectatorListener implements Listener {
@@ -103,6 +105,20 @@ public class SpectatorListener implements Listener {
             if (hasSpectatorRestrictions(player)) {
                 e.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onVehicleDestroy(VehicleDestroyEvent e) {
+        if (e.getAttacker() instanceof Player attacker && hasSpectatorRestrictions(attacker)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onHangingBreakByEntity(HangingBreakByEntityEvent e) {
+        if (e.getRemover() instanceof Player remover && hasSpectatorRestrictions(remover)) {
+            e.setCancelled(true);
         }
     }
 
@@ -205,6 +221,13 @@ public class SpectatorListener implements Listener {
         if (e.getEntity() instanceof Player player && hasSpectatorRestrictions(player)) {
             e.setCancelled(true);
 
+        }
+    }
+
+    @EventHandler
+    public void onArrowPickup(PlayerPickupArrowEvent e) {
+        if (hasSpectatorRestrictions(e.getPlayer())) {
+            e.setCancelled(true);
         }
     }
 
