@@ -285,7 +285,7 @@ MATCH-SETTINGS:
     START-COUNTDOWN-FROM: 5
   MATCH-FOUND:
     ICON-ANIMATION: false # If true, when a match is found while queueing, the ladder's icon is briefly shown to both players with the totem-of-undying animation.
-    TELEPORT-DELAY: 40 # Ticks players are kept in the lobby before being teleported into the arena, so they can see the animation. The vanilla totem-of-undying animation lasts 40 ticks.
+    ICON-ANIMATION-DELAY: 40 # Ticks before players are teleported after the animation starts.
   HEALTH-BELOW-NAME:
     SATURATED-HEART-INDICATOR: true # If true, the below-name heart icon turns yellow when the player is saturated.
     DECIMAL-HEART-INDICATOR:

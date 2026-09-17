@@ -241,7 +241,7 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
         if (matchFoundAnimation)
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
                 if (player.isOnline() && queue.getPlayer().isOnline()) duel.startMatch();
-            }, ConfigManager.getInt("MATCH-SETTINGS.MATCH-FOUND.TELEPORT-DELAY", 40));
+            }, ConfigManager.getInt("MATCH-SETTINGS.MATCH-FOUND.ICON-ANIMATION-DELAY", 40));
         else
             duel.startMatch();
     }
