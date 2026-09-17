@@ -19,9 +19,6 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.queue.runnables.RankedSearchRunnable;
 import dev.nandi0813.practice.manager.queue.runnables.SearchRunnable;
 import dev.nandi0813.practice.manager.queue.runnables.UnrankedSearchRunnable;
-import dev.nandi0813.practice.manager.server.sound.SoundEffect;
-import dev.nandi0813.practice.manager.server.sound.SoundManager;
-import dev.nandi0813.practice.manager.server.sound.SoundType;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.interfaces.Runnable;
@@ -228,9 +225,6 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
 
             for (Player matchPlayer : List.of(player, queue.getPlayer())) {
                 if (!matchPlayer.isOnline()) continue;
-
-                SoundEffect sound = SoundManager.getInstance().getSound(SoundType.MATCH_FOUND_ANIMATION);
-                if (sound != null) sound.play(matchPlayer);
 
                 PlayerInventory inventory = matchPlayer.getInventory();
                 ItemStack previous = inventory.getItemInMainHand();
