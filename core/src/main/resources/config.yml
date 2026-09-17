@@ -1,4 +1,4 @@
-VERSION: 71
+VERSION: 73
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -283,6 +283,9 @@ MATCH-SETTINGS:
     REMOVE-AFTER: 60 # After the seconds, the players won't be able to open their match statistics.
   TITLE:
     START-COUNTDOWN-FROM: 5
+  MATCH-FOUND:
+    ICON-ANIMATION: true # If true, when a match is found while queueing, the ladder's icon is briefly shown to both players with the totem-of-undying animation.
+    TELEPORT-DELAY: 40 # Ticks players are kept in the lobby before being teleported into the arena, so they can see the animation. The vanilla totem-of-undying animation lasts 40 ticks.
   HEALTH-BELOW-NAME:
     SATURATED-HEART-INDICATOR: true # If true, the below-name heart icon turns yellow when the player is saturated.
     DECIMAL-HEART-INDICATOR:
