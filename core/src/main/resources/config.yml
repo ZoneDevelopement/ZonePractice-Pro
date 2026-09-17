@@ -1,4 +1,4 @@
-VERSION: 72
+VERSION: 75
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -455,6 +455,11 @@ STAFF-MODE:
 #
 # Sounds - You can find the sound list here: https://helpch.at/docs/1.20.3/org/bukkit/Sound.html
 SOUNDS:
+  MATCH_FOUND_ANIMATION:
+    ENABLED: true
+    SOUND: ITEM_TOTEM_USE
+    VOLUME: 1
+    PITCH: 1
   MATCH_START_COUNTDOWN:
     ENABLED: true
     SOUND: BLOCK_NOTE_BLOCK_PLING

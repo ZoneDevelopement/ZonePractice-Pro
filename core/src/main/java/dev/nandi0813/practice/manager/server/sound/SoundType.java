@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.server.sound;
 
 public enum SoundType {
 
+    MATCH_FOUND_ANIMATION,
     MATCH_START_COUNTDOWN,
     MATCH_STARTED,
     BED_BREAK,
