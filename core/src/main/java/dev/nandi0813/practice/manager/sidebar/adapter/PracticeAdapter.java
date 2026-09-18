@@ -99,7 +99,13 @@ public class PracticeAdapter implements SidebarAdapter {
 
         switch (profile.getStatus()) {
             case LOBBY, EDITOR, STAFF_MODE, CUSTOM_EDITOR -> buildLobbyLines(player, config, profile, sidebar);
-            case QUEUE -> buildQueueLines(player, config, profile, sidebar);
+            case QUEUE -> {
+                // After a match is found the player leaves the queue but keeps the QUEUE status while
+                // waiting for the teleport (e.g. totem animation delay). Fall back to the lobby scoreboard
+                // so it doesn't render an empty queue board until the player is teleported into the arena.
+                if (!buildQueueLines(player, config, profile, sidebar))
+                    buildLobbyLines(player, config, profile, sidebar);
+            }
             case MATCH -> buildMatchLines(player, config, sidebar);
             case FFA -> buildFFALines(player, config, sidebar);
             case EVENT -> buildEventLines(player, config, sidebar);
@@ -140,7 +146,7 @@ public class PracticeAdapter implements SidebarAdapter {
         }
     }
 
-    private void buildQueueLines(Player player, YamlConfiguration config, Profile profile, List<Component> sidebar) {
+    private boolean buildQueueLines(Player player, YamlConfiguration config, Profile profile, List<Component> sidebar) {
             Queue queue = QueueManager.getInstance().getQueue(player);
             Event event = EventManager.getInstance().getEventByPlayer(player);
             CustomKitQueueManager.HostedCustomKitQueue hostedCustomKitQueue = CustomKitQueueManager.getInstance().getHostedQueue(player);
@@ -185,6 +191,7 @@ public class PracticeAdapter implements SidebarAdapter {
                             .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build())
                     );
                 }
+                return true;
             } else if (hostedCustomKitQueue != null) {
                 for (String line : config.getStringList("LOBBY.CUSTOM-KIT-QUEUE.HOSTING")) {
                     sidebar.add(PAPIUtil.runThroughFormat(player, line)
@@ -198,6 +205,7 @@ public class PracticeAdapter implements SidebarAdapter {
                             .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build())
                     );
                 }
+                return true;
             } else if (customKitJoinSearch != null) {
                 for (String line : config.getStringList("LOBBY.CUSTOM-KIT-QUEUE.JOIN-SEARCH")) {
                     sidebar.add(PAPIUtil.runThroughFormat(player, line)
@@ -211,6 +219,7 @@ public class PracticeAdapter implements SidebarAdapter {
                             .replaceText(TextReplacementConfig.builder().match("%division_short%").replacement(profile.getStats().getDivision() != null ? profile.getStats().getDivision().getComponentShortName() : Component.empty()).build())
                     );
                 }
+                return true;
             } else if (event != null) {
                 String eventQueueTimeLeft = event.getQueueRunnable() != null ? event.getQueueRunnable().getFormattedTime() : null;
 
@@ -237,6 +246,7 @@ public class PracticeAdapter implements SidebarAdapter {
                     }
                 }
             }
+            return false;
     }
 
     private void buildMatchLines(Player player, YamlConfiguration config, List<Component> sidebar) {

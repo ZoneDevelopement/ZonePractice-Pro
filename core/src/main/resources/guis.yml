@@ -1,4 +1,4 @@
-VERSION: 40
+VERSION: 41
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1751,6 +1751,12 @@ GUIS:
           BACK-TO:
             NAME: "<red>Go Back"
             MATERIAL: ARROW
+          PAGE-LEFT:
+            NAME: "<gold>Go to Page %page%"
+            MATERIAL: ARROW
+          PAGE-RIGHT:
+            NAME: "<gold>Go to Page %page%"
+            MATERIAL: ARROW
           LADDER-ICONS:
             ASSIGNED:
               NAME: "<green>%ladderDisplayName%"
@@ -2024,6 +2030,12 @@ GUIS:
         ICONS:
           BACK-TO:
             NAME: "<red>Go Back"
+            MATERIAL: ARROW
+          PAGE-LEFT:
+            NAME: "<gold>Go to Page %page%"
+            MATERIAL: ARROW
+          PAGE-RIGHT:
+            NAME: "<gold>Go to Page %page%"
             MATERIAL: ARROW
           LADDER-ICONS:
             ASSIGNED:

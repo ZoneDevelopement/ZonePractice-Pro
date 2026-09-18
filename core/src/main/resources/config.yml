@@ -1,4 +1,4 @@
-VERSION: 71
+VERSION: 72
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -283,6 +283,9 @@ MATCH-SETTINGS:
     REMOVE-AFTER: 60 # After the seconds, the players won't be able to open their match statistics.
   TITLE:
     START-COUNTDOWN-FROM: 5
+  MATCH-FOUND:
+    ICON-ANIMATION: false # If true, when a match is found while queueing, the ladder's icon is briefly shown to both players with the totem-of-undying animation.
+    ICON-ANIMATION-DELAY: 40 # Ticks before players are teleported after the animation starts.
   HEALTH-BELOW-NAME:
     SATURATED-HEART-INDICATOR: true # If true, the below-name heart icon turns yellow when the player is saturated.
     DECIMAL-HEART-INDICATOR:

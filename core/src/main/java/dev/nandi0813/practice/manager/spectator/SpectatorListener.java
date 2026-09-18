@@ -22,6 +22,7 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.projectiles.ProjectileSource;
 
@@ -83,18 +84,7 @@ public class SpectatorListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
-        Player attacker = null;
-
-        if (e.getDamager() instanceof Player playerDamager) {
-            attacker = playerDamager;
-        } else if (e.getDamager() instanceof org.bukkit.entity.Projectile projectile) {
-            ProjectileSource source = projectile.getShooter();
-            if (source instanceof Player shooter) {
-                attacker = shooter;
-            }
-        }
-
-        if (attacker != null && hasSpectatorRestrictions(attacker)) {
+        if (e.getDamager() instanceof Player attacker && hasSpectatorRestrictions(attacker)) {
             e.setCancelled(true);
         }
     }
@@ -105,6 +95,13 @@ public class SpectatorListener implements Listener {
             if (hasSpectatorRestrictions(player)) {
                 e.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onVehicleDamage(VehicleDamageEvent e) {
+        if (e.getAttacker() instanceof Player attacker && hasSpectatorRestrictions(attacker)) {
+            e.setCancelled(true);
         }
     }
 
