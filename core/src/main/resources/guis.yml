@@ -1,4 +1,4 @@
-VERSION: 39
+VERSION: 41
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -65,6 +65,12 @@ GUIS:
         LORE:
           - ""
           - "<green>Click here to select <yellow>%ladder%<green>."
+        PAGE-LEFT:
+          NAME: "<gold>Go to Page %page%"
+          MATERIAL: ARROW
+        PAGE-RIGHT:
+          NAME: "<gold>Go to Page %page%"
+          MATERIAL: ARROW
     DUEL-ROUND-SELECTOR:
       TITLE: "<dark_gray>Select the amount of rounds"
       ICONS:
@@ -947,6 +953,12 @@ GUIS:
             - "<gray>Click here to restart all"
             - "<gray>the player's ladder statistics."
             - "<dark_gray><st>------------------------"
+        PAGE-LEFT:
+          NAME: "<gold>Go to Page %page%"
+          MATERIAL: ARROW
+        PAGE-RIGHT:
+          NAME: "<gold>Go to Page %page%"
+          MATERIAL: ARROW
         LADDER:
           NULL-STAT: "<red>N/A"
           UNRANKED-LADDER-STATS:
@@ -1000,6 +1012,12 @@ GUIS:
             - "<gray>Click here to select"
             - "<gray>arena %arena%<gray>."
             - "<dark_gray><st>------------------------"
+        PAGE-LEFT:
+          NAME: "<gold>Go to Page %page%"
+          MATERIAL: ARROW
+        PAGE-RIGHT:
+          NAME: "<gold>Go to Page %page%"
+          MATERIAL: ARROW
     LADDER-SELECTOR:
       TITLE: "%matchType% <dark_gray>- Kit"
       ICONS:
@@ -1020,6 +1038,12 @@ GUIS:
             - "<gray>Click here to play"
             - "<gray>with your own custom kit."
             - "<dark_gray><st>------------------------"
+        PAGE-LEFT:
+          NAME: "<gold>Go to Page %page%"
+          MATERIAL: ARROW
+        PAGE-RIGHT:
+          NAME: "<gold>Go to Page %page%"
+          MATERIAL: ARROW
   EVENT-HOST: # You can set each event icon in the game.
     TITLE: "<dark_red>Host Event"
   BRACKETS-KIT-SELECTOR:
@@ -1727,6 +1751,12 @@ GUIS:
           BACK-TO:
             NAME: "<red>Go Back"
             MATERIAL: ARROW
+          PAGE-LEFT:
+            NAME: "<gold>Go to Page %page%"
+            MATERIAL: ARROW
+          PAGE-RIGHT:
+            NAME: "<gold>Go to Page %page%"
+            MATERIAL: ARROW
           LADDER-ICONS:
             ASSIGNED:
               NAME: "<green>%ladderDisplayName%"
@@ -2000,6 +2030,12 @@ GUIS:
         ICONS:
           BACK-TO:
             NAME: "<red>Go Back"
+            MATERIAL: ARROW
+          PAGE-LEFT:
+            NAME: "<gold>Go to Page %page%"
+            MATERIAL: ARROW
+          PAGE-RIGHT:
+            NAME: "<gold>Go to Page %page%"
             MATERIAL: ARROW
           LADDER-ICONS:
             ASSIGNED:
@@ -2938,6 +2974,12 @@ GUIS:
               - ""
               - "<aqua><bold>LEFT-CLICK <aqua>to open hologram settings."
               - "<green><bold>RIGHT-CLICK <green>to teleport to the hologram."
+          PAGE-LEFT:
+            NAME: "<gold>Go to Page %page%"
+            MATERIAL: ARROW
+          PAGE-RIGHT:
+            NAME: "<gold>Go to Page %page%"
+            MATERIAL: ARROW
       HOLOGRAM-MAIN:
         TITLE: "<dark_blue>%hologram% <dark_gray>- Hologram"
         ICONS:
@@ -3016,6 +3058,12 @@ GUIS:
               - "<gray>This ladder is <red>disabled<gray>."
               - ""
               - "<yellow>Click here <gray>to <green>enable<gray>."
+          PAGE-LEFT:
+            NAME: "<gold>Go to Page %page%"
+            MATERIAL: ARROW
+          PAGE-RIGHT:
+            NAME: "<gold>Go to Page %page%"
+            MATERIAL: ARROW
     SERVER:
       SERVER-MANAGER:
         TITLE: "<dark_gray>Server Manager"

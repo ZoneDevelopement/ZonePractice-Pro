@@ -1,4 +1,4 @@
-VERSION: 71
+VERSION: 72
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -231,7 +231,6 @@ AUTO-SAVE:
 # Match settings
 MATCH-SETTINGS:
   SHOW-PLAYERS-IN-TAB: false # If true, players currently in a match/FFA/event remain visible in the tab list for lobby players (otherwise they are hidden).
-  SHOW-LOBBY-PLAYERS-IN-MATCH: false # If true, players in a match/FFA/event can see the players in the lobby (otherwise lobby players are hidden from them).
   TEAMS:
     TEAM1:
       NAME: "<blue>[B]"
@@ -284,6 +283,9 @@ MATCH-SETTINGS:
     REMOVE-AFTER: 60 # After the seconds, the players won't be able to open their match statistics.
   TITLE:
     START-COUNTDOWN-FROM: 5
+  MATCH-FOUND:
+    ICON-ANIMATION: false # If true, when a match is found while queueing, the ladder's icon is briefly shown to both players with the totem-of-undying animation.
+    ICON-ANIMATION-DELAY: 40 # Ticks before players are teleported after the animation starts.
   HEALTH-BELOW-NAME:
     SATURATED-HEART-INDICATOR: true # If true, the below-name heart icon turns yellow when the player is saturated.
     DECIMAL-HEART-INDICATOR:

@@ -10,6 +10,7 @@ import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.util.Cuboid;
 import dev.nandi0813.practice.util.interfaces.Spectatable;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,9 +18,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.projectiles.ProjectileSource;
 
 public class SpectatorListener implements Listener {
@@ -80,18 +84,7 @@ public class SpectatorListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
-        Player attacker = null;
-
-        if (e.getDamager() instanceof Player playerDamager) {
-            attacker = playerDamager;
-        } else if (e.getDamager() instanceof org.bukkit.entity.Projectile projectile) {
-            ProjectileSource source = projectile.getShooter();
-            if (source instanceof Player shooter) {
-                attacker = shooter;
-            }
-        }
-
-        if (attacker != null && hasSpectatorRestrictions(attacker)) {
+        if (e.getDamager() instanceof Player attacker && hasSpectatorRestrictions(attacker)) {
             e.setCancelled(true);
         }
     }
@@ -102,6 +95,27 @@ public class SpectatorListener implements Listener {
             if (hasSpectatorRestrictions(player)) {
                 e.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onVehicleDamage(VehicleDamageEvent e) {
+        if (e.getAttacker() instanceof Player attacker && hasSpectatorRestrictions(attacker)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onVehicleDestroy(VehicleDestroyEvent e) {
+        if (e.getAttacker() instanceof Player attacker && hasSpectatorRestrictions(attacker)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onHangingBreakByEntity(HangingBreakByEntityEvent e) {
+        if (e.getRemover() instanceof Player remover && hasSpectatorRestrictions(remover)) {
+            e.setCancelled(true);
         }
     }
 
@@ -131,10 +145,18 @@ public class SpectatorListener implements Listener {
         Player player = e.getPlayer();
         ensureSpectatorFlight(player);
 
-        // Some teleports or server versions can drop flight state right after teleport.
+        // The client ignores ability packets sent during a teleport until it has
+        // acknowledged the new position, so the flight state has to be re-sent after it.
         ZonePractice plugin = ZonePractice.getInstance();
         if (plugin != null && plugin.isEnabled()) {
-            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> ensureSpectatorFlight(player));
+            Bukkit.getScheduler().runTask(plugin, () -> ensureSpectatorFlight(player));
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                // Skip if the player is no longer a spectator by the time this runs.
+                if (player.isOnline() && hasSpectatorRestrictions(player)) {
+                    player.setAllowFlight(false);
+                    ensureSpectatorFlight(player);
+                }
+            }, 2L);
         }
     }
 
@@ -196,6 +218,13 @@ public class SpectatorListener implements Listener {
         if (e.getEntity() instanceof Player player && hasSpectatorRestrictions(player)) {
             e.setCancelled(true);
 
+        }
+    }
+
+    @EventHandler
+    public void onArrowPickup(PlayerPickupArrowEvent e) {
+        if (hasSpectatorRestrictions(e.getPlayer())) {
+            e.setCancelled(true);
         }
     }
 

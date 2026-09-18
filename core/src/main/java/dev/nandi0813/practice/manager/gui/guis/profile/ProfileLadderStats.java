@@ -1,6 +1,5 @@
 package dev.nandi0813.practice.manager.gui.guis.profile;
 
-import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.backend.GUIFile;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.gui.GUI;
@@ -13,7 +12,7 @@ import dev.nandi0813.practice.manager.profile.statistics.LadderStats;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import dev.nandi0813.practice.util.ItemCreateUtil;
-import org.bukkit.Bukkit;
+import dev.nandi0813.practice.util.PageUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -26,14 +25,13 @@ public class ProfileLadderStats extends GUI {
 
     private final Profile profile;
     private final GUI backTo;
-    private final Map<Integer, NormalLadder> ladderSlots = new HashMap<>();
+    private final int spaces = 45;
+    private final Map<Integer, Map<Integer, NormalLadder>> ladderSlots = new HashMap<>();
 
     public ProfileLadderStats(Profile profile, GUI backTo) {
         super(GUIType.Profile_LadderStats);
         this.profile = profile;
         this.backTo = backTo;
-
-        this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.TITLE").replace("%player%", Objects.requireNonNull(profile.getPlayer().getName())), 6));
 
         build();
     }
@@ -45,29 +43,73 @@ public class ProfileLadderStats extends GUI {
 
     @Override
     public void update() {
-        Bukkit.getScheduler().runTaskAsynchronously(ZonePractice.getInstance(), () ->
-        {
-            Inventory inventory = gui.get(1);
-            inventory.clear();
-            ladderSlots.clear();
+        List<NormalLadder> ladders = new ArrayList<>(LadderManager.getInstance().getLadders());
+        ladders.sort(Comparator.comparing(NormalLadder::getName, String::compareToIgnoreCase));
 
-            for (int i = 45; i < 54; i++)
+        Map<Integer, Inventory> existingInventories = new HashMap<>(gui);
+        Map<Integer, Inventory> newGui = new HashMap<>();
+        Map<Integer, Map<Integer, NormalLadder>> newLadderSlots = new HashMap<>();
+
+        for (int page = 1; PageUtil.isPageValid(ladders.size(), page, spaces) || page == 1; page++) {
+            Inventory inventory = existingInventories.get(page);
+            String title = GUIFile.getString("GUIS.PLAYER-INFORMATION.LADDER-STATS.TITLE").replace("%player%", Objects.requireNonNull(profile.getPlayer().getName())).replace("%page%", String.valueOf(page));
+            if (inventory == null || inventory.getSize() != 6 * 9) {
+                inventory = InventoryUtil.createInventory(title, 6);
+            } else {
+                inventory.clear();
+            }
+            newGui.put(page, inventory);
+
+            for (int i = 45; i < 54; i++) {
                 inventory.setItem(i, GUIManager.getFILLER_ITEM());
-
-            for (NormalLadder ladder : LadderManager.getInstance().getLadders()) {
-                int slot = inventory.firstEmpty();
-                if (slot == -1) break;
-
-                inventory.setItem(slot, getLadderStatItem(ladder));
-                ladderSlots.put(slot, ladder);
             }
 
+            Map<Integer, NormalLadder> pageSlots = new HashMap<>();
+            int startIndex = (page - 1) * spaces;
+            int endIndex = Math.min(startIndex + spaces, ladders.size());
+            for (int i = startIndex; i < endIndex; i++) {
+                int slot = inventory.firstEmpty();
+                if (slot == -1 || slot >= 45) {
+                    break;
+                }
+
+                NormalLadder ladder = ladders.get(i);
+                inventory.setItem(slot, getLadderStatItem(ladder));
+                pageSlots.put(slot, ladder);
+            }
+            newLadderSlots.put(page, pageSlots);
+
             inventory.setItem(45, GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.BACK-TO-HUB").get());
+
+            inventory.setItem(46, page > 1
+                    ? GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.PAGE-LEFT").replace("%page%", String.valueOf(page - 1)).get()
+                    : GUIManager.getFILLER_ITEM());
+            inventory.setItem(47, PageUtil.isPageValid(ladders.size(), page + 1, spaces)
+                    ? GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.PAGE-RIGHT").replace("%page%", String.valueOf(page + 1)).get()
+                    : GUIManager.getFILLER_ITEM());
+
             inventory.setItem(49, GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.REFRESH").get());
             inventory.setItem(53, GUIFile.getGuiItem("GUIS.PLAYER-INFORMATION.LADDER-STATS.ICONS.RESET-ALL-STATS").get());
+        }
 
-            updatePlayers();
-        });
+        for (Map.Entry<Integer, Inventory> entry : new LinkedHashMap<>(gui).entrySet()) {
+            if (newGui.containsKey(entry.getKey())) {
+                continue;
+            }
+
+            gui.remove(entry.getKey());
+            for (Player player : inGuiPlayers.keySet()) {
+                if (inGuiPlayers.get(player).equals(entry.getKey())) {
+                    open(player, entry.getKey() - 1);
+                }
+            }
+        }
+
+        gui.putAll(newGui);
+        ladderSlots.clear();
+        ladderSlots.putAll(newLadderSlots);
+
+        updatePlayers();
     }
 
     @Override
@@ -79,37 +121,49 @@ public class ProfileLadderStats extends GUI {
 
         e.setCancelled(true);
 
-        if (inventory.getSize() > slot && item != null) {
-            switch (slot) {
-                case 45:
-                    backTo.open(player);
-                    break;
-                case 49:
-                    update();
-                    break;
-                case 53:
-                    if (!player.hasPermission("zpp.practice.info.resetstats")) {
-                        Common.sendMMMessage(player, LanguageManager.getString("PROFILE.NO-PERMISSION"));
-                        return;
-                    }
+        if (inventory.getSize() <= slot) return;
+        if (item == null) return;
 
-                    for (NormalLadder ladder : LadderManager.getInstance().getLadders())
-                        profile.getStats().loadDefaultStats(ladder);
-                    update();
-                    break;
-                default:
-                    if (!ladderSlots.containsKey(slot)) return;
+        int page = inGuiPlayers.getOrDefault(player, 1);
+        switch (slot) {
+            case 45:
+                backTo.open(player);
+                break;
+            case 46:
+                if (page > 1 && gui.containsKey(page - 1)) {
+                    open(player, page - 1);
+                }
+                break;
+            case 47:
+                if (gui.containsKey(page + 1)) {
+                    open(player, page + 1);
+                }
+                break;
+            case 49:
+                update();
+                break;
+            case 53:
+                if (!player.hasPermission("zpp.practice.info.resetstats")) {
+                    Common.sendMMMessage(player, LanguageManager.getString("PROFILE.NO-PERMISSION"));
+                    return;
+                }
 
-                    if (!player.hasPermission("zpp.practice.info.resetstats")) {
-                        Common.sendMMMessage(player, LanguageManager.getString("PROFILE.NO-PERMISSION"));
-                        return;
-                    }
-
-                    NormalLadder ladder = ladderSlots.get(slot);
+                for (NormalLadder ladder : LadderManager.getInstance().getLadders())
                     profile.getStats().loadDefaultStats(ladder);
-                    update();
-                    break;
-            }
+                update();
+                break;
+            default:
+                if (!ladderSlots.containsKey(page) || !ladderSlots.get(page).containsKey(slot)) return;
+
+                if (!player.hasPermission("zpp.practice.info.resetstats")) {
+                    Common.sendMMMessage(player, LanguageManager.getString("PROFILE.NO-PERMISSION"));
+                    return;
+                }
+
+                NormalLadder ladder = ladderSlots.get(page).get(slot);
+                profile.getStats().loadDefaultStats(ladder);
+                update();
+                break;
         }
     }
 

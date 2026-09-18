@@ -2,6 +2,7 @@ package dev.nandi0813.practice.manager.queue;
 
 import dev.nandi0813.api.Event.Queue.QueueEndEvent;
 import dev.nandi0813.api.Event.Queue.QueueStartEvent;
+import dev.nandi0813.practice.ZonePractice;
 import dev.nandi0813.practice.manager.arena.arenas.Arena;
 import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
@@ -21,10 +22,15 @@ import dev.nandi0813.practice.manager.queue.runnables.UnrankedSearchRunnable;
 import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.StringUtil;
 import dev.nandi0813.practice.util.interfaces.Runnable;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.DeathProtection;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.EntityEffect;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import java.util.*;
 
@@ -211,8 +217,33 @@ public class Queue extends Runnable implements dev.nandi0813.api.Interface.Queue
         queueManager.endAllQueuesForPlayer(queue.getPlayer(), true, stopMessage);
         queueManager.endAllQueuesForPlayer(this.player, true, stopMessage);
 
+        boolean matchFoundAnimation = ConfigManager.getBoolean("MATCH-SETTINGS.MATCH-FOUND.ICON-ANIMATION");
+
+        if (matchFoundAnimation) {
+            ItemStack icon = matchedLadder.getIcon();
+            icon.setData(DataComponentTypes.DEATH_PROTECTION, DeathProtection.deathProtection());
+
+            for (Player matchPlayer : List.of(player, queue.getPlayer())) {
+                if (!matchPlayer.isOnline()) continue;
+
+                PlayerInventory inventory = matchPlayer.getInventory();
+                ItemStack previous = inventory.getItemInMainHand();
+
+                inventory.setItemInMainHand(icon.clone());
+                matchPlayer.updateInventory();
+                matchPlayer.sendEntityEffect(EntityEffect.PROTECTED_FROM_DEATH, matchPlayer);
+                inventory.setItemInMainHand(previous);
+            }
+        }
+
         Duel duel = new Duel(matchedLadder, arena, Arrays.asList(player, queue.getPlayer()), ranked, matchedLadder.getRounds());
-        duel.startMatch();
+
+        if (matchFoundAnimation)
+            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
+                if (player.isOnline() && queue.getPlayer().isOnline()) duel.startMatch();
+            }, ConfigManager.getInt("MATCH-SETTINGS.MATCH-FOUND.ICON-ANIMATION-DELAY", 40));
+        else
+            duel.startMatch();
     }
 
     public void startMatch(Queue queue) {

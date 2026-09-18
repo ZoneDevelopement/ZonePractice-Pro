@@ -56,10 +56,7 @@ public class PlayerHider implements Listener {
                  * Hide the player from the online.
                  */
                 if (onlineStatus.equals(ProfileStatus.MATCH) || onlineStatus.equals(ProfileStatus.EVENT) || onlineStatus.equals(ProfileStatus.FFA)) {
-                    if (ConfigManager.isShowLobbyPlayersInMatch())
-                        showPlayer(online, player);
-                    else
-                        hidePlayer(online, player, ConfigManager.isShowMatchPlayersInTab());
+                    hidePlayer(online, player, ConfigManager.isShowMatchPlayersInTab());
                 } else if (!onlineStatus.equals(ProfileStatus.SPECTATE) && onlineProfile.isHidePlayers()) {
                     hidePlayer(online, player, false);
                 } else if (profile.isHideFromPlayers() && !online.hasPermission("zpp.staffmode.see")) {
@@ -108,10 +105,7 @@ public class PlayerHider implements Listener {
                 }
 
                 // Handle the online player
-                if (onlineProfile.getStatus().equals(ProfileStatus.MATCH) || onlineProfile.getStatus().equals(ProfileStatus.EVENT) || onlineProfile.getStatus().equals(ProfileStatus.FFA)) {
-                    if (ConfigManager.isShowLobbyPlayersInMatch())
-                        showPlayer(online, player);
-                } else {
+                if (!(onlineProfile.getStatus().equals(ProfileStatus.MATCH) || onlineProfile.getStatus().equals(ProfileStatus.EVENT) || onlineProfile.getStatus().equals(ProfileStatus.FFA))) {
                     if (onlineProfile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online) == WorldEnum.LOBBY) {
                         hidePlayer(online, player, false);
                     } else if (!profile.isHideFromPlayers() || online.hasPermission("zpp.staffmode.see")) {

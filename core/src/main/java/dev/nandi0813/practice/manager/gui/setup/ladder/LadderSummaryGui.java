@@ -38,7 +38,7 @@ public class LadderSummaryGui extends GUI {
     @Override
     public void update() {
         List<NormalLadder> ladders = new ArrayList<>(LadderManager.getInstance().getLadders());
-        ladders.sort(java.util.Comparator.comparing(Ladder::getName, String::compareToIgnoreCase));
+        ladders.sort(Comparator.comparing(Ladder::getName, String::compareToIgnoreCase));
 
         Map<Integer, Inventory> existingInventories = new HashMap<>(gui);
         Map<Integer, Inventory> newGui = new HashMap<>();
@@ -98,7 +98,7 @@ public class LadderSummaryGui extends GUI {
 
             gui.remove(entry.getKey());
             for (Player player : inGuiPlayers.keySet()) {
-                if (inGuiPlayers.get(player) == entry.getKey()) {
+                if (inGuiPlayers.get(player).equals(entry.getKey())) {
                     open(player, entry.getKey() - 1);
                 }
             }
