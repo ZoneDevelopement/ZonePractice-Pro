@@ -88,7 +88,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         this.open = true;
 
         if (this.build) {
-            this.buildRollback = new BuildRollback(new FightChangeOptimized(this), this::teleportStuckPlayersAfterRollback);
+            this.buildRollback = new BuildRollback(new FightChangeOptimized(this), this::handleRollbackComplete);
             this.buildRollback.begin();
         }
 
@@ -430,6 +430,23 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
     public void sendMessage(String message, boolean spectator) {
         Common.sendMessage(players.keySet(), spectators, message, spectator);
+    }
+
+    private void handleRollbackComplete() {
+        if (!this.open || !this.build) {
+            return;
+        }
+
+        if (ConfigManager.getBoolean("FFA.ROLLBACK.TELEPORT-TO-SPAWN")) {
+            for (Player player : new ArrayList<>(this.players.keySet())) {
+                if (player == null || !player.isOnline()) {
+                    continue;
+                }
+                teleportPlayer(player);
+            }
+        }
+
+        teleportStuckPlayersAfterRollback();
     }
 
     private void teleportStuckPlayersAfterRollback() {

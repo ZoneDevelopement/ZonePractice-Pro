@@ -1,4 +1,4 @@
-VERSION: 72
+VERSION: 73
 
 # Mysql database setup.
 MYSQL-DATABASE:
@@ -141,11 +141,11 @@ QUEUE:
     ELO-SYSTEM:
       MODE: SKILL # Options: SKILL (rating-based formula, default), RANDOM (fixed random interval from ELO-CHANGE).
       K-FACTOR: 32 # Only used in SKILL mode. The maximum base Elo points at stake in a single match (FIDE standard is 32).
-                   # Higher values make ratings move faster after each match; lower values keep ratings more stable. Recommended range: 16-40.
+      # Higher values make ratings move faster after each match; lower values keep ratings more stable. Recommended range: 16-40.
       MAX-CHANGE: 25 # Hard cap on the absolute Elo points a player can gain OR lose in a single ranked match (applies to both modes).
-                     # In SKILL mode the formula never exceeds K-FACTOR, so setting MAX-CHANGE below K-FACTOR (e.g. 15) adds a stricter
-                     # guard against extreme rating swings and Elo farming. In RANDOM mode it caps the upper bound of ELO-CHANGE.
-                     # Set to 0 to disable the cap.
+        # In SKILL mode the formula never exceeds K-FACTOR, so setting MAX-CHANGE below K-FACTOR (e.g. 15) adds a stricter
+        # guard against extreme rating swings and Elo farming. In RANDOM mode it caps the upper bound of ELO-CHANGE.
+      # Set to 0 to disable the cap.
     MAX-PING: 300 # Maximum ping a player can join a ranked queue.
     SELECTOR-GUI:
       SHOW-DISABLED-LADDERS: true
@@ -410,6 +410,7 @@ MATCH-SETTINGS:
 FFA:
   ROLLBACK:
     SECONDS: 300 # After the seconds, the arena will be reseted back to its original state (only on build arenas).
+    TELEPORT-TO-SPAWN: false # If true, players are teleported back to the arena's spawn points once the reset has finished.
   HEALTH-RESET-ON-KILL: false # Default for newly created FFA arenas. If enabled, killers are fully healed on kill.
   HEALTH-BELOW-NAME: false # Default for newly created FFA arenas. If enabled, players see heart indicators below names.
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
