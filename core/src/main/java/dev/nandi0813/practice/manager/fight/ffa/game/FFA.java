@@ -63,7 +63,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
     private boolean open;
 
-    /** Tracks the last player that dealt damage to another player, for void-kill attribution. */
+    // Last player to damage this player (used for void kill credit)
     private final LastAttackerTracker lastAttackerTracker = new LastAttackerTracker();
 
     public FFA(FFAArena arena) {
