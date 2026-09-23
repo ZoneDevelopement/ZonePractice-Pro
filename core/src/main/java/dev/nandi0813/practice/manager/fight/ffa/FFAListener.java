@@ -373,6 +373,10 @@ public class FFAListener implements Listener {
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
 
+        if (ffa.getArena().isAllowDropItems()) {
+            return;
+        }
+
         e.setCancelled(true);
     }
 
@@ -445,6 +449,13 @@ public class FFAListener implements Listener {
         // Fallback for delayed environmental deaths (e.g. fatal fall after knockback).
         if (killer == null) {
             killer = ffa.getLastAttacker(victim);
+        }
+
+        // Respawn anchors destroy their block on explosion, so the blast has no
+        // causing entity and Bukkit can't attribute it. Resolve the owner from the
+        // anchor recorded at the blast location.
+        if (killer == null && FightUtil.convert(damageSource.getDamageType()) == DeathCause.EXPLOSION) {
+            killer = ExplosiveOwnerTracker.getAnchorOwner(damageSource.getSourceLocation());
         }
 
         if (killer != null && !ffa.getPlayers().containsKey(killer)) {
@@ -564,6 +575,12 @@ public class FFAListener implements Listener {
 
         // Tag the victim (and attacker if known) so neither can relog mid-fight.
         ffa.tagFfaCombat(target, attacker);
+
+        // Record the attacker so an anchor (or TNT) blast that kills the target
+        // registers as a kill by them at death time.
+        if (attacker != null && !attacker.equals(target)) {
+            ffa.recordAttack(target, attacker);
+        }
     }
 
 }

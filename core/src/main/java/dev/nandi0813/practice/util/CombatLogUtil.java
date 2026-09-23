@@ -28,6 +28,8 @@ public class CombatLogUtil {
     private boolean enabled;
     private int tagDuration;
     private boolean countAsKillOnQuit;
+    @Getter
+    private boolean clearOnKill;
     private boolean actionBar;
     private String actionBarMsg;
 
@@ -55,6 +57,7 @@ public class CombatLogUtil {
         enabled = ConfigManager.getBoolean(CONFIG_PATH + ".ENABLED");
         tagDuration = ConfigManager.getInt(CONFIG_PATH + ".TAG-DURATION", 10);
         countAsKillOnQuit = ConfigManager.getBoolean(CONFIG_PATH + ".COUNT-AS-KILL-ON-QUIT");
+        clearOnKill = ConfigManager.getBoolean(CONFIG_PATH + ".CLEAR-ON-KILL", true);
         actionBar = ConfigManager.getBoolean(CONFIG_PATH + ".ACTION-BAR");
         actionBarMsg = ConfigManager.getString(CONFIG_PATH + ".ACTION-BAR-MSG");
 

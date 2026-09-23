@@ -58,6 +58,10 @@ public enum ConfigManager {
         return getConfig().getBoolean(loc);
     }
 
+    public static boolean getBoolean(String loc, boolean def) {
+        return getConfig().getBoolean(loc, def);
+    }
+
     public static boolean isMatchChatIsolated() {
         return getBoolean("CHAT.ISOLATE-MATCH-CHAT");
     }

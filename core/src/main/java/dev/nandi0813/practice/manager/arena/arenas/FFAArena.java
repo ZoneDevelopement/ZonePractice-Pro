@@ -24,6 +24,7 @@ public class FFAArena extends DisplayArena {
 
     private static final boolean DEFAULT_HEALTH_RESET_ON_KILL = ConfigManager.getBoolean("FFA.HEALTH-RESET-ON-KILL");
     private static final boolean DEFAULT_HEALTH_BELOW_NAME = ConfigManager.getBoolean("FFA.HEALTH-BELOW-NAME");
+    private static final boolean DEFAULT_ALLOW_DROP_ITEMS = ConfigManager.getBoolean("FFA.ALLOW-DROP-ITEMS");
 
     private final FFA ffa;
     private boolean reKitAfterKill;
@@ -31,6 +32,7 @@ public class FFAArena extends DisplayArena {
     private boolean healthResetOnKill;
     private boolean healthBelowName;
     private boolean mapBlowable;
+    private boolean allowDropItems;
 
     public FFAArena(String name) {
         super(name, ArenaType.FFA);
@@ -42,6 +44,7 @@ public class FFAArena extends DisplayArena {
         this.portalProtection = false;
         this.healthResetOnKill = DEFAULT_HEALTH_RESET_ON_KILL;
         this.healthBelowName = DEFAULT_HEALTH_BELOW_NAME;
+        this.allowDropItems = DEFAULT_ALLOW_DROP_ITEMS;
 
         this.getData();
 
@@ -66,6 +69,7 @@ public class FFAArena extends DisplayArena {
         config.set("healthResetOnKill", this.healthResetOnKill);
         config.set("healthBelowName", this.healthBelowName);
         config.set("mapBlowable", this.mapBlowable);
+        config.set("allowDropItems", this.allowDropItems);
 
         config.set("ladders", ArenaUtil.getLadderNames(this));
 
@@ -98,6 +102,9 @@ public class FFAArena extends DisplayArena {
 
         if (config.isBoolean("mapBlowable"))
             this.setMapBlowable(config.getBoolean("mapBlowable"));
+
+        if (config.isBoolean("allowDropItems"))
+            this.setAllowDropItems(config.getBoolean("allowDropItems"));
 
         if (config.isList("ladders")) {
             for (String ladderName : config.getStringList("ladders")) {
@@ -180,6 +187,14 @@ public class FFAArena extends DisplayArena {
         }
 
         this.mapBlowable = mapBlowable;
+    }
+
+    public void setAllowDropItems(boolean allowDropItems) {
+        if (this.enabled) {
+            throw new IllegalStateException("Cannot edit while arena is enabled.");
+        }
+
+        this.allowDropItems = allowDropItems;
     }
 
     public void setBuild(boolean build) {
