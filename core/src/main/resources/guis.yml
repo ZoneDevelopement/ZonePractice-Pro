@@ -1,4 +1,4 @@
-VERSION: 41
+VERSION: 42
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1684,6 +1684,27 @@ GUIS:
                 - ""
                 - "<yellow><bold>Click here <gray>to <green>enable <gray>the"
                 - "<dark_green>re-kit after kill <gray>in the arena."
+          ALLOW-DROP-ITEMS:
+            ENABLED:
+              NAME: "<gray>Allow Drop Items: <green>Enabled"
+              MATERIAL: CHEST
+              LORE:
+                - ""
+                - "<yellow>Players can drop items"
+                - "<yellow>from their inventory."
+                - ""
+                - "<yellow><bold>Click here <gray>to <red>disable <gray>the"
+                - "<dark_green>allow drop items <gray>in the arena."
+            DISABLED:
+              NAME: "<gray>Allow Drop Items: <red>Disabled"
+              MATERIAL: RED_STAINED_GLASS_PANE
+              LORE:
+                - ""
+                - "<yellow>Players can drop items"
+                - "<yellow>from their inventory."
+                - ""
+                - "<yellow><bold>Click here <gray>to <green>enable <gray>the"
+                - "<dark_green>allow drop items <gray>in the arena."
           HEALTH-RESET-ON-KILL:
             ENABLED:
               NAME: "<gray>Health Reset On Kill: <green>Enabled"

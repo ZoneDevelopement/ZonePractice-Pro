@@ -373,6 +373,10 @@ public class FFAListener implements Listener {
         FFA ffa = FFAManager.getInstance().getFFAByPlayer(player);
         if (ffa == null) return;
 
+        if (ffa.getArena().isAllowDropItems()) {
+            return;
+        }
+
         e.setCancelled(true);
     }
 

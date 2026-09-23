@@ -27,6 +27,8 @@ public class FFASettingsGui extends GUI {
     private static final ItemStack HEALTH_RESET_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.HEALTH-RESET-ON-KILL.DISABLED").get();
     private static final ItemStack LOBBYDEATH_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.LOBBY-AFTER-DEATH.ENABLED").get();
     private static final ItemStack LOBBYDEATH_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.LOBBY-AFTER-DEATH.DISABLED").get();
+    private static final ItemStack ALLOW_DROP_ENABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.ALLOW-DROP-ITEMS.ENABLED").get();
+    private static final ItemStack ALLOW_DROP_DISABLED_ITEM = GUIFile.getGuiItem("GUIS.SETUP.FFA-ARENA.SETTINGS.ICONS.ALLOW-DROP-ITEMS.DISABLED").get();
 
     private final FFAArena ffaArena;
     private final ArenaMainGui arenaMainGui;
@@ -93,6 +95,12 @@ public class FFASettingsGui extends GUI {
             inventory.setItem(16, HEALTH_RESET_DISABLED_ITEM);
         }
 
+        if (ffaArena.isAllowDropItems()) {
+            inventory.setItem(17, ALLOW_DROP_ENABLED_ITEM);
+        } else {
+            inventory.setItem(17, ALLOW_DROP_DISABLED_ITEM);
+        }
+
         this.updatePlayers();
     }
 
@@ -126,6 +134,10 @@ public class FFASettingsGui extends GUI {
                     break;
                 case 15:
                     ffaArena.setHealthBelowName(!ffaArena.isHealthBelowName());
+                    this.update();
+                    break;
+                case 17:
+                    ffaArena.setAllowDropItems(!ffaArena.isAllowDropItems());
                     this.update();
                     break;
                 case 27:
