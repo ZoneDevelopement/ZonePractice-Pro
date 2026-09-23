@@ -450,9 +450,7 @@ public class FFAListener implements Listener {
         // Respawn anchors destroy their block on explosion, so the blast has no
         // causing entity and Bukkit can't attribute it. Resolve the owner from the
         // anchor recorded at the blast location.
-        if (killer == null
-                && (damageSource.getDamageType().equals(DamageType.EXPLOSION)
-                        || damageSource.getDamageType().equals(DamageType.PLAYER_EXPLOSION))) {
+        if (killer == null && FightUtil.convert(damageSource.getDamageType()) == DeathCause.EXPLOSION) {
             killer = ExplosiveOwnerTracker.getAnchorOwner(damageSource.getSourceLocation());
         }
 
