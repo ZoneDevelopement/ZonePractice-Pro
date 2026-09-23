@@ -71,6 +71,7 @@ public final class PlayerUtil {
             }, 2L);
             Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setFireTicks(0), 2L);
             player.setFoodLevel(25);
+            player.setSaturation(0.0F);
             player.setFallDistance(0);
             player.setWalkSpeed(0.2F);
             for (PotionEffect potionEffect : player.getActivePotionEffects())
