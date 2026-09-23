@@ -272,6 +272,10 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
             if (arena.isHealthResetOnKill()) {
                 applyHealthResetOnKill(killer);
             }
+
+            if (CombatLogUtil.getInstance().isClearOnKill()) {
+                this.clearFfaCombat(killer);
+            }
         }
 
         if (arena.isLobbyAfterDeath()) {
@@ -405,7 +409,9 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
         SidebarManager.getInstance().updatePlayerSidebar(attacker);
 
         // Clear the attacker's combat tag now that the fight is over.
-        this.clearFfaCombat(attacker);
+        if (CombatLogUtil.getInstance().isClearOnKill()) {
+            this.clearFfaCombat(attacker);
+        }
 
         this.sendMessage(LanguageManager.getString("FIGHT.DEATH-MESSAGES.COMBAT-LOG-QUIT")
                 .replace("%player%", player.getName())

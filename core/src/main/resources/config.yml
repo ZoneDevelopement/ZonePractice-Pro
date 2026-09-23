@@ -424,6 +424,7 @@ FFA:
     COUNT-AS-KILL-ON-QUIT: true # If true, disconnecting while in combat counts as a kill for their opponent.
     ACTION-BAR: true # If true, shows a countdown action bar while the player is in combat.
     ACTION-BAR-MSG: "<red><bold>In Combat: <yellow><bold>%remaining%s"
+    CLEAR-ON-KILL: false # If true, killing a player clears the killer's "in combat" status.
 #
 # Spectator settings
 SPECTATOR-SETTINGS:
