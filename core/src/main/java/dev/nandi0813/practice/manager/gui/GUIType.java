@@ -41,6 +41,7 @@ public enum GUIType {
     Party_OtherParties,
     Party_Events,
     Party_Settings,
+    Party_Split,
 
     Profile_Settings,
     Profile_Setup,

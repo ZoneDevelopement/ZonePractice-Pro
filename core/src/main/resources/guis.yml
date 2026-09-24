@@ -1,4 +1,4 @@
-VERSION: 42
+VERSION: 43
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -568,6 +568,71 @@ GUIS:
               - ""
               - "<white><bold>Click here <white>to duel this party."
               - "<gray><st>------------------------"
+    PARTY-SPLIT:
+      TITLE: "<dark_gray>Party Split"
+      ICONS:
+        FILLER-ITEM:
+          MATERIAL: BLACK_STAINED_GLASS_PANE
+        PLAYER-ITEM:
+          UNASSIGNED:
+            NAME: "<white>%player%"
+            LORE:
+              - "<dark_gray><st>------------------------"
+              - "<gray>Team: <white>Not selected"
+              - ""
+              - "<blue><bold>LEFT-CLICK <blue>to assign to the Blue team."
+              - "<red><bold>RIGHT-CLICK <red>to assign to the Red team."
+              - "<dark_gray><st>------------------------"
+          BLUE:
+            NAME: "<aqua>%player%"
+            LORE:
+              - "<dark_gray><st>------------------------"
+              - "<gray>Team: <blue>Blue"
+              - ""
+              - "<red><bold>RIGHT-CLICK <red>to move to the Red team."
+              - "<dark_gray><st>------------------------"
+          RED:
+            NAME: "<red>%player%"
+            LORE:
+              - "<dark_gray><st>------------------------"
+              - "<gray>Team: <red>Red"
+              - ""
+              - "<blue><bold>LEFT-CLICK <blue>to move to the Blue team."
+              - "<dark_gray><st>------------------------"
+        RANDOM-SPLIT:
+          NAME: "<yellow>Random Split"
+          MATERIAL: NAME_TAG
+          LORE:
+            - "<dark_gray><st>------------------------"
+            - "<gray>Randomly assigns every player"
+            - "<gray>to a team."
+            - ""
+            - "<yellow><bold>Click here <gray>to randomize."
+            - "<dark_gray><st>------------------------"
+        START-MATCH:
+          NAME: "<green><bold>Start Match"
+          MATERIAL: EMERALD
+          LORE:
+            - "<dark_gray><st>------------------------"
+            - "<gray>Starts the match with the"
+            - "<gray>current team assignments."
+            - ""
+            - "<green><bold>Click here <green>to start."
+            - "<dark_gray><st>------------------------"
+        TEAM-SETUP:
+          NAME: "<aqua><bold>Setup Teams"
+          MATERIAL: WRITABLE_BOOK
+          LORE:
+            - "<dark_gray><st>------------------------"
+            - "<gray>Opens the team setup to"
+            - "<gray>assign players to the"
+            - "<blue>Blue <gray>and <red>Red <gray>teams."
+            - ""
+            - "<aqua><bold>Click here <gray>to continue."
+            - "<dark_gray><st>------------------------"
+        BACK-TO-SELECTOR:
+          NAME: "<red><bold>Back"
+          MATERIAL: ARROW
   FFA:
     ARENA-SELECTOR:
       TITLE: "<dark_gray>Select an <gold>FFA Arena"

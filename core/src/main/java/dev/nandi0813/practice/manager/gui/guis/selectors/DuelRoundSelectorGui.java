@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public class DuelRoundSelectorGui extends MatchStarterGui {
 
@@ -39,14 +40,17 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
     private static final GUIItem SHOW_LADDER = GUIFile.getGuiItem("GUIS.KIT-EDITOR.DUEL-ROUND-SELECTOR.ICONS.SHOW-LADDER");
     private static final GUIItem SHOW_ARENA = GUIFile.getGuiItem("GUIS.KIT-EDITOR.DUEL-ROUND-SELECTOR.ICONS.SHOW-ARENA");
     private static final ItemStack START_MATCH_ITEM = GUIFile.getGuiItem("GUIS.KIT-EDITOR.DUEL-ROUND-SELECTOR.ICONS.START-MATCH").get();
+    private static final ItemStack TEAM_SETUP_ITEM = GUIFile.getGuiItem("GUIS.PARTY.PARTY-SPLIT.ICONS.TEAM-SETUP").get();
 
+    private final Party party;
     private Arena arena;
     private int rounds;
 
-    public DuelRoundSelectorGui(MatchType matchType, Ladder ladder, Arena arena, GUI backTo) {
+    public DuelRoundSelectorGui(MatchType matchType, Ladder ladder, Arena arena, GUI backTo, @Nullable Party party) {
         super(GUIType.DuelRound_Selector, matchType, ladder, backTo);
 
         this.arena = arena;
+        this.party = party;
         this.rounds = ladder.getRounds();
 
         this.gui.put(1, InventoryUtil.createInventory(GUIFile.getString("GUIS.KIT-EDITOR.DUEL-ROUND-SELECTOR.TITLE"), 1));
@@ -80,7 +84,7 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
                     .get());
         }
 
-        inventory.setItem(8, START_MATCH_ITEM);
+        inventory.setItem(8, matchType.equals(MatchType.PARTY_SPLIT) && party != null && party.getMembers().size() > 2 ? TEAM_SETUP_ITEM : START_MATCH_ITEM);
 
         update();
     }
@@ -177,6 +181,8 @@ public class DuelRoundSelectorGui extends MatchStarterGui {
                         Common.sendMMMessage(player, LanguageManager.getString("DUEL-ROUND-SELECTOR.PARTY-NOT-ENOUGH-PLAYERS"));
                         return;
                     }
+
+                    if (openPartySplitGui(player, party, arena, rounds)) return;
 
                     Match match = getMatch(party, arena, rounds);
                     if (match == null) {

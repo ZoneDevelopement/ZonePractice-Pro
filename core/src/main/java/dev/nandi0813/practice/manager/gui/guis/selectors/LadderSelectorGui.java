@@ -14,6 +14,7 @@ import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIItem;
 import dev.nandi0813.practice.manager.gui.GUIManager;
 import dev.nandi0813.practice.manager.gui.GUIType;
+import dev.nandi0813.practice.manager.gui.guis.party.PartySplitGui;
 import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
@@ -225,7 +226,7 @@ public class LadderSelectorGui extends GUI {
                 if (player.hasPermission("zpp.duel.selectarena")) {
                     new ArenaSelectorGui(ladder, matchType, this).open(player);
                 } else if (player.hasPermission("zpp.duel.selectrounds")) {
-                    new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
+                    new DuelRoundSelectorGui(matchType, ladder, null, this, null).open(player);
                 } else {
                     Player target = DuelManager.getInstance().getPendingRequestTarget().get(player);
                     DuelRequest request = new DuelRequest(player, target, ladder, null, ladder.getRounds());
@@ -260,7 +261,7 @@ public class LadderSelectorGui extends GUI {
                     if (player.hasPermission("zpp.party.selectarena")) {
                         new ArenaSelectorGui(ladder, matchType, this).open(player);
                     } else if (player.hasPermission("zpp.party.selectrounds")) {
-                        new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
+                        new DuelRoundSelectorGui(matchType, ladder, null, this, party).open(player);
                     } else {
                         startPartyMatch(player, party, ladder, ladder.getRounds());
                     }
@@ -280,7 +281,7 @@ public class LadderSelectorGui extends GUI {
                     if (player.hasPermission("zpp.party.selectarena")) {
                         new ArenaSelectorGui(ladder, matchType, this).open(player);
                     } else if (player.hasPermission("zpp.party.selectrounds")) {
-                        new DuelRoundSelectorGui(matchType, ladder, null, this).open(player);
+                        new DuelRoundSelectorGui(matchType, ladder, null, this, party).open(player);
                     } else {
                         player.closeInventory();
 
@@ -326,6 +327,11 @@ public class LadderSelectorGui extends GUI {
         Arena arena = LadderUtil.getAvailableArena(ladder);
         if (arena == null) {
             Common.sendMMMessage(player, LanguageManager.getString("LADDER.SELECTOR.PARTY.NO-AVAILABLE-ARENA"));
+            return;
+        }
+
+        if (matchType.equals(MatchType.PARTY_SPLIT) && party.getMembers().size() > 2) {
+            new PartySplitGui(party, ladder, arena, rounds, this).open(player);
             return;
         }
 
