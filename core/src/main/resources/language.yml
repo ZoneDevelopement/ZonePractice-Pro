@@ -1,4 +1,4 @@
-VERSION: 45
+VERSION: 46
 
 CONSOLE-NAME: "<red>Console"
 CANT-USE-CONSOLE: "<red>You can't use this command from the console."
@@ -1317,8 +1317,11 @@ PARTY:
   CANT-DUEL-OWN-PARTY: "<red>You can't duel your own party."
   CANT-USE-PARTY-CHAT: "<red>You can't use party chat right now."
   CANT-DUEL-PARTY: "<red>You can't duel this party."
+  PARTY-SPLIT:
+    BOTH-TEAMS-NEEDED: "<red>Both teams need at least one player to start the match."
   MATCH-REQUEST-MESSAGE:
     RANDOM-ARENA-NAME: "<light_purple>Random"
+    ALREADY-REQUESTED: "<red>You already sent a duel request to this party."
     SENDER:
       - "<gray><st>-------------------------------"
       - "<dark_aqua><bold>Party Match Request Sent!"

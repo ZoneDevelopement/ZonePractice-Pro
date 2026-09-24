@@ -8,6 +8,7 @@ import dev.nandi0813.practice.manager.fight.match.type.partyffa.PartyFFA;
 import dev.nandi0813.practice.manager.fight.match.type.playersvsplayers.partysplit.PartySplit;
 import dev.nandi0813.practice.manager.gui.GUI;
 import dev.nandi0813.practice.manager.gui.GUIType;
+import dev.nandi0813.practice.manager.gui.guis.party.PartySplitGui;
 import dev.nandi0813.practice.manager.ladder.abstraction.Ladder;
 import dev.nandi0813.practice.manager.ladder.util.LadderUtil;
 import dev.nandi0813.practice.manager.party.Party;
@@ -29,6 +30,14 @@ public abstract class MatchStarterGui extends GUI {
         this.matchType = matchType;
         this.ladder = ladder;
         this.backTo = backTo;
+    }
+
+    protected boolean openPartySplitGui(Player player, Party party, Arena arena, int rounds) {
+        if (matchType.equals(MatchType.PARTY_SPLIT) && party.getMembers().size() > 2) {
+            new PartySplitGui(party, ladder, arena, rounds, this).open(player);
+            return true;
+        }
+        return false;
     }
 
     @Nullable

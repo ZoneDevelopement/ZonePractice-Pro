@@ -104,7 +104,8 @@ public class OtherPartiesGui extends GUI {
         if (!PartyManager.getInstance().getRequestManager().isRequested(party, targetParty) || party.getLeader().hasPermission("zpp.party.infiniteinvite")) {
             PartyManager.getInstance().getRequestManager().getPendingRequestTarget().put(party, targetParty);
             new LadderSelectorGui(profile, MatchType.PARTY_VS_PARTY).open(player);
-        }
+        } else
+            Common.sendMMMessage(player, LanguageManager.getString("PARTY.MATCH-REQUEST-MESSAGE.ALREADY-REQUESTED"));
     }
 
     public ItemStack getPartyItem(Party party) {

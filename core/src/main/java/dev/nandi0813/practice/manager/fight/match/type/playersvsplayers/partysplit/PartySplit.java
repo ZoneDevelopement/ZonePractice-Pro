@@ -10,38 +10,51 @@ import dev.nandi0813.practice.manager.party.Party;
 import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.util.playerutil.PlayerUtil;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class PartySplit extends PlayersVsPlayers {
 
     public PartySplit(Ladder ladder, Arena arena, Party party, int winsNeeded) {
+        this(ladder, arena, party, winsNeeded, null);
+    }
+
+    public PartySplit(Ladder ladder, Arena arena, Party party, int winsNeeded, @Nullable Map<TeamEnum, List<Player>> assignedTeams) {
         super(ladder, arena, new ArrayList<>(party.getMembers()), winsNeeded);
 
         this.type = MatchType.PARTY_SPLIT;
 
-        /*
-         * Split the players into teams
-         */
+        if (assignedTeams != null && !assignedTeams.isEmpty()) {
+            for (TeamEnum team : List.of(TeamEnum.TEAM1, TeamEnum.TEAM2)) {
+                for (Player player : assignedTeams.getOrDefault(team, Collections.emptyList())) {
+                    addToTeam(player, team);
+                }
+            }
+            return;
+        }
+
         Collections.shuffle(this.players);
         int team1PlayerCount = 0;
         int team2PlayerCount = 0;
         for (Player player : players) {
             if (team2PlayerCount > team1PlayerCount) {
-                this.teams.get(TeamEnum.TEAM1).add(player);
-                this.originalTeams.get(TeamEnum.TEAM1).add(player); // Track original team members
-                NametagManager.getInstance().setNametag(player, TeamEnum.TEAM1.getPrefix(), TeamEnum.TEAM1.getNameColor(), TeamEnum.TEAM1.getSuffix(), 20);
-
+                addToTeam(player, TeamEnum.TEAM1);
                 team1PlayerCount++;
             } else {
-                this.teams.get(TeamEnum.TEAM2).add(player);
-                this.originalTeams.get(TeamEnum.TEAM2).add(player); // Track original team members
-                NametagManager.getInstance().setNametag(player, TeamEnum.TEAM2.getPrefix(), TeamEnum.TEAM2.getNameColor(), TeamEnum.TEAM2.getSuffix(), 21);
-
+                addToTeam(player, TeamEnum.TEAM2);
                 team2PlayerCount++;
             }
         }
+    }
+
+    private void addToTeam(Player player, TeamEnum team) {
+        this.teams.get(team).add(player);
+        this.originalTeams.get(team).add(player); // Track original team members
+        NametagManager.getInstance().setNametag(player, team.getPrefix(), team.getNameColor(), team.getSuffix(), team == TeamEnum.TEAM1 ? 20 : 21);
     }
 
     @Override
