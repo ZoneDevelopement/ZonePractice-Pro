@@ -129,7 +129,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
         players.put(player, ladder);
 
-        // A player who joins an FFA while in a party must leave that party, so that
+        // A player who joins an FFA while at a party must leave that party, so that
         // they are not pulled into the party's game when it starts (which would
         // otherwise kill them and leave them in an inconsistent flight state).
         Party party = PartyManager.getInstance().getParty(player);

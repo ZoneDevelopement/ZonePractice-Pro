@@ -87,7 +87,9 @@ public final class FightUtil {
             return DeathCause.WATER;
         } else if (damageType.equals(DamageType.FALL) || damageType.equals(DamageType.STALAGMITE)) {
             return DeathCause.FALL;
-        } else if (damageType.equals(DamageType.EXPLOSION) || damageType.equals(DamageType.PLAYER_EXPLOSION)) {
+        } else if (damageType.equals(DamageType.EXPLOSION)
+                || damageType.equals(DamageType.PLAYER_EXPLOSION)
+                || damageType.equals(DamageType.BAD_RESPAWN_POINT)) {
             return DeathCause.EXPLOSION;
         } else if (damageType.equals(DamageType.MOB_ATTACK) || damageType.equals(DamageType.PLAYER_ATTACK)
                 || damageType.equals(DamageType.MACE_SMASH)) {
