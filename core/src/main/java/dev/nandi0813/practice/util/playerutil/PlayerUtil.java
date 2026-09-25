@@ -98,7 +98,7 @@ public final class PlayerUtil {
     public static void resetMaxHealth(Player player) {
         AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
         if (maxHealth != null) {
-            maxHealth.setBaseValue(maxHealth.getDefaultValue());
+            maxHealth.setBaseValue(DEFAULT_FIGHT_MAX_HEALTH);
         }
     }
 
