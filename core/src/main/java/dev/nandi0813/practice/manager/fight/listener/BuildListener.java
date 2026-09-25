@@ -20,6 +20,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.FallingBlock;
@@ -34,6 +35,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 
@@ -161,6 +163,15 @@ public class BuildListener implements Listener {
 
     private static boolean isLavaMaterial(Material material) {
         return material == Material.LAVA;
+    }
+
+    /**
+     * Blocks that keep their own material and only gain the {@code waterlogged} flag when a
+     * liquid is poured into them, e.g. slabs, stairs, fences and panes. Liquid blocks are
+     * excluded because they hold a fluid directly instead of being waterlogged.
+     */
+    private static boolean isWaterloggableBlock(Block block) {
+        return !block.isLiquid() && block.getBlockData() instanceof Waterlogged;
     }
 
     private static void trackFireIfInsideArena(Spectatable spectatable, Block block) {
@@ -794,27 +805,60 @@ public class BuildListener implements Listener {
     }
 
     /**
-     * Captures the block that will become the liquid source BEFORE the bucket is emptied.
+     * Captures the block that will hold the liquid BEFORE the bucket is emptied.
      * At MONITOR priority the event is guaranteed to be allowed by the validation listeners
-     * (FFAListener / LadderTypeListener). The target block is still AIR (or whatever it was)
-     * at this point, so {@code createChangeBlock} records the correct pre-liquid state,
-     * ensuring rollback restores it to AIR.
+     * (FFAListener / LadderTypeListener). The target block still holds its pre-liquid state
+     * at this point, so {@code new ChangedBlock(block)} records the correct pre-liquid state,
+     * ensuring rollback restores it.
+     * <p>
+     * The liquid always ends up in {@link PlayerBucketEmptyEvent#getBlock()}: the block on the
+     * clicked face for normal placements, but the clicked block ITSELF when that block can hold
+     * liquids. Those blocks keep their material and are simply flagged as waterlogged, so
+     * snapshotting the clicked face would record an unrelated neighbour and leave the waterlogged
+     * flag on the arena block after the rollback.
      * <p>
      * We also tag the block now so that the {@link #onBlockFromTo} slow path's
      * {@code getByBlock} lookup is skipped — flow events will directly use the fast path.
+     * Waterlogging is tracked without that tag: an arena block that merely gained a liquid must
+     * not become breakable/explodable just because a bucket was poured into it.
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBucketEmpty(PlayerBucketEmptyEvent e) {
         Spectatable spectatable = getByBlock(e.getBlockClicked());
         if (spectatable == null || !spectatable.isBuild()) return;
+        if (spectatable.getFightChange() == null) return;
 
-        // The liquid will be placed on the face the player clicked
-        Block liquidSourceBlock = e.getBlockClicked().getRelative(e.getBlockFace());
+        Block liquidSourceBlock = e.getBlock();
         if (BlockUtil.hasMetadata(liquidSourceBlock, PLACED_IN_FIGHT)) return; // already tracked
+
+        if (isWaterloggableBlock(liquidSourceBlock)) {
+            spectatable.getFightChange().addArenaBlockChange(new ChangedBlock(liquidSourceBlock));
+            return;
+        }
 
         // Capture while still AIR (or pre-existing material) so rollback restores correctly
         spectatable.getFightChange().addBlockChange(new ChangedBlock(liquidSourceBlock));
         BlockUtil.setMetadata(liquidSourceBlock, PLACED_IN_FIGHT, spectatable);
+    }
+
+    /**
+     * Captures a waterloggable block BEFORE the water is scooped out of it. Draining a
+     * waterlogged slab only clears its waterlogged flag, so nothing else reports the change and
+     * the block would keep the drained state for the rest of the map's lifetime.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBucketFill(PlayerBucketFillEvent e) {
+        Spectatable spectatable = getByBlock(e.getBlockClicked());
+        if (spectatable == null || !spectatable.isBuild()) return;
+
+        FightChangeOptimized fightChange = spectatable.getFightChange();
+        if (fightChange == null || spectatable.getCuboid() == null) return;
+
+        Block block = e.getBlock();
+        if (!spectatable.getCuboid().contains(block.getLocation())) return;
+        if (!isWaterloggableBlock(block)) return;
+
+        fightChange.addArenaBlockChange(new ChangedBlock(block));
     }
 
     /**
