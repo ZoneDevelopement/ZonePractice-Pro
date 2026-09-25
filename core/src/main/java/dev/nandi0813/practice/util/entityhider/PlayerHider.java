@@ -1,6 +1,9 @@
 package dev.nandi0813.practice.util.entityhider;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.protocol.player.GameMode;
+import com.github.retrooper.packetevents.protocol.player.TextureProperty;
+import com.github.retrooper.packetevents.protocol.player.UserProfile;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfoUpdate;
 import dev.nandi0813.api.Event.Spectate.Start.MatchSpectateStartEvent;
 import dev.nandi0813.practice.ZonePractice;
@@ -8,12 +11,14 @@ import dev.nandi0813.practice.manager.backend.ConfigManager;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.match.Match;
 import dev.nandi0813.practice.manager.fight.match.MatchManager;
+import dev.nandi0813.practice.manager.nametag.NametagManager;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
 import dev.nandi0813.practice.manager.profile.enums.ProfileStatus;
 import dev.nandi0813.practice.manager.server.ServerManager;
 import dev.nandi0813.practice.manager.server.WorldEnum;
 import dev.nandi0813.practice.util.Common;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,6 +26,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+
+import java.util.EnumSet;
+import java.util.List;
 
 public class PlayerHider implements Listener {
 
@@ -56,11 +64,14 @@ public class PlayerHider implements Listener {
                  * Hide the player from the online.
                  */
                 if (onlineStatus.equals(ProfileStatus.MATCH) || onlineStatus.equals(ProfileStatus.EVENT) || onlineStatus.equals(ProfileStatus.FFA)) {
-                    hidePlayer(online, player, ConfigManager.isShowMatchPlayersInTab());
+                    hidePlayer(online, player);
+                    if (!ConfigManager.isShowPlayersInTab()) {
+                        hidePlayer(player, online);
+                    }
                 } else if (!onlineStatus.equals(ProfileStatus.SPECTATE) && onlineProfile.isHidePlayers()) {
-                    hidePlayer(online, player, false);
+                    hidePlayer(online, player);
                 } else if (profile.isHideFromPlayers() && !online.hasPermission("zpp.staffmode.see")) {
-                    hidePlayer(online, player, true);
+                    hidePlayer(online, player);
                 }
 
 
@@ -68,9 +79,9 @@ public class PlayerHider implements Listener {
                  * Hide the online from the player.
                  */
                 if (onlineProfile.isHideFromPlayers() && !player.hasPermission("zpp.staffmode.see")) {
-                    hidePlayer(player, online, true);
+                    hidePlayer(player, online);
                 } else if (profile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online) == WorldEnum.LOBBY) {
-                    hidePlayer(player, online, false);
+                    hidePlayer(player, online);
                 }
             }
         }, 2L);
@@ -97,23 +108,25 @@ public class PlayerHider implements Listener {
 
                 // Handle the teleported player
                 if (profile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online) == WorldEnum.LOBBY) {
-                    hidePlayer(player, online, false);
+                    hidePlayer(player, online);
                 } else if (!onlineProfile.isHideFromPlayers() || player.hasPermission("zpp.staffmode.see")) {
                     showPlayer(player, online);
                 } else {
-                    hidePlayer(player, online, true);
+                    hidePlayer(player, online);
                 }
 
                 // Handle the online player
                 if (!(onlineProfile.getStatus().equals(ProfileStatus.MATCH) || onlineProfile.getStatus().equals(ProfileStatus.EVENT) || onlineProfile.getStatus().equals(ProfileStatus.FFA))) {
                     if (onlineProfile.isHidePlayers() && ServerManager.getInstance().getInWorld().get(online) == WorldEnum.LOBBY) {
-                        hidePlayer(online, player, false);
+                        hidePlayer(online, player);
                     } else if (!profile.isHideFromPlayers() || online.hasPermission("zpp.staffmode.see")) {
                         showPlayer(online, player);
                         showTabEntry(online, player);
                     } else if (profile.isHideFromPlayers() || !online.hasPermission("zpp.staffmode.see")) {
-                        hidePlayer(online, player, true);
+                        hidePlayer(online, player);
                     }
+                } else if (!ConfigManager.isShowPlayersInTab()) {
+                    hidePlayer(player, online);
                 }
             }
         }, 2L);
@@ -136,10 +149,10 @@ public class PlayerHider implements Listener {
             if (player == online) continue;
 
             if (profile.isHideSpectators())
-                hidePlayer(player, online, false);
+                hidePlayer(player, online);
 
             if (ProfileManager.getInstance().getProfile(online).isHidePlayers())
-                hidePlayer(online, player, false);
+                hidePlayer(online, player);
         }
 
         // Show match players.
@@ -149,7 +162,7 @@ public class PlayerHider implements Listener {
         // Hide other players.
         if (match instanceof Match) {
             for (Player hide : MatchManager.getInstance().getHidePlayers((Match) match)) {
-                this.hidePlayer(player, hide, false);
+                this.hidePlayer(player, hide);
             }
         }
     }
@@ -171,7 +184,7 @@ public class PlayerHider implements Listener {
             if (!ServerManager.getInstance().getInWorld().get(online).equals(WorldEnum.LOBBY)) continue;
 
             if (profile.isHidePlayers()) {
-                hidePlayer(player, online, false);
+                hidePlayer(player, online);
             } else {
                 Profile onlineProfile = ProfileManager.getInstance().getProfile(online);
 
@@ -200,7 +213,7 @@ public class PlayerHider implements Listener {
 
                     Profile onlineProfile = ProfileManager.getInstance().getProfile(online);
                     if (profile.isHideSpectators()) {
-                        hidePlayer(player, online, false);
+                        hidePlayer(player, online);
                     } else {
                         if (!onlineProfile.isHideFromPlayers() || player.hasPermission("zpp.staffmode.see")) {
                             showPlayer(player, online);
@@ -231,7 +244,7 @@ public class PlayerHider implements Listener {
             if (profile.isHideFromPlayers()) {
                 if (online.hasPermission("zpp.staffmode.see")) continue;
 
-                hidePlayer(online, player, true);
+                hidePlayer(online, player);
             } else {
                 if (ServerManager.getInstance().getInWorld().get(online) != WorldEnum.LOBBY) continue;
 
@@ -240,23 +253,29 @@ public class PlayerHider implements Listener {
                 if (!onlineProfile.isHidePlayers())
                     showPlayer(online, player);
                 else
-                    hidePlayer(online, player, false);
+                    hidePlayer(online, player);
             }
         }
     }
 
 
-    public void hidePlayer(Player observer, Player target, boolean fullHide) {
-        if (observer.canSee(target))
-            observer.hidePlayer(ZonePractice.getInstance(), target);
+    public void hidePlayer(Player observer, Player target) {
+        boolean showPlayersInTab = ConfigManager.isShowPlayersInTab();
 
-        if (!fullHide) {
-            WrapperPlayServerPlayerInfoUpdate.PlayerInfo playerInfo = new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId());
+        observer.hidePlayer(ZonePractice.getInstance(), target);
+
+        if (showPlayersInTab) {
+            showTabEntry(observer, target);
+        } else {
+            WrapperPlayServerPlayerInfoUpdate.PlayerInfo playerInfo =
+                    new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId());
             playerInfo.setListed(false);
-            WrapperPlayServerPlayerInfoUpdate playerInfoUpdate = new WrapperPlayServerPlayerInfoUpdate(
-                    WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED,
-                    playerInfo
-            );
+
+            WrapperPlayServerPlayerInfoUpdate playerInfoUpdate =
+                    new WrapperPlayServerPlayerInfoUpdate(
+                            WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED,
+                            playerInfo
+                    );
 
             PacketEvents.getAPI().getPlayerManager().sendPacket(observer, playerInfoUpdate);
         }
@@ -267,29 +286,38 @@ public class PlayerHider implements Listener {
     }
 
     public void showTabEntry(Player observer, Player target) {
-        WrapperPlayServerPlayerInfoUpdate.PlayerInfo playerInfo = new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(target.getUniqueId());
-        playerInfo.setListed(true);
-        WrapperPlayServerPlayerInfoUpdate playerInfoUpdate = new WrapperPlayServerPlayerInfoUpdate(
-                WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED,
-                playerInfo
+        List<TextureProperty> properties = target.getPlayerProfile().getProperties().stream()
+                .map(property -> new TextureProperty(
+                        property.getName(),
+                        property.getValue(),
+                        property.getSignature()
+                ))
+                .toList();
+
+        Component tabName = NametagManager.getInstance().getTabListName(target);
+
+        WrapperPlayServerPlayerInfoUpdate packet = new WrapperPlayServerPlayerInfoUpdate(
+                EnumSet.of(
+                        WrapperPlayServerPlayerInfoUpdate.Action.ADD_PLAYER,
+                        WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED,
+                        WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LATENCY,
+                        WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_GAME_MODE,
+                        WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_DISPLAY_NAME,
+                        WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LIST_ORDER
+                ),
+                new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(
+                        new UserProfile(target.getUniqueId(), target.getName(), properties),
+                        true,
+                        target.getPing(),
+                        GameMode.valueOf(target.getGameMode().name()),
+                        tabName,
+                        null,
+                        target.getPlayerListOrder()
+                )
         );
-        PacketEvents.getAPI().getPlayerManager().sendPacket(observer, playerInfoUpdate);
-    }
 
-    /*
-    public void show(Player observer, Player target, boolean onlyTab)
-    {
-        if (observer.canSee(target))
-            observer.hidePlayer(target);
-
-        if (onlyTab)
-        {
-            EntityPlayer entityTarget = ((CraftPlayer) target).getHandle();
-            PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, entityTarget);
-            ((CraftPlayer) observer).getHandle().playerConnection.sendPacket(packet);
-        }
+        PacketEvents.getAPI().getPlayerManager().sendPacket(observer, packet);
     }
-     */
 
     private boolean checkInvalidLobby() {
         if (ServerManager.getLobby() == null) {

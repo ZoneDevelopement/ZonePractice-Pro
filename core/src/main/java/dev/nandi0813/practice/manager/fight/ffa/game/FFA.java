@@ -144,7 +144,7 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
         // Hide the spectators
         for (Player spectator : this.spectators) {
-            PlayerHider.getInstance().hidePlayer(player, spectator, false);
+            PlayerHider.getInstance().hidePlayer(player, spectator);
             PlayerHider.getInstance().showPlayer(spectator, player);
         }
 
@@ -527,15 +527,15 @@ public class FFA implements Spectatable, dev.nandi0813.api.Interface.FFA {
 
         // Hide spectator from players.
         for (Player eventPlayer : this.players.keySet()) {
-            PlayerHider.getInstance().hidePlayer(eventPlayer, player, false);
+            PlayerHider.getInstance().hidePlayer(eventPlayer, player);
             PlayerHider.getInstance().showPlayer(player, eventPlayer);
         }
 
         // Hide spectators from each other.
         for (Player eventSpectator : this.spectators) {
             if (!eventSpectator.equals(player)) {
-                PlayerHider.getInstance().hidePlayer(eventSpectator, player, false);
-                PlayerHider.getInstance().hidePlayer(player, eventSpectator, false);
+                PlayerHider.getInstance().hidePlayer(eventSpectator, player);
+                PlayerHider.getInstance().hidePlayer(player, eventSpectator);
             }
         }
 

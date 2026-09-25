@@ -14,46 +14,52 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class PlayerUtil {
 
-    private PlayerUtil() {}
-
     private static final double DEFAULT_FIGHT_MAX_HEALTH = 20.0D;
+    private static final long RESET_DELAY_TICKS = 2L;
 
-    private static void clearStuckArrows(Player player) {
-        try {
-            Method setArrowsInBody = player.getClass().getMethod("setArrowsInBody", int.class);
-            setArrowsInBody.invoke(player, 0);
-        } catch (Throwable ignored) {
-            // Older APIs may not expose arrow body count.
-        }
+    private PlayerUtil() {
     }
 
-    public static void clearPlayer(Player player, boolean deleteInv, boolean fly, boolean entityCollide) {
+    public static void clearPlayer(
+            Player player,
+            boolean deleteInventory,
+            boolean allowFlight,
+            boolean entityCollision
+    ) {
         player.setFallDistance(0);
         resetMaxHealth(player);
         healToMaxHealth(player);
+
         player.setExp(0);
         player.setLevel(0);
         player.setFoodLevel(23);
+
         clearStuckArrows(player);
+
         player.setGameMode(GameMode.SURVIVAL);
-        player.setAllowFlight(fly);
-        player.setFlying(fly);
-        dev.nandi0813.practice.manager.fight.util.PlayerUtil.setCollidesWithEntities(player, entityCollide);
+        player.setAllowFlight(allowFlight);
+        player.setFlying(allowFlight);
+        setEntityCollision(player, entityCollision);
 
         if (ZonePractice.getInstance().isEnabled()) {
-            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setFireTicks(0), 2L);
+            runLater(() -> player.setFireTicks(0));
         } else {
             player.setFireTicks(0);
         }
 
-        if (deleteInv) dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
+        if (deleteInventory) {
+            dev.nandi0813.practice.manager.fight.util.PlayerUtil.clearInventory(player);
+        }
 
-        for (PotionEffect potionEffect : player.getActivePotionEffects())
-            player.removePotionEffect(potionEffect.getType());
+        clearPotionEffects(player);
     }
 
     public static void setFightPlayer(Player player) {
@@ -61,50 +67,39 @@ public final class PlayerUtil {
     }
 
     public static void setFightPlayer(Player player, Ladder ladder) {
-        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () ->
-        {
-            applyFightMaxHealth(player, ladder);
-            healToMaxHealth(player);
-            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> {
-                applyFightMaxHealth(player, ladder);
-                healToMaxHealth(player);
-            }, 2L);
-            Bukkit.getScheduler().runTaskLater(ZonePractice.getInstance(), () -> player.setFireTicks(0), 2L);
+        Bukkit.getScheduler().runTask(ZonePractice.getInstance(), () -> {
+            applyFightHealth(player, ladder);
+            runLater(() -> applyFightHealth(player, ladder));
+            runLater(() -> player.setFireTicks(0));
+
             player.setFoodLevel(25);
             player.setSaturation(0.0F);
             player.setFallDistance(0);
             player.setWalkSpeed(0.2F);
-            for (PotionEffect potionEffect : player.getActivePotionEffects())
-                player.removePotionEffect(potionEffect.getType());
+
+            clearPotionEffects(player);
+
             player.setGameMode(GameMode.SURVIVAL);
             player.setFlying(false);
             player.setAllowFlight(false);
-            dev.nandi0813.practice.manager.fight.util.PlayerUtil.setCollidesWithEntities(player, true);
+            setEntityCollision(player, true);
         });
     }
 
     public static void healToMaxHealth(Player player) {
         AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
-        double maxHealthValue = maxHealth != null ? maxHealth.getValue() : DEFAULT_FIGHT_MAX_HEALTH;
-        player.setHealth(Math.max(1.0D, maxHealthValue));
+        double value = maxHealth != null
+                ? maxHealth.getValue()
+                : DEFAULT_FIGHT_MAX_HEALTH;
+
+        player.setHealth(Math.max(1.0D, value));
     }
 
     public static void resetMaxHealth(Player player) {
         AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
-        if (maxHealth == null) return;
-        maxHealth.setBaseValue(maxHealth.getDefaultValue());
-    }
-
-    private static void applyFightMaxHealth(Player player, Ladder ladder) {
-        AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
-        if (maxHealth == null) return;
-
-        double targetMaxHealth = DEFAULT_FIGHT_MAX_HEALTH;
-        if (ladder != null) {
-            targetMaxHealth = Math.clamp(ladder.getHearts() * 2.0D, 2.0D, 40.0D);
+        if (maxHealth != null) {
+            maxHealth.setBaseValue(DEFAULT_FIGHT_MAX_HEALTH);
         }
-
-        maxHealth.setBaseValue(targetMaxHealth);
     }
 
     public static void setPlayerWorldTime(Player player) {
@@ -112,40 +107,95 @@ public final class PlayerUtil {
         player.setPlayerTime(profile.getWorldTime().getTime(), false);
     }
 
-    public static List<String> getPlayerNames(List<Player> base) {
-        List<String> names = new ArrayList<>();
-        for (Player player : base)
-            names.add(player.getName());
-        return names;
+    public static List<String> getPlayerNames(List<Player> players) {
+        return players.stream()
+                .map(Player::getName)
+                .toList();
     }
 
     public static void sendStaffMessage(Player sender, String message) {
+        String senderName = sender != null
+                ? sender.getName()
+                : LanguageManager.getString("CONSOLE-NAME");
+
         for (Player online : Bukkit.getOnlinePlayers()) {
-            if (online.hasPermission("zpp.staffmode.chat")) {
-                Common.sendMMMessage(online, LanguageManager.getString("GENERAL-CHAT.STAFF-CHAT")
-                        .replace("%%player%%", (sender != null ? sender.getName() : LanguageManager.getString("CONSOLE-NAME")))
-                        .replace("%%message%%", message));
+            if (!online.hasPermission("zpp.staffmode.chat")) {
+                continue;
             }
+
+            String formattedMessage = LanguageManager.getString("GENERAL-CHAT.STAFF-CHAT")
+                    .replace("%%player%%", senderName)
+                    .replace("%%message%%", message);
+
+            Common.sendMMMessage(online, formattedMessage);
         }
     }
 
     public static List<Player> getOnlineStaff() {
         List<Player> staff = new ArrayList<>();
-        for (Player online : Bukkit.getOnlinePlayers())
-            if (online.hasPermission("zpp.staff"))
+
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (online.hasPermission("zpp.staff")) {
                 staff.add(online);
+            }
+        }
+
         return staff;
     }
 
     public static Map<Player, Integer> sortByValue(Map<Player, Integer> map) {
-        LinkedHashMap<Player, Integer> reverseSortedMap = new LinkedHashMap<>();
+        Map<Player, Integer> sorted = new LinkedHashMap<>();
 
-        map.entrySet()
-                .stream()
+        map.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
+                .forEachOrdered(entry -> sorted.put(entry.getKey(), entry.getValue()));
 
-        return reverseSortedMap;
+        return sorted;
     }
 
+    private static void applyFightHealth(Player player, Ladder ladder) {
+        applyFightMaxHealth(player, ladder);
+        healToMaxHealth(player);
+    }
+
+    private static void applyFightMaxHealth(Player player, Ladder ladder) {
+        AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
+        if (maxHealth == null) {
+            return;
+        }
+
+        double targetHealth = ladder == null
+                ? DEFAULT_FIGHT_MAX_HEALTH
+                : Math.clamp(ladder.getHearts() * 2.0D, 2.0D, 40.0D);
+
+        maxHealth.setBaseValue(targetHealth);
+    }
+
+    private static void clearPotionEffects(Player player) {
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
+    }
+
+    private static void setEntityCollision(Player player, boolean enabled) {
+        dev.nandi0813.practice.manager.fight.util.PlayerUtil
+                .setCollidesWithEntities(player, enabled);
+    }
+
+    private static void runLater(Runnable task) {
+        Bukkit.getScheduler().runTaskLater(
+                ZonePractice.getInstance(),
+                task,
+                RESET_DELAY_TICKS
+        );
+    }
+
+    private static void clearStuckArrows(Player player) {
+        try {
+            Method method = player.getClass().getMethod("setArrowsInBody", int.class);
+            method.invoke(player, 0);
+        } catch (ReflectiveOperationException | SecurityException ignored) {
+            // Older APIs may not expose the arrow count method.
+        }
+    }
 }

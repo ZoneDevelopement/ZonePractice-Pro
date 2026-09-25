@@ -5,6 +5,7 @@ import dev.nandi0813.practice.manager.fight.util.PlayerUtil;
 import dev.nandi0813.practice.manager.inventory.InventoryUtil;
 import dev.nandi0813.practice.manager.profile.Profile;
 import dev.nandi0813.practice.manager.profile.ProfileManager;
+import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.PermanentConfig;
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.text.Component;
@@ -554,7 +555,7 @@ public class NametagManager {
         }
     }
 
-    private void preserveTabListName(Player player) {
+    public void preserveTabListName(Player player) {
         try {
             Profile profile = ProfileManager.getInstance().getProfile(player);
             if (profile == null) {
@@ -578,6 +579,34 @@ public class NametagManager {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    public Component getTabListName(Player player) {
+        Profile profile = ProfileManager.getInstance().getProfile(player);
+        if (profile == null) {
+            return Component.text(player.getName(), NamedTextColor.GRAY);
+        }
+
+        InventoryUtil.LobbyNametag lobbyNametag =
+                InventoryUtil.getLobbyNametag(profile, player.getName(), player);
+
+        NametagOverride override = customNametags.get(player.getUniqueId());
+
+        Component prefix = override != null && override.prefix() != null
+                ? override.prefix()
+                : lobbyNametag.getPrefix();
+
+        Component name = lobbyNametag.getName();
+
+        if (override != null && override.nameColor() != null) {
+            name = name.color(override.nameColor());
+        }
+
+        Component suffix = override != null && override.suffix() != null
+                ? override.suffix()
+                : lobbyNametag.getSuffix();
+
+        return prefix.append(name).append(suffix);
     }
 
     private void startRefreshTask() {

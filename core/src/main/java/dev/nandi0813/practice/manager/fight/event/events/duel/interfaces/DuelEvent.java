@@ -67,8 +67,8 @@ public abstract class DuelEvent extends Event {
 
                 for (Player eventPlayer : players) {
                     if (player1 != eventPlayer && player2 != eventPlayer) {
-                        PlayerHider.getInstance().hidePlayer(player1, eventPlayer, false);
-                        PlayerHider.getInstance().hidePlayer(player2, eventPlayer, false);
+                        PlayerHider.getInstance().hidePlayer(player1, eventPlayer);
+                        PlayerHider.getInstance().hidePlayer(player2, eventPlayer);
                     }
 
                     if (eventPlayer != leftPlayer)
@@ -361,12 +361,12 @@ public abstract class DuelEvent extends Event {
         }
 
         for (Player eventPlayer : players) {
-            PlayerHider.getInstance().hidePlayer(eventPlayer, spectator, false);
+            PlayerHider.getInstance().hidePlayer(eventPlayer, spectator);
 
             if (fight.getPlayers().contains(eventPlayer))
                 PlayerHider.getInstance().showPlayer(spectator, eventPlayer);
             else
-                PlayerHider.getInstance().hidePlayer(spectator, eventPlayer, false);
+                PlayerHider.getInstance().hidePlayer(spectator, eventPlayer);
         }
     }
 

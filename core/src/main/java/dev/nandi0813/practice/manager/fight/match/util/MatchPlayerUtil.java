@@ -14,7 +14,7 @@ public enum MatchPlayerUtil {
     public static void hidePlayerPartyGames(Player hider, List<Player> matchPlayers) {
         for (Player matchPlayer : matchPlayers) {
             if (!matchPlayer.equals(hider))
-                PlayerHider.getInstance().hidePlayer(matchPlayer, hider, false);
+                PlayerHider.getInstance().hidePlayer(matchPlayer, hider);
         }
 
         PlayerUtil.setFightPlayer(hider);
