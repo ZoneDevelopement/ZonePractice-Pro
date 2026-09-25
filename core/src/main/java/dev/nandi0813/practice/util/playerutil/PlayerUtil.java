@@ -195,7 +195,7 @@ public final class PlayerUtil {
             Method method = player.getClass().getMethod("setArrowsInBody", int.class);
             method.invoke(player, 0);
         } catch (ReflectiveOperationException | SecurityException ignored) {
-            // Метод отсутствует в этой версии API.
+            // Older APIs may not expose the arrow count method.
         }
     }
 }
