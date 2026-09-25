@@ -29,7 +29,10 @@ public interface TempBuild {
         Player player = e.getPlayer();
         Block block = e.getBlockClicked();
 
-        BlockUtil.setMetadata(block.getRelative(e.getBlockFace()), PLACED_IN_FIGHT, match);
+        // The liquid lands in e.getBlock(): the clicked face for normal placements, but the
+        // clicked block itself when it can hold liquids (slabs, stairs, fences, ...), which are
+        // then waterlogged instead of receiving a water block.
+        BlockUtil.setMetadata(e.getBlock(), PLACED_IN_FIGHT, match);
 
         for (BlockFace face : BlockFace.values()) {
             Block relative = block.getRelative(face, 1);
@@ -37,7 +40,7 @@ public interface TempBuild {
                 Object mv = BlockUtil.getMetadata(relative, PLACED_IN_FIGHT, Object.class);
                 if (ListenerUtil.checkMetaData(mv) || relative.getType().isSolid()) continue;
 
-                match.getFightChange().addBlockChange(new ChangedBlock(block), player, buildDelay, e.getHand());
+                match.getFightChange().addBlockChange(new ChangedBlock(e.getBlock()), player, buildDelay, e.getHand());
 
                 Block b2 = block.getLocation().subtract(0, 1, 0).getBlock();
                 if (ArenaUtil.turnsToDirt(b2))
