@@ -90,7 +90,11 @@ public final class ExplosiveOwnerTracker {
     }
 
 
-    public static @Nullable Player getAnchorOwner(Location location) {
+    public static @Nullable Player getAnchorOwner(@Nullable Location location) {
+        if (location == null) {
+            return null;
+        }
+
         BlockPosition position = new BlockPosition(
                 location.getBlockX(),
                 location.getBlockY(),
