@@ -188,13 +188,13 @@ public abstract class FFAEvent extends FullRunnableInterface {
         }
 
         for (Player eventPlayer : players) {
-            PlayerHider.getInstance().hidePlayer(eventPlayer, spectator, false);
+            PlayerHider.getInstance().hidePlayer(eventPlayer, spectator);
         }
 
         for (Player eventSpectator : this.getSpectators()) {
             if (!eventSpectator.equals(spectator)) {
-                PlayerHider.getInstance().hidePlayer(eventSpectator, spectator, false);
-                PlayerHider.getInstance().hidePlayer(spectator, eventSpectator, false);
+                PlayerHider.getInstance().hidePlayer(eventSpectator, spectator);
+                PlayerHider.getInstance().hidePlayer(spectator, eventSpectator);
             }
         }
     }
