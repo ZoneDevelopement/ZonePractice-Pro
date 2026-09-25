@@ -14,267 +14,621 @@ import org.bukkit.entity.Player;
 
 public final class NameFormatUtil {
 
-    private NameFormatUtil() {}
+    private NameFormatUtil() {
+    }
 
-    private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
+    private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER =
+            PlainTextComponentSerializer.plainText();
 
-    // Color helpers
     private static TextColor findFirstExplicitColor(Component component) {
-        if (component == null) return null;
-        if (component.color() != null) return component.color();
-        for (Component child : component.children()) {
-            TextColor childColor = findFirstExplicitColor(child);
-            if (childColor != null) return childColor;
+        if (component == null) {
+            return null;
         }
+
+        if (component.color() != null) {
+            return component.color();
+        }
+
+        for (Component child : component.children()) {
+            TextColor color = findFirstExplicitColor(child);
+            if (color != null) {
+                return color;
+            }
+        }
+
         return null;
     }
 
     /**
-     * Returns the last (trailing) explicit color in a component tree — i.e. the color
-     * that would visually "bleed" into the next component appended after this one.
+     * Returns the last explicitly defined color in the component tree.
+     * This color is used when the following component should inherit the
+     * trailing color of the previous component.
      */
     private static TextColor findLastExplicitColor(Component component) {
-        if (component == null) return null;
-        TextColor last = component.color(); // own color is the starting value
-        for (Component child : component.children()) {
-            TextColor childLast = findLastExplicitColor(child);
-            if (childLast != null) last = childLast; // later children override
+        if (component == null) {
+            return null;
         }
-        return last;
+
+        TextColor lastColor = component.color();
+
+        for (Component child : component.children()) {
+            TextColor childColor = findLastExplicitColor(child);
+            if (childColor != null) {
+                lastColor = childColor;
+            }
+        }
+
+        return lastColor;
     }
 
     /**
-     * Public wrapper — used by {@link dev.nandi0813.practice.manager.inventory.InventoryUtil}
-     * to extract the trailing prefix color so it can be inherited by the name component.
+     * Extracts the trailing color from a component.
+     *
+     * @param component component to inspect
+     * @return trailing explicit color, or {@code null} if none is defined
      */
     public static TextColor extractTrailingColor(Component component) {
         return findLastExplicitColor(component);
     }
 
-    // Template / placeholder helpers
+    /**
+     * Parses a configured legacy/MiniMessage string into an Adventure component.
+     *
+     * @param raw raw configured text
+     * @return parsed component, or an empty component when the input is empty
+     */
     public static Component parseConfiguredComponent(String raw) {
-        if (raw == null || raw.isEmpty()) return Component.empty();
-        return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(raw));
-    }
+        if (raw == null || raw.isEmpty()) {
+            return Component.empty();
+        }
 
-    public static Component applyDivisionPlaceholders(Component template, Profile profile) {
-        if (template == null) return Component.empty();
-        Component division = profile.getStats().getDivision() != null
-                ? profile.getStats().getDivision().getComponentFullName() : Component.empty();
-        Component divisionShort = profile.getStats().getDivision() != null
-                ? profile.getStats().getDivision().getComponentShortName() : Component.empty();
-        return template
-                .replaceText(TextReplacementConfig.builder().matchLiteral("%division%").replacement(division).build())
-                .replaceText(TextReplacementConfig.builder().matchLiteral("%division_short%").replacement(divisionShort).build());
-    }
-
-    public static Component applyPlayerPlaceholders(Component template, String playerName) {
-        if (template == null) return Component.empty();
-        Component player = Component.text(playerName == null ? "" : playerName);
-        return template
-                .replaceText(TextReplacementConfig.builder().matchLiteral("%player%").replacement(player).build())
-                .replaceText(TextReplacementConfig.builder().matchLiteral("%%player%%").replacement(player).build());
+        return ZonePractice.getMiniMessage()
+                .deserialize(StringUtil.legacyToMiniMessage(raw));
     }
 
     /**
-     * Applies any PlaceholderAPI placeholders present in {@code component} by
-     * serialising to MiniMessage, running PAPI, then re-parsing.
-     * PAPI expansions may inject legacy {@code &} codes — these are converted
-     * to MiniMessage via the Adventure legacy serializer.
-     * Returns {@code component} unchanged if PAPI is not installed
-     * or {@code player} is null.
+     * Replaces division placeholders inside an Adventure component.
+     *
+     * @param template component containing division placeholders
+     * @param profile profile used to resolve the current division
+     * @return component with division placeholders resolved
      */
-    public static Component applyPAPIPlaceholders(Component component, Player player) {
-        if (component == null || player == null) return component;
-        if (!SoftDependUtil.isPAPI_ENABLED) return component;
-        String serialized = ZonePractice.getMiniMessage().serialize(component);
-        String resolved   = PlaceholderAPI.setPlaceholders(player, serialized);
-        return ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(resolved));
+    public static Component applyDivisionPlaceholders(
+            Component template,
+            Profile profile
+    ) {
+        if (template == null) {
+            return Component.empty();
+        }
+
+        Component division = Component.empty();
+        Component divisionShort = Component.empty();
+
+        if (profile != null
+                && profile.getStats() != null
+                && profile.getStats().getDivision() != null) {
+
+            division = profile.getStats()
+                    .getDivision()
+                    .getComponentFullName();
+
+            divisionShort = profile.getStats()
+                    .getDivision()
+                    .getComponentShortName();
+        }
+
+        return template
+                .replaceText(replace("%division%", division))
+                .replaceText(replace("%%division%%", division))
+                .replaceText(replace("%division_short%", divisionShort))
+                .replaceText(replace("%%division_short%%", divisionShort));
     }
 
+    /**
+     * Replaces player name placeholders inside an Adventure component.
+     *
+     * @param template component containing player placeholders
+     * @param playerName player name to insert
+     * @return component with player placeholders resolved
+     */
+    public static Component applyPlayerPlaceholders(
+            Component template,
+            String playerName
+    ) {
+        if (template == null) {
+            return Component.empty();
+        }
+
+        Component player = Component.text(
+                playerName == null ? "" : playerName
+        );
+
+        return template
+                .replaceText(replace("%player%", player))
+                .replaceText(replace("%%player%%", player));
+    }
+
+    private static TextReplacementConfig replace(
+            String placeholder,
+            Component replacement
+    ) {
+        return TextReplacementConfig.builder()
+                .matchLiteral(placeholder)
+                .replacement(replacement)
+                .build();
+    }
+
+    /**
+     * Applies PlaceholderAPI placeholders to an already parsed component.
+     * PlaceholderAPI is skipped when it is unavailable or no player is provided.
+     *
+     * @param component component containing PAPI placeholders
+     * @param player player used for placeholder resolution
+     * @return resolved component
+     */
+    public static Component applyPAPIPlaceholders(
+            Component component,
+            Player player
+    ) {
+        if (component == null
+                || player == null
+                || !SoftDependUtil.isPAPI_ENABLED) {
+            return component;
+        }
+
+        String serialized = ZonePractice.getMiniMessage()
+                .serialize(component);
+
+        String resolved = PlaceholderAPI.setPlaceholders(
+                player,
+                serialized
+        );
+
+        return ZonePractice.getMiniMessage()
+                .deserialize(StringUtil.legacyToMiniMessage(resolved));
+    }
+
+    /**
+     * Ensures a name template contains a player placeholder.
+     *
+     * @param rawTemplate configured name template
+     * @return normalized name template
+     */
     public static String normalizePlayerNameTemplate(String rawTemplate) {
-        if (rawTemplate == null || rawTemplate.isEmpty()) return rawTemplate;
+        if (rawTemplate == null || rawTemplate.isEmpty()) {
+            return rawTemplate;
+        }
+
         rawTemplate = StringUtil.stripObfuscationTags(rawTemplate);
-        boolean hasPlayerPlaceholder = rawTemplate.contains("%player%") || rawTemplate.contains("%%player%%");
-        if (hasPlayerPlaceholder) return rawTemplate;
-        String plainText = PLAIN_TEXT_SERIALIZER.serialize(ZonePractice.getMiniMessage().deserialize(StringUtil.legacyToMiniMessage(rawTemplate))).trim();
-        if (!plainText.isEmpty()) return rawTemplate;
+
+        if (rawTemplate.contains("%player%")
+                || rawTemplate.contains("%%player%%")) {
+            return rawTemplate;
+        }
+
+        try {
+            Component component = ZonePractice.getMiniMessage()
+                    .deserialize(StringUtil.legacyToMiniMessage(rawTemplate));
+
+            String plainText = PLAIN_TEXT_SERIALIZER
+                    .serialize(component)
+                    .trim();
+
+            if (!plainText.isEmpty()) {
+                return rawTemplate;
+            }
+        } catch (Exception ignored) {
+        }
+
         return rawTemplate + "%player%";
     }
 
-    // Internal rendering
-    private static Component renderTemplate(String rawTemplate, Profile profile, String playerName) {
-        return renderTemplate(rawTemplate, profile, playerName, null);
-    }
-
     /**
-     * Renders a raw config template string into a {@link Component}.
-     * <p>
-     * Processing order:
+     * Renders a raw configured template.
+     *
+     * <p>Processing order:</p>
      * <ol>
-     *   <li>PAPI placeholders resolved on the raw string (when {@code player} is provided)</li>
-     *   <li>Legacy / hex color codes translated to MiniMessage tags</li>
-     *   <li>Internal {@code %division%} and {@code %player%} tokens substituted</li>
-     *   <li>MiniMessage deserialization</li>
+     *     <li>PlaceholderAPI expansion</li>
+     *     <li>Legacy color conversion</li>
+     *     <li>MiniMessage parsing</li>
+     *     <li>Internal division and player placeholders</li>
      * </ol>
      */
-    private static Component renderTemplate(String rawTemplate, Profile profile, String playerName, Player player) {
-        if (rawTemplate == null || rawTemplate.isEmpty()) return Component.empty();
+    private static Component renderTemplate(
+            String rawTemplate,
+            Profile profile,
+            String playerName,
+            Player player
+    ) {
+        if (rawTemplate == null || rawTemplate.isEmpty()) {
+            return Component.empty();
+        }
 
         String normalized = rawTemplate;
 
         if (player != null && SoftDependUtil.isPAPI_ENABLED) {
-            normalized = PlaceholderAPI.setPlaceholders(player, normalized);
+            normalized = PlaceholderAPI.setPlaceholders(
+                    player,
+                    normalized
+            );
         }
 
         normalized = StringUtil.legacyToMiniMessage(normalized);
 
-        String division = profile.getStats().getDivision() != null
-                ? ZonePractice.getMiniMessage().serialize(profile.getStats().getDivision().getComponentFullName()) : "";
-        String divisionShort = profile.getStats().getDivision() != null
-                ? ZonePractice.getMiniMessage().serialize(profile.getStats().getDivision().getComponentShortName()) : "";
+        Component component = ZonePractice.getMiniMessage()
+                .deserialize(normalized);
 
-        normalized = normalized
-                .replace("%division%", division).replace("%%division%%", division)
-                .replace("%division_short%", divisionShort).replace("%%division_short%%", divisionShort);
+        component = applyDivisionPlaceholders(
+                component,
+                profile
+        );
 
         if (playerName != null) {
-            normalized = normalized.replace("%%player%%", playerName).replace("%player%", playerName);
+            component = applyPlayerPlaceholders(
+                    component,
+                    playerName
+            );
         }
 
-        return ZonePractice.getMiniMessage().deserialize(normalized);
+        return component;
     }
 
-    // Public resolution API
+    /**
+     * Resolves the visible group/profile prefix.
+     *
+     * @param profile profile to resolve
+     * @return resolved prefix
+     */
     public static Component resolvePrefix(Profile profile) {
         return resolvePrefix(profile, null);
     }
 
     /**
-     * Resolves the group/profile prefix for {@code profile}.  When {@code player} is
-     * provided, PAPI placeholders (e.g. {@code %luckperms_prefix%}) are resolved on
-     * the raw template string before MiniMessage parsing so that hex/legacy colors
-     * injected by expansions render correctly.
+     * Resolves the visible group/profile prefix with PlaceholderAPI support.
+     *
+     * @param profile profile to resolve
+     * @param player player used for PlaceholderAPI resolution
+     * @return resolved prefix
      */
-    public static Component resolvePrefix(Profile profile, Player player) {
-        ProfilePrefixVisibility visibility = profile.getPrefixVisibility();
-        if (visibility == null || !visibility.isShowPrefix()) return Component.empty();
+    public static Component resolvePrefix(
+            Profile profile,
+            Player player
+    ) {
+        if (profile == null) {
+            return Component.empty();
+        }
+
+        ProfilePrefixVisibility visibility =
+                profile.getPrefixVisibility();
+
+        if (visibility == null || !visibility.isShowPrefix()) {
+            return Component.empty();
+        }
 
         Group group = profile.getGroup();
         Component prefix = Component.empty();
 
-        if (group != null && group.getPrefix() != null) {
-            prefix = group.getPrefixTemplate() != null
-                    ? renderTemplate(group.getPrefixTemplate(), profile, null, player)
-                    : applyPAPIPlaceholders(group.getPrefix(), player);
+        if (group != null) {
+            if (group.getPrefixTemplate() != null
+                    && !group.getPrefixTemplate().isEmpty()) {
+
+                prefix = renderTemplate(
+                        group.getPrefixTemplate(),
+                        profile,
+                        null,
+                        player
+                );
+            } else if (group.getPrefix() != null) {
+                prefix = applyPAPIPlaceholders(
+                        group.getPrefix(),
+                        player
+                );
+            }
         }
 
         if (profile.getPrefix() != null) {
-            prefix = applyPAPIPlaceholders(profile.getPrefix(), player);
+            prefix = applyPAPIPlaceholders(
+                    profile.getPrefix(),
+                    player
+            );
         }
 
-        return applyDivisionPlaceholders(prefix, profile);
+        return applyDivisionPlaceholders(
+                prefix,
+                profile
+        );
     }
 
+    /**
+     * Resolves the visible group/profile suffix.
+     *
+     * @param profile profile to resolve
+     * @return resolved suffix
+     */
     public static Component resolveSuffix(Profile profile) {
         return resolveSuffix(profile, null);
     }
 
     /**
-     * Resolves the group/profile suffix for {@code profile} — see {@link #resolvePrefix(Profile, Player)}
-     * for PAPI behaviour.
+     * Resolves the visible group/profile suffix with PlaceholderAPI support.
+     *
+     * @param profile profile to resolve
+     * @param player player used for PlaceholderAPI resolution
+     * @return resolved suffix
      */
-    public static Component resolveSuffix(Profile profile, Player player) {
-        ProfilePrefixVisibility visibility = profile.getPrefixVisibility();
-        if (visibility == null || !visibility.isShowSuffix()) return Component.empty();
+    public static Component resolveSuffix(
+            Profile profile,
+            Player player
+    ) {
+        if (profile == null) {
+            return Component.empty();
+        }
+
+        ProfilePrefixVisibility visibility =
+                profile.getPrefixVisibility();
+
+        if (visibility == null || !visibility.isShowSuffix()) {
+            return Component.empty();
+        }
 
         Group group = profile.getGroup();
         Component suffix = Component.empty();
 
-        if (group != null && group.getSuffix() != null) {
-            suffix = group.getSuffixTemplate() != null
-                    ? renderTemplate(group.getSuffixTemplate(), profile, null, player)
-                    : applyPAPIPlaceholders(group.getSuffix(), player);
+        if (group != null) {
+            if (group.getSuffixTemplate() != null
+                    && !group.getSuffixTemplate().isEmpty()) {
+
+                suffix = renderTemplate(
+                        group.getSuffixTemplate(),
+                        profile,
+                        null,
+                        player
+                );
+            } else if (group.getSuffix() != null) {
+                suffix = applyPAPIPlaceholders(
+                        group.getSuffix(),
+                        player
+                );
+            }
         }
 
         if (profile.getSuffix() != null) {
-            suffix = applyPAPIPlaceholders(profile.getSuffix(), player);
+            suffix = applyPAPIPlaceholders(
+                    profile.getSuffix(),
+                    player
+            );
         }
 
-        return applyDivisionPlaceholders(suffix, profile);
-    }
-
-    public static Component resolveName(Profile profile, String playerName) {
-        return resolveName(profile, playerName, null, null);
-    }
-
-    /**
-     * Resolves the display name component for {@code profile} without PlaceholderAPI support.
-     *
-     * @param prefixColor When non-null, applied as the name color if the resolved name
-     *                    has no explicit color.  This lets a plain {@code %player%} name
-     *                    template automatically inherit the prefix color (e.g. red
-     *                    "FOUNDER " makes the name red too).
-     */
-    public static Component resolveName(Profile profile, String playerName, TextColor prefixColor) {
-        return resolveName(profile, playerName, null, prefixColor);
+        return applyDivisionPlaceholders(
+                suffix,
+                profile
+        );
     }
 
     /**
-     * Resolves the display name component for {@code profile} with full PlaceholderAPI support.
-     * When {@code player} is non-null, PAPI expansions present in the name template (e.g.
-     * {@code %luckperms_prefix%}) are resolved on the raw string before MiniMessage parsing,
-     * matching the behaviour of {@link #resolvePrefix(Profile, Player)} and
-     * {@link #resolveSuffix(Profile, Player)}.
+     * Resolves a player's display name without PlaceholderAPI support.
      *
-     * @param player      Online player used for PAPI resolution; may be {@code null}.
-     * @param prefixColor When non-null, applied as the name color if the resolved name has no
-     *                    explicit color, letting the name inherit the trailing prefix colour.
+     * @param profile player profile
+     * @param playerName player name
+     * @return resolved display name
      */
-    public static Component resolveName(Profile profile, String playerName, Player player, TextColor prefixColor) {
+    public static Component resolveName(
+            Profile profile,
+            String playerName
+    ) {
+        return resolveName(
+                profile,
+                playerName,
+                null,
+                null
+        );
+    }
+
+    /**
+     * Resolves a player's display name and optionally inherits the prefix color.
+     *
+     * @param profile player profile
+     * @param playerName player name
+     * @param prefixColor color inherited from the prefix
+     * @return resolved display name
+     */
+    public static Component resolveName(
+            Profile profile,
+            String playerName,
+            TextColor prefixColor
+    ) {
+        return resolveName(
+                profile,
+                playerName,
+                null,
+                prefixColor
+        );
+    }
+
+    /**
+     * Resolves a player's display name with PlaceholderAPI support.
+     *
+     * <p>If the name template has no explicit color, the trailing prefix color
+     * is inherited when one is provided.</p>
+     *
+     * @param profile player profile
+     * @param playerName player name
+     * @param player player used for PlaceholderAPI resolution
+     * @param prefixColor color inherited from the prefix
+     * @return resolved display name
+     */
+    public static Component resolveName(
+            Profile profile,
+            String playerName,
+            Player player,
+            TextColor prefixColor
+    ) {
+        if (profile == null) {
+            return Component.text(
+                    playerName == null ? "" : playerName,
+                    NamedTextColor.GRAY
+            );
+        }
+
         Group group = profile.getGroup();
-
         Component nameComponent;
-        if (profile.getNameTemplate() != null && !profile.getNameTemplate().isEmpty()) {
-            nameComponent = renderTemplate(profile.getNameTemplate(), profile, playerName, player);
-        } else if (group != null && group.getNameTemplate() != null) {
-            nameComponent = renderTemplate(group.getNameTemplate(), profile, playerName, player);
-        } else if (group != null && group.getNameFormat() != null) {
-            nameComponent = applyPlayerPlaceholders(applyDivisionPlaceholders(group.getNameFormat(), profile), playerName);
+
+        if (profile.getNameTemplate() != null
+                && !profile.getNameTemplate().isEmpty()) {
+
+            nameComponent = renderTemplate(
+                    profile.getNameTemplate(),
+                    profile,
+                    playerName,
+                    player
+            );
+
+        } else if (group != null
+                && group.getNameTemplate() != null
+                && !group.getNameTemplate().isEmpty()) {
+
+            nameComponent = renderTemplate(
+                    group.getNameTemplate(),
+                    profile,
+                    playerName,
+                    player
+            );
+
+        } else if (group != null
+                && group.getNameFormat() != null) {
+
+            nameComponent = applyPlayerPlaceholders(
+                    applyDivisionPlaceholders(
+                            group.getNameFormat(),
+                            profile
+                    ),
+                    playerName
+            );
+
         } else {
-            nameComponent = Component.text(playerName == null ? "" : playerName, NamedTextColor.GRAY);
+            nameComponent = Component.text(
+                    playerName == null ? "" : playerName,
+                    NamedTextColor.GRAY
+            );
         }
 
-        if (prefixColor != null && findFirstExplicitColor(nameComponent) == null) {
+        if (prefixColor != null
+                && findFirstExplicitColor(nameComponent) == null) {
+
             nameComponent = nameComponent.color(prefixColor);
         }
 
         return nameComponent;
     }
 
-    public static Component resolveFullName(Profile profile, String playerName) {
-        return resolvePrefix(profile)
-                .append(resolveName(profile, playerName))
-                .append(resolveSuffix(profile));
+    /**
+     * Resolves the complete display name without PlaceholderAPI support.
+     *
+     * @param profile player profile
+     * @param playerName player name
+     * @return prefix, name and suffix combined into one component
+     */
+    public static Component resolveFullName(
+            Profile profile,
+            String playerName
+    ) {
+        if (profile == null) {
+            return Component.text(
+                    playerName == null ? "" : playerName,
+                    NamedTextColor.GRAY
+            );
+        }
+
+        Component prefix = resolvePrefix(profile);
+
+        Component name = resolveName(
+                profile,
+                playerName,
+                extractTrailingColor(prefix)
+        );
+
+        Component suffix = resolveSuffix(profile);
+
+        return prefix
+                .append(name)
+                .append(suffix);
     }
 
     /**
-     * Resolves the full display name with PlaceholderAPI support.
-     * PAPI is applied to prefix, name, and suffix templates when {@code player} is non-null.
-     * The name component inherits the trailing prefix color when it has no explicit color.
+     * Resolves the complete display name with PlaceholderAPI support.
+     *
+     * <p>The player's name inherits the trailing prefix color when the name
+     * itself does not define an explicit color.</p>
+     *
+     * @param profile player profile
+     * @param player player used for PlaceholderAPI resolution
+     * @param playerName player name
+     * @return prefix, name and suffix combined into one component
      */
-    public static Component resolveFullName(Profile profile, Player player, String playerName) {
-        Component prefix = resolvePrefix(profile, player);
-        Component name   = resolveName(profile, playerName, player, extractTrailingColor(prefix));
-        Component suffix = resolveSuffix(profile, player);
-        return prefix.append(name).append(suffix);
+    public static Component resolveFullName(
+            Profile profile,
+            Player player,
+            String playerName
+    ) {
+        if (profile == null) {
+            return Component.text(
+                    playerName == null ? "" : playerName,
+                    NamedTextColor.GRAY
+            );
+        }
+
+        Component prefix = resolvePrefix(
+                profile,
+                player
+        );
+
+        Component name = resolveName(
+                profile,
+                playerName,
+                player,
+                extractTrailingColor(prefix)
+        );
+
+        Component suffix = resolveSuffix(
+                profile,
+                player
+        );
+
+        return prefix
+                .append(name)
+                .append(suffix);
     }
 
-    public static NamedTextColor resolveScoreboardColor(Profile profile, String playerName, NamedTextColor fallback) {
-        TextColor color = findFirstExplicitColor(resolveName(profile, playerName));
-        if (color != null) {
-            return color instanceof NamedTextColor named ? named : NamedTextColor.nearestTo(color);
+    /**
+     * Resolves the first explicit name color for scoreboard usage.
+     *
+     * @param profile player profile
+     * @param playerName player name
+     * @param fallback color returned when the name has no explicit color
+     * @return resolved scoreboard color
+     */
+    public static NamedTextColor resolveScoreboardColor(
+            Profile profile,
+            String playerName,
+            NamedTextColor fallback
+    ) {
+        Component name = resolveName(
+                profile,
+                playerName
+        );
+
+        TextColor color = findFirstExplicitColor(name);
+
+        if (color instanceof NamedTextColor named) {
+            return named;
         }
-        return fallback != null ? fallback : NamedTextColor.GRAY;
+
+        if (color != null) {
+            return NamedTextColor.nearestTo(color);
+        }
+
+        return fallback != null
+                ? fallback
+                : NamedTextColor.GRAY;
     }
 }
