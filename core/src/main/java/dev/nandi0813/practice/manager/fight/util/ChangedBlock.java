@@ -121,7 +121,7 @@ public class ChangedBlock {
             if (bedFace != null && material.name().contains("BED")) {
                 BedUtil.placeBed(currentBlock.getLocation(), bedFace);
             } else {
-                currentBlock.setBlockData(blockData, false);
+                currentBlock.setBlockData(blockData, true);
             }
 
             // Handle chest inventory if present
