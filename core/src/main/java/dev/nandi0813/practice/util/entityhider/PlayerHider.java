@@ -4,6 +4,7 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.player.TextureProperty;
 import com.github.retrooper.packetevents.protocol.player.UserProfile;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfoRemove;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfoUpdate;
 import dev.nandi0813.api.Event.Spectate.Start.MatchSpectateStartEvent;
 import dev.nandi0813.practice.ZonePractice;
@@ -25,10 +26,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.UUID;
 
 public class PlayerHider implements Listener {
 
@@ -132,6 +135,26 @@ public class PlayerHider implements Listener {
         }, 2L);
     }
 
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        if (!ConfigManager.isShowPlayersInTab()) return;
+
+        final UUID uuid = e.getPlayer().getUniqueId();
+
+        /*
+         * The tab list entry of a hidden player (SHOW-PLAYERS-IN-TAB) is sent manually, so the server does not
+         * remove it when the player disconnects. Removing it for everyone is safe, clients ignore the removal of
+         * a player they do not know.
+         */
+        final WrapperPlayServerPlayerInfoRemove packet = new WrapperPlayServerPlayerInfoRemove(uuid);
+
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (online.getUniqueId().equals(uuid)) continue;
+
+            PacketEvents.getAPI().getPlayerManager().sendPacket(online, packet);
+        }
+    }
 
     /**
      * When a player starts spectating a match, hide the player from other spectators if they have the option enabled, and
