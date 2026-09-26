@@ -516,7 +516,7 @@ public class LadderTypeListener implements Listener {
         if (ListenerUtil.cancelEvent(match, player)) {
             e.setCancelled(true);
 
-            // Restore armor manually to avoid losing it when the inventory is full.
+            // Restore equipment manually to avoid losing it when the inventory is full.
             ItemStack stack = e.getItemDrop().getItemStack();
             EquipmentSlot equipmentSlot = stack.getType().isAir() ? null : stack.getType().getEquipmentSlot();
 
@@ -524,8 +524,18 @@ public class LadderTypeListener implements Listener {
                     || equipmentSlot == EquipmentSlot.CHEST
                     || equipmentSlot == EquipmentSlot.LEGS
                     || equipmentSlot == EquipmentSlot.FEET) {
+
                 e.getItemDrop().setItemStack(new ItemStack(Material.AIR));
                 player.getInventory().setItem(equipmentSlot, stack);
+                return;
+            }
+
+            // Restore equipment manually to avoid losing it when the inventory is full.
+            ItemStack offHand = player.getInventory().getItemInOffHand();
+            if (offHand.getType().isAir() && !player.getInventory().getItemInMainHand().isSimilar(stack)) {
+                e.getItemDrop().setItemStack(new ItemStack(Material.AIR));
+                player.getInventory().setItemInOffHand(stack);
+                return;
             }
 
             return;
