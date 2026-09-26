@@ -344,6 +344,16 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
                 ProfileManager.getInstance().getUuids().get(player), null);
     }
 
+    @Override
+    public String getLadderName() {
+        return this.ladder != null ? this.ladder.getName() : null;
+    }
+
+    @Override
+    public String getLadderDisplayName() {
+        return this.ladder != null ? this.ladder.getDisplayName() : null;
+    }
+
     /*
      * Ladder behavior helper methods
      * These methods provide convenient access to ladder-specific behaviors
