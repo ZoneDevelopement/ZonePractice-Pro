@@ -46,6 +46,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EnchantingInventory;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import static dev.nandi0813.practice.manager.arena.util.ArenaUtil.containsDestroyableBlock;
@@ -514,6 +515,19 @@ public class LadderTypeListener implements Listener {
 
         if (ListenerUtil.cancelEvent(match, player)) {
             e.setCancelled(true);
+
+            // Restore armor manually to avoid losing it when the inventory is full.
+            ItemStack stack = e.getItemDrop().getItemStack();
+            EquipmentSlot equipmentSlot = stack.getType().isAir() ? null : stack.getType().getEquipmentSlot();
+
+            if (equipmentSlot == EquipmentSlot.HEAD
+                    || equipmentSlot == EquipmentSlot.CHEST
+                    || equipmentSlot == EquipmentSlot.LEGS
+                    || equipmentSlot == EquipmentSlot.FEET) {
+                e.getItemDrop().setItemStack(new ItemStack(Material.AIR));
+                player.getInventory().setItem(equipmentSlot, stack);
+            }
+
             return;
         }
 
